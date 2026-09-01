@@ -12,7 +12,7 @@ Local secret directory (mode 700): `$HOME/.daftar-owner-ops/` — not in git.
 | Developer API key | **Created.** In Secret Manager `calle-api-key` (2026-09-02) **and** local `$HOME/.daftar-owner-ops/calle-api-key`. Never Flutter `.env`, never git, never chat, never screenshots. |
 | Extra-calls form | **Submitted** ([form](https://forms.gle/EPQttEZ1rkW8iq9q6)) — **+200** if this is an existing account; 1–5 business days, **not guaranteed**. |
 | Free pool until extras land | **20** calls. Exhaustion **pauses** access — **no auto-charge**. Optional `~$0.05` / call is a purchase, not required. **Do not** burn calls on Flutter UI. Live cap **3** recipients until extras confirm (product cap 5). |
-| Outbound KYC | **Not a separate control on the API keys page.** CALL-E’s marketing FAQ: outbound needs KYC **before number/outbound activation** ([heycall-e.com](https://www.heycall-e.com/)). Look under Account / Verification / Numbers — not API Keys. **Developer API key works:** 2026-09-01 probe `GET /v1/calls/{missing}` → **404** `not_found` (not 401/403 / `credential_grant_unavailable`). First live `create` (0.5) is the real outbound gate. |
+| Outbound KYC | **Proven 2026-09-02.** Live Developer API `create_and_wait` on `https://api.heycall-e.com` → terminal `completed`, `structured_result.can_hear_clearly=yes`. Not a separate control on the API keys page. 2026-09-01 probe `GET /v1/calls/{missing}` → **404** `not_found` still stands. |
 
 ### 0.5 API 404 probe (2026-09-01)
 
@@ -76,9 +76,9 @@ Prove it: a **human** calls the +1 from a normal phone; it rings the softphone/a
 
 - **Bought:** Callcentric **Pay Per Minute**, United States, NY 347. E.164 in `$HOME/.daftar-owner-ops/test-did` (mode 600, valid `+1` + 10 digits, not in git).
 - **Linphone:** SIP username = Callcentric `1777…` (default extension `100` suffix is OK). Domain `sip.callcentric.net`. Transport **UDP**. Password must be the **extension SIP password** (My Callcentric → Extensions), not the website login and not Gmail.
-- **Still required:** Linphone shows **Registered** on the Callcentric account (not only sip.linphone.org). Human PSTN call rings Linphone. Do **not** Activate SMS. Do **not** `create_and_wait` until that ring.
+- **Linphone:** **Registered** on the Callcentric account. Human PSTN ring done earlier. CALL-E live ring answered 2026-09-02 (0.5). Do **not** Activate SMS.
 
-0.3 GCP (secret + naming) **done 2026-09-02**. Live ring = this DID + remaining 0.5.
+0.3 GCP (secret + naming) **done 2026-09-02**. 0.5 laptop smoke **done 2026-09-02**.
 
 ## 0.4 Kill switch + allowlist (2026-09-02)
 
@@ -96,15 +96,18 @@ Not Envied. Not Flutter `.env`. Stage 1 `run-batch` (J.9) will 403 when the kill
 
 Kill switch file is **`false`**. Allowlist is the one Callcentric US DID (not printed). Region **`US`**. Friend SA/AE/EG numbers stay **off** the list.
 
-### Gate 0 smoke (0.5) — that shell only
+### Gate 0 smoke (0.5) — done 2026-09-02
 
-After Linphone rings from a human call. Do **not** export `true` in a profile/rc file.
+Do **not** export `true` in a profile/rc file. Disk `calle-allow-dial` stays **`false`**. Only the smoke process may set `CALLE_ALLOW_DIAL=true`.
 
 ```bash
 export CALLE_ALLOW_DIAL=true
-export CALLE_ALLOWLIST="$(cat "$HOME/.daftar-owner-ops/calle-allowlist")"
-export CALLE_ALLOWLIST_REGION="$(cat "$HOME/.daftar-owner-ops/calle-allowlist-region")"
-export CALLE_API_KEY="$(cat "$HOME/.daftar-owner-ops/calle-api-key")"
+bash agent/scripts/stage0_5_laptop_smoke.sh
+unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY
 ```
+
+Wrapper: [`agent/scripts/stage0_5_laptop_smoke.sh`](../../agent/scripts/stage0_5_laptop_smoke.sh) → [`agent/scripts/stage0_5_laptop_smoke.py`](../../agent/scripts/stage0_5_laptop_smoke.py). `calle-ai==0.7.0` in `agent/.venv` only. Production `https://api.heycall-e.com`. No webhook. No Cloud Run mutate.
+
+**Result (no E.164, no key):** `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`. Masked dest last-4 only in local `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git). Contest credits: **1 of 20** spent.
 
 When the smoke finishes: `unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY` or leave `CALLE_ALLOW_DIAL` unset (treated as false). Do not leave `true` in the environment.

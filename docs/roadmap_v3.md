@@ -404,7 +404,7 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 
 ## Stage 0: CALL-E Foundation + Hygiene + Test Destination
 
-**Goal:** CALL-E can place **one** consented outbound call to an owner **US DID** answered in a provider app/webphone. Eligibility disclosure exists. New Cloud Run service is named and must not collide with the frozen Agentic URL. Secrets never land in git. `CALLE_ALLOW_DIAL` is **false** until Gate 0 smoke passes.
+**Goal:** CALL-E can place **one** consented outbound call to an owner **US DID** answered in a provider app/webphone. Eligibility disclosure exists. New Cloud Run service is named and must not collide with the frozen Agentic URL. Secrets never land in git. `CALLE_ALLOW_DIAL` disk default remains **false**; Gate 0 smoke passed with a one-shot process env `true`.
 
 **Prerequisites:** This fork at `/Users/aq/Work/01_Projects/daftar-call-e` is linked to a **new** git remote. Frozen Agentic `main` is not this repo. `.env` is gitignored.
 
@@ -438,7 +438,7 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md).
 
 - [x] Create CALL-E account at [heycall-e.com](https://www.heycall-e.com/) / [dashboard](https://dashboard.heycall-e.com/account/api-keys)
-- [ ] Complete **outbound KYC**
+- [x] Complete **outbound KYC** (proven 2026-09-02 by Developer API `create_and_wait` → `completed`)
 - [x] Create API key · store only in Secret Manager later (`calle-api-key`) · never chat/git
 - [x] Submit extra-calls form immediately: https://forms.gle/EPQttEZ1rkW8iq9q6 (**+200** if this is an existing account; 1–5 business days, not guaranteed)
 - [x] Note the **20**-call budget until extras land; exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
@@ -470,19 +470,19 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 **0.5 Laptop smoke (required for Gate 0)**
 
 - [x] Zero-cost API probe **before** a live call: `GET https://api.heycall-e.com/v1/calls/{nonexistent-id}` with `Authorization: Bearer $CALLE_API_KEY` — authenticated **`404`** means the key works; `401`/`403`/`credential_grant_unavailable` means **stop** (Chat ringing is **not** this test)
-- [ ] From a trusted laptop (not Flutter): `calle-ai==0.7.0` / `CalleClient.calls.create_and_wait` to the US DID with a trivial `result_schema` (`from calle import CalleClient`)
-- [ ] Answer in the DID provider app / webphone / Linphone (Wi‑Fi)
-- [ ] Confirm terminal status + structured result locally
-- [ ] If this fails, **stop**. Do not start Stage 1 UI. Do not treat MCP/Chat success as Gate 0.
+- [x] From a trusted laptop (not Flutter): `calle-ai==0.7.0` / `CalleClient.calls.create_and_wait` to the US DID with a trivial `result_schema` (`from calle import CalleClient`)
+- [x] Answer in the DID provider app / webphone / Linphone (Wi‑Fi)
+- [x] Confirm terminal status + structured result locally (`completed`, `can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`)
+- [x] Smoke **succeeded** — MCP/Chat was **not** used as proof. Stage 1 may start. If a later live `create` fails, **stop** and do not treat Chat as Gate 0.
 
 #### Stage 0 Validation Gate
 
 - [x] Disclosure drafted for CALL-E (substrate vs Agentic vs CALL-E-new)
-- [ ] CALL-E account + KYC + API key in Secret Manager (not git) — key is in Secret Manager; **outbound KYC** still open
+- [x] CALL-E account + KYC + API key in Secret Manager (not git) — key is in Secret Manager; outbound KYC proven by live `create`
 - [x] Extra-calls form submitted
 - [x] Authenticated `GET /v1/calls/{nonexistent}` → `404` (API key works)
-- [ ] US DID rings in provider app
-- [ ] One consented **Developer API** `create_and_wait` succeeded (not Chat/MCP-only)
+- [x] US DID rings in provider app
+- [x] One consented **Developer API** `create_and_wait` succeeded (not Chat/MCP-only)
 - [x] Frozen Agentic URL was **not** redeployed
 - [x] No phone numbers, keys, or App Passwords in git
 

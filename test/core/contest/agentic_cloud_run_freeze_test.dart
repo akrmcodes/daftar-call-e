@@ -136,5 +136,34 @@ void main() {
       expect(RegExp(r'\+1\d{10}').hasMatch(ownerOps), isFalse);
       expect(RegExp(r'\+1\d{10}').hasMatch(stage04), isFalse);
     });
+
+    test('stage 0.5 smoke uses create_and_wait; never mutates Cloud Run', () {
+      final stage05Py = File(
+        'agent/scripts/stage0_5_laptop_smoke.py',
+      ).readAsStringSync();
+      final stage05Sh = File(
+        'agent/scripts/stage0_5_laptop_smoke.sh',
+      ).readAsStringSync();
+      final requirements = File('agent/requirements.txt').readAsStringSync();
+      final ownerOps = File(
+        'docs/contest/CALLE_STAGE0_OWNER_OPS.md',
+      ).readAsStringSync();
+
+      expect(requirements, contains('calle-ai==0.7.0'));
+      expect(stage05Py, contains('create_and_wait'));
+      expect(stage05Py, contains('calle-ai'));
+      expect(stage05Py, contains('from calle import CalleClient'));
+      expect(stage05Py, contains('CALLE_ALLOW_DIAL'));
+      expect(stage05Py, isNot(contains('gcloud run deploy')));
+      expect(stage05Py, isNot(contains('versions access')));
+      expect(stage05Sh, contains('refuse_frozen_cloud_run.sh'));
+      expect(stage05Sh, contains('CALLE_ALLOW_DIAL'));
+      expect(stage05Sh, isNot(contains('gcloud run deploy')));
+      expect(stage05Sh, isNot(contains('versions access')));
+      expect(stage05Sh, isNot(contains('adk deploy')));
+      expect(RegExp(r'\+1\d{10}').hasMatch(stage05Py), isFalse);
+      expect(RegExp(r'\+1\d{10}').hasMatch(stage05Sh), isFalse);
+      expect(RegExp(r'\+1\d{10}').hasMatch(ownerOps), isFalse);
+    });
   });
 }

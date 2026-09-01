@@ -4199,4 +4199,26 @@ Script exit 0. Files outside the repo. No `gcloud`, no deploy, no `create_and_wa
 ### Status
 0.4 done. Next: 0.5 laptop `create_and_wait` after Linphone human ring, with `CALLE_ALLOW_DIAL=true` in that shell only.
 
+## 2026-09-02 — Stage 0.5 laptop smoke (Gate 0 live ring)
+
+### Context
+Roadmap §0.5 / Gate 0: one consented Developer API `create_and_wait` to the owner US DID via `calle-ai==0.7.0`, Linphone answering on Wi-Fi. Burns 1 of 20 contest credits. Production `https://api.heycall-e.com`. No webhook, no Cloud Run mutate, no Flutter.
+
+### Done
+- Pinned `calle-ai==0.7.0` in [`agent/requirements.txt`](../agent/requirements.txt); installed into **this** repo [`agent/.venv`](../agent/.venv) only (`python -m pip`, not the copied `bin/pip` shebang)
+- [`agent/scripts/stage0_5_laptop_smoke.py`](../agent/scripts/stage0_5_laptop_smoke.py) + [`agent/scripts/stage0_5_laptop_smoke.sh`](../agent/scripts/stage0_5_laptop_smoke.sh): freeze refuse; `CALLE_ALLOW_DIAL` must be exact `true`; disk `calle-allow-dial` stays `false`; region `US`; last-4 mask; persist Idempotency-Key before POST
+- Live result: `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw` (~103s). Evidence: `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git)
+- Roadmap 0.1 outbound KYC, remaining 0.5 boxes, and Gate 0 live-call boxes `[x]`
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.5 without E.164
+- [`test/core/contest/agentic_cloud_run_freeze_test.dart`](../test/core/contest/agentic_cloud_run_freeze_test.dart): smoke contains `create_and_wait` / `calle-ai`; no `gcloud run deploy` / `versions access`; owner-ops still has no `\+1\d{10}`
+
+### Architecture / decisions
+`create_and_wait` remains Gate 0 laptop-only. Stage 1 Cloud Run will `create` + poll `GET`, never `create_and_wait`. Kill switch file still `false`. Envied frozen hostname unchanged. No `daftar-call-e` deploy.
+
+### Ops / verification
+Copied `agent/.venv` `bin/pip` originally targeted the heritage Agentic tree; install used `agent/.venv/bin/python -m pip` so this fork’s site-packages received `calle-ai==0.7.0`. Wrapper refuses an interpreter whose prefix is not this fork. `unset CALLE_ALLOW_DIAL` after the smoke. Disk allow-dial remains `false`. Frozen Cloud Run untouched.
+
+### Status
+Gate 0 live ring **passed**. Stage 1 UI is unblocked. Credits **19 / 20** remaining until extras land.
+
 
