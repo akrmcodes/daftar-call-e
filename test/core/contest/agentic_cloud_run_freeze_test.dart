@@ -6,8 +6,10 @@ void main() {
   late String freezeRule;
   late String deployWrapper;
   late String refuseScript;
+  late String stage03Script;
   late String agentReadme;
   late String roadmapV3;
+  late String envDart;
 
   setUpAll(() {
     freezeRule = File(
@@ -19,8 +21,10 @@ void main() {
     refuseScript = File(
       'agent/scripts/refuse_frozen_cloud_run.sh',
     ).readAsStringSync();
+    stage03Script = File('agent/scripts/stage0_3_gcp.sh').readAsStringSync();
     agentReadme = File('agent/README.md').readAsStringSync();
     roadmapV3 = File('docs/roadmap_v3.md').readAsStringSync();
+    envDart = File('lib/core/env/env.dart').readAsStringSync();
   });
 
   group('Agentic Cloud Run freeze (file checks)', () {
@@ -83,6 +87,83 @@ void main() {
         roadmapV3.toLowerCase(),
         contains('do not redeploy'),
       );
+    });
+
+    test('stage 0.3 script never mutates Cloud Run or prints secret payload', () {
+      expect(stage03Script, contains('calle-api-key'));
+      expect(stage03Script, contains('call-e-runner@'));
+      expect(stage03Script, contains('check_agentic_freeze.sh'));
+      expect(stage03Script, contains('gcloud secrets create'));
+      expect(stage03Script, contains('akrm.codes@gmail.com'));
+      expect(stage03Script, contains('daftar-call-e'));
+      expect(stage03Script, isNot(contains('gcloud run deploy')));
+      expect(stage03Script, isNot(contains('services update')));
+      expect(stage03Script, isNot(contains('replace-traffic')));
+      expect(stage03Script, isNot(contains('versions access')));
+      expect(stage03Script, isNot(contains('adk deploy')));
+      expect(stage03Script, isNot(contains('services enable')));
+      expect(stage03Script, isNot(contains('set-iam-policy')));
+      expect(
+        envDart,
+        contains(
+          'https://daftar-closing-agent-1487285471.us-central1.run.app',
+        ),
+      );
+    });
+
+    test('stage 0.4 kill switch is documented; no leaked US DID', () {
+      final stage04 = File(
+        'agent/scripts/stage0_4_allowlist.sh',
+      ).readAsStringSync();
+      final ownerOps = File(
+        'docs/contest/CALLE_STAGE0_OWNER_OPS.md',
+      ).readAsStringSync();
+      final gitignore = File('.gitignore').readAsStringSync();
+
+      expect(stage04, contains('calle-allow-dial'));
+      expect(stage04, contains('calle-allowlist'));
+      expect(stage04, contains('false'));
+      expect(stage04, isNot(contains('gcloud run deploy')));
+      expect(stage04, isNot(contains('versions access')));
+      expect(stage04, isNot(contains('adk deploy')));
+
+      expect(ownerOps, contains('CALLE_ALLOW_DIAL'));
+      expect(ownerOps, contains('CALLE_ALLOWLIST'));
+      expect(ownerOps, contains('CALLE_ALLOWLIST_REGION'));
+      expect(ownerOps, contains('false'));
+      expect(ownerOps, contains('exact lowercase string `true`'));
+      expect(gitignore, contains('.daftar-owner-ops/'));
+      expect(RegExp(r'\+1\d{10}').hasMatch(ownerOps), isFalse);
+      expect(RegExp(r'\+1\d{10}').hasMatch(stage04), isFalse);
+    });
+
+    test('stage 0.5 smoke uses create_and_wait; never mutates Cloud Run', () {
+      final stage05Py = File(
+        'agent/scripts/stage0_5_laptop_smoke.py',
+      ).readAsStringSync();
+      final stage05Sh = File(
+        'agent/scripts/stage0_5_laptop_smoke.sh',
+      ).readAsStringSync();
+      final requirements = File('agent/requirements.txt').readAsStringSync();
+      final ownerOps = File(
+        'docs/contest/CALLE_STAGE0_OWNER_OPS.md',
+      ).readAsStringSync();
+
+      expect(requirements, contains('calle-ai==0.7.0'));
+      expect(stage05Py, contains('create_and_wait'));
+      expect(stage05Py, contains('calle-ai'));
+      expect(stage05Py, contains('from calle import CalleClient'));
+      expect(stage05Py, contains('CALLE_ALLOW_DIAL'));
+      expect(stage05Py, isNot(contains('gcloud run deploy')));
+      expect(stage05Py, isNot(contains('versions access')));
+      expect(stage05Sh, contains('refuse_frozen_cloud_run.sh'));
+      expect(stage05Sh, contains('CALLE_ALLOW_DIAL'));
+      expect(stage05Sh, isNot(contains('gcloud run deploy')));
+      expect(stage05Sh, isNot(contains('versions access')));
+      expect(stage05Sh, isNot(contains('adk deploy')));
+      expect(RegExp(r'\+1\d{10}').hasMatch(stage05Py), isFalse);
+      expect(RegExp(r'\+1\d{10}').hasMatch(stage05Sh), isFalse);
+      expect(RegExp(r'\+1\d{10}').hasMatch(ownerOps), isFalse);
     });
   });
 }

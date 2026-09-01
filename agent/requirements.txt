@@ -2,3 +2,4 @@
 # Do not use `adk deploy cloud_run` after this slice — it would overwrite main.py.
 google-adk==1.14.0
 google-cloud-texttospeech==2.31.0
+calle-ai==0.7.0

@@ -4076,4 +4076,149 @@ Significant update = Confirm & Call + Developer API at runtime. Do not claim CAL
 ### Status
 Stage 0.0 complete. Next: Stage 0.1 CALL-E account / KYC / extra-calls form.
 
+## 2026-09-01 — Stage 0.1 CALL-E account, credits, key handling
+
+### Context
+Owner logged into CALL-E as `akrmcodes@gmail.com`, created a Developer API key, and submitted the extra-calls form. Need a safe place for the key (not git / Flutter / chat) and an honest 0.1 checkbox state.
+
+### Done
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): local `$HOME/.daftar-owner-ops/calle-api-key` (chmod 600) until Stage 0.3 Secret Manager; 20-call budget; extra-calls submitted
+- Roadmap 0.1: account, API key created, extra-calls, 20-call note **checked**; **outbound KYC still open**
+- [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md): `CALLE_API_KEY` is not an Envied key
+
+### Architecture / decisions
+Key never in this chat or git. Secret Manager `calle-api-key` is Stage **0.3**. Chat ringing ≠ Developer API KYC. Do not skip **0.2** US DID before Gate 0 smoke.
+
+### Ops / verification
+No `gcloud secrets create` this pass (no key file in owner-ops yet). No deploy.
+
+### Status
+0.1 blocked only on **outbound KYC**. Then 0.2 DID; 0.3 GCP secret + `daftar-call-e` naming (still no deploy of frozen service).
+
+## 2026-09-01 — Stage 0.5 API 404 probe (pulse check)
+
+### Context
+Owner saved `calle-api-key` at `$HOME/.daftar-owner-ops/` (mode 600). Requested a zero-cost Developer API probe and whether outbound KYC / 0.3 can proceed.
+
+### Done
+- `GET https://api.heycall-e.com/v1/calls/{nonexistent}` with bearer from that file → HTTP **404** `not_found` (key authenticates; not 401/403 / `credential_grant_unavailable`)
+- Bearer not printed. Roadmap 0.5 probe + Gate 0 404 / disclosure / extra-calls boxes `[x]`
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): KYC likely not on the API Keys page; 0.3 secret create allowed
+
+### Architecture / decisions
+404 proves the **Developer API key**, not outbound PSTN KYC. Live `create_and_wait` (rest of 0.5) still needs a US DID (0.2). Frozen Cloud Run still untouched.
+
+### Ops / verification
+curl only. No Secret Manager write. No deploy.
+
+### Status
+Key is good. **0.3 yes** (secret + naming, never deploy `daftar-closing-agent`). **0.1 KYC** leave open until a dashboard Verification/Numbers flow exists or first `create` fails. **0.2** still required before Gate 0 live ring.
+
+## 2026-09-01 — Stage 0.2 DID alternatives (Zadarma/Sonetel +967 SMS)
+
+### Context
+Owner was rejected by Sonetel and Zadarma Preferred because they could not verify a Yemeni mobile. Asked for a cheaper, reliable US inbound destination (Numero eSIM or similar) without using a friend’s number unless last resort.
+
+### Done
+- Researched email-signup DID shops vs consumer “virtual number” apps
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.2 try-order: Callcentric → DIDWW → VoIP.ms → BubblyPhone; Numero/GV/Twilio trial/TextNow called out
+- [`docs/roadmap_v3.md`](roadmap_v3.md) 0.2 notes, purchase/answer checkboxes, Appendix E cost line, Appendix F risk row
+
+### Architecture / decisions
+CALL-E still dials a **US** destination (`region: US`). Failure mode was **account OTP to +967**, not US SSN. Do not enable SMS/10DLC. Do not forward to +967 as the primary path. Friend SA/AE/EG remains last-resort Arabic take. 0.2 boxes stay **open** until a human test call rings.
+
+### Ops / verification
+Web research only. No purchase, no `gcloud`, no deploy, no E.164 in git.
+
+### Status
+Owner buys one inbound US DID next (Callcentric PPM first). Then human ring → `create_and_wait`. 0.3 Secret Manager can still run in parallel.
+
+## 2026-09-02 — Stage 0.2 Callcentric DID purchased (human ring still open)
+
+### Context
+Owner could not complete Zadarma/Sonetel (+967 SMS). Bought a Callcentric US Pay Per Minute DID and configured Linphone; asked for a settings review before the human ring / CALL-E `create_and_wait`.
+
+### Done
+- Confirmed SKU: US / NY 347 / Pay Per Minute (inbound PSTN, not residential-unlimited/911 SKU)
+- `$HOME/.daftar-owner-ops/test-did`: mode 600, 12-byte `+1` E.164, not a placeholder, outside the git repo
+- Roadmap 0.2: purchase + E.164 store `[x]`; human ring and SMS-off confirmation still `[ ]`
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): 0.2 status without E.164/SIP secrets
+
+### Architecture / decisions
+CALL-E still dials this US destination. Linphone SIP: `sip.callcentric.net` + UDP matches Callcentric’s Linphone guide. Gmail login is Linphone.org (or Callcentric web), not the SIP identity. Do not enable SMS. Do not burn a CALL-E credit until a human PSTN call rings Linphone.
+
+### Ops / verification
+Inspected DID file **format only** (length, `+1`, mode). Did not print E.164. No `gcloud`, no deploy, no `create_and_wait`.
+
+### Status
+0.2 blocked on **Registered** + **human ring**. 0.3 can still run in parallel.
+
+## 2026-09-02 — Stage 0.3 Secret Manager + call-e-runner IAM
+
+### Context
+Roadmap §0.3: same contest GCP project, name Cloud Run `daftar-call-e` without creating it, store `calle-api-key` in Secret Manager, keep Gmail secret available to the future service, leave frozen All Things Agentic Cloud Run untouched.
+
+### Done
+- [`agent/scripts/stage0_3_gcp.sh`](../agent/scripts/stage0_3_gcp.sh): freeze preflight, `--data-file` create, additive secret + project IAM, post-describe
+- Secret `calle-api-key` version 1; accessor `call-e-runner` only (secret-level)
+- `gmail-smtp-app-password`: added `call-e-runner` `secretAccessor`; **kept** `agent-runner`
+- `call-e-runner` project roles: `aiplatform.user`, `logging.logWriter`, `speech.client` (no project-wide `secretAccessor`)
+- Frozen revision still `daftar-closing-agent-00055-pbm`; Vertex still `TRUE` / `global`; `daftar-call-e` still absent
+- Roadmap 0.3 boxes `[x]` including owner Console budget confirm ($50 / $100 / $140); Gate 0 freeze + no-secrets-in-git `[x]`; KYC still open
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md), [`docs/contest/AGENTIC_CLOUD_RUN_FREEZE.md`](contest/AGENTIC_CLOUD_RUN_FREEZE.md)
+- [`test/core/contest/agentic_cloud_run_freeze_test.dart`](../test/core/contest/agentic_cloud_run_freeze_test.dart) forbids mutate/`versions access` in the 0.3 script
+
+### Architecture / decisions
+Dedicated SA `call-e-runner` for future `daftar-call-e`. File mounts are Stage 1 on that service only. Envied frozen hostname default unchanged. Did not enable `billingbudgets.googleapis.com`.
+
+### Ops / verification
+Script exit 0. Independent describe: secrets `calle-api-key` + `gmail-smtp-app-password`; IAM members as above. Payload never printed. No Cloud Run create/deploy.
+
+### Status
+0.3 code/GCP done. Budgets **$50 / $100 / $140** owner-confirmed in Console. Next: 0.4 kill switch docs, then 0.5 `create_and_wait` after Linphone human ring.
+
+## 2026-09-02 — Stage 0.4 kill switch + allowlist (owner-ops)
+
+### Context
+Roadmap §0.4: document `CALLE_ALLOW_DIAL` default false, gitignored comma-separated E.164 allowlist, and Gate 0 local `true` for the one DID only.
+
+### Done
+- [`agent/scripts/stage0_4_allowlist.sh`](../agent/scripts/stage0_4_allowlist.sh): writes `calle-allow-dial=false`, copies `test-did` → `calle-allowlist`, `calle-allowlist-region=US` (mode 600; E.164 never printed)
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.4: parse rules (`true` exact lowercase only); 0.5 shell export recipe
+- [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md): kill switch / allowlist are not Envied
+- [`.gitignore`](../.gitignore): `.daftar-owner-ops/`
+- Roadmap 0.4 boxes `[x]`
+- [`test/core/contest/agentic_cloud_run_freeze_test.dart`](../test/core/contest/agentic_cloud_run_freeze_test.dart): no `\+1\d{10}` in owner-ops; script has no Cloud Run mutate strings
+
+### Architecture / decisions
+Locked env names for Stage 1: `CALLE_ALLOW_DIAL`, `CALLE_ALLOWLIST`, `CALLE_ALLOWLIST_REGION`. NANP region is **US** from config, not inferred from `+1`. No FastAPI parser this pass. Friend SA/AE/EG not on the list.
+
+### Ops / verification
+Script exit 0. Files outside the repo. No `gcloud`, no deploy, no `create_and_wait`.
+
+### Status
+0.4 done. Next: 0.5 laptop `create_and_wait` after Linphone human ring, with `CALLE_ALLOW_DIAL=true` in that shell only.
+
+## 2026-09-02 — Stage 0.5 laptop smoke (Gate 0 live ring)
+
+### Context
+Roadmap §0.5 / Gate 0: one consented Developer API `create_and_wait` to the owner US DID via `calle-ai==0.7.0`, Linphone answering on Wi-Fi. Burns 1 of 20 contest credits. Production `https://api.heycall-e.com`. No webhook, no Cloud Run mutate, no Flutter.
+
+### Done
+- Pinned `calle-ai==0.7.0` in [`agent/requirements.txt`](../agent/requirements.txt); installed into **this** repo [`agent/.venv`](../agent/.venv) only (`python -m pip`, not the copied `bin/pip` shebang)
+- [`agent/scripts/stage0_5_laptop_smoke.py`](../agent/scripts/stage0_5_laptop_smoke.py) + [`agent/scripts/stage0_5_laptop_smoke.sh`](../agent/scripts/stage0_5_laptop_smoke.sh): freeze refuse; `CALLE_ALLOW_DIAL` must be exact `true`; disk `calle-allow-dial` stays `false`; region `US`; last-4 mask; persist Idempotency-Key before POST
+- Live result: `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw` (~103s). Evidence: `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git)
+- Roadmap 0.1 outbound KYC, remaining 0.5 boxes, and Gate 0 live-call boxes `[x]`
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.5 without E.164
+- [`test/core/contest/agentic_cloud_run_freeze_test.dart`](../test/core/contest/agentic_cloud_run_freeze_test.dart): smoke contains `create_and_wait` / `calle-ai`; no `gcloud run deploy` / `versions access`; owner-ops still has no `\+1\d{10}`
+
+### Architecture / decisions
+`create_and_wait` remains Gate 0 laptop-only. Stage 1 Cloud Run will `create` + poll `GET`, never `create_and_wait`. Kill switch file still `false`. Envied frozen hostname unchanged. No `daftar-call-e` deploy.
+
+### Ops / verification
+Copied `agent/.venv` `bin/pip` originally targeted the heritage Agentic tree; install used `agent/.venv/bin/python -m pip` so this fork’s site-packages received `calle-ai==0.7.0`. Wrapper refuses an interpreter whose prefix is not this fork. `unset CALLE_ALLOW_DIAL` after the smoke. Disk allow-dial remains `false`. Frozen Cloud Run untouched.
+
+### Status
+Gate 0 live ring **passed**. Stage 1 UI is unblocked. Credits **19 / 20** remaining until extras land.
+
 

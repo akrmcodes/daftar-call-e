@@ -38,15 +38,24 @@ Re-check (read-only): [`tool/check_agentic_freeze.sh`](../../tool/check_agentic_
 
 ## CALL-E runtime SA (not the frozen runner)
 
-Created 2026-09-01: `call-e-runner@daftar-closing-agent.iam.gserviceaccount.com`. Future service `daftar-call-e` uses this SA. Do **not** change `agent-runner`. No IAM was granted on `gmail-smtp-app-password` in this pass.
+Created 2026-09-01: `call-e-runner@daftar-closing-agent.iam.gserviceaccount.com`. Future service `daftar-call-e` uses this SA. Do **not** change `agent-runner`.
 
 ## Secret `calle-api-key`
 
-Not created in this freeze pass. The owner must provide the CALL-E API key **out of band** before Stage 1. Never write a key to git, Flutter, chat, or logs. Do **not** bind `gmail-smtp-app-password` to `call-e-runner` in this pass.
+Owner created a Developer API key out of band (2026-09-01). It is **not** in git. Stage **0.3** (2026-09-02) loaded it into Secret Manager `calle-api-key` from `$HOME/.daftar-owner-ops/calle-api-key` via [`agent/scripts/stage0_3_gcp.sh`](../../agent/scripts/stage0_3_gcp.sh). Never write a key to git, Flutter, chat, or logs.
 
-## Non-goals (this pass)
+## Stage 0.3 (2026-09-02) — Secret Manager + IAM only
+
+- Secret `calle-api-key` version 1 enabled. Accessor: `call-e-runner` only (secret-level).
+- Secret `gmail-smtp-app-password`: **added** `call-e-runner` `secretAccessor`; **kept** `agent-runner`. Frozen Cloud Run mount unchanged.
+- Project IAM on `call-e-runner` only: `roles/aiplatform.user`, `roles/logging.logWriter`, `roles/speech.client`. **No** project-level `secretAccessor` on this SA.
+- Cloud Run `daftar-call-e` still **does not exist**. Frozen revision still `daftar-closing-agent-00055-pbm`. Vertex env on the frozen revision still `TRUE` / `global`.
+- Stage 1 will file-mount `/secrets/calle-api-key` and `/secrets/gmail-smtp-app-password` on **`daftar-call-e` only**.
+
+## Non-goals (still)
 
 - No Confirm & Call
 - No `daftar-call-e` Cloud Run create/deploy
-- No IAM change on `gmail-smtp-app-password`
+- No Cloud Run mutate / IAM on `daftar-closing-agent`
 - No Envied `defaultValue` change
+- Do not enable `billingbudgets.googleapis.com`. Owner confirmed 2026-09-02 that $50 / $100 / $140 budgets remain.

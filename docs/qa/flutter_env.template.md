@@ -35,6 +35,10 @@ Not in `.env` — use `--dart-define-from-file` for sample-store email overrides
 
 The Gmail **App Password** lives in Secret Manager `gmail-smtp-app-password` on project `daftar-closing-agent`. It is mounted on Cloud Run at `/secrets/gmail-smtp-app-password`. **Never** add it to Flutter `.env`.
 
+## CALL-E (Cloud Run / laptop only — never Flutter)
+
+`CALLE_API_KEY` / Secret Manager `calle-api-key` is **not** an Envied key. **`CALLE_ALLOW_DIAL`**, **`CALLE_ALLOWLIST`**, and **`CALLE_ALLOWLIST_REGION`** are also **not** Envied — laptop / Cloud Run `daftar-call-e` only. **Never** add them to Flutter `.env`. Laptop Gate 0 smoke uses a shell export; production mounts the API key on **`daftar-call-e`**. Owner-ops (no values): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](../contest/CALLE_STAGE0_OWNER_OPS.md) §0.4.
+
 Deploy and env details: [`agent/README.md`](../../agent/README.md).
 
 ## Android build note
