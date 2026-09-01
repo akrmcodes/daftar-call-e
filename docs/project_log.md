@@ -4114,4 +4114,23 @@ curl only. No Secret Manager write. No deploy.
 ### Status
 Key is good. **0.3 yes** (secret + naming, never deploy `daftar-closing-agent`). **0.1 KYC** leave open until a dashboard Verification/Numbers flow exists or first `create` fails. **0.2** still required before Gate 0 live ring.
 
+## 2026-09-01 — Stage 0.2 DID alternatives (Zadarma/Sonetel +967 SMS)
+
+### Context
+Owner was rejected by Sonetel and Zadarma Preferred because they could not verify a Yemeni mobile. Asked for a cheaper, reliable US inbound destination (Numero eSIM or similar) without using a friend’s number unless last resort.
+
+### Done
+- Researched email-signup DID shops vs consumer “virtual number” apps
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.2 try-order: Callcentric → DIDWW → VoIP.ms → BubblyPhone; Numero/GV/Twilio trial/TextNow called out
+- [`docs/roadmap_v3.md`](roadmap_v3.md) 0.2 notes, purchase/answer checkboxes, Appendix E cost line, Appendix F risk row
+
+### Architecture / decisions
+CALL-E still dials a **US** destination (`region: US`). Failure mode was **account OTP to +967**, not US SSN. Do not enable SMS/10DLC. Do not forward to +967 as the primary path. Friend SA/AE/EG remains last-resort Arabic take. 0.2 boxes stay **open** until a human test call rings.
+
+### Ops / verification
+Web research only. No purchase, no `gcloud`, no deploy, no E.164 in git.
+
+### Status
+Owner buys one inbound US DID next (Callcentric PPM first). Then human ring → `create_and_wait`. 0.3 Secret Manager can still run in parallel.
+
 

@@ -45,6 +45,23 @@ gcloud secrets create calle-api-key \
 
 If the secret already exists, use `gcloud secrets versions add` — do **not** print the value. Bind it as a **file mount** on service **`daftar-call-e` only** (Stage 1). Never bind it to frozen `daftar-closing-agent`.
 
-## Do not skip 0.2
+## 0.2 US DID (Zadarma/Sonetel blocked on +967 SMS)
 
-Gate 0 still needs a **US DID** (Zadarma/Sonetel) before laptop `create_and_wait`. 0.3 GCP (secret + naming) can run **in parallel**. Live ring = 0.2 + remaining 0.5.
+CALL-E is the **caller**. Buy a **US destination** you answer on Wi‑Fi. Do **not** enable SMS/10DLC. Do **not** forward to +967 as the primary path. Friend SA/AE/EG mobile remains **last resort** (Arabic take), not Gate 0.
+
+Root cause of Zadarma/Sonetel failure: they OTP the **Yemeni mobile**, not US DID KYC.
+
+Try in this order (researched 2026-09-01):
+
+| Order | Service | Why | Cost (approx.) | Catch |
+| --- | --- | --- | --- | --- |
+| **1** | [Callcentric](https://www.callcentric.com/login/) | Signup form is **name + email + password** — no mobile OTP. Real US PSTN inbound. Answer in Linphone/Zoiper over Wi‑Fi. | **Pay Per Minute** DID: **$1.95/mo + $3.95 setup + $0.015/min inbound**. Watch for **Dirt Cheap DID** overstock. | Leave SMS off. Prefer **inbound PPM**, not “residential unlimited / 911 home phone” SKUs (those want a US 911 address). Dollar Unlimited ($1/mo) is NY/NJ/IL/MA **and** residential-only — skip unless checkout does not demand a US address. |
+| **2** | [DIDWW](https://www.didww.com/resources/regulatory-requirements) | US **geographic: registration not required**. Professional SIP. | Typically a few USD/mo + inbound per-min — confirm at checkout | At buy time confirm `needs_registration` is false. Softphone. |
+| **3** | [VoIP.ms](https://wiki.voip.ms/article/Getting_Started) | Email signup. Cheap per-min US DID. | DID often ~$0.85–1.50/mo + per-min | May later ask **passport** (OK) — that is not +967 SMS. Avoid VPN at signup. |
+| **4** | [BubblyPhone](https://bubblyphone.com/hub/us-number-without-ssn-or-address) | Email + balance; no SSN/US address. Browser dialer. | **$3 setup + $3/mo** | Keep the dialer tab open for Gate 0. Do **not** rely on forward-to-+967. Smaller vendor. |
+| Avoid first | **Numero eSIM** virtual US number | In-app VoIP; their own guide says register with your **real SIM** — same Yemen SMS trap. Mixed inbound reviews. | ~€5/mo or ~€40/year | Only if the SKU lists inbound voice **and** they do not OTP +967. Human-test before CALL-E. |
+| Avoid | Google Voice, Twilio **trial**, TextNow from YE | GV needs a US number. Twilio trial excludes YE and wants a verified Caller ID we do not have. TextNow is patchy abroad. | — | Telnyx paid often wants **mobile OTP**. |
+
+Prove it: a **human** calls the +1 from a normal phone; it rings the softphone/app on Wi‑Fi. Then CALL-E `create_and_wait`. Put E.164 only in `$HOME/.daftar-owner-ops/` — never git.
+
+0.3 GCP (secret + naming) can run in parallel. Live ring = this DID + remaining 0.5.

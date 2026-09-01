@@ -414,6 +414,7 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 
 - CALL-E is the **caller**. You buy a **destination** DID (US local), not a “from” number.
 - **Zadarma (recommended) or Sonetel (backup):** US geographic/mobile, inbound voice, **no SMS/10DLC**. Docs: passport/ID + **Yemen address** is enough — no US SSN/EIN. Answer **in the provider app/webphone over Wi‑Fi**. Do **not** forward to +967 as the primary path.
+- **If they reject +967 SMS at signup:** do not use a friend number yet. Next: Callcentric (email signup) → DIDWW (US geographic, no registration) → VoIP.ms. Details: [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.2.
 - **Do not** start with Twilio trial from Yemen (YE is not on Twilio’s trial-country list; trial inbound requires a **verified Caller ID** CALL-E does not have).
 - Skype Numbers are **dead** (May 2025).
 - Friend **SA/AE/EG** mobile is the **last** Arabic film take, not a forwarder.
@@ -444,7 +445,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **0.2 Test destination (US DID)**
 
-- [ ] Purchase **one** US local/mobile DID (Zadarma preferred; Sonetel if card/docs fail)
+- [ ] Purchase **one** US local/mobile DID (Zadarma/Sonetel if they accept you; else Callcentric → DIDWW → VoIP.ms — see owner-ops §0.2)
 - [ ] Voice inbound only — **no** SMS enable, **no** 10DLC
 - [ ] Confirm webphone/app rings from a **human** test call
 - [ ] Put E.164 **only** in gitignored owner-ops / `.env` — **never this file, never git**
@@ -470,7 +471,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 - [x] Zero-cost API probe **before** a live call: `GET https://api.heycall-e.com/v1/calls/{nonexistent-id}` with `Authorization: Bearer $CALLE_API_KEY` — authenticated **`404`** means the key works; `401`/`403`/`credential_grant_unavailable` means **stop** (Chat ringing is **not** this test)
 - [ ] From a trusted laptop (not Flutter): `calle-ai==0.7.0` / `CalleClient.calls.create_and_wait` to the US DID with a trivial `result_schema` (`from calle import CalleClient`)
-- [ ] Answer in Zadarma/Sonetel webphone
+- [ ] Answer in the DID provider app / webphone / Linphone (Wi‑Fi)
 - [ ] Confirm terminal status + structured result locally
 - [ ] If this fails, **stop**. Do not start Stage 1 UI. Do not treat MCP/Chat success as Gate 0.
 
@@ -1011,7 +1012,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 - Warm **`daftar-call-e`** once before recording; scale to zero after (min 0)
 - Watch budget alerts ($50 / $100 / $140)
 - Contest GCP on `akrm.codes@gmail.com` — do not mix product Drive OAuth clients
-- US DID: ~$2–4/mo inbound; Zadarma inbound often free — cancel if unused after contest
+- US DID: Callcentric PPM ~$1.95/mo + $3.95 setup if Zadarma/Sonetel reject +967 SMS; cancel if unused after contest
 - Gmail SMTP secret remains; CALL-E secret is additional
 - `https://test-api.heycall-e.com` is **not** the filmed path unless it is proven to ring the DID without burning prod credits
 
@@ -1025,7 +1026,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | Twilio/Bland/Live/WhatsApp as dialer | Explicit non-goals; C.3 + J.9 only |
 | YE not supported | Dual rail; never POST +967; MVF survey |
 | Gate 0 ring fails | Stop; do not build UI on hope |
-| Zadarma card 3DS from Yemen | Sonetel backup; friend pays **invoice** on **your** account |
+| Zadarma/Sonetel reject +967 SMS | Callcentric (email signup) → DIDWW → VoIP.ms; friend SA/AE/EG last; see owner-ops §0.2 |
 | Twilio trial inbound verified-CallerID trap | Do not use Twilio trial as destination |
 | Looks like generic “AI calls” | Film close-the-day + aging rank + HITL + integer write-back |
 | Looks like `kept` / generic collections | Film close-the-day + dual rail + integer promise ≠ payment; do not claim invented the category |
