@@ -4076,4 +4076,23 @@ Significant update = Confirm & Call + Developer API at runtime. Do not claim CAL
 ### Status
 Stage 0.0 complete. Next: Stage 0.1 CALL-E account / KYC / extra-calls form.
 
+## 2026-09-01 — Stage 0.1 CALL-E account, credits, key handling
+
+### Context
+Owner logged into CALL-E as `akrmcodes@gmail.com`, created a Developer API key, and submitted the extra-calls form. Need a safe place for the key (not git / Flutter / chat) and an honest 0.1 checkbox state.
+
+### Done
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): local `$HOME/.daftar-owner-ops/calle-api-key` (chmod 600) until Stage 0.3 Secret Manager; 20-call budget; extra-calls submitted
+- Roadmap 0.1: account, API key created, extra-calls, 20-call note **checked**; **outbound KYC still open**
+- [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md): `CALLE_API_KEY` is not an Envied key
+
+### Architecture / decisions
+Key never in this chat or git. Secret Manager `calle-api-key` is Stage **0.3**. Chat ringing ≠ Developer API KYC. Do not skip **0.2** US DID before Gate 0 smoke.
+
+### Ops / verification
+No `gcloud secrets create` this pass (no key file in owner-ops yet). No deploy.
+
+### Status
+0.1 blocked only on **outbound KYC**. Then 0.2 DID; 0.3 GCP secret + `daftar-call-e` naming (still no deploy of frozen service).
+
 

@@ -434,11 +434,13 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 
 **0.1 CALL-E account, KYC, credits**
 
-- [ ] Create CALL-E account at [heycall-e.com](https://www.heycall-e.com/) / [dashboard](https://dashboard.heycall-e.com/account/api-keys)
+Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md).
+
+- [x] Create CALL-E account at [heycall-e.com](https://www.heycall-e.com/) / [dashboard](https://dashboard.heycall-e.com/account/api-keys)
 - [ ] Complete **outbound KYC**
-- [ ] Create API key · store only in Secret Manager later (`calle-api-key`) · never chat/git
-- [ ] Submit extra-calls form immediately: https://forms.gle/EPQttEZ1rkW8iq9q6 (**+200** if this is an existing account; 1–5 business days, not guaranteed)
-- [ ] Note the **20**-call budget until extras land; exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
+- [x] Create API key · store only in Secret Manager later (`calle-api-key`) · never chat/git
+- [x] Submit extra-calls form immediately: https://forms.gle/EPQttEZ1rkW8iq9q6 (**+200** if this is an existing account; 1–5 business days, not guaranteed)
+- [x] Note the **20**-call budget until extras land; exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
 
 **0.2 Test destination (US DID)**
 

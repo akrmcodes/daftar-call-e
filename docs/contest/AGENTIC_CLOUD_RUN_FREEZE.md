@@ -42,7 +42,7 @@ Created 2026-09-01: `call-e-runner@daftar-closing-agent.iam.gserviceaccount.com`
 
 ## Secret `calle-api-key`
 
-Not created in this freeze pass. The owner must provide the CALL-E API key **out of band** before Stage 1. Never write a key to git, Flutter, chat, or logs. Do **not** bind `gmail-smtp-app-password` to `call-e-runner` in this pass.
+Owner created a Developer API key out of band (2026-09-01). It is **not** in git. Stage **0.3** will load it into Secret Manager `calle-api-key` from `$HOME/.daftar-owner-ops/calle-api-key`. Never write a key to git, Flutter, chat, or logs. Do **not** bind `gmail-smtp-app-password` to `call-e-runner` in this pass. See [`CALLE_STAGE0_OWNER_OPS.md`](CALLE_STAGE0_OWNER_OPS.md).
 
 ## Non-goals (this pass)
 
