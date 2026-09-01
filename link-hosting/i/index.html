@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دفتر — Daftar</title>
+  <meta name="description" content="Open in Daftar app" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #000000;
+      --surface: #121214;
+      --ink: #f5f5f5;
+      --muted: #a3a3a3;
+      --lapis: #0356c5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(420px, 100%);
+      background: var(--surface);
+      border: 0.5px solid rgba(245, 245, 245, 0.12);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 0 24px rgba(3, 86, 197, 0.18);
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 8px; }
+    p { color: var(--muted); margin: 0 0 20px; line-height: 1.5; }
+    .actions { display: flex; flex-direction: column; gap: 12px; }
+    a.btn {
+      display: block;
+      padding: 14px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      background: var(--surface);
+      color: var(--ink);
+      border: 0.5px solid var(--lapis);
+      box-shadow: 0 0 16px rgba(3, 86, 197, 0.25);
+    }
+    .hint { font-size: 0.85rem; color: var(--muted); margin-top: 16px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="title">جاري التحويل…</h1>
+    <p id="subtitle">Redirecting to the store…</p>
+    <div id="chooser" class="actions hidden">
+      <a id="playBtn" class="btn" href="#">Google Play</a>
+      <a id="iosBtn" class="btn" href="#">App Store</a>
+    </div>
+    <p id="iosHint" class="hint hidden">
+      على iPhone: بعد التثبيت، افتح التطبيق والصق رابط الدعوة إن طُلب منك.
+      <br />
+      On iPhone: after install, open the app and paste the invite link if prompted.
+    </p>
+  </div>
+  <script>
+    // Replace at deploy time (see link-hosting/README.md).
+    const CONFIG = {
+      functionsBaseUrl: "REPLACE_WITH_SUPABASE_FUNCTIONS_URL",
+      publishableKey: "REPLACE_WITH_SUPABASE_PUBLISHABLE_KEY",
+      playPackageId: "com.akrmcodes.daftar",
+      appStoreUrl: "https://apps.apple.com/app/daftar/id0000000000",
+    };
+
+    function extractToken() {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      const iIndex = parts.indexOf("i");
+      if (iIndex >= 0 && parts[iIndex + 1]) {
+        return parts[iIndex + 1];
+      }
+      return parts[parts.length - 1] || "";
+    }
+
+    function detectPlatform() {
+      const ua = navigator.userAgent || "";
+      if (/android/i.test(ua)) return "android";
+      if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+      return "desktop";
+    }
+
+    function buildPlayStoreUrl(token) {
+      const referrer = encodeURIComponent(
+        "utm_source=daftar&utm_medium=deep_link&utm_content=" + token,
+      );
+      return (
+        "https://play.google.com/store/apps/details" +
+        "?id=" + encodeURIComponent(CONFIG.playPackageId) +
+        "&referrer=" + referrer
+      );
+    }
+
+    async function logClick(token, platform) {
+      if (
+        !CONFIG.functionsBaseUrl ||
+        CONFIG.functionsBaseUrl.startsWith("REPLACE_")
+      ) {
+        return;
+      }
+      try {
+        await fetch(CONFIG.functionsBaseUrl + "/log-deep-link-click", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: CONFIG.publishableKey,
+          },
+          body: JSON.stringify({
+            token,
+            platform,
+            user_agent: navigator.userAgent,
+          }),
+        });
+      } catch (_) {
+        // Non-blocking — redirect must proceed.
+      }
+    }
+
+    async function main() {
+      const token = extractToken();
+      const platform = detectPlatform();
+
+      if (!token || token.length < 32) {
+        document.getElementById("title").textContent = "رابط غير صالح";
+        document.getElementById("subtitle").textContent = "Invalid link";
+        return;
+      }
+
+      await logClick(token, platform);
+
+      const playUrl = buildPlayStoreUrl(token);
+      const iosUrl = CONFIG.appStoreUrl;
+
+      if (platform === "android") {
+        window.location.replace(playUrl);
+        return;
+      }
+
+      if (platform === "ios") {
+        document.getElementById("title").textContent = "افتح متجر التطبيقات";
+        document.getElementById("subtitle").textContent = "Opening App Store…";
+        document.getElementById("iosHint").classList.remove("hidden");
+        window.location.replace(iosUrl);
+        return;
+      }
+
+      document.getElementById("title").textContent = "حمّل دفتر";
+      document.getElementById("subtitle").textContent = "Download Daftar";
+      document.getElementById("chooser").classList.remove("hidden");
+      document.getElementById("playBtn").href = playUrl;
+      document.getElementById("iosBtn").href = iosUrl;
+    }
+
+    main();
+  </script>
+</body>
+</html>

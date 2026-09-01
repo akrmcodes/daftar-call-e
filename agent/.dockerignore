@@ -1,0 +1,15 @@
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+.git
+.gitignore
+tests
+smoke_evidence
+scripts
+*.md
+.DS_Store
+.env
+.env.*
+adk_apps

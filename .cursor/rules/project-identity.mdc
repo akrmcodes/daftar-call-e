@@ -1,0 +1,91 @@
+---
+description: Core project identity, tech stack, and strategic invariants for Daftar.
+alwaysApply: true
+---
+
+# Daftar (دفتر) — Project Identity
+
+You are an expert Flutter/Dart engineer working on Daftar, an offline-first debt-tracking app replacing paper ledgers for MENA merchants. Arabic-first RTL. Financial-grade data integrity.
+
+## Strategic Invariants — VIOLATING ANY IS A CRITICAL DEFECT
+
+1. **OFFLINE-FIRST** — Every feature works with zero internet. Network is a luxury.
+2. **ARABIC-FIRST RTL** — Arabic is the default locale. RTL is the primary layout. Never an afterthought.
+3. **INTEGER MONEY** — ALL monetary amounts are `int` (smallest currency unit). `1500` = 15.00 YER. NEVER `double`/`num`/`Decimal`/`String`.
+4. **FINANCIAL INTEGRITY** — ACID transactions, audit logging, soft deletes. Zero tolerance for data loss or rounding errors.
+
+## Khazna v3 — Lapis Lux Design Language
+
+**Canonical spec:** `docs/design_system.md` (v3). All UI work MUST comply. Token implementation lives in `lib/app/theme/`.
+
+### The Three Color Citizens (ONLY these may appear in UI)
+
+| Citizen | Role | Share |
+|---|---|---|
+| **Monochrome** | Onyx (`surface0`–`surface6`) + Bone Parchment (`surface0Light`–`surface4Light`) + `inkPrimary` / `inkSecondary` / `inkMuted` | ~95% |
+| **Luminous Lapis** | `lapis400` (#0356C5) — **light only**, never paint | ~3% |
+| **Semantic** | `debt` (red), `payment` (green), `warning` (amber), `info` (lapis container banners only) | ~2% |
+
+### ⛔ THE LAPIS LAW — CRITICAL DEFECT IF VIOLATED
+
+> **Lapis is light, not paint.**
+
+**NEVER** use `AppColors.lapis400`, `lapis500`, `lapisLumen`, or any lapis hex as:
+- `backgroundColor`, `color` (fill), or `decoration` gradient fill on **Card**, **Button**, **FAB**, **Chip**, **Container**, **ListTile**, or **Material `FilledButton` / `ElevatedButton`**.
+
+Lapis is **EXCLUSIVELY** permitted as:
+- `BoxShadow` via `AppGlows` (`glowXs`–`glowXl`, `glowAmbient`, `ctaRest`)
+- `0.5px` / `1.5px` **border** (`BorderSide(color: AppColors.lapis400)`)
+- Focus rings, tab indicator stripes (2dp), bottom-nav active stripe
+- **Info banner background only** (`lapis800` dark / `lapis50` light — the single allowed lapis fill)
+
+**Primary CTAs are monochrome rectangles with glowing edges — NOT blue rectangles.**
+
+### Permanently Banned Visual Tokens
+
+- ❌ Khazna Gold, amber primary, teal accent (`darkPrimary` gold, `darkAccent` teal) — removed from v3
+- ❌ `FilledButton` / `ElevatedButton` with `backgroundColor: lapis400` or `Theme.colorScheme.primary` as a blue fill
+- ❌ Material default `Card()` elevation/shape without `DaftarCard`
+- ❌ `Color.withOpacity()` with arbitrary decimals — use `AppColors` alpha tokens only
+
+### Approved Theme Files
+
+`app_colors.dart` · `app_glows.dart` · `app_text_styles.dart` · `app_dimensions.dart` · `app_motion.dart` · `app_theme.dart` · `HapticService` (`lib/core/utils/haptic_service.dart`)
+
+## Approved Tech Stack
+
+| Use | Technology |
+|---|---|
+| State Management | **Riverpod 2.x** + `riverpod_generator` + `@riverpod` annotation |
+| Database | **Drift** (SQLite) |
+| Routing | **go_router** |
+| Functional Types | **fpdart** (`Either<Failure, T>`) |
+| Entities | **Freezed** + `freezed_annotation` |
+| Networking | **Dio** + **Retrofit** |
+| Secure Storage | **flutter_secure_storage** |
+| Localization | **ARB files** + **slang** |
+| Cloud | **Supabase** (Storage + Auth) |
+| Analytics | **Firebase** Analytics + Crashlytics |
+
+## BANNED — Never suggest, import, or reference
+
+- State: Bloc, Provider, GetX, MobX, Cubit
+- Database: Isar, Hive, Floor, sqflite, SharedPreferences (for domain data), ObjectBox
+- DI: get_it, injectable, kiwi → Riverpod IS the DI container
+- Routing: auto_route, Navigator 1.0
+- Functional: dartz → Use fpdart
+- Networking: `http` package → Use Dio + Retrofit
+- Money: `double`, `num`, `Decimal` for monetary values → Use `int` only
+
+## Conventions
+
+- **Files:** `snake_case.dart`
+- **Classes:** `PascalCase`
+- **Constants:** `camelCase` (NOT SCREAMING_CASE)
+- **Imports:** Absolute only (`package:daftar/...`). No relative imports. No barrel files.
+- **Import order:** `dart:` → `package:flutter/` → `package:` third-party → `package:daftar/` (blank line between groups)
+- **Generated files:** `*.g.dart`, `*.freezed.dart` in `.gitignore`. Regenerate with `dart run build_runner build --delete-conflicting-outputs`.
+
+## CALL-E freeze
+
+This checkout is the CALL-E fork. Always-on rule: [`.cursor/rules/calle-agentic-freeze.mdc`](calle-agentic-freeze.mdc). **Never** `gcloud run deploy daftar-closing-agent`. Frozen URL `https://daftar-closing-agent-1487285471.us-central1.run.app` is immutable through 13 Oct 2026. Stage 1 deploys service `daftar-call-e` only, via `agent/scripts/deploy_daftar_call_e.sh`.

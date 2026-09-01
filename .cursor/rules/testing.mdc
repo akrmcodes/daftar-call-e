@@ -1,0 +1,75 @@
+---
+description: Testing standards — mocktail, AAA pattern, coverage targets, critical test scenarios.
+globs: test/**/*.dart
+---
+
+# Testing Standards
+
+## Coverage Targets
+
+| Layer | Minimum | Test Type |
+|---|---|---|
+| Domain (entities, value objects) | 90% | Unit tests |
+| Application (use cases) | 90% | Unit tests (mocked repositories) |
+| Data (mappers) | 100% | Unit tests (round-trip) |
+| Data (repositories) | 80% | Integration tests (in-memory Drift DB) |
+| Presentation (critical widgets) | 70% | Widget tests |
+
+## Mocking
+
+- Use **mocktail** (NOT mockito).
+- Mock at repository interface boundary: `class MockLedgerRepository extends Mock implements LedgerRepository {}`
+- In-memory Drift database for data layer integration tests.
+- Never mock the class under test.
+
+## Test Structure
+
+```dart
+void main() {
+  group('CreateLedgerUseCase', () {
+    late CreateLedgerUseCase sut;  // System Under Test
+    late MockLedgerRepository mockRepo;
+
+    setUp(() {
+      mockRepo = MockLedgerRepository();
+      sut = CreateLedgerUseCase(mockRepo);
+    });
+
+    test('returns ValidationFailure when name is empty', () async {
+      // Arrange — no mock setup needed
+      // Act
+      final result = await sut(CreateLedgerParams(name: ''));
+      // Assert
+      expect(result.isLeft(), true);
+      result.fold(
+        (failure) => expect(failure, isA<ValidationFailure>()),
+        (_) => fail('Expected failure'),
+      );
+    });
+  });
+}
+```
+
+## Conventions
+
+1. **Arrange-Act-Assert** pattern for all tests.
+2. Descriptive test names: `'returns X when Y'` or `'throws X given Y'`.
+3. `group()` to organize by class or feature.
+4. `late` for `setUp()` variables.
+5. Name system under test as `sut`.
+6. Test both `Right` (success) and `Left` (failure) paths.
+7. Test edge cases: empty inputs, zero amounts, max limits, null optionals.
+8. For `Either` results, use `fold()` or `isLeft()`/`isRight()` — never force-unwrap.
+
+## Critical Scenarios (MUST have coverage)
+
+- Money arithmetic: addition, subtraction, comparison, zero, max int, cross-currency rejection
+- PhoneNumber normalization: +967, +966, with/without country code
+- Arabic normalization: diacritics, Alef/Taa variants
+- Free-tier limits at exact boundary (1/1, 50/50, 500/500)
+- Credit limit warnings at 80% and 100%
+- Balance recalculation after transaction add/edit/delete
+- Mapper round-trip for every entity
+- CRUD lifecycle: Ledger → Contact → Transaction → Balance verification
+- Backup create → restore → data integrity
+- FTS5 Arabic search with normalized queries

@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Deno: Check Edge Functions",
+      "type": "shell",
+      "command": "deno task check",
+      "options": {
+        "cwd": "${workspaceFolder}/supabase/functions"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Deno: Cache Edge Function Dependencies",
+      "type": "shell",
+      "command": "deno task cache",
+      "options": {
+        "cwd": "${workspaceFolder}/supabase/functions"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Deno: Lint Edge Functions",
+      "type": "shell",
+      "command": "deno task lint",
+      "options": {
+        "cwd": "${workspaceFolder}/supabase/functions"
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

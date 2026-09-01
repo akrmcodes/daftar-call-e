@@ -1,0 +1,186 @@
+name: daftar
+description: >
+  Offline-first debt ledger for MENA merchants.
+  Replaces paper كشكول with multi-currency tracking,
+  WhatsApp PDF statements, and encrypted backup.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # --- State Management ---
+  flutter_riverpod: ^3.3.1
+  riverpod_annotation: ^4.0.2
+
+  # --- Database ---
+  drift: ^2.32.1
+  sqlite3_flutter_libs: ^0.5.28
+
+  # --- Routing ---
+  go_router: ^17.2.0
+  app_links: ^6.4.0
+
+  # --- Internationalization ---
+  intl: ^0.20.2
+  slang: ^4.14.0
+
+  # --- Functional Programming ---
+  fpdart: ^1.2.0
+
+  # --- Data & Serialization ---
+  uuid: ^4.5.3
+  equatable: ^2.0.8
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.11.0
+
+  # --- Networking ---
+  connectivity_plus: ^6.1.4
+  dio: ^5.9.2
+  retrofit: ^4.9.2
+
+  # --- Platform Services ---
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  flutter_image_compress: ^2.4.0
+  image_picker: ^1.1.2
+  permission_handler: ^11.3.1
+  record: ^6.1.2
+  flutter_tts: ^4.2.3
+  just_audio: ^0.10.5
+  audio_session: ^0.2.2
+  flutter_contacts: ^2.1.0
+  device_info_plus: ^11.3.0
+  disk_space_plus: ^0.2.6
+  local_auth: ^3.0.1
+  flutter_secure_storage: ^10.0.0
+  encrypt: ^5.0.3
+  crypto: ^3.0.6
+  envied: ^1.3.4
+  url_launcher: ^6.3.0
+  share_plus: ^12.0.2
+  file_picker: ^11.0.2
+  shared_preferences: ^2.3.5
+  flutter_local_notifications: ^21.0.0
+  backup_notifier:
+    path: packages/backup_notifier
+
+  # --- PDF ---
+  pdf: ^3.11.0
+  printing: ^5.13.0
+
+  # --- Cloud & Analytics ---
+  supabase_flutter: ^2.12.2
+  firebase_core: ^4.6.0
+  firebase_analytics: ^12.2.0
+  firebase_crashlytics: ^5.1.0
+
+  # --- Google Auth & Drive Backup ---
+  # Pinned: 7.2.x is the verified-stable line for the Auth V2 token pipeline.
+  google_sign_in: 7.2.0
+  googleapis: ^16.0.0
+  googleapis_auth: ^2.3.1
+  extension_google_sign_in_as_googleapis_auth: ^3.0.0
+  http: ^1.6.0
+  workmanager: ^0.9.0+3
+
+  # --- UI (Khazna v3 — geometry, motion, micro-interactions; no component kits) ---
+  cupertino_icons: ^1.0.8
+  reorderable_grid_view: ^2.2.8
+  flutter_svg: ^2.2.4
+  flutter_animate: ^4.5.2
+  skeletonizer: ^2.1.3
+  lottie: ^3.3.3
+  wolt_modal_sheet: ^0.11.0
+  gap: ^3.0.1
+  motor: ^1.1.0
+  figma_squircle: ^0.6.3
+  flutter_slidable: ^4.0.3
+  animated_flip_counter: ^0.3.4
+  custom_refresh_indicator: ^4.0.1
+  csv: ^8.0.0
+  enough_convert: ^1.6.0
+  downloadsfolder: ^1.2.0
+  flutter_appauth: ^12.0.1
+  play_install_referrer: ^0.5.0
+  firebase_messaging: ^16.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  path_provider_platform_interface: ^2.1.2
+
+  # --- Linting ---
+  very_good_analysis: ^10.0.0
+  riverpod_lint: ^3.1.3
+
+  # --- Code Generation ---
+  build_runner: ^2.13.1
+  drift_dev: ^2.32.1
+  riverpod_generator: ^4.0.3
+  freezed: ^3.2.5
+  json_serializable: ^6.13.0
+  retrofit_generator: ^10.2.4
+  envied_generator: ^1.3.4
+
+  # --- Testing ---
+  mocktail: ^1.0.4
+  flutter_secure_storage_platform_interface: ^2.0.1
+  google_sign_in_platform_interface: 3.1.0
+  fake_async: ^1.3.3
+
+# ============================================================================
+# DEPENDENCY OVERRIDES — Temporary
+# ============================================================================
+# drift_dev 2.32.1 requires analyzer >=10.0.0 <13.0.0.
+# build_runner must use a dart_style release compatible with analyzer 10.x.
+# KEEP these overrides until the build_runner/analyzer gap is resolved upstream.
+dependency_overrides:
+  analyzer: ^10.0.0
+  dart_style: 3.1.7
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/fonts/
+    - assets/icons/
+    - assets/brand/
+    # Cairo (Regular + Bold) is bundled for PDF generation only and is
+    # intentionally NOT registered under `fonts:` below. Only `pw.Font.ttf`
+    # consumes it via `rootBundle.load`. Keeping it out of the Flutter font
+    # registry prevents accidental UI usage and keeps the brand typography
+    # (NotoKufiArabic + Inter) the single source of truth on screen.
+    - assets/fonts/Cairo-Regular.ttf
+    - assets/fonts/Cairo-Bold.ttf
+
+  fonts:
+    - family: NotoKufiArabic
+      fonts:
+        - asset: assets/fonts/NotoKufiArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoKufiArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoKufiArabic-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoKufiArabic-Bold.ttf
+          weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700

@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "strict": true,
+    "noImplicitAny": true
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2",
+    "@std/assert": "jsr:@std/assert@^1",
+    "@db/postgres": "jsr:@db/postgres@^0.19"
+  },
+  "tasks": {
+    "check": "deno check --allow-import verify-google-token/index.ts invite-worker/index.ts revoke-worker-invite/index.ts push-sync-ops/index.ts pull-sync-ops/index.ts create-deep-link/index.ts claim-deep-link/index.ts request-new-invite/index.ts list-invite-renewal-requests/index.ts fulfill-invite-renewal-request/index.ts log-deep-link-click/index.ts resolve-deep-link/index.ts _shared/verify_sync_jwt.ts _shared/deep_link_types.ts _shared/deep_link_mint.ts _shared/database.types.ts _shared/sync_ops.ts _shared/rate_limit.ts _shared/http.ts _shared/validation.ts",
+    "lint": "deno lint",
+    "fmt": "deno fmt",
+    "cache": "deno cache --allow-import verify-google-token/index.ts invite-worker/index.ts revoke-worker-invite/index.ts push-sync-ops/index.ts pull-sync-ops/index.ts create-deep-link/index.ts claim-deep-link/index.ts request-new-invite/index.ts list-invite-renewal-requests/index.ts fulfill-invite-renewal-request/index.ts log-deep-link-click/index.ts resolve-deep-link/index.ts _shared/rate_limit.ts _shared/http.ts _shared/validation.ts",
+    "test": "deno test --allow-import --allow-env --allow-net _shared/validation_test.ts _shared/verify_sync_jwt_test.ts _shared/sync_ops_test.ts _shared/deep_link_types_test.ts _shared/rate_limit_test.ts _shared/db_policy_test.ts _shared/op_seq_ordering_test.ts",
+    "test:unit": "deno test --allow-import --allow-env _shared/validation_test.ts _shared/verify_sync_jwt_test.ts _shared/sync_ops_test.ts _shared/deep_link_types_test.ts _shared/rate_limit_test.ts",
+    "test:db": "deno test --allow-import --allow-env --allow-net _shared/db_policy_test.ts _shared/op_seq_ordering_test.ts"
+  }
+}

@@ -1,0 +1,1770 @@
+{
+  "@@locale": "en",
+  "appTitle": "Daftar",
+  "greeting": "Welcome",
+  "home": "Home",
+  "settings": "Settings",
+  "netBalance": "Net balance",
+  "totalDebt": "Total debt",
+  "totalCredit": "Total credit",
+  "tapToExpand": "Tap to expand",
+  "tapToCollapse": "Tap to collapse",
+  "tapToSeeBreakdown": "Tap to see breakdown",
+  "hideBreakdown": "Hide breakdown",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "changeLanguage": "Change Language",
+  "arabic": "Arabic",
+  "english": "English",
+  "appearance": "Appearance",
+  "homeScreenSubtitle": "Use the buttons below to open the placeholder detail screens.",
+  "openLedgerDetails": "Open Ledger Details",
+  "openContactDetails": "Open Contact Details",
+  "settingsScreenSubtitle": "Personalize Daftar — language, appearance, and workspace.",
+  "settingsGroupPreferences": "Preferences",
+  "settingsGroupAccountSecurity": "Account & Security",
+  "settingsGroupWorkspace": "Workspace",
+  "settingsGroupPrivacy": "Privacy",
+  "settingsGroupSupport": "Support",
+  "settingsSystemTheme": "System",
+  "settingsDefaultCurrency": "Default currency",
+  "settingsMultiCurrency": "Enable Multi-Currency",
+  "settingsMultiCurrencySubtitle": "Choose a currency for each new contact or transaction. When off, everything uses your default currency.",
+  "settingsSwipeToDelete": "Swipe to delete",
+  "settingsSwipeToDeleteSubtitle": "Swipe list items to delete quickly. When off, use the menu on each row instead.",
+  "settingsTtsMuted": "Mute spoken read-back",
+  "settingsTtsMutedSubtitle": "Turn off on-device speech for confirm cards and the closing report. Amounts on screen stay visible.",
+  "settingsDemoArchitectureHud": "Show agent architecture",
+  "settingsDemoArchitectureHudSubtitle": "For demos: model, tools, HITL path, and round-trip time. Not a product tour.",
+  "architectureHudSemantics": "Agent architecture instrument, step {step}",
+  "@architectureHudSemantics": {
+    "placeholders": {
+      "step": { "type": "String", "example": "Propose" }
+    }
+  },
+  "architectureHudRouting": "Cloud Run · {model}",
+  "@architectureHudRouting": {
+    "placeholders": {
+      "model": { "type": "String", "example": "gemini-3.5-flash" }
+    }
+  },
+  "architectureHudLatencyPending": "…",
+  "architectureHudScopeCapture": "Capture",
+  "architectureHudScopeClose": "Close",
+  "architectureHudScopeAsk": "Ask",
+  "architectureHudToolScope": "{scope} · {tools}",
+  "@architectureHudToolScope": {
+    "placeholders": {
+      "scope": { "type": "String", "example": "Capture" },
+      "tools": { "type": "String", "example": "propose_debt" }
+    }
+  },
+  "architectureHudHitlPropose": "Propose",
+  "architectureHudHitlConfirm": "Confirm",
+  "architectureHudHitlCommit": "Commit",
+  "architectureHudHitlRank": "Rank",
+  "architectureHudPendingRecorded": "Pending {pending} · Recorded {recorded}",
+  "@architectureHudPendingRecorded": {
+    "placeholders": {
+      "pending": { "type": "int", "example": "1" },
+      "recorded": { "type": "int", "example": "2" }
+    }
+  },
+  "architectureHudSkipped": "Skipped {skipped}",
+  "@architectureHudSkipped": {
+    "placeholders": {
+      "skipped": { "type": "int", "example": "1" }
+    }
+  },
+  "architectureHudModel": "Model {model}",
+  "@architectureHudModel": {
+    "placeholders": {
+      "model": { "type": "String", "example": "gemini-3.5-flash" }
+    }
+  },
+  "architectureHudTool": "Tool {name}",
+  "@architectureHudTool": {
+    "placeholders": {
+      "name": { "type": "String", "example": "propose_debt" }
+    }
+  },
+  "architectureHudLatency": "{ms} ms",
+  "@architectureHudLatency": {
+    "placeholders": {
+      "ms": { "type": "int", "example": "420" }
+    }
+  },
+  "architectureHudCorrelation": "Ref {id}",
+  "@architectureHudCorrelation": {
+    "placeholders": {
+      "id": { "type": "String", "example": "a1b2c3d4" }
+    }
+  },
+  "architectureHudEmailSent": "Sent · {id}",
+  "@architectureHudEmailSent": {
+    "placeholders": {
+      "id": { "type": "String", "example": "9f3e12ab" }
+    }
+  },
+  "contactDeleteConfirmTitle": "Are you sure?",
+  "contactDeleteConfirmBody": "This will permanently remove this contact and all associated transactions from your ledger.",
+  "contactDeleteConfirmAction": "Delete contact",
+  "ledgerDeleteConfirmTitle": "Are you sure?",
+  "ledgerDeleteConfirmBody": "This will remove this ledger along with all accounts and transactions inside it.",
+  "ledgerDeleteConfirmAction": "Delete ledger",
+  "settingsMerchantBranding": "Merchant branding",
+  "settingsMerchantBrandingSubtitle": "Logo, store name, and branded PDF statements",
+  "settingsPremium": "Plan & activation",
+  "settingsPremiumSubtitle": "View plan, redeem code, compare tiers",
+  "settingsGoogleAccount": "Google account",
+  "settingsGoogleAccountSignInPrompt": "Sign in for Drive backup",
+  "settingsAnalytics": "Usage analytics",
+  "settingsAnalyticsSubtitle": "Help improve Daftar with anonymous usage data",
+  "settingsAbout": "About Daftar",
+  "settingsVersionLabel": "Version {version}",
+  "@settingsVersionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "settingsRateApp": "Rate Daftar",
+  "settingsContactSupport": "Contact support",
+  "settingsSelectLanguage": "Language",
+  "settingsSelectTheme": "Theme",
+  "settingsSelectCurrency": "Currency",
+  "settingsProBadgeLabel": "Pro",
+  "settingsSaveFailed": "Could not save settings",
+  "settingsStoreLaunchError": "Could not open the store",
+  "settingsVaultTrustLabel": "Vault trust",
+  "settingsVaultTrustHigh": "Fully protected",
+  "settingsVaultTrustMedium": "Partially protected",
+  "settingsVaultTrustLow": "Needs attention",
+  "settingsGroupVault": "Vault health",
+  "settingsSecurityAdvanced": "Advanced security",
+  "settingsCommandSecurity": "Security",
+  "settingsCommandBackup": "Backup",
+  "settingsCommandImport": "Import",
+  "settingsCommandAccount": "Account",
+  "settingsAboutDescription": "Daftar is your offline-first digital ledger — built for merchants who need trust, clarity, and control over every debt and payment.",
+  "settingsAboutOfflineFirst": "Works fully offline",
+  "settingsAboutArabicFirst": "Arabic-first design",
+  "settingsAboutFinancialGrade": "Financial-grade integrity",
+  "merchantBrandingScreenTitle": "Merchant branding",
+  "merchantBrandingScreenSubtitle": "Customize PDF statements with your store identity",
+  "merchantBrandingUpgradeTitle": "Branded statements are a Pro feature",
+  "merchantBrandingUpgradeSubtitle": "Upgrade to add your logo and store name to every PDF export.",
+  "merchantBrandingUpgradeCta": "View plans",
+  "merchantBrandingStoreName": "Store name",
+  "merchantBrandingUploadLogo": "Upload logo",
+  "merchantBrandingRemoveLogo": "Remove logo",
+  "merchantBrandingPreviewPdf": "Preview PDF",
+  "merchantBrandingSaveSuccess": "Branding saved",
+  "merchantBrandingLogoRemoved": "Logo removed",
+  "merchantBrandingPickSourceTitle": "Add store logo",
+  "merchantBrandingPickCamera": "Camera",
+  "merchantBrandingPickGallery": "Photo library",
+  "merchantBrandingCropTitle": "Adjust logo",
+  "merchantBrandingCropHint": "Pinch to zoom and drag to position your logo",
+  "merchantBrandingCropConfirm": "Use logo",
+  "merchantBrandingSaveProfileFirst": "Save your store name before adding a logo",
+  "merchantBrandingPreviewContactName": "Sample customer",
+  "merchantBrandingCountryYemen": "Yemen",
+  "merchantBrandingCountrySaudi": "Saudi Arabia",
+  "merchantBrandingTapToEdit": "Tap to edit your store identity",
+  "merchantBrandingEditIdentity": "Edit identity",
+  "merchantBrandingLivePreview": "Live preview",
+  "merchantBrandingStatementPreview": "How it appears on statements",
+  "merchantBrandingCompletionTitle": "Identity checklist",
+  "merchantBrandingStepPhone": "Phone",
+  "merchantBrandingStepLogo": "Logo",
+  "merchantBrandingIdentityComplete": "Identity complete",
+  "merchantBrandingIdentityIncomplete": "Complete your identity for branded PDFs",
+  "accountManagementTitle": "Google account",
+  "accountManagementSubtitle": "Manage the account used for Google Drive backup",
+  "accountManagementSignOut": "Sign out",
+  "accountManagementSwitchAccount": "Switch account",
+  "accountManagementSignOutConfirmTitle": "Sign out",
+  "accountManagementSignOutConfirmBody": "Google Drive backups from this account will no longer be accessible from this app. Your local data will not be affected. You can sign in with the same or different account later.",
+  "accountManagementSignOutConfirmCta": "Sign out",
+  "accountManagementStatusConnected": "Account linked",
+  "accountManagementStatusConnectedSubtitle": "Cloud backup is available for this Google account",
+  "accountManagementStatusPartialSubtitle": "Signed in — create a backup to sync with Google Drive",
+  "accountManagementStatusDisconnected": "No account linked",
+  "accountManagementStatusDisconnectedSubtitle": "Sign in to enable encrypted cloud backup on Google Drive",
+  "accountManagementIdentityRing": "Sign-in",
+  "accountManagementCloudRing": "Cloud",
+  "accountManagementTrustLocalData": "Your ledger stays on this device — signing out never deletes local data",
+  "accountManagementTrustDriveScope": "Google access is limited to your private Daftar backup folder",
+  "accountManagementActionsTitle": "Account actions",
+  "accountManagementManageBackup": "Manage backups",
+  "accountManagementManageBackupSubtitle": "View local copies and Drive sync status",
+  "accountManagementConnectedBadge": "Connected",
+  "accountManagementMigrationRelinkTitle": "Re-link your Google account",
+  "accountManagementMigrationRelinkBody": "A previous sign-in was detected on this device. Sign in again to restore encrypted cloud backup — your local ledger is safe.",
+  "accountManagementNeedsReauthTitle": "Session expired",
+  "accountManagementNeedsReauthBody": "Your Google sign-in has expired or was revoked. Restore access to resume cloud backup.",
+  "accountManagementRestoreAccess": "Restore access",
+  "currentLanguage": "Current Language",
+  "currentTheme": "Current Theme",
+  "ledgerDetailTitle": "Ledger Details",
+  "contactDetailTitle": "Contact Details",
+  "contactDetails": "Contact Details",
+  "ledgerDetailSubtitle": "This placeholder screen will show ledger data later.",
+  "contactDetailSubtitle": "This placeholder screen will show contact data later.",
+  "ledgerIdLabel": "Ledger ID",
+  "contactIdLabel": "Contact ID",
+  "myLedgers": "My Ledgers",
+  "ledgerAccountCount": "{count} accounts",
+  "@ledgerAccountCount": {
+    "description": "Number of accounts shown on a ledger tile.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "searchHint": "Search by name or phone",
+  "searchContacts": "Search contacts...",
+  "sort": "Sort",
+  "sortBy": "Sort By",
+  "sortByName": "Name",
+  "sortByBalance": "Balance",
+  "sortByRecent": "Most Recent",
+  "filterAll": "All",
+  "filterDebt": "Debt",
+  "filterCredit": "Credit",
+  "filterSettled": "Settled",
+  "noSearchResults": "No contacts match your search",
+  "noFilterResults": "No contacts in this category",
+  "editLedger": "Edit Ledger",
+  "ledgerName": "Ledger Name",
+  "selectColor": "Select Color",
+  "selectIcon": "Select Icon",
+  "saveChanges": "Save Changes",
+  "delete": "Delete",
+  "undo": "Undo",
+  "contactDeleted": "Contact deleted",
+  "addContact": "Add Account",
+  "name": "Name",
+  "nameRequired": "Name is required",
+  "phoneNumber": "Phone Number",
+  "contactEmailHint": "Email (optional)",
+  "contactEmailInvalid": "Enter a valid email or leave it empty.",
+  "importFromContacts": "Import from Contacts",
+  "notes": "Notes",
+  "creditLimit": "Credit Limit",
+  "selectCurrency": "Select Currency",
+  "save": "Save",
+  "editContact": "Edit Contact",
+  "openWhatsApp": "Open WhatsApp",
+  "call": "Call",
+  "callLaunchError": "Could not open the Phone app",
+  "whatsappLaunchError": "Could not open WhatsApp",
+  "invalidAmount": "Invalid amount",
+  "transactionsCount": "{count} Transactions",
+  "@transactionsCount": {
+    "description": "Number of transactions shown on a contact tile.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "emptyStateTitle": "Nothing here yet",
+  "noTransactionsYet": "No Transactions Yet",
+  "emptyStateSubtitle": "Add your first item and it will appear here.",
+  "emptyStateAction": "Add New",
+  "archiveVaultTitle": "Archive Vault",
+  "archiveVaultSubtitle": "Frozen ledgers — read-only until restored",
+  "archivedTotalLabel": "Archived Total",
+  "archivedLedgerReadOnlyBadge": "Read-only",
+  "unarchiveLedgerAction": "Restore",
+  "unarchiveLedgerSuccess": "Ledger restored to your workspace",
+  "archiveVaultEmptyTitle": "Vault is empty",
+  "archiveVaultEmptySubtitle": "Archived ledgers appear here, frozen in time with their balances preserved.",
+  "contactArchivedReadOnlyTitle": "This contact is in an archived ledger",
+  "contactArchivedReadOnlySubtitle": "Data is read-only. You can view transactions and export statements.",
+  "ledgerArchivedReadOnlyTitle": "Vaulted ledger — read-only",
+  "ledgerArchivedReadOnlySubtitle": "This ledger is frozen in the Archive Vault. Balances are preserved; new entries are disabled.",
+  "ledgerOptionsTitle": "Ledger options",
+  "archiveLedgerAction": "Archive ledger",
+  "financialCloseTitle": "Archive ledger",
+  "financialCloseSubtitle": "Tuck this ledger into your Vault to keep your workspace focused.",
+  "financialCloseEducationTitle": "What happens when you archive?",
+  "financialCloseEducationBody": "Archiving hides this ledger from your daily workspace. Every balance and transaction stays safe—and you can restore it anytime from Archive Vault.",
+  "financialCloseArchiveOnly": "Archive to Vault",
+  "financialCloseArchiveOnlyDescription": "Freeze this ledger as-is. Nothing moves; everything stays readable in the Vault.",
+  "carryForwardToggleLabel": "Move balances first",
+  "carryForwardToggleDescription": "Copy active debts and credits into another ledger so you can keep trading without starting over.",
+  "carryForwardTargetPickerLabel": "Continue in",
+  "carryForwardTargetPickerHint": "Select the ledger that receives your balances",
+  "carryForwardCreateNewLedger": "Start a fresh ledger",
+  "carryForwardPreviewTitle": "Preview",
+  "carryForwardPreviewContacts": "{count} contacts with balances",
+  "@carryForwardPreviewContacts": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "carryForwardPreviewTransactions": "{count} opening-balance entries",
+  "@carryForwardPreviewTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "openingBalanceItemName": "Opening Balance",
+  "carryForwardOpeningBalanceNote": "Opening balance rolled over from {ledgerName}",
+  "@carryForwardOpeningBalanceNote": {
+    "placeholders": {
+      "ledgerName": {
+        "type": "String",
+        "example": "Main Shop"
+      }
+    }
+  },
+  "carryForwardSuccess": "Ledger sealed in Vault",
+  "carryForwardSuccessBody": "Your records are frozen safely. Restore anytime from Archive Vault.",
+  "carryForwardConfirmTitle": "You're in control",
+  "carryForwardConfirmBody": "This ledger moves to the Vault as read-only. Restore it whenever you're ready—your data is never lost.",
+  "confirmArchive": "Seal & archive",
+  "archiveCeremonySealing": "Sealing your ledger…",
+  "archiveCeremonyTransferring": "Securing your balances…",
+  "contactSearchArchivedBadge": "Archived",
+  "homeArchiveVaultEntry": "Open Archive Vault",
+  "limitWarningTitle": "Limit approaching",
+  "limitWarningSubtitle": "You're getting close to the free-tier limit.",
+  "limitReachedTitle": "Limit reached",
+  "limitReachedSubtitle": "Upgrade to continue adding more items.",
+  "maxLedgersReached": "Sorry, you've reached the maximum limit (one ledger) in the free version.",
+  "premiumUpgradeBannerTitle": "You're nearing your Free plan limit",
+  "premiumUpgradeBannerUsage": "{current} of {max} {resource}",
+  "@premiumUpgradeBannerUsage": {
+    "description": "Usage meter label on the Pro upsell banner.",
+    "placeholders": {
+      "current": {"type": "Object"},
+      "max": {"type": "Object"},
+      "resource": {"type": "Object"}
+    }
+  },
+  "premiumUpgradeResourceLedgers": "ledgers",
+  "premiumUpgradeResourceContacts": "contacts",
+  "premiumUpgradeResourceTransactions": "transactions",
+  "premiumUpgradeLedgers": "Add unlimited ledgers and keep every account organized in one place.",
+  "premiumUpgradeContacts": "Track unlimited customers without deleting older records.",
+  "premiumUpgradeTransactions": "Record every sale and payment — no ceiling on your ledger history.",
+  "premiumUpgradeSubtitle": "Unlock unlimited workspace and professional PDF branding.",
+  "premiumUpgradeCta": "Explore Pro",
+  "premiumUpgradeBannerHide": "Hide",
+  "premiumUpgradeBannerHiddenToast": "Hidden. You can upgrade anytime from Settings.",
+  "addTransaction": "Add Transaction",
+  "editTransaction": "Edit Transaction",
+  "debt": "Debt",
+  "payment": "Payment",
+  "amount": "Amount",
+  "itemName": "Item Name",
+  "descriptionOptional": "Note (optional)",
+  "date": "Date",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "thisWeek": "This Week",
+  "saveTransaction": "Save Transaction",
+  "amountRequired": "Amount is required",
+  "transactionSaved": "Transaction saved successfully",
+  "creditLimitWarning": "Warning: Account is approaching its credit limit.",
+  "creditLimitExceeded": "Alert: Account has exceeded its credit limit!",
+  "notificationWarningTitle": "Credit Alert",
+  "notificationWarningBody": "Account {contactName} has exceeded 80% of its credit limit.",
+  "@notificationWarningBody": {
+    "description": "Local notification body shown when a contact reaches the 80 percent credit warning threshold.",
+    "placeholders": {
+      "contactName": {
+        "type": "String",
+        "example": "Ahmed Ali"
+      }
+    }
+  },
+  "notificationExceededBody": "Warning: Account {contactName} has exceeded its credit limit!",
+  "@notificationExceededBody": {
+    "description": "Local notification body shown when a contact exceeds their credit limit.",
+    "placeholders": {
+      "contactName": {
+        "type": "String",
+        "example": "Ahmed Ali"
+      }
+    }
+  },
+  "recentTransactions": "Recent Transactions",
+  "transactionsError": "Failed to load transactions",
+  "noLedgersYet": "No Ledgers Yet",
+  "noLedgersSubtitle": "Create your first ledger to start tracking debts.",
+  "addLedger": "Add Ledger",
+  "noContactsYet": "No Contacts Yet",
+  "noContactsSubtitle": "Add your first contact to this ledger.",
+  "loadingError": "Something went wrong",
+  "ledgerDeleted": "Ledger deleted",
+  "transactionDeleted": "Transaction deleted",
+  "retry": "Retry",
+  "statement": "Statement",
+  "statementDetails": "Details",
+  "type": "Type",
+  "description": "Description",
+  "totalPayment": "Total payment",
+  "generatedOn": "Generated on",
+  "runningBalance": "Running balance",
+  "page": "Page",
+  "currency": "Currency",
+  "exportStatement": "Export Statement",
+  "generatingPdf": "Generating PDF...",
+  "exportFailed": "Export failed",
+  "pdfFetchFailed": "Couldn't load transactions",
+  "pdfRenderFailed": "Couldn't generate the PDF",
+  "pdfSaveFailed": "Couldn't save the file",
+  "pdfShareFailed": "Couldn't open the share sheet",
+  "pdfTimeout": "Export is taking too long. Please try again.",
+  "pdfSavedLocally": "Statement saved to device",
+  "pdfPreparingData": "Preparing data...",
+  "pdfGroupingTransactions": "Grouping transactions...",
+  "pdfBuildingLayout": "Building layout...",
+  "pdfRendering": "Rendering document...",
+  "pdfComplete": "Complete!",
+  "pdfSaving": "Saving to device...",
+  "shareStatement": "Share Statement",
+  "statementShareSubject": "Statement for {contactName}",
+  "@statementShareSubject": {
+    "description": "Share sheet / email subject for exported contact statement PDF.",
+    "placeholders": {
+      "contactName": {
+        "type": "String"
+      }
+    }
+  },
+  "exportStatementDateRange": "Export a date range",
+  "exportLedgerSummary": "Export Ledger Summary",
+  "ledgerSummaryReport": "Ledger Summary Report",
+  "totalLedgerBalance": "Total ledger balance",
+  "rowNumber": "#",
+  "pdfListingContacts": "Listing accounts...",
+  "pdfGroupingAccounts": "Grouping accounts by currency...",
+  "shareLedgerSummary": "Share Ledger Summary",
+  "ledgerSummaryShareSubject": "Ledger summary — {ledgerName}",
+  "@ledgerSummaryShareSubject": {
+    "description": "Share sheet subject for exported ledger summary PDF.",
+    "placeholders": {
+      "ledgerName": {
+        "type": "String"
+      }
+    }
+  },
+  "statementPeriodLabel": "Period",
+  "pdfNoTransactionsInRange": "No transactions in that period.",
+  "csvImportTitle": "Import CSV",
+  "csvImportSubtitle": "Match CSV columns to دفتر fields, verify encoding with the preview, then import into this ledger.",
+  "csvImportSelectFile": "Select CSV file",
+  "csvImportEncoding": "Text encoding",
+  "csvEncodingAuto": "Auto (recommended)",
+  "csvEncodingUtf8": "UTF-8",
+  "csvEncodingWindows1256": "Windows Arabic (1256)",
+  "csvImportMappingSection": "Column mapping",
+  "csvImportPreviewSection": "First rows preview",
+  "csvImportColumnHint": "Choose CSV column",
+  "csvImportColumnNone": "None",
+  "csvImportStart": "Start import",
+  "csvImportProgressLabel": "Importing rows…",
+  "csvImportSummaryTitle": "Import summary",
+  "csvImportTotalRows": "Total rows",
+  "csvImportSuccessLabel": "Imported successfully",
+  "csvImportFailureLabel": "Skipped rows",
+  "csvImportRowErrors": "Row issues",
+  "csvImportAnotherFile": "Import another file",
+  "csvImportFinish": "Done",
+  "csvImportNoLedgerMessage": "Open a ledger from Home or select one when only one exists — imports always attach to a ledger.",
+  "csvImportMappingIncompleteHint": "Pick a CSV column for every required field.",
+  "csvImportReadFailed": "Could not read that file.",
+  "csvImportEmptyFile": "That CSV file is empty.",
+  "csvImportParseWorkerFailed": "Could not parse the CSV file.",
+  "csvImportStructureFatalPrefix": "CSV structure problem",
+  "csvImportBlockingFailureTitle": "Import could not start",
+  "csvImportSelectedFileLabel": "Selected file",
+  "csvImportDuplicatesSheetTitle": "Existing contacts matched",
+  "csvImportDuplicatesSheetBody": "We found {count} contacts in your ledger that match rows in this file. Choose whether to merge new transactions into them or skip those rows.",
+  "@csvImportDuplicatesSheetBody": {
+    "description": "Explains CSV import pre-flight duplicate detection.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "csvImportDuplicatesMergeRecommended": "Merge transactions (recommended)",
+  "csvImportDuplicatesSkipLabel": "Skip duplicates",
+  "csvImportDuplicatesCancelImport": "Cancel import",
+  "csvImportPrefabProgressLabel": "Checking file…",
+  "csvImportSkippedDuplicatesLabel": "Duplicate rows skipped",
+  "csvImportStepFile": "File",
+  "csvImportStepMapping": "Mapping",
+  "csvImportStepImport": "Import",
+  "csvImportStepDone": "Done",
+  "csvImportRequiredFieldsLabel": "Required fields",
+  "csvImportOptionalFieldsLabel": "Optional fields",
+  "csvImportFileZoneHint": "Tap to browse for a .csv export from your old ledger",
+  "csvImportReplaceFile": "Choose a different file",
+  "csvImportTargetLedgerLabel": "Import into",
+  "csvImportTargetLedgerHint": "Accounts and transactions will be added to this ledger",
+  "csvImportChooseLedgerTitle": "Choose ledger",
+  "csvImportNoLedgerSelected": "Select a ledger to continue",
+
+  "backupTitle": "Backup & Restore",
+  "backupStatusSafe": "Your data is safe",
+  "backupStatusNoBackup": "No backup found",
+  "backupStatusNoBackupSubtitle": "Create a backup to protect your data.",
+  "backupLastBackup": "Last backup",
+  "backupCreateNow": "Create Backup Now",
+  "backupCreating": "Creating backup…",
+  "backupSuccess": "Backup created successfully",
+  "backupFailed": "Backup failed",
+  "backupHistory": "Backup History",
+  "backupNoHistory": "No backups yet",
+  "backupShare": "Share",
+  "backupRestore": "Restore",
+  "backupDelete": "Delete",
+  "backupDeleteConfirmTitle": "Delete Backup?",
+  "backupDeleteConfirmBody": "This will permanently remove the backup file from your device.",
+  "backupDeleteSuccess": "Backup deleted",
+  "backupDeleteFailed": "Failed to delete backup",
+  "backupSizeBytes": "{size} bytes",
+  "@backupSizeBytes": {
+    "description": "File size in bytes",
+    "placeholders": {
+      "size": { "type": "int", "example": "512" }
+    }
+  },
+  "backupSizeKb": "{size} KB",
+  "@backupSizeKb": {
+    "description": "File size in kilobytes",
+    "placeholders": {
+      "size": { "type": "String", "example": "12.4" }
+    }
+  },
+  "backupSizeMb": "{size} MB",
+  "@backupSizeMb": {
+    "description": "File size in megabytes",
+    "placeholders": {
+      "size": { "type": "String", "example": "3.2" }
+    }
+  },
+  "backupRestoreWarningTitle": "⚠ WARNING: DESTRUCTIVE ACTION",
+  "backupRestoreWarningBody": "This will completely overwrite your current database. Any data added after this backup will be lost FOREVER. This action cannot be undone.",
+  "backupRestoreConfirm": "I Understand — Restore",
+  "backupRestoreCancel": "Cancel",
+  "backupRestoring": "Restoring backup…",
+  "backupRestoreSuccess": "Restore complete",
+  "backupRestoreSuccessBody": "Your data has been restored. The app must restart to apply the changes.",
+  "backupRestoreRestartNow": "Restart Now",
+  "backupRestoreFailed": "Restore failed",
+  "backupRestoreFromFile": "Restore from External File",
+  "backupReminderLabel": "Auto-Backup Reminder",
+  "backupReminderOff": "Off",
+  "backupReminderWeekly": "Weekly",
+  "backupReminderMonthly": "Monthly",
+  "backupShareSubject": "Daftar Backup File",
+  "backupTrustEncrypted": "Encrypted with AES-256 on your device",
+  "backupTrustDrivePrivate": "Stored in your private Daftar folder on Google Drive — only you can access it.",
+  "backupRelativeJustNow": "just now",
+  "backupRelativeMinutes": "{count}m ago",
+  "@backupRelativeMinutes": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "backupRelativeHours": "{count}h ago",
+  "@backupRelativeHours": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "backupRelativeYesterday": "Yesterday",
+  "backupRelativeDays": "{count} days ago",
+  "@backupRelativeDays": {
+    "placeholders": {
+      "count": { "type": "int", "example": "4" }
+    }
+  },
+  "backupHealthLocal": "Local",
+  "backupHealthCloud": "Cloud",
+  "backupTotalSize": "{count} backups · {size}",
+  "@backupTotalSize": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "size": { "type": "String", "example": "12.4 MB" }
+    }
+  },
+  "backupStatusLocalOnly": "Local backup active — cloud sync pending",
+  "backupTimelineLatest": "Latest",
+  "backupTimelineSwipeHint": "Swipe to browse your backup history",
+  "backupCeremonyTitle": "Vault Ceremony",
+  "backupCeremonyValidating": "Validating integrity…",
+  "backupCeremonyDecrypting": "Decrypting your ledger…",
+  "backupCeremonyApplying": "Applying to your vault…",
+  "backupCeremonyDownloading": "Downloading from cloud…",
+  "backupCreateSuccessBody": "Your ledger has been sealed and saved securely.",
+
+  "backupDriveSectionTitle": "Google Drive",
+  "backupDriveInviteBody": "Back up to your personal Google Drive — free, encrypted, and private.",
+  "backupDriveSignInWithGoogle": "Sign in with Google",
+  "backupDriveBackupToDrive": "Backup to Drive",
+  "backupDriveRestoreFromDrive": "Restore from Drive",
+  "backupDriveCloudBackups": "Cloud backups",
+  "backupDriveNoCloudBackups": "No backups in Google Drive yet",
+  "backupDriveSignOut": "Sign out of Google",
+  "backupDriveUploading": "Uploading to Google Drive…",
+  "backupDriveDownloading": "Downloading from Google Drive…",
+  "backupDriveCancel": "Cancel",
+  "backupDrivePercent": "{percent}%",
+  "@backupDrivePercent": {
+    "description": "Transfer progress percentage",
+    "placeholders": {
+      "percent": { "type": "int", "example": "42" }
+    }
+  },
+  "backupDrivePendingRetry": "Backup pending — will retry automatically when online",
+  "backupDriveRetryNow": "Retry Now",
+  "backupDriveQuotaExceeded": "Your Google Drive is full. Free up space or manage old backups",
+  "backupDriveManageBackups": "Manage backups",
+  "backupDriveAuthExpired": "Google sign-in expired. Sign in again to continue.",
+  "backupDriveOffline": "No internet connection. Drive backup will resume when you're back online.",
+  "backupDriveSignInAgain": "Sign in again",
+  "backupDriveOfflineGrantMissing": "Permanent backup access is incomplete. Approve Drive access once so automatic backup keeps working even when the app is closed.",
+  "backupDriveOfflineGrantAction": "Complete now",
+  "backupDriveOfflineGrantFailed": "Drive authorization didn't complete. Check your connection and try again.",
+  "backupDriveNotificationPermissionDenied": "Notifications are off. Enable them in system settings so you are alerted when automatic backup runs or fails.",
+  "backupDriveNotificationPermissionOpenSettings": "Open settings",
+  "backupDriveBatteryOptTitle": "Allow background backup",
+  "backupDriveBatteryOptBody": "On this phone, battery restrictions can stop automatic Drive backup while the app is closed. Allow unrestricted battery so backups keep running when the phone is on and online.",
+  "backupDriveBatteryOptAllow": "Allow unrestricted battery",
+  "backupDriveBatteryOptLater": "Not now",
+  "backupDriveTimingHonesty": "Runs about every interval while the phone is on, online, and not force-stopped — not while powered off.",
+  "backupDriveDeleteRemoteTitle": "Delete cloud backup?",
+  "backupDriveDeleteRemoteBody": "This permanently removes the backup from your Google Drive.",
+  "backupDriveUploadSuccess": "Uploaded to Google Drive",
+  "backupDriveUploadFailed": "Drive upload failed",
+  "backupDriveDeleteRemoteSuccess": "Cloud backup deleted",
+  "backupDriveDeleteRemoteFailed": "Failed to delete cloud backup",
+  "backupDriveSignInSuccess": "Signed in with Google",
+  "backupDriveSignInFailed": "Google sign-in failed",
+  "syncAuthBridgeFailed": "Could not connect to the sync server. Try again later.",
+  "inviteCeremonyTitle": "Invitation",
+  "inviteCeremonyExpiredTitle": "This invitation has expired",
+  "inviteCeremonyExpiredBody": "Ask the shop owner to send a new invite link. You can request one below.",
+  "inviteCeremonyRevokedTitle": "This invitation is no longer valid",
+  "inviteCeremonyRevokedBody": "The link was revoked or is unavailable. Request a new invitation from the owner.",
+  "inviteCeremonyAlreadyClaimedTitle": "Invitation already used",
+  "inviteCeremonyAlreadyClaimedBody": "Someone else already accepted this invite. Request a new one if you still need access.",
+  "inviteCeremonyAlreadyClaimedByYouTitle": "You already accepted this invite",
+  "inviteCeremonyAlreadyClaimedByYouBody": "This link was already claimed on your account. Open the app normally or request a fresh invite if access is missing.",
+  "inviteCeremonyRequestCta": "Request a new invitation",
+  "inviteCeremonyPendingBody": "Request saved. Ask the shop owner to open Team and resend your invite.",
+  "inviteCeremonyOpenHome": "Open Daftar",
+  "inviteCeremonyManualCodeLabel": "Have an invite code?",
+  "inviteCeremonyManualCodeHint": "Paste the invite token or full link",
+  "inviteCeremonyPasteClipboard": "Paste",
+  "inviteCeremonySubmitCode": "Continue",
+  "inviteAcceptTitle": "Team invitation",
+  "inviteAcceptPreviewTitle": "You've been invited",
+  "inviteAcceptPreviewBody": "Sign in with the Google account that received this invite to join the workspace.",
+  "inviteAcceptInvitedEmailLabel": "Invited email",
+  "inviteAcceptRoleLabel": "Role",
+  "inviteAcceptCta": "Sign in with Google to accept",
+  "inviteAcceptInProgress": "Joining workspace…",
+  "inviteAcceptEmailMismatch": "This Google account does not match the invited email. Sign in with {email} instead.",
+  "@inviteAcceptEmailMismatch": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteAcceptErrorGeneric": "Could not accept the invite. Try again or ask the owner for a new link.",
+  "inviteAcceptSuccessTitle": "You're in",
+  "inviteAcceptSuccessBody": "You joined the workspace as {role}. Sync will start when you're online.",
+  "@inviteAcceptSuccessBody": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteAcceptContinueHome": "Open Daftar",
+  "syncReportConnectionRefused": "Cannot reach the sync server. Make sure your phone and computer are on the same Wi‑Fi and the local Supabase stack is running.",
+  "syncReportSyncNow": "Sync now",
+  "syncReportSyncNowInProgress": "Syncing…",
+  "syncReportUpload": "Upload",
+  "syncReportUploadInProgress": "Uploading…",
+  "syncReportDownload": "Download",
+  "syncReportDownloadInProgress": "Downloading…",
+  "syncReportPushSuccess": "{count, plural, =0{Nothing to upload} =1{Uploaded 1 change} other{Uploaded {count} changes}}",
+  "@syncReportPushSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncReportPullSuccess": "{count, plural, =0{No new changes} =1{Downloaded 1 change} other{Downloaded {count} changes}}",
+  "@syncReportPullSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncReportPushFailed": "Upload failed. Check your connection and try again.",
+  "syncReportPullFailed": "Download failed. Check your connection and try again.",
+  "syncReportDeviceRegistrationFailed": "Could not register this device with the sync server.",
+  "syncReportStatusIdle": "Awaiting first sync",
+  "syncReportTitle": "Sync report",
+  "syncReportStatusLoadFailed": "Could not load sync status",
+  "syncReportStatusSuccess": "Sync complete",
+  "syncReportStatusPartial": "Partly synced — conflicts need review",
+  "syncReportStatusFailed": "Sync failed",
+  "syncReportStatusDormant": "Sync is inactive",
+  "syncReportConflictsHeading": "Conflicts needing review",
+  "syncReportStatMerged": "Merged ops",
+  "syncReportStatPending": "Pending",
+  "syncReportStatConflicts": "Conflicts",
+  "syncReportConflictDeleteVsEdit": "Delete vs edit",
+  "syncReportConflictConcurrentCreate": "Concurrent create",
+  "syncReportConflictAmbiguous": "Unclassified conflict",
+  "syncReportConflictRejectedPush": "Rejected by the server",
+  "syncReportEntityLedger": "Ledger",
+  "syncReportEntityContact": "Contact",
+  "syncReportEntityTransaction": "Transaction",
+  "syncReportNoConflicts": "No conflicts — everything is in sync",
+  "syncReportDormantTitle": "Multi-device sync",
+  "syncReportDormantBody": "Upgrade to Pro+ to sync your data across multiple devices",
+  "backupDriveSignOutSuccess": "Signed out of Google",
+  "backupDriveSignOutFailed": "Sign out failed",
+  "backupDriveRestorePickTitle": "Choose a backup to restore",
+  "backupDriveRestoreLoading": "Loading backups from Google Drive…",
+  "backupDriveRestorePickerCount": "{count, plural, =1{1 backup} other{{count} backups}}",
+  "@backupDriveRestorePickerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupDriveRestorePickDate": "Pick a date",
+  "backupDriveRestoreClearDate": "All dates",
+  "backupDriveRestoreDateEmpty": "No backups on this date",
+  "backupDriveCloudBackupsPreviewFootnote": "Showing latest {shown} of {total}. Use Restore from Drive to browse all backups by date.",
+  "@backupDriveCloudBackupsPreviewFootnote": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupDriveAutoBackupLabel": "Auto-Backup to Drive",
+  "backupDriveAutoBackupInterval": "Backup interval",
+  "backupDriveAutoBackupDaily": "Daily",
+  "backupDriveAutoBackupWeekly": "Weekly",
+  "backupDriveHiddenFolderHint": "Backups are stored in a secure, hidden folder inside your Google Drive to prevent accidental deletion.",
+  "backupDriveAutoBackupLastRun": "Last automatic backup: {when}",
+  "@backupDriveAutoBackupLastRun": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupDriveAutoBackupNeverRun": "No automatic backup has run yet",
+  "backupDriveAutoBackupIosHint": "On iPhone, the system schedules automatic backup when battery and usage allow.",
+  "backupAutoNotifInProgressTitle": "Automatic backup",
+  "backupAutoNotifInProgressBody": "Uploading your encrypted Daftar backup to Google Drive…",
+  "backupAutoNotifSuccessTitle": "Automatic backup complete",
+  "backupAutoNotifSuccessBody": "Your encrypted backup was saved to Google Drive.",
+  "backupAutoNotifRetryTitle": "Backup pending",
+  "backupAutoNotifRetryBody": "No internet connection. Upload will resume when you are back online.",
+  "backupAutoNotifNeedsReauthTitle": "Sign in again",
+  "backupAutoNotifNeedsReauthBody": "Your Google session expired. Open Daftar and sign in to resume automatic backup.",
+  "backupAutoNotifQuotaTitle": "Google Drive is full",
+  "backupAutoNotifQuotaBody": "Free up Drive space or delete old Daftar backups in Settings.",
+  "backupAutoNotifStorageFullTitle": "Not enough device storage",
+  "backupAutoNotifStorageFullBody": "Cannot create a backup. Free up space on your device and try again.",
+  "backupAutoNotifFailedTitle": "Automatic backup failed",
+  "backupAutoNotifFailedBody": "Could not upload your backup. Open Daftar for details.",
+
+  "smokeTestTitle": "Cloud Smoke Test",
+  "smokeTestButton": "Run Cloud Smoke Test",
+  "smokeTestSubtitle": "Verify Google Sign-In & Drive integration",
+  "smokeTestRunning": "Running diagnostics…",
+  "smokeTestComplete": "Diagnostic complete",
+  "smokeTestClose": "Close",
+  "preflightSignIn": "Interactive Sign-In",
+  "preflightDriveRoundTrip": "Drive Round-Trip",
+  "preflightSilentSignIn": "Silent Sign-In",
+  "preflightSignOut": "Sign Out",
+  "preflightConsoleTitle": "Diagnostic Log",
+  "preflightClearLog": "Clear Log",
+
+  "premiumTitle": "Plans",
+  "premiumHeroTitle": "Choose the plan that fits your store",
+  "premiumHeroTagline": "Clear limits on Free. Unlimited workspace on Pro. Sync and automation on Pro+.",
+  "premiumHeroTaglineContest": "Clear limits on Free. Unlimited workspace on Pro. Analytics and automation on Pro+.",
+  "premiumVaultSealTitle": "Activation code",
+  "premiumVaultSealSubtitle": "Enter your Pro or Pro+ code. Dashes appear as you type.",
+  "premiumTrustEncrypted": "AES-256 on your device before anything leaves it",
+  "premiumTrustOffline": "Plans work offline — activation syncs when you reconnect",
+  "activationBrowsePlans": "Browse plans",
+  "activationCodeLabel": "Activation code",
+  "activationCodeHint": "PROPLUS-XXXX-XXXX-XXXX-XXXX",
+  "activationHaveCode": "Add activation code",
+  "activationAddCode": "Add activation code",
+  "activateButton": "Activate",
+  "activating": "Activating…",
+  "activationSuccessTitle": "Plan activated",
+  "activationSuccessSubtitle": "Your new plan is ready. Enjoy the full power of your ledger.",
+  "activationSuccessDone": "Continue",
+  "activationErrorInvalid": "Invalid code. Check the code and try again.",
+  "planStatusTitle": "Your plan",
+  "planTierFree": "Free",
+  "planTierPro": "Pro",
+  "planTierProPlus": "Pro+",
+  "planLegendCurrent": "Current",
+  "planExpiresOn": "Expires {date}",
+  "@planExpiresOn": {
+    "placeholders": {
+      "date": {"type": "Object"}
+    }
+  },
+  "planDaysRemaining": "{count} days remaining",
+  "@planDaysRemaining": {
+    "placeholders": {
+      "count": {"type": "Object"}
+    }
+  },
+  "planLifetime": "Active subscription",
+  "tierCompareFree": "Free",
+  "tierComparePro": "Pro",
+  "tierCompareProPlus": "Pro+",
+  "tierPriceFree": "$0",
+  "freeTierPrice": "Free",
+  "tierPricePro": "$24.99/yr",
+  "tierPriceProPlus": "$49.99/yr",
+  "tierPriceProAmount": "$24.99",
+  "tierPriceProPeriod": "/yr",
+  "tierPriceProPlusAmount": "$49.99",
+  "tierPriceProPlusPeriod": "/yr",
+  "tierBadgeSavePro": "Save 20%",
+  "tierBadgeSaveProPlus": "Best value",
+  "tierBadgeRecommended": "Recommended",
+  "tierCardHighlightFree1": "1 ledger & 50 contacts",
+  "tierCardHighlightFree2": "500 live transactions",
+  "tierCardHighlightFree3": "Free CSV import",
+  "tierCardHighlightPro1": "Unlimited live workspace",
+  "tierCardHighlightPro2": "Branded PDF statements",
+  "tierCardHighlightProPlus1": "Everything in Pro",
+  "tierCardHighlightProPlus2": "Multi-device sync",
+  "tierCardHighlightProPlus2Contest": "Closing Agent collections desk",
+  "tierCardHighlightProPlus3": "Closing Agent voice & rituals",
+  "tierCardCtaFree": "Continue free",
+  "tierCardCtaPro": "Activate Pro",
+  "tierCardCtaProPlus": "Activate Pro+",
+  "tierCardCurrentPlan": "Your current plan",
+  "tierCardTaglineFree": "Everything you need to start",
+  "tierCardTaglinePro": "For growing stores — no ceilings",
+  "tierCardTaglineProPlus": "Multi-device sync and automation",
+  "tierCardTaglineProPlusContest": "Closing Agent & collections",
+  "tierCardBilledAnnually": "Billed annually",
+  "tierCardOldPricePro": "$31.99",
+  "tierCardOldPriceProPlus": "$62.99",
+  "tierCompareTitle": "Compare features",
+  "tierCompareSubtitle": "Tap a category to see what each plan includes",
+  "tierMatrixGroupWorkspace": "Workspace",
+  "tierMatrixGroupData": "Data & backup",
+  "tierMatrixGroupCloud": "Cloud & automation",
+  "tierMatrixGroupGrowth": "Business growth",
+  "tierBadgeFree": "FREE",
+  "tierBadgeComingSoon": "Coming soon",
+  "tierFeatureWorkspaceLimits": "Ledgers, contacts & transactions",
+  "tierFeatureBackupLocalCloud": "Local & Google Drive backup",
+  "tierFeatureDataExport": "PDF statements",
+  "tierFeatureAiVoice": "AI voice input",
+  "tierFeatureWhatsappStatements": "Automated monthly WhatsApp statements",
+  "tierFeatureAnalyticsDashboard": "Advanced analytics & charts",
+  "tierFeatureStoreBranding": "Store branding on exports",
+  "tierFeatureCustomerPortal": "Real-time customer portal",
+  "tierValueBasicPdf": "Basic PDF",
+  "tierValueBrandedExport": "Branded PDF",
+  "tierFeatureLedgers": "Live ledgers",
+  "tierFeatureContacts": "Live contacts",
+  "tierFeatureTransactions": "Live transactions",
+  "tierFeatureCsvImport": "CSV import",
+  "tierFeatureBrandedPdf": "Branded PDF statements",
+  "tierFeatureLedgerArchiving": "Ledger archiving & restore",
+  "tierFeatureSync": "Multi-device sync",
+  "tierFeatureWhatsapp": "WhatsApp automation",
+  "tierFeatureAnalytics": "Advanced analytics",
+  "tierFeaturePortal": "Customer portal",
+  "tierUnlimited": "Unlimited",
+  "tierValueStarter": "1 / 50 / 500",
+  "tierLimitLedgersFree": "1",
+  "tierLimitContactsFree": "50",
+  "tierLimitTransactionsFree": "500",
+  "manageSubscriptionTitle": "Plan & activation",
+  "manageSubscriptionSubtitle": "View your plan, redeem a code, or compare tiers.",
+  "manageSubscriptionCta": "Open plan center",
+  "limitUpsellTitle": "You've outgrown Free",
+  "limitUpsellSubtitle": "Upgrade to Pro for unlimited live workspace — imports stay free forever.",
+  "limitUpsellProgress": "{current} of {max} used",
+  "@limitUpsellProgress": {
+    "placeholders": {
+      "current": {"type": "Object"},
+      "max": {"type": "Object"}
+    }
+  },
+  "limitUpsellCta": "Unlock Pro",
+  "limitUpsellDismiss": "Not now",
+  "premiumBadgeFree": "Free plan",
+  "premiumBadgePro": "Pro",
+  "premiumBadgeProPlus": "Pro+",
+
+  "securityTitle": "Security",
+  "securitySubtitle": "Protect your ledger with a PIN and biometric unlock.",
+  "securityAppLockTitle": "App lock (PIN)",
+  "securityAppLockSubtitle": "Require a PIN when returning to Daftar after a timeout.",
+  "securityChangePinTitle": "Change PIN",
+  "securityChangePinSubtitle": "Update your unlock code",
+  "securityBiometricTitle": "Biometric unlock",
+  "securityBiometricSubtitle": "Use fingerprint or Face ID when available",
+  "securityBiometricEnrollReason": "Authenticate to enable biometric unlock for Daftar",
+  "securityBiometricRequiresAppLock": "Turn on app lock first to use biometric unlock.",
+  "securityTimeoutTitle": "Auto-lock",
+  "securityTimeoutSubtitle": "How long Daftar can stay in the background before locking",
+  "securityTimeoutImmediate": "Now",
+  "securityTimeoutOneMinute": "1 min",
+  "securityTimeoutFiveMinutes": "5 min",
+  "securityTimeoutFifteenMinutes": "15 min",
+  "securityPinCreateTitle": "Create PIN",
+  "securityPinConfirmTitle": "Confirm PIN",
+  "securityPinChangeTitle": "Change PIN",
+  "securityPinCurrentTitle": "Current PIN",
+  "securityPinNewTitle": "New PIN",
+  "securityPinDisableTitle": "Enter PIN to turn off",
+  "securityPinSubtitle": "Choose a 4-digit PIN",
+  "securityPinConfirmSubtitle": "Enter the same PIN again",
+  "securityPinCurrentSubtitle": "Enter your current PIN",
+  "securityPinDisableSubtitle": "Verify your PIN to disable app lock",
+  "securityPinHint": "4 digits",
+  "securityPinMismatch": "PINs do not match. Try again.",
+  "securityPinIncorrect": "Incorrect PIN",
+  "securityPinLockedOut": "Too many attempts. Wait and try again.",
+  "securityPinInvalid": "PIN must be 4 digits",
+  "securityPinSaveFailed": "Could not save security settings",
+  "securitySettingsError": "Something went wrong. Please try again.",
+  "securityStatusProtected": "Fully secured",
+  "securityStatusProtectedSubtitle": "PIN and biometric unlock are active",
+  "securityStatusPinOnly": "PIN protected",
+  "securityStatusPinOnlySubtitle": "Your ledger locks when you leave Daftar",
+  "securityStatusUnprotected": "No lock active",
+  "securityStatusUnprotectedSubtitle": "Anyone with your phone can open Daftar",
+  "securityGroupAccess": "Access control",
+  "securityGroupAutoLock": "Auto-lock",
+  "securityTrustPinSecure": "PIN is hashed and stored in your device's secure enclave — never in the database",
+  "securityTrustBiometricLocal": "Biometric data never leaves your device",
+  "securityHeroPinRing": "PIN",
+  "securityHeroBiometricRing": "Biometric",
+
+  "lockScreenTitle": "Daftar is locked",
+  "lockScreenSubtitle": "Enter your PIN to continue",
+  "lockScreenBiometricRetry": "Unlock with biometrics",
+  "lockScreenForgotPin": "Forgot PIN?",
+  "lockScreenForgotPinTitle": "Erase local data?",
+  "lockScreenForgotPinBody": "To protect your information, recovering without your PIN will permanently erase all data on this device—ledgers, contacts, and transactions. You must have a .daftar backup file ready to restore your records. This cannot be undone.",
+  "lockScreenForgotPinCta": "Erase data and continue",
+  "lockScreenForgotPinTypeCode": "Type this code to confirm",
+  "lockScreenForgotPinCodeHint": "Enter the 4-digit code",
+  "lockScreenForgotPinPreparing": "Preparing a safe environment…",
+
+  "fatalErrorTitle": "Oops, a glitch occurred",
+  "fatalErrorBody": "Don't worry — all your ledgers and data are completely safe.",
+  "fatalErrorRestart": "Restart app",
+
+  "errorSheetDismiss": "OK",
+  "errorGenericTitle": "Something went wrong",
+  "errorGenericMessage": "We couldn't complete this action. Please try again.",
+  "errorValidationTitle": "Check your input",
+  "errorValidationMessage": "Some details need to be corrected before continuing.",
+  "errorDatabaseTitle": "Couldn't save changes",
+  "errorDatabaseMessage": "Your data is safe. Please try again in a moment.",
+  "errorNetworkTitle": "Connection problem",
+  "errorNetworkMessage": "Check your internet connection and try again.",
+  "errorRateLimitedTitle": "Too many requests",
+  "errorRateLimitedMessage": "You've sent several invites in a short time. Please wait a bit and try again.",
+  "errorRateLimitedMessageWithRetry": "You've sent several invites in a short time. Please try again in about {minutes} minutes.",
+  "@errorRateLimitedMessageWithRetry": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "errorSeatCapTitle": "Team is full",
+  "errorSeatCapMessage": "You can invite up to {maxWorkers} workers on Pro+. Remove a pending or active worker to invite someone else.",
+  "@errorSeatCapMessage": {
+    "placeholders": {
+      "maxWorkers": {
+        "type": "int"
+      }
+    }
+  },
+  "errorForbiddenTitle": "Not allowed",
+  "errorForbiddenMessage": "Your role in this workspace doesn't allow this action. Ask the workspace owner for access.",
+  "errorInvalidRequestMessage": "This request wasn't accepted. Update the app and try again.",
+  "errorInvalidActionMessage": "This change couldn't be synced because the server didn't recognize it. Update the app and try again.",
+  "errorNotFoundMessage": "We couldn't find that item. It may have been removed.",
+  "errorConflictMessage": "Someone else changed this first. Refresh and try again.",
+  "errorServerMessage": "The sync server hit a problem. Your data is safe on this device — please try again later.",
+  "errorServiceUnavailableMessage": "The sync server is temporarily unavailable. Your data is safe on this device.",
+  "errorDeviceCapMessage": "You've reached the number of devices this workspace allows. Remove a device to add another.",
+  "errorSyncEventCapMessage": "This workspace reached its monthly sync limit. Syncing resumes next month.",
+  "errorStorageTitle": "Storage issue",
+  "errorStorageMessage": "We couldn't access device storage. Free up space if needed, then try again.",
+  "errorAuthTitle": "Sign-in required",
+  "errorAuthMessage": "Please sign in again to continue.",
+  "errorInvalidAmountTitle": "Invalid amount",
+  "errorInvalidAmountMessage": "Enter a valid amount greater than zero.",
+  "errorQuotaExceededTitle": "Storage full",
+  "errorQuotaExceededMessage": "Your cloud storage is full. Free up space and try again.",
+  "errorContactNameExists": "A contact with this name already exists in this ledger.",
+  "errorExportFailedTitle": "Export failed",
+  "errorExportFailedMessage": "We couldn't create or share the file. Please try again.",
+  "errorStorageFullTitle": "Storage full",
+  "errorStorageFullMessage": "Please free up at least 50MB of space on your device to proceed safely.",
+
+  "cloudSyncStatusOffline": "Offline — your data is saved on this device",
+  "cloudSyncStatusSyncing": "Syncing backup to the cloud",
+  "cloudSyncStatusSynced": "Backed up to the cloud",
+  "cloudSyncStatusNeedsReauth": "Sign in again to resume cloud backup",
+  "cloudSyncStatusQuota": "Cloud storage is full",
+
+  "recoveryTitle": "System recovery",
+  "recoveryBody": "Your local database file was corrupted due to a storage or power interruption. To protect your data, the app has been halted.",
+  "recoveryRestoreDrive": "Restore from Google Drive",
+  "recoveryStartFresh": "Start fresh (delete local data)",
+  "recoveryStartFreshConfirmTitle": "Delete local data?",
+  "recoveryStartFreshConfirmBody": "This permanently removes the corrupted database on this device. Your Google Drive backups are not affected. The app will restart with a new empty ledger.",
+  "recoveryNoDriveBackups": "No Google Drive backups were found for this account.",
+  "recoveryPickBackupTitle": "Choose a backup to restore",
+  "recoveryRestoreFromFile": "Restore from backup file",
+
+  "settingsCloudBackupLegend": "Cloud",
+
+  "quickAddTitle": "Quick add",
+  "quickAddNewAccountBadge": "New account",
+  "quickAddSelectLedgerHint": "Choose which ledger this account belongs to",
+  "quickAddLedgerLockedHint": "Ledger detected automatically",
+  "quickAddNoLedgerTitle": "Create a ledger first",
+  "quickAddNoLedgerMessage": "Every transaction belongs to a ledger. Create your first ledger to start recording debts and payments.",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get Started",
+  "onboardingTrackDebtsTitle": "Track debts with ease",
+  "onboardingTrackDebtsBody": "Replace your paper ledger with a simple digital notebook that works offline.",
+  "onboardingDriveBackupTitle": "Secure Google Drive backups",
+  "onboardingDriveBackupBody": "Your encrypted backup lives in your own Google account — hidden and private.",
+  "onboardingSharePdfTitle": "Share branded PDF statements",
+  "onboardingSharePdfBody": "Send professional account statements to customers via WhatsApp in one tap.",
+  "onboardingPremiumTitle": "Unlock Pro features",
+  "onboardingPremiumBody": "Activate Pro for branded exports, ledger archiving, and more premium tools.",
+  "onboardingSetupHeroLine": "Debts tracked. Trust intact.",
+  "onboardingSetupLanguageTitle": "App language",
+  "onboardingSetupLookTitle": "Look",
+  "onboardingSetupLookDark": "Dark",
+  "onboardingSetupLookLight": "Light",
+  "onboardingSetupLookSystem": "Match device",
+  "onboardingSetupCurrencyLabel": "Ledger currency",
+  "onboardingSetupStoreTitle": "Store name",
+  "onboardingSetupStoreNameHint": "e.g. Sample Store",
+  "onboardingSetupStoreLogoPro": "Logo is a Pro extra — you can name the store now.",
+  "onboardingSetupGoogleTitle": "Save a copy on Google",
+  "onboardingSetupGooglePrimary": "Continue with Google",
+  "onboardingSetupGoogleLater": "Set up later",
+  "onboardingSetupGoogleFailed": "Sign-in didn’t finish. Your ledger still works offline — try again here.",
+  "onboardingSetupProExpander": "Have a code?",
+  "onboardingSetupProHint": "An activation code is optional. You can continue without one.",
+  "onboardingSetupLedgerTitle": "First ledger",
+  "onboardingSetupLanguageBody": "You can change this anytime in Settings.",
+  "onboardingSetupLookBody": "Your choice applies to this screen right away.",
+  "onboardingSetupStoreBody": "Shows on PDF statements you send to customers.",
+  "onboardingTryDemoStore": "Try with Demo Store",
+  "onboardingSetupGoogleBody": "Encrypted backup in your Google account. Your ledger stays on this device.",
+  "onboardingSetupGoogleCompleteDrive": "Complete Drive access",
+  "onboardingSetupGoogleGrantError": "Drive authorization didn't complete. Check your connection and try again.",
+  "onboardingSetupGoogleSignedIn": "Signed in — one more step for automatic backup.",
+  "onboardingSetupProTitle": "Pro branding",
+  "onboardingSetupProBrandingSubtitle": "Your store name and logo on every PDF you share.",
+  "onboardingSetupProStoreFallback": "Your store",
+  "onboardingSetupLedgerLedgerLine": "A ledger is the notebook — customers, suppliers, or personal.",
+  "onboardingSetupLedgerAccountsLine": "Accounts are the people inside that notebook.",
+  "onboardingSetupLedgerCustomChip": "Custom name",
+  "onboardingSetupLedgerCustomHint": "e.g. Workshop debts",
+  "onboardingSetupLedgerCreate": "Create ledger",
+
+  "demoSeedReportTitle": "Sample store ready",
+  "demoSeedReportStoreKept": "Store name: {name} (kept)",
+  "@demoSeedReportStoreKept": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "demoSeedReportStoreGenerated": "Store name: {name} (generated)",
+  "@demoSeedReportStoreGenerated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "demoSeedReportLedger": "Ledger: {name}",
+  "@demoSeedReportLedger": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "demoSeedReportContacts": "{count} overdue accounts with email",
+  "@demoSeedReportContacts": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "demoSeedReportTones": "Friendly, Reminder, and Firm tone bands included",
+  "demoSeedReportSendSplit": "Top {pdfCount} get statement PDFs; {textCount} get text-only reminders",
+  "@demoSeedReportSendSplit": {
+    "placeholders": {
+      "pdfCount": { "type": "int" },
+      "textCount": { "type": "int" }
+    }
+  },
+  "demoSeedReportDone": "Continue",
+  "demoSeedReportError": "Could not load the sample store. Try again.",
+
+  "settingsSampleStoreSection": "Sample store",
+  "settingsSampleStoreBody": "Populate a demo customers ledger with seven overdue accounts for contest evaluators.",
+  "settingsSampleStoreReset": "Reset sample store data",
+  "settingsSampleStoreFootnote": "Replaces contacts, ledgers, and transactions. Your store name is kept when set.",
+  "settingsSampleStoreResetConfirmTitle": "Reset sample store?",
+  "settingsSampleStoreResetConfirmBody": "This replaces your contacts, ledgers, and transactions with the demo dataset. Your store name stays if you already set one.",
+  "settingsSampleStoreResetConfirm": "Reset",
+  "settingsSampleStoreResetCancel": "Cancel",
+
+  "settingsTeam": "Team",
+  "settingsTeamSubtitle": "Invite workers to your workspace",
+  "settingsJoinWorkspace": "Have an invite code?",
+  "settingsJoinWorkspaceSubtitle": "Paste a team invite link to join a workspace",
+  "joinWorkspaceTitle": "Join workspace",
+  "joinWorkspaceBody": "Paste the invite link or code from your shop owner. You will sign in with the Google account that received the invite.",
+  "joinWorkspaceCodeLabel": "Invite link or code",
+  "joinWorkspaceCodeHint": "https://daftar.app/i/… or paste the token",
+  "joinWorkspaceContinue": "Continue",
+  "joinWorkspaceInvalidCode": "Enter a valid invite link or code.",
+  "joinWorkspaceAlreadyUsed": "This invite has already been opened on this device.",
+  "joinWorkspaceBusy": "Still opening the previous invite. Try again in a moment.",
+  "inviteAcceptWorkspaceMismatch": "Could not join the merchant workspace. Sign out, try again, or contact the shop owner.",
+  "settingsSyncReport": "Sync report",
+  "settingsSyncReportSubtitle": "Multi-device sync status and manual sync",
+  "memberManagementTitle": "Team",
+  "memberManagementSubtitle": "Invite up to two workers to collaborate on your ledgers.",
+  "memberManagementSeatsHint": "Owner plus up to 2 workers (3 seats max).",
+  "memberManagementUpgradeTitle": "Team collaboration is a Pro+ feature",
+  "memberManagementUpgradeSubtitle": "Upgrade to invite workers who can view or edit your ledgers across devices.",
+  "memberManagementUpgradeCta": "View plans",
+  "memberManagementPermissionDenied": "Only the workspace owner can manage team members.",
+  "memberManagementActiveSection": "Active members",
+  "memberManagementPendingSection": "Pending invites",
+  "memberManagementEmptySection": "No members in this section.",
+  "memberManagementInviteCta": "Invite worker",
+  "memberManagementInviteSheetTitle": "Invite a worker",
+  "memberManagementEmailLabel": "Email address",
+  "memberManagementRoleLabel": "Role",
+  "memberManagementRoleOwner": "Owner",
+  "memberManagementRoleEditor": "Editor",
+  "memberManagementRoleViewer": "Viewer",
+  "memberManagementStatusPending": "Pending",
+  "memberManagementStatusActive": "Active",
+  "memberManagementSendInvite": "Send invite",
+  "memberManagementInviteSuccessTitle": "Invite link ready",
+  "memberManagementInviteRoleGranted": "Access granted: {role}",
+  "@memberManagementInviteRoleGranted": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "memberManagementInviteDowngradedTitle": "Invited as viewer, not editor",
+  "memberManagementInviteDowngradedBody": "Every editor seat is already in use, so this invite was created with view-only access. Remove an editor first if you need another one.",
+  "memberManagementCopyLink": "Copy link",
+  "memberManagementShareLink": "Share link",
+  "memberManagementLinkCopied": "Invite link copied",
+  "memberManagementRevokeInvite": "Revoke",
+  "memberManagementRemoveMember": "Remove",
+  "memberManagementRevokeConfirmTitle": "Revoke invite?",
+  "memberManagementRevokeConfirmBody": "This cancels the pending invite and frees the seat.",
+  "memberManagementRemoveConfirmTitle": "Remove member?",
+  "memberManagementRemoveConfirmBody": "This member will lose access on their next sync.",
+  "memberManagementRenewalSection": "Renewal requests",
+  "memberManagementRenewalEmpty": "No pending renewal requests.",
+  "memberManagementRenewalResend": "Resend invite",
+  "memberManagementRenewalRequestedAt": "Requested {date}",
+  "@memberManagementRenewalRequestedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentTitle": "Closing Agent",
+  "closingAgentEmptyTitle": "What should we record?",
+  "closingAgentEmptySubtitle": "Tap an example, or type the name and amount",
+  "closingAgentComposerHint": "Write in the ledger",
+  "closingAgentSpeakWorking": "Reconciling ledger entries...",
+  "closingAgentExampleChip1": "Mohamed paid 500",
+  "closingAgentExampleChip2": "Ahmed owes 200",
+  "closingAgentCloseToday": "Close today",
+  "closingAgentCloseTodayGoal": "Close my day",
+  "closingAgentCloseTodaySemantics": "Close today and start end-of-day closing",
+  "closingAgentSendSemantics": "Send goal",
+  "closingAgentMicSemantics": "Voice",
+  "closingAgentMicBanner": "Hold to speak",
+  "closingAgentMicRecording": "Recording",
+  "closingAgentMicSlideToCancel": "Slide up to cancel",
+  "closingAgentMicReleaseToCancel": "Release to cancel",
+  "closingAgentMicRecordingElapsed": "Recording, {seconds} seconds elapsed",
+  "@closingAgentMicRecordingElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "closingAgentMicPermissionDenied": "Microphone access is off. Open Settings to allow Daftar to record.",
+  "closingAgentMicOpenSettings": "Open Settings",
+  "closingAgentContactsPermissionDenied": "Contacts access is off. Open Settings to let Daftar fill in name and phone.",
+  "closingAgentPermissionBannerSemantics": "Permission notice",
+  "backupDriveNotSignedIn": "Sign in to save your Drive backup.",
+  "closingAgentConfirmDebt": "Record debt",
+  "closingAgentConfirmPayment": "Record payment",
+  "closingAgentConfirmCreateContact": "Create account",
+  "closingAgentConfirmCreateLedger": "Create ledger",
+  "closingAgentConfirmAll": "Record in the books",
+  "closingAgentConfirmPlan": "Confirm plan",
+  "closingAgentIntentDebt": "Debt",
+  "closingAgentIntentPayment": "Payment",
+  "closingAgentIntentNewAccount": "New account",
+  "closingAgentIntentLedger": "Ledger",
+  "closingAgentIntentStatement": "Statement",
+  "closingAgentSkip": "Skip",
+  "closingAgentConfirmed": "Recorded",
+  "closingAgentSkipped": "Skipped",
+  "closingAgentSelectLedger": "Choose a ledger",
+  "closingAgentSelectCurrency": "Choose a currency",
+  "closingAgentContactUnresolvedHelper": "Resolve the account before recording.",
+  "closingAgentWhichContact": "Which account?",
+  "closingAgentDidYouMean": "Did you mean one of these, or create a new account named {name}?",
+  "@closingAgentDidYouMean": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentCreateNewNamed": "Create “{name}”",
+  "@closingAgentCreateNewNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentContactAlreadyExists": "{name} already has an account in the books.",
+  "@closingAgentContactAlreadyExists": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentLedgerTypeCustomers": "Customers",
+  "closingAgentLedgerTypeSuppliers": "Suppliers",
+  "closingAgentLedgerTypePersonal": "Personal",
+  "closingAgentLedgerTypeCustom": "Custom",
+  "closingAgentAskOverdueTitle": "Who still owes",
+  "closingAgentAskLargestTitle": "Largest outstanding",
+  "closingAgentAskSmallestTitle": "Smallest outstanding",
+  "closingAgentAskLastPaymentTitle": "Last payment",
+  "closingAgentAskLastDebtTitle": "Last debt",
+  "closingAgentAskNoLastPayment": "No payment on the books for {name}.",
+  "@closingAgentAskNoLastPayment": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentAskNoLastDebt": "No debt on the books for {name}.",
+  "@closingAgentAskNoLastDebt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentAskNeedName": "Say which account you mean.",
+  "closingAgentAskEmpty": "Nobody owes anything right now.",
+  "closingAgentAskBalanceTitle": "Balance",
+  "closingAgentAskUnresolved": "No matching account in the books.",
+  "closingAgentSpeakDebt": "{name} owes {amount}",
+  "@closingAgentSpeakDebt": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakPayment": "{name} paid {amount}",
+  "@closingAgentSpeakPayment": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakDebtWithItem": "{name} owes {amount} {item}",
+  "@closingAgentSpeakDebtWithItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakPaymentWithItem": "{name} paid {amount} {item}",
+  "@closingAgentSpeakPaymentWithItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakBalance": "{name} owes {amount}",
+  "@closingAgentSpeakBalance": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakCredit": "{name} is owed {amount}",
+  "@closingAgentSpeakCredit": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakSettled": "{name} is settled",
+  "@closingAgentSpeakSettled": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakThisAccount": "this account",
+  "closingAgentSpeakPlanReady": "Today's closing plan is ready. Review it on screen, then confirm.",
+  "closingAgentSpeakRiyals": "{amount} riyals",
+  "@closingAgentSpeakRiyals": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakDollars": "{amount} dollars",
+  "@closingAgentSpeakDollars": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebt": "I'll record {amount} as a debt on {name}. Press {cta}.",
+  "@closingAgentSpeakConfirmDebt": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPayment": "I'll record {amount} as a payment from {name}. Press {cta}.",
+  "@closingAgentSpeakConfirmPayment": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebtCreate": "There's no account named {name}. I'll create one and record a {amount} debt. Press {cta}.",
+  "@closingAgentSpeakConfirmDebtCreate": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPaymentCreate": "There's no account named {name}. I'll create one and record a {amount} payment. Press {cta}.",
+  "@closingAgentSpeakConfirmPaymentCreate": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebtItem": "I'll record {amount} as a debt on {name} for {item}. Press {cta}.",
+  "@closingAgentSpeakConfirmDebtItem": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPaymentItem": "I'll record {amount} as a payment from {name} for {item}. Press {cta}.",
+  "@closingAgentSpeakConfirmPaymentItem": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebtCreateItem": "There's no account named {name}. I'll create one and record a {amount} debt for {item}. Press {cta}.",
+  "@closingAgentSpeakConfirmDebtCreateItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPaymentCreateItem": "There's no account named {name}. I'll create one and record a {amount} payment for {item}. Press {cta}.",
+  "@closingAgentSpeakConfirmPaymentCreateItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmStatement": "I'll prepare a customer statement PDF for {name}. Press {cta}.",
+  "@closingAgentSpeakConfirmStatement": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmCreateContact": "I'll create an account named {name}. Press {cta}.",
+  "@closingAgentSpeakConfirmCreateContact": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmCreateLedger": "I'll create a ledger named {name}. Press {cta}.",
+  "@closingAgentSpeakConfirmCreateLedger": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentStatementTitle": "Statement for {name}",
+  "@closingAgentStatementTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakOverdueIntro": "{count, plural, =1{One account is overdue.} other{{count} accounts are overdue.}}",
+  "@closingAgentSpeakOverdueIntro": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "closingAgentSpeakWhichCandidates": "Which account? {names}.",
+  "@closingAgentSpeakWhichCandidates": {
+    "placeholders": {
+      "names": { "type": "String" }
+    }
+  },
+  "closingAgentLedgerRequiredHelper": "Choose a ledger before creating this account.",
+  "closingAgentUnknownContactHelper": "No account named {name}. Create it and record this amount?",
+  "@closingAgentUnknownContactHelper": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentNoLedgerHelper": "There is no ledger yet. Name one to create it.",
+  "closingAgentLedgerNameHint": "Ledger name",
+  "closingAgentConfirmCreateAndRecordDebt": "Create & record debt",
+  "closingAgentConfirmCreateAndRecordPayment": "Create & record payment",
+  "closingAgentCurrencyRequiredHelper": "Choose a currency before creating this account.",
+  "closingAgentPlanTitle": "Closing plan",
+  "closingAgentPlanSendSplit": "The five heaviest overdue accounts get a statement PDF. The rest of the send set get a reminder email. Aging ranks; Gemini does not pick who.",
+  "closingAgentPlanDeviceRuns": "After backup and aging, overdue contacts with a valid email are emailed (up to 20). Copy is fixed; you will not edit each message. Gemini does not pick who.",
+  "closingAgentPlanOutreachConsent": "Confirm & Send Statements is outreach consent. Confirm without sending closes the books and Drive with no email.",
+  "closingAgentTaskmasterTitle": "Today's closing plan",
+  "closingAgentApprovePlan": "Approve plan",
+  "closingAgentConfirmAndSend": "Confirm & Send Statements",
+  "closingAgentConfirmWithoutSending": "Confirm without sending",
+  "closingTaskmasterSealed": "{count} tasks sealed",
+  "@closingTaskmasterSealed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "closingTaskBindLedger": "Reconcile ledger",
+  "closingTaskCollectDebts": "Collect today's debts",
+  "closingTaskCollectPayments": "Collect today's payments",
+  "closingTaskTallyTotals": "Tally per-currency totals",
+  "closingTaskStampSnapshot": "Stamp the day snapshot",
+  "closingTaskPrepareVault": "Prepare vault payload",
+  "closingTaskSealDrive": "Seal backup to Drive",
+  "closingTaskScanAging": "Scan aging balances",
+  "closingTaskRankUrgency": "Rank by urgency",
+  "closingTaskBuildSendSet": "Compile outreach list",
+  "closingTaskOpenDesk": "Dispatch collection emails",
+  "closingTaskComposeReport": "Compose day report",
+  "closingTaskPresentSeal": "Present the day seal",
+  "closingTaskCaptionDebts": "{count} debts today",
+  "@closingTaskCaptionDebts": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionPayments": "{count} payments today",
+  "@closingTaskCaptionPayments": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionCurrencies": "{count} currencies",
+  "@closingTaskCaptionCurrencies": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionSendSet": "Up to {count} accounts",
+  "@closingTaskCaptionSendSet": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionOverdue": "{count} overdue",
+  "@closingTaskCaptionOverdue": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionSendAuth": "Google permission required before sending",
+  "closingAgentCurrencyLabel": "Currency",
+  "closingAgentNoteLabel": "Note",
+  "closingAgentReadOnlyTool": "This step is view-only in this version.",
+  "closingAgentFabTipTitle": "Agent and manual entry",
+  "closingAgentFabTipBody": "Tap for the agent · press and hold for manual entry",
+  "closingAgentFabTipTapRow": "Tap → agent",
+  "closingAgentFabTipHoldRow": "Hold → manual entry",
+  "closingAgentFabTipSkip": "Skip",
+  "closingAgentFabTipDismiss": "Got it",
+  "closingAgentFabTipSemantics": "Add-button tip: tap for the agent, hold for manual entry",
+  "closingAgentConfirmCoachTitle": "Confirm the amount",
+  "closingAgentConfirmCoachBody": "Nothing is recorded until you confirm.",
+  "closingAgentConfirmCoachSemantics": "Amount confirm tip",
+  "collectionsDeskApproveCoachTitle": "Confirm & Send Statements",
+  "collectionsDeskApproveCoachBody": "Reminders go out in one send. The five heaviest accounts get a statement.",
+  "collectionsDeskApproveCoachSemantics": "Confirm & Send Statements tip",
+  "closingRitualBackupUnsigned": "Sign in to save tonight’s Drive backup.",
+  "closingRitualBackupGrantMissing": "Drive permission was not granted. Approve access once to save tonight's backup.",
+  "closingRitualRunning": "Closing the day…",
+  "closingRitualProgressSummary": "Counting today's books",
+  "closingRitualProgressBackup": "Saving a Drive backup",
+  "closingRitualProgressShortlist": "Finding overdue accounts",
+  "closingRitualRemindersTitle": "Prepare collection reminders?",
+  "closingRitualRemindersYes": "Yes",
+  "closingRitualRemindersTop5": "Top 5",
+  "closingRitualRemindersNo": "No",
+  "closingRitualPdfsTitle": "Attach statements?",
+  "closingRitualPdfsNone": "None",
+  "closingRitualPdfsSelective": "Selective",
+  "closingRitualPdfsSelected": "Selected",
+  "closingRitualReportTitle": "Day closed",
+  "closingRitualSpeakBooks": "Today you recorded {debtCount} debts and {paymentCount} payments",
+  "@closingRitualSpeakBooks": {
+    "placeholders": {
+      "debtCount": { "type": "int", "example": "3" },
+      "paymentCount": { "type": "int", "example": "2" }
+    }
+  },
+  "closingRitualSpeakBackupSafe": "Tonight's backup is on Google Drive. Your books are safe",
+  "closingRitualSpeakBackupQueued": "Tonight's backup will finish when you're back online",
+  "closingRitualSpeakBackupUnsigned": "Sign in to save tonight's Google Drive backup",
+  "closingRitualSpeakBackupGrant": "Approve Google Drive access once to save tonight's backup",
+  "closingRitualSpeakBackupFailed": "Google Drive backup needs another try",
+  "closingRitualSpeakQueue": "{prepared} prepared, {sent} sent, {failed} failed",
+  "@closingRitualSpeakQueue": {
+    "placeholders": {
+      "prepared": { "type": "int", "example": "7" },
+      "sent": { "type": "int", "example": "0" },
+      "failed": { "type": "int", "example": "0" }
+    }
+  },
+  "closingRitualSpeakOverdueRemain": "{count} overdue accounts remain",
+  "@closingRitualSpeakOverdueRemain": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "closingRitualSpeakClose": "That's the close for today",
+  "closingRitualReportDebtCount": "{count} debts",
+  "@closingRitualReportDebtCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "closingRitualReportDebtsUnit": "today's debts",
+  "closingRitualReportPaymentCount": "{count} payments",
+  "@closingRitualReportPaymentCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "closingRitualReportPaymentsUnit": "today's payments",
+  "closingRitualReportTotals": "{currencyCode}: {debt} debt · {payment} paid",
+  "@closingRitualReportTotals": {
+    "placeholders": {
+      "currencyCode": { "type": "String", "example": "YER" },
+      "debt": { "type": "String", "example": "1500" },
+      "payment": { "type": "String", "example": "500" }
+    }
+  },
+  "closingRitualBackupUploaded": "Backup saved to Drive",
+  "closingRitualEmptyOverdue": "Nothing to collect",
+  "closingRitualSkipAll": "Reminders skipped",
+  "closingRitualReminderAll": "Reminders: send set (up to 20)",
+  "closingRitualReminderTop5": "Reminders: top 5",
+  "closingRitualReminderNone": "Reminders: none",
+  "closingRitualPdfNone": "Statements: none",
+  "closingRitualPdfSelective": "Statements: selective",
+  "closingRitualPdfAll": "Statements: selected",
+  "closingRitualPdfRankedTop5": "Statements: ranked Top 5",
+  "closingRitualNeedsHuman": "Needs your attention",
+  "closingRitualOverdueCount": "{count} overdue",
+  "@closingRitualOverdueCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "4" }
+    }
+  },
+  "closingRitualRetry": "Continue closing the day",
+  "collectionsDeskTitle": "Collections",
+  "collectionsDeskCount": "{count} reminders",
+  "@collectionsDeskCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskOpenWhatsApp": "Open WhatsApp",
+  "collectionsDeskCopy": "Copy",
+  "collectionsDeskSkip": "Skip",
+  "collectionsDeskAttachStatement": "Attach statement",
+  "collectionsDeskStartSending": "Start sending",
+  "collectionsDeskApproveSend": "Confirm & Send Statements",
+  "collectionsDeskSkipOutreach": "Skip outreach",
+  "collectionsDeskRetrySend": "Retry sending",
+  "collectionsDeskSending": "Sending…",
+  "collectionsDeskPdfAttached": "PDF attached",
+  "collectionsDeskReminderOnly": "Reminder only",
+  "collectionsDeskDone": "Done",
+  "collectionsDeskCopied": "Reminder copied",
+  "collectionsDeskWhatsAppFailed": "WhatsApp didn’t open. Copy the reminder and send it yourself.",
+  "collectionsDeskToneFriendly": "Friendly",
+  "collectionsDeskToneReminder": "Reminder",
+  "collectionsDeskToneFirm": "Firm",
+  "collectionsDeskAgeDays": "{days} days",
+  "@collectionsDeskAgeDays": {
+    "placeholders": {
+      "days": { "type": "int", "example": "12" }
+    }
+  },
+  "collectionsDeskLastPaymentDays": "{days, plural, =0{Last payment today} =1{Last payment 1 day ago} other{Last payment {days} days ago}}",
+  "@collectionsDeskLastPaymentDays": {
+    "placeholders": {
+      "days": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskOpened": "Opened",
+  "collectionsDeskSkippedStatus": "Skipped",
+  "collectionsDeskSentStatus": "Sent",
+  "collectionsDeskFailedStatus": "Failed",
+  "collectionsQueueSending": "Sending {index} of {total}",
+  "@collectionsQueueSending": {
+    "placeholders": {
+      "index": { "type": "int", "example": "2" },
+      "total": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsQueuePaused": "Paused · {index} of {total}",
+  "@collectionsQueuePaused": {
+    "placeholders": {
+      "index": { "type": "int", "example": "2" },
+      "total": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsQueuePause": "Pause",
+  "collectionsQueueResume": "Resume",
+  "closingRitualQueuePrepared": "{count} prepared",
+  "@closingRitualQueuePrepared": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "closingRitualQueueOpened": "{count} opened",
+  "@closingRitualQueueOpened": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "closingRitualQueueSkipped": "{count} skipped",
+  "@closingRitualQueueSkipped": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "closingRitualQueueSent": "{count} sent",
+  "@closingRitualQueueSent": {
+    "placeholders": {
+      "count": { "type": "int", "example": "4" }
+    }
+  },
+  "closingRitualQueueFailed": "{count} failed",
+  "@closingRitualQueueFailed": {
+    "placeholders": {
+      "count": { "type": "int", "example": "1" }
+    }
+  },
+  "errorGoalTextRequired": "Type a goal first.",
+  "errorAgentIdTokenMissing": "Sign in with Google to use the agent.",
+  "errorAgentOpenIdGrantRequired": "A one-time Google permission update is required to keep the agent signed in. Approve it once — Drive backup is unchanged.",
+  "errorClosingAgentForbidden": "This Google account cannot use the agent. Sign in with the authorized account.",
+  "errorClosingAgentRequestFailed": "Couldn’t reach the agent. Your books are safe on this device — hold + to add an entry.",
+  "errorProposalInFlight": "This confirmation is already in progress.",
+  "errorContactUnresolved": "Couldn’t match a single account. Clarify the name or create it.",
+  "errorLedgerRequired": "Choose a ledger before creating this account.",
+  "errorCurrencyRequired": "Choose a currency before creating this account.",
+  "errorProposalAlreadyCommitted": "This entry was already recorded.",
+  "errorClosingAgentParseFailed": "The agent reply couldn’t be read. Try again.",
+  "errorSmtpTitle": "Email was not sent",
+  "errorSmtpNeedsHuman": "Gmail on Cloud Run rejected the App Password. Signing into the app again will not help. Your books are unchanged.",
+  "errorSmtpSenderMisconfigured": "Email sender is not configured on Cloud Run. Google Drive sign-in is unrelated. Your books are unchanged.",
+  "errorCollectionsEmailCap": "You can send at most 20 reminders at once."
+}

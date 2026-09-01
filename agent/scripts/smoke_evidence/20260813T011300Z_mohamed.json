@@ -1,0 +1,235 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "functionCall": {
+            "id": "hgldyjmd",
+            "args": {
+              "goal_class": "capture_debt",
+              "goal_text": "Mohamed owes 500"
+            },
+            "name": "parse_goal"
+          },
+          "thoughtSignature": "AY89a1-ikc89RSI173ITDtPuftkDaaa2WtLB62vtkyu_xBaBIL-VnAH1JypbdM1szk7EjMX973j2u0xlgO0TCydO98w55eepxnfrXNyBy6X3dhcekM18a_tBuWjEMCsvhDGZpiOIVLGwUemwQIUIwwNYE3gwwB4l3z_7vfaNT_1sdHQjKxPGAbk7hu0HJU9YCZbK-yjv1ovOXpzvjigO0xWVxEFXf5yuK3TUzGj0i-nIDoEaMjM3bEScEJ1mJp2QpNygWwfrx_4LIjEibbXrTiJoZS3xme-TIAwS_uKgeAIM2JmLQBHGbLjXkwAmiO9w6T-Eu9K6X_VVrX5DW62aGFObbJuyFewoBwC0NSZ-7tV3DbvB8oNRbKvJDD4xb1M1Xc9MKa7AXadYnnFZUFXyeokHJHMjXoOTg0psEA7ObtjaUpz9NnQaQElVexodPMdA3-2hMQ8EQTybR2pKin5Re7xAZkXxcwWTqGCyyLnRgyhm7iFyZQ4kQ4DlPULgtPysAQ3676pjQuVoiEb2XPKsIvfenHzJNvgf7iUO4vy8R0d1AI-XI9se47scN2FTZpRRhqGTweOQ6iIu4EfgXFmbRtuIxfyYjY6wpAQ3qO8jINcE3BHNm6NHkkh7x0CE8b6A8hR2CvWMWC-BaqI_oISQTW3sA2o5KwVULmK_9jpjExH2ieyeE4N2k6bIUBNbONlnwGJiNcPNvgZ31h22sNZ29JhRzzSZr3JXDrjSLzPyGhvE8rlHt2w3c6o3uevpoVVASkkuHmLJWisM6gMQrxY--6ulXj_1qYYs35Bjte8V90IUhOgxxt1wdAApg4FYyLct2JLkGFXO59ZOIfjlRGIJv0GlLr9hBQTVAQhqHk1K_nTaxyQouWtU_kMKlNTy0vthCVno6X3kJrZ6YgTtm4ZjcfTFX93lRaO5VakR0YNW1YYAPMgu9ESNsJ2BP7CEcjXsbn2o0C5ApPeFV8Pc-Jpbu7GIjUU9x5I1eVY825y8erB7QZ7UwSLQSWpm6nDYIyBYJz48KI9ESp9RalkfaDUnRBn__gQbNs2q0a4xr-uniHX5uPfbPvu-RNTSlngRD1ulr0ng7RTsWUMvKxRM1hKm7FhGr70r1IcUfByLkZ9s3DTJUYKrKnopLPnHPFf7i1vumuwXVERKLfRttglL0UTi-TzjcWw2JXTPlI3SVS_XjKgY0DbS2M8DAQOnrsCdfPFeEe81AJuVM-6jo4sRUNIMoNJEN4FA1Qw38bmNsNlv4qeH-E8E9McU_bC2sflMGKj0vf8A5U5V7mxUFHxmrxPbMK60ODZE0RkNre0uUxW9aAk943_naJ9D6Eo4bUKNqBJJ25W4BNabN3v3NQ_ZO63dtVhYgArt64GmhvYmn39Er55A2xRjVB4pUPcgWoDEV6AQxUCWr7ctpd-ykjZ3BoBXuC5tRFsfek8anXWlk8kq3tWpadj-X-cebeFIWK9S8iIYyXiZbMvQl9_zEl5PmhXWHIf9LZlpOUSPESOfZc6AeGFWtsVt53SvroH5l9g3Psy1HP9EGlEBCmbneRLqKYoxCCGdaOyyvwu19FKxl_VPQD4zBNd_mf2ozSL0L7G2Q9HtmOio2Rbki9CDtFC-dfnn1oGB9gQq8dWluvFCBUAuLU656qjccq-RDJy77wrywg1ttXrl8uXKbIqzONDgWMXlT79kb7GcmxU1Y-YDLraPCFu6FKKek_AZgwGpbfRHyL1qJ3iS1sRHGC63Zyg_lbc9pvr3DX3KNeuc5dBoPYF-ZIfCrFN87zgW0xRbMF_74hchWqyvJ0c6AeRDXjNjZEWh2NR27Shs_YSfp_lTx6zpmZufAFjxQ-pVIHl3AHIcHtOw_FCKnrWGToBPPT1YTVK3iRIp2CQK0vuzIy5BNuocWWdXEqmqSPthJvqoaAYHlF4q0yeeyrFFt-jNaJwBrTpmG9ZXBOr8Eu3OfmLwr_JM0UROGVzRTzBlTk4h6GtGXMzjox3R0v0V-QAQsRJhh5-357_YhEFs5cXM69hT0iyW2Z9jSFtvCx0x5C82Y_Yutgy9rHdxdKbejBYnY3QFBzFnBdq-a8YHQ0P8tKZIu1fEa-O6Gaf5hbvKEMBbxCzrJMCX6EDsE09w72F3uO69EPLvZEAF51utJEWuLiUywhZ_E4QzH9qpkV8xsvumk1lWv7_GCwyqpqe-K0sSw-6cptUYa-E3PGQ3LByeVIQQhivrcPTyhCBSHMJ2oUlwglMEjhowpHgOANY8w_lsj0Y4XYJwPraxeA1qhIgUB8upKWfPkfFiN27HoaPWJPC8kgXHPniVJCuVzmQZCKWZ_GTO8IyIMAXPibXQVi3AwCcB_xnOfpev"
+        },
+        {
+          "functionCall": {
+            "id": "1j0cgj6p",
+            "args": {
+              "contact_hint": "Mohamed",
+              "amount_minor": 50000
+            },
+            "name": "propose_debt"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 64,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 64
+        }
+      ],
+      "promptTokenCount": 1831,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1831
+        }
+      ],
+      "thoughtsTokenCount": 527,
+      "totalTokenCount": 2422,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-09ba3c7c-ef21-451a-8113-d8aa34c8d1a9",
+    "author": "closing_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "longRunningToolIds": [],
+    "id": "e04b52f9-d8df-4e0f-91bf-f7055ad1e273",
+    "timestamp": 1786583594.13011
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "hgldyjmd",
+            "name": "parse_goal",
+            "response": {
+              "proposalId": "49c05410-4c33-4268-a359-4928920cef9f",
+              "tool": "parse_goal",
+              "payload": {
+                "goalClass": "capture_debt",
+                "notes": "Mohamed owes 500"
+              },
+              "confirmRequired": false
+            }
+          }
+        },
+        {
+          "functionResponse": {
+            "id": "1j0cgj6p",
+            "name": "propose_debt",
+            "response": {
+              "proposalId": "ee414cd9-8f7f-4f14-9cfe-4d7025f0f69b",
+              "tool": "propose_debt",
+              "payload": {
+                "contactHint": "Mohamed",
+                "amountMinor": 50000,
+                "currencyCode": "YER",
+                "contactId": "33333333-3333-4333-8333-333333333333"
+              },
+              "confirmRequired": true
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-09ba3c7c-ef21-451a-8113-d8aa34c8d1a9",
+    "author": "closing_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "id": "94bd1250-af3e-4c6c-9d04-9d3bbc68a882",
+    "timestamp": 1786583598.535818
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionCall": {
+            "id": "vbt9f0sr",
+            "args": {
+              "currency_code": "YER",
+              "contact_hint": "Mohamed",
+              "amount_minor": 500
+            },
+            "name": "propose_debt"
+          },
+          "thoughtSignature": "AY89a18v9K5e0R1ziz7AepFYAV_yhvROVePvzzNPnQafmCDkpplEj61tbWFtDuW_pRgzVJ1iBcnoeu0OBS3eFv3kEiVdds7OnVzwEU9-XGsH_Rf6RSrKx4BZODkG_yXlKDjZ04N_0k7sdXIkZHGEQ0huIPtyfaZglOSHT_Aa-gri2S4B5IM5J4AbG_01UOLlavBJo5mXvPUQhzhZSVBMnjrLEefKfFIjfXoxva0o1YNExVhHw6WkErwSomrTuZhHJL7Ia_OG_Aw84nlzGxUZXjkicXCv51vhqXJHgY5vrYYHa85ypjbQa0_4RDdmV8f-BVl0m3GRV9tHDU9NPSJOEuBs6ToOIr_qEbYrCebtMGxmiMc570PijFHzNGk8LwlMDVlyXUAWm8jvpP3SoUlWC9X9Z876pmnoU5_iQG7Uv-J7r_WbVo-xkCueFiGW5cRv7F0tXC_UxxBKqSOysxfgct9GpExAd2YmpVFiS_s1-6HcyjIrxHLk72trcXCoZA64uOUnXrLYsJ5EmLtCaSW81n67e0t0EW3_Xn5ATL6jrRqbfGnbZjg7n3JgfrRvWHf9zzFMe52JF9Disx204D3J3IxVMDF7o91DTCLoSQhPyFlHq1kc8rkR4IkI84GorywK8f2s-BK1ESTwVZNO_kwmUtxGYy-_zC6JXs5DwoyQfgbCyjUr4ACBJj8sTnIV67g36RXSillCFFblsU-a45qs2ziQgWwFVnDwJ9MvJTGZA_gMbpO6PDIhr62UrgAa1k7rEJZzrD5os5Yw1YriifzbLz2RWLzj5Cf-XFRKGeWAnc6Vqh3p2-J1ozphnP_gdSy3"
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 36,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 36
+        }
+      ],
+      "promptTokenCount": 2569,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 2569
+        }
+      ],
+      "thoughtsTokenCount": 191,
+      "totalTokenCount": 2796,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-09ba3c7c-ef21-451a-8113-d8aa34c8d1a9",
+    "author": "closing_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "longRunningToolIds": [],
+    "id": "caae63ad-67e0-4a15-812d-f0df1b31578a",
+    "timestamp": 1786583598.542484
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "vbt9f0sr",
+            "name": "propose_debt",
+            "response": {
+              "proposalId": "ed7880f7-1eea-4da7-bdbc-c773a12c317c",
+              "tool": "propose_debt",
+              "payload": {
+                "contactHint": "Mohamed",
+                "amountMinor": 500,
+                "currencyCode": "YER",
+                "contactId": "33333333-3333-4333-8333-333333333333"
+              },
+              "confirmRequired": true
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-09ba3c7c-ef21-451a-8113-d8aa34c8d1a9",
+    "author": "closing_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "id": "3e474d53-37b5-4c2a-a35e-295954c12923",
+    "timestamp": 1786583600.836301
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "لقد قمت بتجهيز مقترح لتسجيل دين بقيمة **500 ريال يمني** على **محمد**. \n\nيرجى الضغط على زر التأكيد في التطبيق لحفظ هذه المعاملة في الدفتر.",
+          "thoughtSignature": "AY89a19NEKSITJPQakMnLJp95D2HZ2MyVfHS37vNTxW9aiY5BqDg0I_vFuqMCG5GM3ht2RAMVKkID3qj3qcKDSn2TKLf1WrXdkBaNAUv8pEhNJoYLCRPsdimqZ4LMUOZM3VrCTPcPq1xwYtVQQ_qBA8JvkngnKqNGash0SkBkSaVx9OAUzNfiTZeXLHnOAXylvKPpNTXBs3Xb5GoZ_VMzmW1YCxhwy2MaRs6T4x7Jp1AV1WSLEhVZuthgMY9goVhUl92zACpoaACEQeuwOcCtf1MkMEX0reyanytdFYUrg99xst_M5y944eACWvs6_R9LRu7kTEzhCxvZSVeW2MduFW0cF6T3Fi8aIlRWNyNSERDlm3BRZZ9OdwaiP7BDzrOahVzHPuG7lIzTsRVFDEz0PPmgmhMzHA="
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 52,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 52
+        }
+      ],
+      "promptTokenCount": 2882,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 2882
+        }
+      ],
+      "thoughtsTokenCount": 62,
+      "totalTokenCount": 2996,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-09ba3c7c-ef21-451a-8113-d8aa34c8d1a9",
+    "author": "closing_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "id": "77f3670c-b3f5-4528-a00c-2367eb565088",
+    "timestamp": 1786583600.841941
+  }
+]

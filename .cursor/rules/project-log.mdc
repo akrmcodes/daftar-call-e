@@ -1,0 +1,47 @@
+---
+description: Always append a structured work summary to docs/project_log.md when finishing significant work
+alwaysApply: true
+---
+
+# Project Log Mandate
+
+After completing a **significant unit of work** (stage slice, band, fix arc, or multi-file feature), **always append** an entry to [`docs/project_log.md`](docs/project_log.md).
+
+Do **not** skip this because the user did not ask. Do **not** edit the plan file instead of the log. Do **not** overwrite prior entries — **append only**.
+
+## When to write
+
+- A roadmap stage / sub-stage / band checklist item is finished (or a coherent fix arc closes)
+- A multi-file feature lands (Edge Functions, migrations, Flutter stack, etc.)
+- A production/local incident is diagnosed and fixed (e.g. sync LAN/JWT/grants)
+- Before ending a long Agent turn that shipped substantive work
+
+Skip only for trivial one-liners (typo, comment) with no behavior or docs impact.
+
+## Entry format (append at end of file)
+
+```markdown
+## YYYY-MM-DD — <Stage / Band / Title>
+
+### Context
+What was requested and why (1–3 sentences).
+
+### Done
+- Concrete deliverables with **file paths** and roadmap refs (§x.y)
+
+### Architecture / decisions
+Locked choices, invariants preserved, explicit non-goals
+
+### Ops / verification
+Commands run, test counts, migrate/deploy notes, known follow-ups
+
+### Status
+Roadmap checkboxes updated? Blockers for the next band?
+```
+
+## Quality bar
+
+- Accurate and **organized** — usable by the owner, the next developer, and future AI sessions
+- Prefer paths + § references over vague “wired sync”
+- Call out **remaining gaps** honestly (stubs, deferred FCM, unchecked invite acceptance, etc.)
+- If `docs/project_log.md` is missing, create it with a one-line title `# Daftar — Project Log` then append

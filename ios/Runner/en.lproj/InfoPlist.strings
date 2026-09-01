@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "Daftar";
+"NSContactsUsageDescription" = "Daftar uses your contacts to fill in customer name and phone number when adding accounts.";
+"NSMicrophoneUsageDescription" = "Daftar records a short voice clip so you can speak a ledger entry instead of typing it.";

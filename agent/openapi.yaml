@@ -1,0 +1,1076 @@
+openapi: 3.1.0
+info:
+  title: Daftar Closing Agent — Device ↔ Cloud Run Wire Contract
+  version: 2.4.1
+  summary: Frozen Appendix J contract for All Things Agentic (Submission Period 2026).
+  description: |
+    Normative machine-readable contract for Stages 1–4 of `docs/roadmap_v2.md` **Appendix J**.
+    Stage 4.7 adds deterministic `POST /v1/email/send-batch` (J.7) beside ADK `/run`.
+    Stage 5 speech quality adds unary `POST /v1/tts` (Chirp 3 HD Enceladus MP3; not Gemini Live).
+
+    ## Architecture
+    - Cloud Run hosts a Google **ADK** agent (Python) that emits **proposals**, never Drift writes.
+    - Flutter commits money/create/WhatsApp prepare only after an on-device **confirm gate**.
+    - Model: `gemini-3.5-flash` on Vertex (`GOOGLE_GENAI_USE_VERTEXAI=TRUE`,
+      `GOOGLE_CLOUD_LOCATION=global` or `us`). Gemini 3.1 product models are banned for contest.
+
+    ## Context carriage (locked)
+    Appendix J request fields travel as JSON under ADK session state key **`daftarContext`**
+    (`DeviceAgentRequest`) on session create and/or `POST /run` `stateDelta`.
+    The user utterance is ADK `newMessage.parts[].text` and MUST equal `goalText`.
+
+    ## Money (HARD)
+    All monetary amounts are **`amountMinor: integer`** (smallest currency unit) plus
+    `currencyCode: string`. Never `number` / float / double / Decimal / string amounts.
+
+    ## localDay (J.4)
+    1. Persist txn `createdAt` in UTC (existing Drift invariant).
+    2. Merchant `localDay` = calendar date of `createdAt` in the **device local timezone**
+       at query time (no AppSettings timezone field today).
+    3. Closing summary totals = Drift query for that `localDay` (debts + payments), including
+       long-press quick-add — **not** Day Journal alone.
+    4. Pass `merchantLocalDay` on every agent request so plans narrate the same day.
+
+    ## Auth (J.1)
+    - Cloud Run: **authenticated** invokers only (no public unauthenticated, no `allUsers`).
+    - Primary: Google **ID token** (`Authorization: Bearer …`). Audience is Cloud Run
+      **custom audiences** — product GCP OAuth client IDs (Web, Android, iOS).
+      GSI tokens have `aud` = Web client ID; PKCE tokens have `aud` = installed-app
+      client ID — **not** the `*.run.app` service URL. `gcloud auth print-identity-token`
+      still uses the service URL (also accepted).
+    - Fallback `X-Daftar-Agent-Secret` is **not implemented**. Do not send it; do not
+      treat it as live OR-auth.
+    - **Forbidden:** Gemini API key or Vertex SA key embedded in Flutter.
+
+    ## Confirm gate (J.5) — device-side
+    - Single-flight lock per `proposalId`.
+    - Re-confirm of an already-committed `proposalId` → success/noop (no second write).
+    - Cancel never writes money.
+
+  contact:
+    name: Daftar Closing Agent
+  license:
+    name: Proprietary — contest submission substrate
+
+servers:
+  - url: https://{serviceHost}
+    description: Authenticated Cloud Run ADK API server (*.run.app or custom domain)
+    variables:
+      serviceHost:
+        default: daftar-closing-agent-PLACEHOLDER.us-central1.run.app
+
+tags:
+  - name: adk-smoke
+    description: ADK-native smoke endpoints (Appendix J.6). No custom /health.
+  - name: contract
+    description: Normative Daftar schemas carried on ADK transport.
+  - name: confirm-gate
+    description: Device-side confirm/cancel contract (implemented in Flutter Stage 2).
+  - name: email-send
+    description: Deterministic Gmail SMTP send-batch (Appendix J.7). Not an ADK tool.
+  - name: tts
+    description: Unary Chirp 3 HD Enceladus MP3 (same Cloud Run IAM as `/run`). Not Gemini Live.
+
+security:
+  - GoogleIdToken: []
+
+paths:
+  /list-apps:
+    get:
+      tags: [adk-smoke]
+      operationId: listApps
+      summary: List ADK apps hosted by this Cloud Run service
+      description: |
+        Smoke step 1. Response must include the contest agent app name
+        (directory name under `agent/`, e.g. `closing_agent`).
+      security:
+        - GoogleIdToken: []
+      responses:
+        "200":
+          description: Array of app name strings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+              example: ["closing_agent"]
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /apps/{app}/users/{userId}/sessions/{sessionId}:
+    post:
+      tags: [adk-smoke]
+      operationId: createOrUpdateSession
+      summary: Create or update an ADK session
+      description: |
+        Smoke step 2. Optional body may include `stateDelta.daftarContext`
+        (`DeviceAgentRequest`) so the first turn already has ledger/voice context.
+      security:
+        - GoogleIdToken: []
+      parameters:
+        - $ref: "#/components/parameters/AppName"
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdkSessionCreateBody"
+      responses:
+        "200":
+          description: Session created or updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /run:
+    post:
+      tags: [adk-smoke, contract]
+      operationId: runAgent
+      summary: Run one ADK agent turn
+      description: |
+        Smoke step 3. ADK JSON body. Daftar context MUST be present under
+        `stateDelta.daftarContext` (or already stored on the session).
+        Tool results / structured output MUST deserialize to `AgentTurnResponse`
+        with integer `amountMinor` on money proposals.
+      security:
+        - GoogleIdToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdkRunRequest"
+            examples:
+              closeDay:
+                summary: Close my day
+                value:
+                  appName: closing_agent
+                  userId: u_demo
+                  sessionId: s_demo
+                  stateDelta:
+                    daftarContext:
+                      correlationId: "550e8400-e29b-41d4-a716-446655440000"
+                      locale: ar
+                      merchantLocalDay: "2026-08-13"
+                      ledgers:
+                        - id: "11111111-1111-4111-8111-111111111111"
+                          name: زبائن
+                      voiceHints:
+                        - contactId: "22222222-2222-4222-8222-222222222222"
+                          displayName: محمد
+                      isMultiCurrencyEnabled: false
+                      defaultCurrency: YER
+                      goalText: اقفل يومي
+                  newMessage:
+                    role: user
+                    parts:
+                      - text: اقفل يومي
+              captureDebt:
+                summary: Mohamed owes 500
+                value:
+                  appName: closing_agent
+                  userId: u_demo
+                  sessionId: s_demo
+                  stateDelta:
+                    daftarContext:
+                      correlationId: "660e8400-e29b-41d4-a716-446655440001"
+                      locale: en
+                      merchantLocalDay: "2026-08-13"
+                      ledgers:
+                        - id: "11111111-1111-4111-8111-111111111111"
+                          name: Customers
+                      voiceHints:
+                        - contactId: "22222222-2222-4222-8222-222222222222"
+                          displayName: Mohamed
+                      isMultiCurrencyEnabled: false
+                      defaultCurrency: YER
+                      goalText: Mohamed owes 500
+                  newMessage:
+                    role: user
+                    parts:
+                      - text: Mohamed owes 500
+      responses:
+        "200":
+          description: |
+            ADK event stream / run result. Contest device bridge extracts
+            `AgentTurnResponse` (proposal list) from tool calls or structured output.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AgentTurnResponse"
+                  - type: array
+                    description: Raw ADK events (implementation may wrap)
+                    items:
+                      type: object
+                      additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /contract/confirm:
+    post:
+      tags: [confirm-gate]
+      operationId: confirmProposalContract
+      summary: Device confirm-gate semantics (Stage 2 — not a Cloud Run route)
+      description: |
+        **Not deployed on Cloud Run.** Documented here so Stage 2 Flutter and tests
+        share one schema. Device executes Drift use cases after confirm.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmProposalRequest"
+      responses:
+        "200":
+          description: Commit result or idempotent noop
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfirmProposalResult"
+
+  /contract/cancel:
+    post:
+      tags: [confirm-gate]
+      operationId: cancelProposalContract
+      summary: Device cancel semantics (Stage 2 — not a Cloud Run route)
+      description: |
+        Cancel never writes money. Optional Day Journal “skipped” entry is allowed.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelProposalRequest"
+      responses:
+        "200":
+          description: Cancel acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CancelProposalResult"
+
+  /v1/email/send-batch:
+    post:
+      tags: [email-send]
+      operationId: sendEmailBatch
+      summary: Deterministic Gmail SMTP send-batch (Appendix J.7)
+      description: |
+        Multipart manifest + optional per-contact PDF (`pdf_{contactId}`). Server
+        assembles Appendix C.2 `text/plain` from named params (never LLM `body`,
+        never `amountMinor`). Missing PDF part → text-only SMTP. One SMTP
+        transaction per recipient. Cap 20. Auth is Cloud Run IAM + J.1 Google ID
+        token (same custom audiences as `/run`). Do not add a second in-process
+        JWT check. Shared-secret fallback is unimplemented.
+      security:
+        - GoogleIdToken: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [manifest]
+              properties:
+                manifest:
+                  type: string
+                  description: JSON EmailSendBatchManifest (see components.schemas)
+              additionalProperties:
+                type: string
+                format: binary
+                description: Optional PDF part named `pdf_{contactId}` (`application/pdf`, ≤5 MB). Missing → text-only SMTP.
+            encoding:
+              manifest:
+                contentType: application/json
+      responses:
+        "200":
+          description: Per-recipient SMTP results (recipient order)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailSendBatchResponse"
+        "400":
+          description: Invalid manifest (cap >20, UUID, locale, missing required strings)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /v1/tts:
+    post:
+      tags: [tts]
+      operationId: synthesizeAgentSpeech
+      summary: Chirp 3 HD Enceladus unary MP3
+      description: |
+        Synthesize agent narrative / confirm read-back. Voice is Enceladus on both
+        `ar-XA` and `en-US`. Cap 2000 characters. Empty text → 400. Auth is
+        Cloud Run IAM + J.1 Google ID token (same custom audiences as `/run`).
+        Do not add a second in-process JWT check. Never log the merchant text
+        at info. Device `flutter_tts` remains the offline fail-soft.
+      security:
+        - GoogleIdToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TtsRequest"
+      responses:
+        "200":
+          description: MP3 as base64 (never logged)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TtsResponse"
+        "400":
+          description: Empty text or over the 2000-character cap
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    enum: [empty_text, text_too_long]
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          description: Cloud TTS unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    enum: [tts_unavailable]
+
+components:
+  securitySchemes:
+    GoogleIdToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Google OAuth **ID token** for the signed-in merchant. Audience is Cloud Run
+        **custom audiences** (Web + Android + iOS OAuth client IDs). GSI `aud` is
+        the Web client ID; PKCE `aud` is the installed-app client ID — not the
+        `*.run.app` service URL. `gcloud auth print-identity-token` uses the
+        service URL (also accepted). Primary auth for Flutter → Cloud Run
+        (Appendix J.1).
+    AgentSharedSecret:
+      type: apiKey
+      in: header
+      name: X-Daftar-Agent-Secret
+      description: |
+        **Not implemented.** Documented historically as a demo fallback. Do not
+        send this header. Live auth is Google ID token + Cloud Run IAM only.
+
+  parameters:
+    AppName:
+      name: app
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        example: closing_agent
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid identity (Cloud Run IAM / token)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+  schemas:
+    Uuid:
+      type: string
+      format: uuid
+      pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+
+    LocalDay:
+      type: string
+      format: date
+      description: Merchant calendar day YYYY-MM-DD
+      example: "2026-08-13"
+
+    LocaleCode:
+      type: string
+      description: Reply / draft language (BCP-47 ok; contest uses ar or en)
+      enum: [ar, en]
+      example: ar
+
+    CurrencyCode:
+      type: string
+      minLength: 3
+      maxLength: 8
+      description: ISO-like currency code from AppSettings.defaultCurrency
+      example: YER
+
+    AmountMinor:
+      type: integer
+      description: |
+        Monetary amount in **smallest currency unit** (integer only).
+        YER has 0 decimal places (spoken 500 → 500). SAR/USD have 2 dp
+        (spoken 500 → 50000). NEVER float / double / number / string.
+      example: 500
+
+    LedgerRef:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id:
+          $ref: "#/components/schemas/Uuid"
+        name:
+          type: string
+          minLength: 1
+
+    VoiceHint:
+      type: object
+      additionalProperties: false
+      required: [displayName]
+      properties:
+        contactId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+        displayName:
+          type: string
+          minLength: 1
+          description: Maps from voice context contactName / search display
+        phone:
+          oneOf:
+            - type: string
+            - type: "null"
+
+    DeviceAgentRequest:
+      type: object
+      additionalProperties: false
+      description: Appendix J.2 — every agent turn
+      required:
+        - correlationId
+        - locale
+        - merchantLocalDay
+        - ledgers
+        - voiceHints
+        - isMultiCurrencyEnabled
+        - defaultCurrency
+        - goalText
+      properties:
+        correlationId:
+          $ref: "#/components/schemas/Uuid"
+        locale:
+          $ref: "#/components/schemas/LocaleCode"
+        merchantLocalDay:
+          $ref: "#/components/schemas/LocalDay"
+        ledgers:
+          type: array
+          items:
+            $ref: "#/components/schemas/LedgerRef"
+        voiceHints:
+          type: array
+          items:
+            $ref: "#/components/schemas/VoiceHint"
+        isMultiCurrencyEnabled:
+          type: boolean
+        defaultCurrency:
+          $ref: "#/components/schemas/CurrencyCode"
+        goalText:
+          type: string
+          minLength: 1
+        audioRef:
+          oneOf:
+            - type: string
+              minLength: 1
+            - type: "null"
+          description: Optional multimodal audio reference (Stage 5)
+
+    ProposalTool:
+      type: string
+      description: Tool name on AgentProposal.tool
+      enum:
+        - parse_goal
+        - propose_debt
+        - propose_payment
+        - propose_create_contact
+        - propose_create_ledger
+        - propose_closing_plan
+        - propose_whatsapp_drafts
+        - propose_statement
+
+    GoalClass:
+      type: string
+      enum:
+        - capture_debt
+        - capture_payment
+        - ask
+        - close_day
+        - statement
+        - create_contact
+        - create_ledger
+        - backup_only
+
+    ParseGoalPayload:
+      type: object
+      additionalProperties: false
+      required: [goalClass]
+      properties:
+        goalClass:
+          $ref: "#/components/schemas/GoalClass"
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        notes:
+          type: string
+
+    ProposeDebtPayload:
+      type: object
+      additionalProperties: false
+      required: [contactHint, amountMinor, currencyCode]
+      properties:
+        contactHint:
+          type: string
+          minLength: 1
+          description: Name or fuzzy hint for contact resolution
+        contactId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+        amountMinor:
+          $ref: "#/components/schemas/AmountMinor"
+        currencyCode:
+          $ref: "#/components/schemas/CurrencyCode"
+        note:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Free-text remark (ملاحظة). Never goods / صنف.
+        itemName:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Spoken goods / صنف (same column as Quick Add itemName).
+        ledgerId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+        ledgerHint:
+          oneOf:
+            - type: string
+            - type: "null"
+
+    ProposePaymentPayload:
+      type: object
+      additionalProperties: false
+      required: [contactHint, amountMinor, currencyCode]
+      properties:
+        contactHint:
+          type: string
+          minLength: 1
+        contactId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+        amountMinor:
+          $ref: "#/components/schemas/AmountMinor"
+        currencyCode:
+          $ref: "#/components/schemas/CurrencyCode"
+        note:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Free-text remark (ملاحظة). Never goods / صنف.
+        itemName:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Spoken goods / صنف (same column as Quick Add itemName).
+        ledgerId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+        ledgerHint:
+          oneOf:
+            - type: string
+            - type: "null"
+
+    ProposeCreateContactPayload:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        phone:
+          oneOf:
+            - type: string
+            - type: "null"
+        ledgerId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+          description: |
+            Required when device multi-ledger context has more than one active ledger
+            (Stage 2 UI enforces before confirm).
+
+    ProposeCreateLedgerPayload:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        type:
+          oneOf:
+            - type: string
+              enum: [customers, suppliers, personal, custom]
+            - type: "null"
+
+    ClosingPlanStep:
+      type: object
+      additionalProperties: false
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        tool:
+          oneOf:
+            - $ref: "#/components/schemas/ProposalTool"
+            - type: "null"
+        notes:
+          oneOf:
+            - type: string
+            - type: "null"
+
+    ProposeClosingPlanPayload:
+      type: object
+      additionalProperties: false
+      required: [steps]
+      properties:
+        steps:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ClosingPlanStep"
+        localDay:
+          oneOf:
+            - $ref: "#/components/schemas/LocalDay"
+            - type: "null"
+          description: Echo of merchantLocalDay for UI narrative
+
+    WhatsAppDraft:
+      type: object
+      additionalProperties: false
+      required: [contactId, tone, body]
+      properties:
+        contactId:
+          $ref: "#/components/schemas/Uuid"
+        tone:
+          type: string
+          minLength: 1
+          description: e.g. polite, firm, brief
+        body:
+          type: string
+          minLength: 1
+
+    ProposeWhatsappDraftsPayload:
+      type: object
+      additionalProperties: false
+      required: [drafts]
+      properties:
+        drafts:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/WhatsAppDraft"
+
+    ProposeStatementPayload:
+      type: object
+      additionalProperties: false
+      properties:
+        contactId:
+          $ref: "#/components/schemas/Uuid"
+        contactHint:
+          type: string
+        ledgerId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+
+    ProposalPayload:
+      description: Tool-specific payload; discriminated by AgentProposal.tool
+      oneOf:
+        - $ref: "#/components/schemas/ParseGoalPayload"
+        - $ref: "#/components/schemas/ProposeDebtPayload"
+        - $ref: "#/components/schemas/ProposePaymentPayload"
+        - $ref: "#/components/schemas/ProposeCreateContactPayload"
+        - $ref: "#/components/schemas/ProposeCreateLedgerPayload"
+        - $ref: "#/components/schemas/ProposeClosingPlanPayload"
+        - $ref: "#/components/schemas/ProposeWhatsappDraftsPayload"
+        - $ref: "#/components/schemas/ProposeStatementPayload"
+
+    AgentProposal:
+      type: object
+      additionalProperties: false
+      description: Appendix J.3 proposal envelope
+      required: [proposalId, tool, payload, confirmRequired]
+      properties:
+        proposalId:
+          $ref: "#/components/schemas/Uuid"
+        tool:
+          $ref: "#/components/schemas/ProposalTool"
+        payload:
+          $ref: "#/components/schemas/ProposalPayload"
+        confirmRequired:
+          type: boolean
+          description: |
+            Always true for money / create / WhatsApp prepare. May be false for
+            pure parse_goal / ask narration if no device write is proposed.
+      examples:
+        - proposalId: "770e8400-e29b-41d4-a716-446655440010"
+          tool: propose_debt
+          confirmRequired: true
+          payload:
+            contactHint: Mohamed
+            amountMinor: 500
+            currencyCode: YER
+            itemName: null
+            note: null
+            ledgerId: "11111111-1111-4111-8111-111111111111"
+
+    AgentTurnResponse:
+      type: object
+      additionalProperties: false
+      required: [correlationId, proposals]
+      properties:
+        correlationId:
+          $ref: "#/components/schemas/Uuid"
+          description: Echo of DeviceAgentRequest.correlationId for Logging
+        narrative:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Optional assistant prose for UI (non-authoritative for money)
+        proposals:
+          type: array
+          description: >
+            Zero or more AgentProposal envelopes from this /run. Parallel
+            function calls in one model turn (compound intents) each produce
+            one envelope; order matches ADK content.parts[].functionResponse.
+          items:
+            $ref: "#/components/schemas/AgentProposal"
+
+    AdkSessionCreateBody:
+      type: object
+      additionalProperties: true
+      properties:
+        stateDelta:
+          type: object
+          additionalProperties: true
+          properties:
+            daftarContext:
+              $ref: "#/components/schemas/DeviceAgentRequest"
+
+    AdkInlineData:
+      type: object
+      additionalProperties: false
+      required: [mimeType, data]
+      properties:
+        mimeType:
+          type: string
+          minLength: 1
+          example: audio/wav
+        data:
+          type: string
+          minLength: 1
+          description: Base64 audio bytes. Never logged.
+
+    AdkContentPart:
+      type: object
+      additionalProperties: true
+      description: >
+        One ADK Content part. Text-only turns use `text`. Voice turns send a
+        text part (sentinel `__voice__`) plus an `inlineData` audio part.
+      anyOf:
+        - required: [text]
+        - required: [inlineData]
+      properties:
+        text:
+          type: string
+          minLength: 1
+        inlineData:
+          $ref: "#/components/schemas/AdkInlineData"
+
+    AdkNewMessage:
+      type: object
+      additionalProperties: false
+      required: [role, parts]
+      properties:
+        role:
+          type: string
+          enum: [user]
+        parts:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/AdkContentPart"
+
+    AdkRunRequest:
+      type: object
+      additionalProperties: true
+      required: [appName, userId, sessionId, newMessage]
+      properties:
+        appName:
+          type: string
+          minLength: 1
+          example: closing_agent
+        userId:
+          type: string
+          minLength: 1
+        sessionId:
+          type: string
+          minLength: 1
+        stateDelta:
+          type: object
+          additionalProperties: true
+          properties:
+            daftarContext:
+              $ref: "#/components/schemas/DeviceAgentRequest"
+        newMessage:
+          $ref: "#/components/schemas/AdkNewMessage"
+
+    ConfirmProposalRequest:
+      type: object
+      additionalProperties: false
+      required: [proposalId, tool, payload]
+      properties:
+        proposalId:
+          $ref: "#/components/schemas/Uuid"
+        tool:
+          $ref: "#/components/schemas/ProposalTool"
+        payload:
+          $ref: "#/components/schemas/ProposalPayload"
+        correlationId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+
+    ConfirmProposalResult:
+      type: object
+      additionalProperties: false
+      required: [proposalId, status]
+      properties:
+        proposalId:
+          $ref: "#/components/schemas/Uuid"
+        status:
+          type: string
+          enum: [committed, noop_already_committed, rejected_in_flight, rejected_validation]
+        entityId:
+          oneOf:
+            - $ref: "#/components/schemas/Uuid"
+            - type: "null"
+          description: Created/updated Drift entity id when committed
+        message:
+          oneOf:
+            - type: string
+            - type: "null"
+
+    CancelProposalRequest:
+      type: object
+      additionalProperties: false
+      required: [proposalId]
+      properties:
+        proposalId:
+          $ref: "#/components/schemas/Uuid"
+        reason:
+          oneOf:
+            - type: string
+            - type: "null"
+
+    CancelProposalResult:
+      type: object
+      additionalProperties: false
+      required: [proposalId, status]
+      properties:
+        proposalId:
+          $ref: "#/components/schemas/Uuid"
+        status:
+          type: string
+          enum: [cancelled]
+        journalSkipped:
+          type: boolean
+          default: false
+
+    EmailSendRecipient:
+      type: object
+      additionalProperties: false
+      required:
+        - contactId
+        - to
+        - subject
+        - customer_name
+        - store_name
+        - amount_line
+        - cta_line
+        - note
+      description: |
+        Device-owned C.2 strings. No `amountMinor`. No freeform `body`.
+        Server never reformats money. `filename` required iff a PDF part is present.
+      properties:
+        contactId:
+          $ref: "#/components/schemas/Uuid"
+        to:
+          type: string
+          format: email
+          description: Seeded address; plus-aliases allowed
+        subject:
+          type: string
+          minLength: 1
+          description: Already filled C.2 subject
+        customer_name:
+          type: string
+          minLength: 1
+        store_name:
+          type: string
+          minLength: 1
+        amount_line:
+          type: string
+          minLength: 1
+          description: Already formatted from int minor units + currency on device
+        cta_line:
+          type: string
+          minLength: 1
+        note:
+          type: string
+          description: Age rationale or empty string
+        filename:
+          type: string
+          minLength: 1
+          description: |
+            Optional. Required iff `pdf_{contactId}` is present. Server sanitizes
+            to daftar-{name}.pdf. Default daftar-statement.pdf when omitted with PDF.
+
+    EmailSendBatchManifest:
+      type: object
+      additionalProperties: false
+      required: [batchId, correlationId, locale, recipients]
+      properties:
+        batchId:
+          $ref: "#/components/schemas/Uuid"
+        correlationId:
+          $ref: "#/components/schemas/Uuid"
+        locale:
+          $ref: "#/components/schemas/LocaleCode"
+        recipients:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/EmailSendRecipient"
+
+    EmailSendRowResult:
+      type: object
+      additionalProperties: false
+      required: [contactId, toMasked, status]
+      properties:
+        contactId:
+          $ref: "#/components/schemas/Uuid"
+        toMasked:
+          type: string
+          description: Masked recipient (local-part last-4 or m***@domain)
+        status:
+          type: string
+          enum: [sent, failed, skippedDuplicate]
+        smtpMessageId:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Present iff status is sent
+        smtpCode:
+          oneOf:
+            - type: integer
+            - type: "null"
+        smtpMessage:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Safe summary; never the App Password
+
+    EmailSendBatchResponse:
+      type: object
+      additionalProperties: false
+      required: [batchId, results, needsHuman]
+      properties:
+        batchId:
+          $ref: "#/components/schemas/Uuid"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailSendRowResult"
+        needsHuman:
+          type: boolean
+          description: true on SMTP 535 / From mismatch / secret unavailable
+
+    TtsRequest:
+      type: object
+      additionalProperties: false
+      required: [text, locale]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Spoken sentence(s). Server strips; empty after strip → 400.
+        locale:
+          $ref: "#/components/schemas/LocaleCode"
+
+    TtsResponse:
+      type: object
+      additionalProperties: false
+      required: [mimeType, audioBase64]
+      properties:
+        mimeType:
+          type: string
+          enum: [audio/mpeg]
+        audioBase64:
+          type: string
+          minLength: 1
+          description: MP3 bytes, standard base64. Never logged.

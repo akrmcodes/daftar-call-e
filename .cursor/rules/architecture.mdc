@@ -1,0 +1,79 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Architecture — Clean Architecture (4 Layers)
+
+```
+Presentation → Application → Domain ← Data
+```
+
+The arrow means "depends on." No layer may depend on a layer above it. The Domain layer depends on NOTHING.
+
+## Layer Dependency Matrix
+
+| Layer | Location | Can Import | NEVER Import |
+|---|---|---|---|
+| **Domain** | `lib/domain/` | `dart:core`, equatable, freezed_annotation, fpdart | Flutter, Drift, Riverpod, `lib/data/`, `lib/presentation/` |
+| **Application** | `lib/application/` | `lib/domain/` only | Flutter, Drift, Riverpod, `lib/data/`, `lib/presentation/` |
+| **Data** | `lib/data/` | `lib/domain/` (interfaces only), Drift, Dio | `lib/presentation/`, `lib/application/`, Riverpod |
+| **Presentation** | `lib/presentation/` | `lib/domain/`, `lib/application/`, Riverpod, Flutter | Drift directly, `lib/data/` directly |
+
+**CRITICAL: Providers call Use Cases — NEVER call repositories directly.**
+
+## Error Handling Flow
+
+```
+Data Layer:     catch Exception → map to Failure → return Left(Failure)
+Application:    receive Either<Failure, T> → apply business rules → return Either (NO try/catch)
+Presentation:   receive Either → fold() or pattern match → show localized UI feedback
+```
+
+- Sealed `Failure` class: `DatabaseFailure`, `ValidationFailure`, `NetworkFailure`, `StorageFailure`, `AuthFailure`, `LimitExceededFailure`.
+- Raw exceptions NEVER cross layer boundaries.
+- All user-facing error messages use ARB localization keys.
+
+## Directory Layout
+
+```
+lib/
+├── main.dart, bootstrap.dart
+├── app/              → app.dart, router/, theme/
+├── core/             → constants/, errors/, extensions/, utils/, l10n/
+├── domain/           → entities/, enums/, repositories/, value_objects/
+├── application/      → ledger/, contact/, transaction/, backup/, import/
+├── data/             → models/, mappers/, datasources/local/, datasources/remote/, repositories/
+└── presentation/     → providers/, screens/{feature}/, shared/widgets/, shared/animations/
+```
+
+## Schema Invariants
+
+1. **Integer Money** — All monetary amounts as `int` in smallest currency unit
+2. **UUID v4 Primary Keys** — No auto-increment (offline-safe)
+3. **Soft Deletes** — `isDeleted` flag. Never hard-delete in normal flow
+4. **Sync-Ready** — `syncVersion`, `updatedAt` on all mutable entities
+5. **Denormalized Balances** — `ContactBalance` updated atomically with every transaction write
+6. **Audit Logging** — Every CREATE/UPDATE/DELETE appends to `AuditLog`
+7. **Atomic Writes** — Multi-table mutations wrapped in `database.transaction()`
+8. **Indexed Queries** — Every WHERE/ORDER BY/JOIN column has an explicit Drift index
+9. **UTC Timestamps** — `createdAt` and `updatedAt` on every entity
+
+## HARD BANS — QUICK REFERENCE
+
+| ❌ NEVER | ✅ ALWAYS |
+|---|---|
+| `double` for money | `int` (smallest unit) |
+| Drift in domain layer | Pure Dart in domain |
+| Repository from provider | Use case from provider |
+| Hardcoded Arabic strings | ARB keys |
+| Auto-increment IDs | UUID v4 |
+| Hard delete | Soft delete (`isDeleted`) |
+| `dartz` | `fpdart` |
+| Throwing across layers | `Left(Failure)` via Either |
+| Manual providers | `@riverpod` codegen |
+| Relative imports | `package:daftar/...` |
+| `ListView(children:)` | `ListView.builder()` |
+| CPU work on main thread | `Isolate.run()` |
+| Secrets in Drift | `flutter_secure_storage` |
+| Multi-table write without txn | `database.transaction()` |

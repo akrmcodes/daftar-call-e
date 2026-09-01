@@ -1,0 +1,93 @@
+---
+description: Data layer standards — Drift tables, mappers, repositories, data sources.
+globs: lib/data/**/*.dart
+---
+
+# Data Layer Standards
+
+Implements domain repository interfaces. Contains Drift tables, data sources, mappers, and concrete repositories.
+
+**PERMITTED:** `lib/domain/` (interfaces, entities, enums, value objects, failures), `package:drift/*`, `package:dio/*`, `package:fpdart/*`, `dart:*`
+**FORBIDDEN:** `lib/presentation/*`, `lib/application/*`, `package:riverpod/*`, `package:flutter/material.dart`
+
+## Drift Table Rules
+
+Every mutable table MUST include:
+```dart
+TextColumn get id => text()();
+DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+IntColumn get syncVersion => integer().withDefault(const Constant(0))();
+```
+
+- Table classes: Plural PascalCase (`Ledgers`, `Contacts`)
+- Primary keys: UUID v4 as `text()`. No auto-increment ever.
+- All monetary columns: `IntColumn`. NEVER `RealColumn` for money.
+
+## Transaction Safety — CRITICAL
+
+Multi-table writes MUST use a Drift transaction:
+```dart
+await database.transaction(() async {
+  await insertTransaction(txn);
+  await updateContactBalance(txn.contactId);
+  await appendAuditLog(txn.id, 'CREATE');
+});
+```
+Failure to wrap multi-table writes is a CRITICAL DEFECT.
+
+## Query Rules
+
+1. Every WHERE/ORDER BY/JOIN column MUST have an explicit Drift index.
+2. List queries MUST use LIMIT/OFFSET pagination (default page size: 20).
+3. Use `watch()` for reactive streams — never polling.
+4. Use SELECT projections — never SELECT * for large tables.
+5. Use `ContactBalance` (denormalized) for O(1) balance reads.
+
+## FTS5 for Arabic Search
+
+Normalization pipeline before indexing and querying:
+1. Strip diacritics (U+064B–U+065F)
+2. Normalize Alef: أ إ آ ٱ → ا
+3. Normalize Taa Marbuta: ة → ه
+4. Trim and collapse whitespace
+
+Store original + normalized. FTS5 indexes normalized. Display shows original.
+
+## Mappers
+
+- `toDomain()` / `toCompanion()` as extension methods or static functions.
+- Round-trip safe: entity → companion → entity = identical.
+- Unit test every mapper.
+
+## Repository Implementations
+
+1. Catch ALL data-layer exceptions inside the repository.
+2. Map every caught exception to the appropriate `Failure` subtype.
+3. Return `Left(Failure)` for errors, `Right(value)` for success — NEVER throw.
+4. Append to `AuditLog` on every write operation.
+5. All queries filter out soft-deleted records (`WHERE isDeleted = false`).
+6. Use `database.transaction()` for any multi-table operation.
+
+```dart
+Future<Either<Failure, Ledger>> create(CreateLedgerParams params) async {
+  try {
+    final companion = LedgerMapper.toCompanion(params);
+    final result = await _localDS.insert(companion);
+    await _auditLogDS.append(result.id, 'ledger', 'CREATE');
+    return Right(LedgerMapper.toDomain(result));
+  } on DriftWrappedException catch (e) {
+    return Left(DatabaseFailure('Failed to create ledger: ${e.message}'));
+  } catch (e) {
+    return Left(DatabaseFailure('Unexpected error: ${e.toString()}'));
+  }
+}
+```
+
+## Migrations
+
+- Every schema change increments the database version.
+- Explicit step-by-step: `from1To2`, `from2To3`.
+- NEVER destructive migration.
+- Seed currencies (YER, SAR, USD) on first launch.

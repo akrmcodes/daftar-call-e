@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "gcp-logging-daftar": {
+      "url": "https://logging.googleapis.com/mcp",
+      "headers": {
+        "x-goog-user-project": "daftar-closing-agent"
+      },
+      "auth": {
+        "CLIENT_ID": "REPLACE_WITH_OAUTH_CLIENT_ID",
+        "CLIENT_SECRET": "REPLACE_WITH_OAUTH_CLIENT_SECRET",
+        "scopes": ["https://www.googleapis.com/auth/logging.read"]
+      }
+    },
+    "gcp-cloud-run-daftar": {
+      "url": "https://run.googleapis.com/mcp",
+      "headers": {
+        "x-goog-user-project": "daftar-closing-agent"
+      },
+      "auth": {
+        "CLIENT_ID": "REPLACE_WITH_OAUTH_CLIENT_ID",
+        "CLIENT_SECRET": "REPLACE_WITH_OAUTH_CLIENT_SECRET",
+        "scopes": ["https://www.googleapis.com/auth/run.readonly"]
+      }
+    }
+  }
+}

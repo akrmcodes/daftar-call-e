@@ -1,0 +1,497 @@
+---
+description: >
+  Presentation layer — World-class UI/UX enforcement for Riverpod providers,
+  screens, widgets, animations, haptics, RTL/LTR perfection, micro-interactions,
+  premium component design, and intelligent multilingual adaptation.
+globs: lib/presentation/**/*.dart, lib/app/**/*.dart
+---
+
+# Presentation Layer — World-Class UI/UX Standards
+
+> **Design system:** Khazna v3 — **Lapis Lux**. Canonical spec: `docs/design_system.md`.
+> Every pixel is intentional. If a screen looks like "a Flutter demo app" or uses
+> **blue-filled Material buttons**, it is a **CRITICAL DEFECT**. The bar is monochrome
+> precision + lapis glow — not Material defaults.
+
+## Layer Boundary
+
+**PERMITTED:** `lib/domain/`, `lib/application/`, `package:flutter/*`, `package:riverpod/*`, `package:go_router/*`
+**FORBIDDEN:** `package:drift/*`, `lib/data/*` — critical defect if present.
+
+### Approved UI Packages
+
+These packages are installed and MUST be used for their designated purpose. Do NOT use alternatives.
+
+| Package | Role | Use For |
+|---|---|---|
+| `flutter_animate` | Declarative animations | Stagger entrances, fade/slide transitions, scale-down press, all §4 micro-interactions |
+| `motor` | Spring physics | `curveSheetSpring`, toggles, glow breath, drag-return — style-agnostic; pair with `AppMotion` tokens. §7.3 |
+| `figma_squircle` | Continuous corners | `SmoothRectangleBorder` / `ClipSmoothRect` on `DaftarCard`, `DaftarButton`, sheets — NOT Material `BorderRadius`. §5.1 |
+| `flutter_slidable` | Swipe actions | Transaction list swipe-to-delete; `AppColors.debt` actions + `HapticService` at threshold. §7.4 |
+| `animated_flip_counter` | Balance count-up | Hero balance with `duration: animationXSlow`, `curve: curveEmphasized`; wrap with `AppTextStyles.amount*`. §7.4 |
+| `custom_refresh_indicator` | Pull-to-refresh | Lapis Arc indicator (`lapis400` stroke + `AppGlows.glowSm`) — never default `RefreshIndicator`. §7.4 |
+| `skeletonizer` | Skeleton loading | Wrap real widgets with `Skeletonizer(enabled: isLoading)` — auto-generates shimmer. §6.4 |
+| `lottie` | Rich animations | Empty state illustrations, branded loading art. Load from `assets/animations/`. §6.3 |
+| `wolt_modal_sheet` | Premium bottom sheets | Multi-page flows, spring physics, drag-to-dismiss. Use instead of `showModalBottomSheet`. §7.3 |
+| `gap` | Semantic spacing | `Gap(AppDimensions.spacingLg)` — axis-aware, replaces manual `SizedBox`. §10.2 |
+| `flutter_svg` | Vector graphics | SVG illustrations and icons. §8.2 |
+
+**Haptic feedback:** Use `HapticService` from `package:daftar/core/utils/haptic_service.dart` — NOT raw `HapticFeedback` except inside that service.
+
+---
+
+## 1. RIVERPOD PROVIDERS
+
+### Provider Architecture
+
+1. `@riverpod` annotation (code generation) for ALL providers. Never write providers manually.
+2. Provider type selection:
+   - `AsyncNotifier` — stateful data with mutations (CRUD operations).
+   - `StreamProvider` — reactive Drift streams (`watchAll()`, `watchByLedger()`).
+   - `FutureProvider` — one-shot reads.
+   - Family providers — parameterized data (e.g., `contactsProvider(ledgerId)`).
+3. One file per feature area in `lib/presentation/providers/`.
+4. **CRITICAL: Providers call Use Cases — NEVER call repositories directly.**
+
+### Reactive Data Flow
+
+```
+Drift watch() Stream → StreamProvider → ConsumerWidget rebuilds automatically
+Mutation: AsyncNotifier.method() → Use Case → Repository → Drift write → Stream auto-emits
+```
+
+- After successful mutation, streaming providers auto-update. Do NOT `ref.invalidate()` for streaming providers.
+- For non-streaming providers, use `ref.invalidate()` after mutation to trigger refresh.
+- UI renders state via `asyncValue.when(loading: ..., data: ..., error: ...)`.
+
+---
+
+## 2. KHAZNA v3 — LAPIS LUX (NON-NEGOTIABLES)
+
+### 2.1 Visual Identity
+
+Daftar is a **premium monochrome financial tool** with **one luminous accent** (lapis as light). Every screen communicates:
+- **Trust** — tabular numerals, strict grid, semantic red/green only for money states.
+- **Waqār (restraint)** — ~95% Onyx/Bone greyscale; no gold, no teal, no rainbow.
+- **Salāsa (depth through light)** — Khazna Float cards, lapis halos on the single CTA per screen.
+
+**Reject on sight (CRITICAL DEFECT):**
+- **Lapis as fill** on any button, card, FAB, or chip — see §2.4
+- `FilledButton`, `ElevatedButton`, or `MaterialButton` with lapis/primary **background fill**
+- Material `Card()` — use **`DaftarCard`**
+- Material `TextField` for product forms — use **`DaftarTextField`**
+- `ListTile` — custom-composed rows only
+- `AlertDialog` — bottom sheets only
+- Default `SnackBar` / naked `CircularProgressIndicator` as primary loading
+- Hard-coded `Color(0xFF...)` outside `AppColors`
+- Deprecated tokens: `darkPrimary`, `darkAccent`, `darkSurface`, `lightPrimary`, etc. — use v3 canonical names only
+
+### 2.2 Dark Mode as Canvas (Default)
+
+Dark mode is the PRIMARY canvas (true OLED):
+- Scaffold: `AppColors.surface0` (`#000000`)
+- Cards: `AppColors.surface2` (`#121214`) with **Khazna Float** — `AppGlows.khazaFloat` + `0.5px borderSubtle` + top `innerTopHighlight` — **NEVER Material drop-shadow on dark**
+- Text: `inkPrimary` (`#F5F5F5`) — never pure white on pure black
+- Depth: stepped surfaces `surface1` → `surface6` (+6 luminance per step)
+- Light mode: `surface0Light` (Bone `#F8F7F4`), cards `surface1Light`, shadows `AppGlows.shadowFloat`
+
+### 2.3 Color Discipline — Three Citizens Only
+
+- ZERO ad-hoc colors. Every reference resolves to `AppColors` / `AppGlows` / `AppTextStyles`.
+- **Monochrome:** `surface*`, `ink*`, `borderSubtle`, `borderStrong` for all chrome and text.
+- **Semantic (money only):** `debt`, `payment`, `warning`, `error`, `success` — never generic "red/green" literals.
+- **Lapis:** borders + `AppGlows` halos ONLY — see §2.4.
+- NEVER `Color.withOpacity()` with arbitrary decimals — use named alpha tokens from design system.
+- **ONE lapis-glow moment per visible screen** (FAB OR primary CTA OR focused input OR hero brand mark — never two).
+
+### 2.4 ⛔ THE LAPIS FIREWALL — READ BEFORE EVERY UI CHANGE
+
+> **Lapis is light, not paint.** Violating this is a **CRITICAL DEFECT**.
+
+| ✅ PERMITTED | ❌ FORBIDDEN |
+|---|---|
+| `boxShadow: AppGlows.ctaRest` (`glowMd`) on Primary CTA | `backgroundColor: AppColors.lapis400` on buttons |
+| `BorderSide(color: AppColors.lapis400, width: 0.5)` on Primary CTA | `FilledButton` / `ElevatedButton` with lapis fill |
+| `AppGlows.khazaFloat` on dark floating cards | Lapis gradient on card/content surfaces |
+| `1.5px lapis400` focus ring on `DaftarTextField` | `color: AppColors.lapis400` on `Text` or `Icon` (except info banners) |
+| `2dp` lapis tab indicator / bottom-nav stripe | `Theme.of(context).colorScheme.primary` as button fill without overriding |
+| Info banner bg: `lapis800` / `lapis50` (sole fill exception) | More than ONE lapis glow target per screen |
+
+**`DaftarButton` Primary anatomy (MANDATORY):**
+- **Fill:** `AppColors.surface2` (dark) or `AppColors.surface1Light` (light) — **monochrome**
+- **Border:** `0.5px` `AppColors.lapis400`
+- **Halo:** `AppGlows.ctaRest` (`glowMd`)
+- **Text:** `AppColors.inkPrimary` / `inkPrimaryLight` — NOT white-on-blue unless destructive variant
+- **Press:** scale `0.97`, halo → `AppGlows.ctaPressed`, `HapticService.buttonPress()`
+
+If your button looks like a **blue rectangle**, you built it wrong.
+
+---
+
+## 3. TYPOGRAPHY — BILINGUAL PRECISION
+
+### 3.1 Font Strategy
+
+| Context | Font | Rationale |
+|---|---|---|
+| Arabic body text | Noto Kufi Arabic | Geometric Kufic — crisp at small sizes, strong RTL |
+| English/Latin text | Inter | Tabular numerals, excellent x-height |
+| Monetary amounts | Inter (numeral styles) | Monospaced figures prevent layout jitter |
+| Timestamps/IDs | Inter | Clean, unambiguous numerals |
+
+### 3.2 Typography Rules
+
+- All text styles MUST come from `AppTextStyles`. Zero inline `TextStyle()` construction.
+- Apply `TextDirection` explicitly on mixed-content widgets (Arabic label + English amount).
+- Monetary amounts ALWAYS use Inter numeral scale: `amountHero`, `amountLarge`, `amountMedium`, `amountSmall`, `amountMicro`, `numeralInput`, `numeralCaption` — these embed `FontFeature.tabularFigures()` + `FontFeature.liningFigures()`. **NEVER** Arabic font for numbers. **NEVER** inline `TextStyle` for amounts.
+- Currency symbols inherit the locale-appropriate font automatically.
+- Use `TextOverflow.ellipsis` with `maxLines` on ALL text in constrained layouts — no silent overflow.
+
+### 3.3 Text Expansion Resilience
+
+Arabic and English have dramatically different text lengths for the same content. ALL UI must:
+- Use `Flexible` or `Expanded` around text widgets inside `Row`/`Column` — never fixed widths for labels.
+- Test button labels in both AR and EN — button widths must be intrinsic, never hardcoded.
+- Dialog/sheet content must scroll if text overflows vertically (`SingleChildScrollView`).
+- Tab labels must accommodate the longer language without truncation or overflow.
+- Use `FittedBox` with `fit: BoxFit.scaleDown` for display-level text that must fit a fixed area (e.g., balance cards).
+
+---
+
+## 4. MICRO-INTERACTIONS & ANIMATION — THE SOUL OF THE UI
+
+### 4.1 Animation Tokens
+
+All durations and curves come from the design system — never inline magic numbers:
+
+| Token | Duration | Use Case |
+|---|---|---|
+| `AppDimensions.animationFast` | 150ms | Button press, icon morphs, checkbox toggles |
+| `AppDimensions.animationMedium` | 300ms | State transitions, expand/collapse, tab switch |
+| `AppDimensions.animationSlow` | 450ms | Page transitions, bottom sheet enter/exit |
+| `AppDimensions.animationXSlow` | 600ms | Number count-up, balance card reveal, onboarding |
+
+**Curves:**
+- **Enter:** `Curves.easeOutCubic` — fast start, gentle landing.
+- **Exit:** `Curves.easeInCubic` — gentle start, fast departure.
+- **Spring physics:** `SpringSimulation` or `BouncingScrollPhysics` for bottom sheets and pull-to-refresh.
+- **Balance card count-up:** `Curves.easeOutExpo` — dramatic deceleration at the end.
+- **NEVER** use `Curves.linear` for UI transitions — it feels mechanical and cheap.
+
+### 4.2 Mandatory Micro-Interactions
+
+Every screen MUST implement these where applicable:
+
+**Entrances:**
+- List items stagger-animate on first load: `FadeSlideTransition` with 30ms per-item delay (cap at 8 items).
+- Balance cards use scale + fade entrance (`0.95 → 1.0` scale, `0.0 → 1.0` opacity).
+- Bottom sheets use spring-physics slide-up with velocity-aware drag dismiss.
+- Page transitions use shared-element hero animations for contact avatar → detail screen.
+
+**Feedback:**
+- Button press: subtle scale-down (`0.97`) + haptic `HapticFeedback.lightImpact()`.
+- Long press: scale-down (`0.95`) + haptic `HapticFeedback.mediumImpact()` + context menu bloom.
+- Swipe-to-delete: smooth width collapse + color transition (surface → `AppColors.error` at 0.3 opacity).
+- Pull-to-refresh: custom branded indicator (not default `RefreshIndicator`) with **lapis arc** (`lapis400` stroke + optional `AppGlows.glowSm`), never gold.
+- Toggle/switch: spring physics overshoot (`1.0 → 1.05 → 1.0`).
+
+**Data changes:**
+- Balance amounts animate numerically (count-up/count-down) when value changes — never jump.
+- Transaction list inserts animate from the insertion point with slide + fade.
+- Deletions animate out with horizontal slide + fade before list re-layout.
+
+### 4.3 Haptic Feedback Map
+
+| Action | `HapticService` method | Rationale |
+|---|---|---|
+| Transaction saved | `transactionSaved()` | Confirms financial operation |
+| Delete confirmed | `deleteConfirmed()` | Weight of destructive action |
+| Undo tapped | `undoTapped()` | Quick acknowledgment |
+| PIN / amount-pad digit | `pinPress()` / `amountPadDigit()` | Tactile keypad |
+| Bottom sheet snap | `bottomSheetSnap()` | Physical anchor |
+| Pull-to-refresh threshold | `pullRefreshThreshold()` | Commit point |
+| Button press (CTA) | `buttonPress()` | Touch confirmation |
+| Toggle switch | `toggleFlipped()` | State change |
+
+**Haptic feedback is NOT optional. Missing haptics on critical interactions is a defect.**
+
+---
+
+## 5. RTL/LTR — GEOMETRIC PERFECTION
+
+### 5.1 Directionality Invariants
+
+The app serves Arabic (RTL, primary) and English (LTR, secondary). The UI MUST be geometrically perfect in BOTH:
+
+- **NEVER use** `left`/`right` in `EdgeInsets`, `Positioned`, `Align`, or `Padding`. ALWAYS use:
+  - `EdgeInsetsDirectional.only(start:, end:, top:, bottom:)`
+  - `AlignmentDirectional.centerStart`, `AlignmentDirectional.centerEnd`
+  - `PositionedDirectional(start:, end:)`
+  - `TextAlign.start`, `TextAlign.end` (never `TextAlign.left/right`)
+- `Row` children with leading/trailing semantics must use `Directionality`-aware ordering.
+- Swipe directions are MIRRORED in RTL: swipe-to-delete goes start→end (right-to-left in RTL).
+- Icons with directional meaning MUST flip: `chevron_right` → use `Icons.chevron_right` wrapped in `Directionality` or use `TextDirection`-aware icon selection.
+- `Transform.scale(scaleX: -1)` for mirroring directional icons when `Directionality.of(context) == TextDirection.rtl`.
+
+### 5.2 Layout Stress Tests
+
+Before any screen is considered complete, mentally verify:
+1. Replace all Arabic text with English — does the layout break? Do texts overflow?
+2. Replace all English text with Arabic — does alignment shift unexpectedly?
+3. Are all paddings/margins directional (`start`/`end` not `left`/`right`)?
+4. Do swipe gestures work correctly in RTL?
+5. Does the FAB or primary action stay in the correct position for RTL?
+6. Do page transitions respect directionality (slide from `start` in RTL = slide from right)?
+7. Are monetary amounts always LTR regardless of UI direction (numbers don't flip)?
+
+### 5.3 Numeric Display in RTL
+
+- Monetary amounts, dates, phone numbers, and IDs are ALWAYS displayed LTR even in an RTL context.
+- Wrap numeric displays in `Directionality(textDirection: TextDirection.ltr, child: ...)` when inside RTL layouts.
+- Currency symbol position follows locale conventions (not hardcoded).
+- Use `TextDirection.ltr` explicitly on `Text` widgets showing amounts to prevent digit reordering.
+
+---
+
+## 6. COMPONENT DESIGN — MANDATORY KHAZNA PRIMITIVES
+
+### 6.0 Material Widget Ban (CRITICAL)
+
+**FORBIDDEN in presentation UI** (use Daftar primitives instead):
+- `Card()` → **`DaftarCard`**
+- `ElevatedButton`, `FilledButton`, `OutlinedButton` (for product CTAs) → **`DaftarButton`**
+- `TextField`, `TextFormField` (for product forms) → **`DaftarTextField`**
+- `ListTile` → custom row composition
+
+You MAY use `IconButton`, `TextButton` only for trivial inline actions IF they do not use lapis/primary as fill. Prefer `DaftarButton(variant: tertiary)`.
+
+### 6.1 Design Mandate
+
+Every reusable component in `lib/presentation/shared/widgets/` must be:
+- **Self-contained** — `DaftarButton(variant: DaftarButtonVariant.primary)` NOT `ElevatedButton(style: ...)`.
+- **Theme-aware** — reads colors, spacing, typography from the design token system.
+- **Locale-adaptive** — handles text expansion/contraction and directional layout.
+- **Animated** — has enter/exit transitions and interactive feedback built-in.
+- **Accessible** — provides `Semantics` labels, respects `MediaQuery.textScaleFactorOf`, meets minimum tap targets.
+
+### 6.2 Required Component Library
+
+These components MUST exist in `lib/presentation/shared/widgets/` with premium-quality implementations:
+
+| Component | Key Behaviors (MUST match `docs/design_system.md`) |
+|---|---|
+| **`DaftarButton`** | **Primary:** monochrome fill (`surface2`/`surface1Light`) + `0.5px lapis400` border + `AppGlows.ctaRest` — **NO lapis fill**. Secondary/Tertiary/Destructive per §8.2. Loading preserves width. `HapticService.buttonPress()`. Min 48dp. |
+| `DaftarBottomSheet` | Spring-physics enter, velocity-aware dismiss, drag handle, `radiusXl`, glass backdrop |
+| **`DaftarCard`** | **Dark:** `surface2` + `borderSubtle` + `AppGlows.khazaFloat` + top `innerTopHighlight`. **Light:** `surface1Light` + `AppGlows.shadowFloat`. Hero variant: sub-perceptible lapis vignette only. **NO lapis card fill.** |
+| **`DaftarTextField`** | Fill `surface5`/`surface3Light`. Focus: `1.5px lapis400` border (ring, not fill). Error: `debt` border. Floating label. Tabular amounts use separate `Text` with `AppTextStyles.amount*`. |
+| `DaftarSearchBar` | Animated expand/collapse, clear button, debounced input, Arabic text normalization integration, empty query state |
+| `DaftarEmptyState` | Illustrated placeholder (SVG/Lottie), headline + body text, optional CTA button, fade-in entrance animation |
+| `DaftarSkeleton` | Shimmer effect using `AppColors.shimmerBase/shimmerHighlight`, matches the shape of the content it replaces, reusable shape presets |
+| `DaftarSnackbar` | Rounded corners, themed colors, undo action button, auto-dismiss with progress indicator, blur backdrop |
+| `DaftarAvatar` | Initials from contact name, deterministic color from `AppColors.avatarColors`, image support with fade-in, size variants |
+| `BalanceCard` | Animated count-up numbers, debt/payment color coding, gradient subtle overlay, currency-aware formatting, responsive text sizing |
+| `TransactionTile` | Debt/payment visual indicator (color bar on `start` edge), amount + date + note layout, swipe-to-delete with undo, press feedback |
+| `LimitWarningBanner` | Animated entrance, progress bar at 80%+ threshold, premium upgrade CTA, dismissible with memory |
+
+### 6.3 Empty States — Art, Not Afterthoughts
+
+Empty states are a FIRST IMPRESSION. They must be:
+- Visually rich — use a branded illustration or animated icon, not a naked `Text("No data")`.
+- Emotionally encouraging — copy should guide the user to action ("أضف أول دفتر" not "لا توجد بيانات").
+- Animated — fade-in + slight upward slide on appearance.
+- Actionable — include a CTA button to create the first item.
+- Localized — all copy from ARB keys.
+
+### 6.4 Loading States — Skeleton, Never Spinner
+
+- **EVERY** async data display MUST use shimmer skeleton loading — shaped to match the expected content.
+- Never show a blank screen during initial load.
+- Never show a centered `CircularProgressIndicator` as the primary loading state.
+- Skeleton shapes must match the actual content layout: card skeletons for cards, list-tile skeletons for lists.
+- Use `AppColors.shimmerBase` and `AppColors.shimmerHighlight` for the shimmer animation.
+- Shimmer animation must be smooth (60fps) and use a consistent sweep direction (always `start → end`).
+
+### 6.5 Error States — Graceful, Not Catastrophic
+
+- Error states show localized, human-friendly messages via `Failure.message` — never raw exception strings or stack traces.
+- All error messages use ARB localization keys.
+- Error UI must include:
+  - A relevant icon or illustration (not a generic error icon).
+  - A clear, concise message explaining what happened.
+  - A retry action button (when the error is recoverable).
+  - Optional "Contact Support" for persistent failures.
+- Use branded bottom sheets for contextual errors, not `showDialog()` with raw text.
+- Network errors must clearly indicate offline state with appropriate messaging.
+
+---
+
+## 7. SCREEN ARCHITECTURE
+
+### 7.1 Structure
+
+1. Screens are `ConsumerWidget` or `ConsumerStatefulWidget` — never raw `StatelessWidget`.
+2. All state lives in Riverpod providers — screens are thin UI shells.
+3. Directory structure: `lib/presentation/screens/{feature}/` with `widgets/` subdirectory for screen-specific components.
+4. Shared, reusable widgets: `lib/presentation/shared/widgets/`.
+5. Shared animations: `lib/presentation/shared/animations/`.
+
+### 7.2 Screen Lifecycle
+
+Every screen must handle these states with **visual excellence**:
+
+| State | Requirement |
+|---|---|
+| **Initial Load** | Skeleton shimmer matching expected content shape |
+| **Data Loaded** | Staggered entrance animation for list items, fade for singles |
+| **Empty** | Branded empty state with illustration + CTA |
+| **Error** | Themed error card with localized message + retry |
+| **Refreshing** | Branded pull-to-refresh indicator, data stays visible underneath |
+| **Mutating** | Optimistic UI update + loading state on the action trigger |
+| **Offline** | Subtle banner indicating offline status (data still accessible) |
+
+### 7.3 Bottom-Sheet-Centric Interactions
+
+Primary interactions use bottom sheets, not full-screen navigations:
+- Transaction entry → bottom sheet with amount pad.
+- Contact creation → bottom sheet with name + phone input.
+- Ledger creation → bottom sheet with name + icon + color picker.
+- Confirmation dialogs → bottom sheet with branded actions (never `showDialog`).
+- All bottom sheets use spring-physics enter, velocity-dismiss, and rounded top corners (`radiusXl`).
+
+### 7.4 One-Handed Reachability
+
+- All primary action buttons within the bottom 60% of screen height (`AppDimensions.primaryActionZonePercent`).
+- FABs positioned at bottom-end, sized at `largeTapTarget` (64dp).
+- Tab bars at the bottom, never top.
+- Critical actions (save, delete) in bottom sheet footers, not headers.
+
+---
+
+## 8. WIDGET PERFORMANCE
+
+### 8.1 Rendering Discipline
+
+- `const` constructors wherever possible — reduces rebuild scope.
+- `ListView.builder()` for ALL dynamic lists. **NEVER** `ListView(children: [...])`.
+- `ListView.separated()` for lists with dividers — never manual divider insertion.
+- `RepaintBoundary` around expensive subtrees: charts, animated balance cards, complex list items.
+- `AutomaticKeepAliveClientMixin` for tab content that should survive tab switches.
+- Use `ValueListenableBuilder` for simple local state — don't over-provide with Riverpod for widget-local concerns.
+
+### 8.2 Image & Asset Performance
+
+- All icons from `Icons` class or custom SVGs — never raster PNGs for icons.
+- Use `SvgPicture.asset()` (from `flutter_svg`) for vector illustrations.
+- Cache network images with `CachedNetworkImage` if remote images are ever introduced.
+- Lottie animations load from asset bundle, not network.
+
+### 8.3 Scroll Performance
+
+- Use `CustomScrollView` with slivers for complex scrollable layouts.
+- `SliverAppBar` with floating/snap behavior for collapsible headers.
+- `findChildIndexCallback` on `SliverChildBuilderDelegate` for stable item identity during list mutations.
+- Pagination: LIMIT/OFFSET with scroll-to-load-more. Default page size: 20. Pre-fetch at 80% scroll position.
+
+---
+
+## 9. ROUTING
+
+- `go_router` with declarative routing.
+- `ShellRoute` for bottom tab navigation.
+- Route names as constants in `lib/app/router/route_names.dart`.
+- Page transitions respect `Directionality`: slide from `start` in RTL = slide from right edge.
+- Hero animations for contact avatar transitions (list → detail).
+- Deep-link back-navigation verified for all routes.
+
+---
+
+## 10. THEME & DESIGN TOKENS
+
+### 10.1 Token Files
+
+| File | Purpose |
+|---|---|
+| `app_colors.dart` | Onyx/Bone monochrome, lapis scale, semantic debt/payment — **no gold/teal** |
+| `app_glows.dart` | Lapis halos (`glowXs`–`glowXl`, `glowAmbient`, `ctaRest`) + light `shadowFloat` |
+| `app_text_styles.dart` | Noto Kufi Arabic + Inter numeral scale with **tabular figures** |
+| `app_dimensions.dart` | 8dp grid, radius, tap targets (≥48dp), animation durations |
+| `app_motion.dart` | Curves (`curveEnter`, `curveEmphasized`, `curveSheetSpring`) |
+| `app_theme.dart` | Material 3 shell; `NoSplash`; elevation 0 — depth via glows/borders |
+| `haptic_service.dart` | Semantic haptics — use instead of raw `HapticFeedback` in widgets |
+
+### 10.2 Token Discipline
+
+- **Dark mode is DEFAULT** — optimized for OLED screens in the target market.
+- ZERO inline `Color(0xFF...)`, `TextStyle(...)`, `EdgeInsets.all(...)` — everything through tokens.
+- All tap targets ≥ `AppDimensions.minTapTarget` (48dp).
+- Spacing follows the 8dp grid strictly — no arbitrary 5dp, 7dp, 13dp values.
+- When a new token is needed, ADD it to the token file — never inline it.
+
+---
+
+## 11. LOCALIZATION
+
+### 11.1 String Rules
+
+- **ZERO hardcoded strings** in any widget. All user-facing text from ARB localization.
+- All ARB keys use camelCase: `createLedger`, `emptyContactsMessage`, `deleteConfirmation`.
+- Pluralization uses ICU syntax in ARB files.
+- Number formatting uses `NumberFormat` with locale-aware separators.
+- Date formatting uses locale-aware patterns (Hijri optional alongside Gregorian).
+
+### 11.2 Layout Adaptation
+
+- Buttons use intrinsic width — never fixed width that assumes one language's text length.
+- Long Arabic text in headers uses `FittedBox(fit: BoxFit.scaleDown)` with a `minFontSize` guard.
+- Tab bars use `isScrollable: true` when label lengths vary significantly between locales.
+- All validation error messages are localized — never raw English error strings.
+
+---
+
+## 12. ACCESSIBILITY
+
+- All interactive elements have `Semantics` labels in the active locale.
+- Color is NEVER the sole indicator of state — always pair with icon, text, or pattern.
+- Respect `MediaQuery.textScaleFactorOf(context)` — layouts must survive up to 1.5x scale.
+- All tap targets meet WCAG 2.5.5 minimum (48dp × 48dp).
+- Focus traversal order follows logical reading direction for the active locale.
+- Screen reader labels for balance cards include currency and amount in natural language.
+
+---
+
+## 13. QUALITY GATES — REJECTION CRITERIA
+
+A screen is NOT complete and MUST be rejected if ANY of the following is true:
+
+| # | Rejection Criterion |
+|---|---|
+| 1 | Any `Color(0xFF...)` hardcoded outside `AppColors` |
+| 2 | Any `TextStyle(...)` constructed inline outside `AppTextStyles` |
+| 3 | Any `EdgeInsets.only(left:, right:)` instead of directional equivalents |
+| 4 | Any `TextAlign.left` or `TextAlign.right` |
+| 5 | Missing shimmer skeleton for any async data load |
+| 6 | A blank screen during initial load (no loading state) |
+| 7 | `CircularProgressIndicator()` as the primary loading indicator |
+| 8 | Hardcoded user-facing string not from ARB |
+| 9 | Missing haptic feedback on transaction save, delete, or PIN press |
+| 10 | Tap target < 48dp on any interactive element |
+| 11 | Missing entrance animation on list screens |
+| 12 | Default unstyled Material `Card`, `ListTile`, `AlertDialog`, or `SnackBar` |
+| 13 | Repository called directly from a provider (bypassing Use Case) |
+| 14 | `Drift` import in any presentation file |
+| 15 | Non-directional icon that should flip in RTL |
+| 16 | Balance amount using Arabic font instead of Inter numeral styles |
+| 17 | Missing empty state when data list is empty |
+| 18 | Missing error state with retry action for fallible operations |
+| 19 | `ListView(children: [...])` for any dynamic list |
+| 20 | Missing `const` constructor on stateless widgets that support it |
+| 21 | **Lapis used as fill** on card/button/FAB/chip (info banner excepted) |
+| 22 | **More than ONE** lapis-glow moment on a single visible screen |
+| 23 | `FilledButton` / `ElevatedButton` with `backgroundColor: lapis400` or `colorScheme.primary` blue fill |
+| 24 | `darkPrimary`, `darkAccent`, `darkSurface`, or any **deprecated** `AppColors` alias |
+| 25 | Gold, brass, teal, or indigo anywhere in presentation |
+| 26 | Dark-mode card with Material `elevation` drop-shadow instead of Khazna Float |
+| 27 | Monetary amount without `AppTextStyles.amount*` (tabular Inter) |
+| 28 | `HapticFeedback.*` called directly in widgets instead of `HapticService` |
+| 29 | `color: AppColors.lapis400` on `Text` or `Icon` outside info banners |
+| 30 | Default Material `Card` / `ListTile` / `AlertDialog` in new or touched code |

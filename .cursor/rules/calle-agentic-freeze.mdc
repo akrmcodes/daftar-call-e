@@ -1,0 +1,50 @@
+---
+description: CALL-E fork freeze — never mutate the All Things Agentic Cloud Run service.
+alwaysApply: true
+---
+
+# CALL-E Agentic Cloud Run freeze
+
+This repository is the **CALL-E fork** `daftar-call-e`. Binding contract: [`docs/roadmap_v3.md`](docs/roadmap_v3.md) (v3.2+). [`docs/roadmap_v2.md`](docs/roadmap_v2.md) is **frozen heritage** — do not execute its gates.
+
+Origin **must** be `https://github.com/akrmcodes/daftar-call-e.git`. If cwd, workspace, or origin is `daftar-closing-agent`, `03_Ai/daftar`, or any other repo: **STOP**.
+
+## Frozen production (immutable through at least 13 Oct 2026)
+
+CALL-E judging ends **13 Oct 2026**. All Things Agentic judging may still be active. Do not touch this service until the owner reviews.
+
+| Field | Value |
+| --- | --- |
+| GCP project | `daftar-closing-agent` |
+| Region | `us-central1` |
+| Cloud Run service | `daftar-closing-agent` |
+| URL | `https://daftar-closing-agent-1487285471.us-central1.run.app` |
+| Runtime SA | `agent-runner@daftar-closing-agent.iam.gserviceaccount.com` |
+| Secret (already bound) | `gmail-smtp-app-password` |
+
+**Never** deploy, update, replace, replace-traffic, delete, or change IAM on service `daftar-closing-agent`. **Never** `adk deploy cloud_run` (any `--service_name`). **Never** `--allow-unauthenticated` or `allUsers` on any service. **Never** `git push` to `github.com/akrmcodes/daftar-closing-agent.git`. **Never** edit `/Users/aq/Work/01_Projects/03_Ai/daftar`.
+
+Forbidden against the frozen service (hard stop — never type these):
+
+- `gcloud run deploy daftar-closing-agent`
+- `gcloud run services update daftar-closing-agent`
+- `gcloud run services replace` / `replace-traffic` / `delete` on that service
+- `gcloud run services add-iam-policy-binding daftar-closing-agent`
+- `gcloud run services set-iam-policy daftar-closing-agent`
+- `adk deploy cloud_run` with `--service_name=daftar-closing-agent` (or any name)
+
+Allowed `gcloud` against the frozen service: **describe / get-iam-policy / list only**.
+
+If asked to “just redeploy the agent” or to copy-paste [`agent/README.md`](agent/README.md)’s old `gcloud` block: **refuse**. That block is historical. Legal deploy target when Stage 1 begins: service name exactly `daftar-call-e`, via [`agent/scripts/deploy_daftar_call_e.sh`](agent/scripts/deploy_daftar_call_e.sh) **only**.
+
+## Flutter / Envied
+
+[`lib/core/env/env.dart`](lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` still **defaults** to the frozen hostname. Do **not** `flutter run` against production until Stage 1 points this fork at `daftar-call-e`. Once `daftar-call-e` exists, never point Envied at `daftar-closing-agent-1487285471`.
+
+Package id `com.akrmcodes.daftar`: use a **dedicated demo profile**. Do not overwrite the Agentic APK on the judging device.
+
+## Python / secrets
+
+Python: only `agent/.venv` in **this** repo. Never `pip` into `03_Ai/daftar`.
+
+Secrets: `CALLE_API_KEY` and the Gmail App Password never in git, Flutter, chat, or logs. Secret Manager names: `calle-api-key` (CALL-E, Stage 1) and `gmail-smtp-app-password` (heritage SMTP).

@@ -1,0 +1,106 @@
+# === Miscellaneous ===
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# === IntelliJ / Android Studio ===
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# === VS Code ===
+# Uncomment if you don't want VS Code settings tracked:
+# .vscode/
+
+# === Flutter / Dart / Pub ===
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Sideload APKs — host on Drive / GitHub Release, never commit
+*.apk
+
+# === Generated Code (Drift, Freezed, Riverpod, JSON, Retrofit) ===
+*.g.dart
+*.freezed.dart
+*.drift.dart
+
+# === Symbolication ===
+app.*.symbols
+
+# === Obfuscation ===
+app.*.map.json
+
+# === Android Studio build artifacts ===
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# === iOS ===
+ios/Pods/
+ios/Podfile.lock
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# === Firebase (keep config files, ignore generated) ===
+# google-services.json and GoogleService-Info.plist are tracked
+# but Firebase-generated debug files are not:
+firebase_app_id_file.json
+
+# === Cursor IDE ===
+# Rules (.cursor/rules/) are committed for team consistency.
+# MCP config may contain secrets — never commit.
+.cursor/mcp.json
+
+# === Obsidian (docs workspace metadata) ===
+docs/.obsidian/
+
+# === Local environment ===
+*.env
+.env.*
+
+# Demo SMTP overlay — live To: addresses. Never commit.
+tool/demo_seed_emails.local.json
+
+# === Python (agent/) ===
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+agent/.venv/
+tool/.brand-venv/
+agent/smoke_evidence/
+.mypy_cache/
+.ruff_cache/
+
+# OAuth client downloads must never be committed
+client_secret_*.json
+client_secret_*.plist
+client_*.plist
+client_*.apps.googleusercontent.com.json
+
+# Supabase Local Config & Secrets
+supabase_config_reference.md
+docs/infrastructure/supabase_config_reference.md
+.env.supabase
+supabase/.env
+supabase/.env.local
+supabase/functions/.env
+supabase/functions/.env.local

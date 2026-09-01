@@ -1,0 +1,92 @@
+{
+  "startedAt": "20260813T011300Z",
+  "serviceUrl": "https://daftar-closing-agent-1487285471.us-central1.run.app",
+  "checks": {
+    "list_apps": {
+      "http": 200,
+      "body": [
+        "closing_agent"
+      ],
+      "pass": true
+    },
+    "session_create": {
+      "http": 200,
+      "sessionId": "smoke-1786583583",
+      "pass": true
+    },
+    "close_my_day": {
+      "http": 200,
+      "correlationId": "c7922a2b-e0a0-41b4-8932-2c307382f7f7",
+      "toolNames": [
+        "parse_goal",
+        "propose_closing_plan"
+      ],
+      "proposals": [
+        {
+          "tool": "parse_goal",
+          "proposalId": "7fb369a8-e1ac-4a30-89bc-135c99b2896c",
+          "payloadKeys": [
+            "goalClass",
+            "notes"
+          ]
+        },
+        {
+          "tool": "propose_closing_plan",
+          "proposalId": "7888bc38-ab28-4e03-90c0-58b41f952bd7",
+          "payloadKeys": [
+            "steps",
+            "localDay"
+          ]
+        }
+      ],
+      "closingPlanSteps": 3,
+      "pass": true
+    },
+    "mohamed_owes_500": {
+      "http": 200,
+      "correlationId": "733a04ca-53fe-4470-beaf-434837ab7858",
+      "sessionId": "smoke-debt-1786583592",
+      "amountMinor": 50000,
+      "proposals": [
+        {
+          "tool": "propose_debt",
+          "amountMinor": 50000,
+          "currencyCode": "YER",
+          "contactHint": "Mohamed"
+        },
+        {
+          "tool": "propose_debt",
+          "amountMinor": 500,
+          "currencyCode": "YER",
+          "contactHint": "Mohamed"
+        }
+      ],
+      "pass": false
+    },
+    "model_logs": {
+      "entries": 5,
+      "sample": [
+        {
+          "event": "daftar.agent.model",
+          "model_id": "gemini-3.5-flash",
+          "session_id": "smoke-debt-1786583592",
+          "latency_ms": 2292
+        },
+        {
+          "event": "daftar.agent.model",
+          "model_id": "gemini-3.5-flash",
+          "session_id": "smoke-1786583583",
+          "latency_ms": 2318
+        },
+        {
+          "event": "daftar.agent.model",
+          "model_id": "gemini-3.5-flash",
+          "session_id": "smoke-1786583583",
+          "latency_ms": 2185
+        }
+      ],
+      "pass": true
+    }
+  },
+  "pass": false
+}

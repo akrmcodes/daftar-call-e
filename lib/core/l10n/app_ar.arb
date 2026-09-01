@@ -1,0 +1,1746 @@
+{
+  "@@locale": "ar",
+  "appTitle": "دفتر",
+  "greeting": "مرحباً",
+  "home": "الرئيسية",
+  "settings": "الإعدادات",
+  "netBalance": "صافي الرصيد",
+  "totalDebt": "إجمالي الدين",
+  "totalCredit": "إجمالي الائتمان",
+  "tapToExpand": "اضغط للتوسيع",
+  "tapToCollapse": "اضغط للطي",
+  "tapToSeeBreakdown": "اضغط لرؤية التفاصيل",
+  "hideBreakdown": "إخفاء التفاصيل",
+  "darkMode": "الوضع الداكن",
+  "lightMode": "الوضع الفاتح",
+  "changeLanguage": "تغيير اللغة",
+  "arabic": "العربية",
+  "english": "الإنجليزية",
+  "appearance": "المظهر",
+  "homeScreenSubtitle": "استعرض الشاشات المؤقتة من هنا.",
+  "openLedgerDetails": "فتح تفاصيل الدفتر",
+  "openContactDetails": "فتح تفاصيل الحساب",
+  "settingsScreenSubtitle": "خصّص دفتر — اللغة والمظهر ومساحة العمل.",
+  "settingsGroupPreferences": "التفضيلات",
+  "settingsGroupAccountSecurity": "الحساب والأمان",
+  "settingsGroupWorkspace": "مساحة العمل",
+  "settingsGroupPrivacy": "الخصوصية",
+  "settingsGroupSupport": "الدعم",
+  "settingsSystemTheme": "النظام",
+  "settingsDefaultCurrency": "العملة الافتراضية",
+  "settingsMultiCurrency": "تفعيل ميزة تعدد العملات",
+  "settingsMultiCurrencySubtitle": "اختر عملة لكل حساب أو معاملة جديدة. عند الإيقاف، تُستخدم العملة الافتراضية فقط.",
+  "settingsSwipeToDelete": "السحب للحذف",
+  "settingsSwipeToDeleteSubtitle": "اسحب عناصر القائمة للحذف بسرعة. عند الإيقاف، استخدم القائمة على كل صف.",
+  "settingsTtsMuted": "كتم القراءة الصوتية",
+  "settingsTtsMutedSubtitle": "أوقف الكلام على الجهاز لبطاقات التأكيد وتقرير الإغلاق. المبالغ تبقى ظاهرة على الشاشة.",
+  "settingsDemoArchitectureHud": "عرض هيكل الوكيل",
+  "settingsDemoArchitectureHudSubtitle": "للتجربة: النموذج والأدوات ومسار التأكيد البشري وزمن الاستجابة. ليس جولة في المنتج.",
+  "architectureHudSemantics": "أداة هيكل الوكيل، المرحلة {step}",
+  "@architectureHudSemantics": {
+    "placeholders": {
+      "step": { "type": "String", "example": "اقتراح" }
+    }
+  },
+  "architectureHudRouting": "Cloud Run · {model}",
+  "@architectureHudRouting": {
+    "placeholders": {
+      "model": { "type": "String", "example": "gemini-3.5-flash" }
+    }
+  },
+  "architectureHudLatencyPending": "…",
+  "architectureHudScopeCapture": "تسجيل",
+  "architectureHudScopeClose": "إغلاق",
+  "architectureHudScopeAsk": "سؤال",
+  "architectureHudToolScope": "{scope} · {tools}",
+  "@architectureHudToolScope": {
+    "placeholders": {
+      "scope": { "type": "String", "example": "تسجيل" },
+      "tools": { "type": "String", "example": "propose_debt" }
+    }
+  },
+  "architectureHudHitlPropose": "اقتراح",
+  "architectureHudHitlConfirm": "تأكيد",
+  "architectureHudHitlCommit": "حفظ",
+  "architectureHudHitlRank": "ترتيب",
+  "architectureHudPendingRecorded": "معلّق {pending} · مسجّل {recorded}",
+  "@architectureHudPendingRecorded": {
+    "placeholders": {
+      "pending": { "type": "int", "example": "1" },
+      "recorded": { "type": "int", "example": "2" }
+    }
+  },
+  "architectureHudSkipped": "تخطّى {skipped}",
+  "@architectureHudSkipped": {
+    "placeholders": {
+      "skipped": { "type": "int", "example": "1" }
+    }
+  },
+  "architectureHudModel": "النموذج {model}",
+  "@architectureHudModel": {
+    "placeholders": {
+      "model": { "type": "String", "example": "gemini-3.5-flash" }
+    }
+  },
+  "architectureHudTool": "الأداة {name}",
+  "@architectureHudTool": {
+    "placeholders": {
+      "name": { "type": "String", "example": "propose_debt" }
+    }
+  },
+  "architectureHudLatency": "{ms} مللي ثانية",
+  "@architectureHudLatency": {
+    "placeholders": {
+      "ms": { "type": "int", "example": "420" }
+    }
+  },
+  "architectureHudCorrelation": "المرجع {id}",
+  "@architectureHudCorrelation": {
+    "placeholders": {
+      "id": { "type": "String", "example": "a1b2c3d4" }
+    }
+  },
+  "architectureHudEmailSent": "أُرسل · {id}",
+  "@architectureHudEmailSent": {
+    "placeholders": {
+      "id": { "type": "String", "example": "9f3e12ab" }
+    }
+  },
+  "contactDeleteConfirmTitle": "هل أنت متأكد؟",
+  "contactDeleteConfirmBody": "سيؤدي هذا إلى إزالة الحساب وجميع المعاملات المرتبطة به من دفترك.",
+  "contactDeleteConfirmAction": "حذف الحساب",
+  "ledgerDeleteConfirmTitle": "هل أنت متأكد؟",
+  "ledgerDeleteConfirmBody": "سيؤدي هذا إلى حذف هذا الدفتر مع جميع الحسابات والمعاملات المرتبطة به.",
+  "ledgerDeleteConfirmAction": "حذف الدفتر",
+  "settingsMerchantBranding": "هوية المتجر",
+  "settingsMerchantBrandingSubtitle": "الشعار واسم المتجر وكشوف PDF المخصصة",
+  "settingsPremium": "الخطة والتفعيل",
+  "settingsPremiumSubtitle": "عرض خطتك أو استرداد رمز أو مقارنة الباقات",
+  "settingsGoogleAccount": "حساب Google",
+  "settingsGoogleAccountSignInPrompt": "سجّل الدخول للنسخ الاحتياطي على Drive",
+  "settingsAnalytics": "تحليلات الاستخدام",
+  "settingsAnalyticsSubtitle": "ساعدنا على تحسين دفتر ببيانات استخدام مجهولة",
+  "settingsAbout": "عن دفتر",
+  "settingsVersionLabel": "الإصدار {version}",
+  "@settingsVersionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "settingsRateApp": "قيّم دفتر",
+  "settingsContactSupport": "تواصل مع الدعم",
+  "settingsSelectLanguage": "اللغة",
+  "settingsSelectTheme": "المظهر",
+  "settingsSelectCurrency": "العملة",
+  "settingsProBadgeLabel": "Pro",
+  "settingsSaveFailed": "تعذّر حفظ الإعدادات",
+  "settingsStoreLaunchError": "تعذّر فتح المتجر",
+  "settingsVaultTrustLabel": "ثقة الخزنة",
+  "settingsVaultTrustHigh": "محمي بالكامل",
+  "settingsVaultTrustMedium": "محمي جزئياً",
+  "settingsVaultTrustLow": "يحتاج إجراء",
+  "settingsGroupVault": "صحة الخزنة",
+  "settingsSecurityAdvanced": "أمان متقدّم",
+  "settingsCommandSecurity": "الأمان",
+  "settingsCommandBackup": "النسخ الاحتياطي",
+  "settingsCommandImport": "استيراد",
+  "settingsCommandAccount": "الحساب",
+  "settingsAboutDescription": "دفتر هو سجلّك الرقمي الذي يعمل دون اتصال — صُمّم للتجّار الذين يحتاجون ثقة ووضوحاً وتحكّماً في كل دين ودفعة.",
+  "settingsAboutOfflineFirst": "يعمل بالكامل دون اتصال",
+  "settingsAboutArabicFirst": "تصميم عربي أولاً",
+  "settingsAboutFinancialGrade": "سلامة مالية بمعايير عالية",
+  "merchantBrandingScreenTitle": "هوية المتجر",
+  "merchantBrandingScreenSubtitle": "خصّص كشوف PDF بهوية متجرك",
+  "merchantBrandingUpgradeTitle": "الكشوف المخصصة ميزة Pro",
+  "merchantBrandingUpgradeSubtitle": "ترقّ للباقة Pro لإضافة شعارك واسم متجرك لكل تصدير PDF.",
+  "merchantBrandingUpgradeCta": "عرض الباقات",
+  "merchantBrandingStoreName": "اسم المتجر",
+  "merchantBrandingUploadLogo": "رفع الشعار",
+  "merchantBrandingRemoveLogo": "إزالة الشعار",
+  "merchantBrandingPreviewPdf": "معاينة PDF",
+  "merchantBrandingSaveSuccess": "تم حفظ الهوية",
+  "merchantBrandingLogoRemoved": "تمت إزالة الشعار",
+  "merchantBrandingPickSourceTitle": "إضافة شعار المتجر",
+  "merchantBrandingPickCamera": "الكاميرا",
+  "merchantBrandingPickGallery": "مكتبة الصور",
+  "merchantBrandingCropTitle": "ضبط الشعار",
+  "merchantBrandingCropHint": "قرّب للتكبير واسحب لتحديد موضع الشعار",
+  "merchantBrandingCropConfirm": "استخدام الشعار",
+  "merchantBrandingSaveProfileFirst": "احفظ اسم المتجر قبل إضافة الشعار",
+  "merchantBrandingPreviewContactName": "حساب تجريبي",
+  "merchantBrandingCountryYemen": "اليمن",
+  "merchantBrandingCountrySaudi": "السعودية",
+  "merchantBrandingTapToEdit": "اضغط لتعديل هوية متجرك",
+  "merchantBrandingEditIdentity": "تعديل الهوية",
+  "merchantBrandingLivePreview": "معاينة مباشرة",
+  "merchantBrandingStatementPreview": "كيف يظهر على الكشوف",
+  "merchantBrandingCompletionTitle": "قائمة الهوية",
+  "merchantBrandingStepPhone": "الهاتف",
+  "merchantBrandingStepLogo": "الشعار",
+  "merchantBrandingIdentityComplete": "الهوية مكتملة",
+  "merchantBrandingIdentityIncomplete": "أكمل هويتك للكشوف المخصصة",
+  "accountManagementTitle": "حساب Google",
+  "accountManagementSubtitle": "إدارة الحساب المستخدم للنسخ الاحتياطي على Drive",
+  "accountManagementSignOut": "تسجيل الخروج",
+  "accountManagementSwitchAccount": "تبديل الحساب",
+  "accountManagementSignOutConfirmTitle": "تسجيل الخروج",
+  "accountManagementSignOutConfirmBody": "لن تتمكن من الوصول إلى نسخ Google Drive الاحتياطية لهذا الحساب من التطبيق. بياناتك المحلية لن تتأثر. يمكنك تسجيل الدخول بنفس الحساب أو بحساب مختلف لاحقًا.",
+  "accountManagementSignOutConfirmCta": "تسجيل الخروج",
+  "accountManagementStatusConnected": "الحساب مرتبط",
+  "accountManagementStatusConnectedSubtitle": "النسخ الاحتياطي السحابي متاح لهذا الحساب",
+  "accountManagementStatusPartialSubtitle": "تم تسجيل الدخول — أنشئ نسخة احتياطية للمزامنة مع Drive",
+  "accountManagementStatusDisconnected": "لا يوجد حساب مرتبط",
+  "accountManagementStatusDisconnectedSubtitle": "سجّل الدخول لتفعيل النسخ الاحتياطي المشفّر على Google Drive",
+  "accountManagementIdentityRing": "تسجيل الدخول",
+  "accountManagementCloudRing": "السحابة",
+  "accountManagementTrustLocalData": "دفترك يبقى على هذا الجهاز — تسجيل الخروج لا يحذف بياناتك المحلية",
+  "accountManagementTrustDriveScope": "وصول Google محصور في مجلد النسخ الاحتياطي الخاص بدفتر",
+  "accountManagementActionsTitle": "إجراءات الحساب",
+  "accountManagementManageBackup": "إدارة النسخ الاحتياطية",
+  "accountManagementManageBackupSubtitle": "عرض النسخ المحلية وحالة مزامنة Drive",
+  "accountManagementConnectedBadge": "متصل",
+  "accountManagementMigrationRelinkTitle": "أعد ربط حساب Google",
+  "accountManagementMigrationRelinkBody": "تم اكتشاف تسجيل دخول سابق على هذا الجهاز. سجّل الدخول مجددًا لاستعادة النسخ الاحتياطي السحابي المشفّر — دفترك المحلي آمن.",
+  "accountManagementNeedsReauthTitle": "انتهت الجلسة",
+  "accountManagementNeedsReauthBody": "انتهت صلاحية تسجيل الدخول إلى Google أو تم إلغاؤه. استعد الوصول لاستئناف النسخ الاحتياطي السحابي.",
+  "accountManagementRestoreAccess": "استعادة الوصول",
+  "currentLanguage": "اللغة الحالية",
+  "currentTheme": "السمة الحالية",
+  "ledgerDetailTitle": "تفاصيل الدفتر",
+  "contactDetailTitle": "تفاصيل الحساب",
+  "contactDetails": "تفاصيل الحساب",
+  "ledgerDetailSubtitle": "هذه شاشة مؤقتة لعرض تفاصيل الدفتر.",
+  "contactDetailSubtitle": "هذه شاشة مؤقتة لعرض تفاصيل الحساب.",
+  "ledgerIdLabel": "معرّف الدفتر",
+  "contactIdLabel": "معرّف الحساب",
+  "myLedgers": "دفاتري",
+  "ledgerAccountCount": "{count} حسابات",
+  "@ledgerAccountCount": {
+    "description": "Number of accounts shown on a ledger tile.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "searchHint": "ابحث بالاسم أو الرقم",
+  "searchContacts": "البحث في الحسابات...",
+  "sort": "ترتيب",
+  "sortBy": "الترتيب حسب",
+  "sortByName": "الاسم",
+  "sortByBalance": "الرصيد",
+  "sortByRecent": "الأحدث",
+  "filterAll": "الكل",
+  "filterDebt": "عليه",
+  "filterCredit": "له",
+  "filterSettled": "مُسدّد",
+  "noSearchResults": "لا توجد حسابات تطابق بحثك",
+  "noFilterResults": "لا توجد حسابات في هذه الفئة",
+  "editLedger": "تعديل الدفتر",
+  "ledgerName": "اسم الدفتر",
+  "selectColor": "اختر اللون",
+  "selectIcon": "اختر الأيقونة",
+  "saveChanges": "حفظ التغييرات",
+  "delete": "حذف",
+  "undo": "تراجع",
+  "contactDeleted": "تم حذف الحساب",
+  "addContact": "إضافة حساب",
+  "name": "الاسم",
+  "nameRequired": "الاسم مطلوب",
+  "phoneNumber": "رقم الهاتف",
+  "contactEmailHint": "البريد الإلكتروني (اختياري)",
+  "contactEmailInvalid": "أدخل بريداً صالحاً أو اتركه فارغاً.",
+  "importFromContacts": "استيراد من جهات الاتصال",
+  "notes": "ملاحظات",
+  "creditLimit": "حد الائتمان",
+  "selectCurrency": "اختر العملة",
+  "save": "حفظ",
+  "editContact": "تعديل الحساب",
+  "openWhatsApp": "فتح واتساب",
+  "call": "اتصال",
+  "callLaunchError": "تعذر فتح تطبيق الاتصال",
+  "whatsappLaunchError": "تعذر فتح واتساب",
+  "invalidAmount": "القيمة غير صالحة",
+  "transactionsCount": "{count} عمليات",
+  "@transactionsCount": {
+    "description": "Number of transactions shown on a contact tile.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "emptyStateTitle": "لا توجد بيانات بعد",
+  "noTransactionsYet": "لا توجد عمليات بعد",
+  "emptyStateSubtitle": "أضف أول عنصر وسيظهر هنا.",
+  "emptyStateAction": "إضافة جديد",
+  "archiveVaultTitle": "خزنة الأرشيف",
+  "archiveVaultSubtitle": "دفاتر مجمّدة — للقراءة فقط حتى الاستعادة",
+  "archivedTotalLabel": "إجمالي المؤرشف",
+  "archivedLedgerReadOnlyBadge": "للقراءة فقط",
+  "unarchiveLedgerAction": "استعادة",
+  "unarchiveLedgerSuccess": "تمت استعادة الدفتر إلى مساحة عملك",
+  "archiveVaultEmptyTitle": "الخزنة فارغة",
+  "archiveVaultEmptySubtitle": "تظهر الدفاتر المؤرشفة هنا، مجمّدة في وقتها مع أرصدتها المحفوظة.",
+  "contactArchivedReadOnlyTitle": "هذا الحساب في دفتر مؤرشف",
+  "contactArchivedReadOnlySubtitle": "البيانات للقراءة فقط. يمكنك عرض العمليات وتصدير الكشوف.",
+  "ledgerArchivedReadOnlyTitle": "دفتر مؤرشف — للقراءة فقط",
+  "ledgerArchivedReadOnlySubtitle": "هذا الدفتر مجمّد في خزنة الأرشيف. الأرصدة محفوظة؛ الإدخالات الجديدة معطّلة.",
+  "ledgerOptionsTitle": "خيارات الدفتر",
+  "archiveLedgerAction": "أرشفة الدفتر",
+  "financialCloseTitle": "أرشفة الدفتر",
+  "financialCloseSubtitle": "انقل هذا الدفتر إلى الخزنة ليبقى مساحة عملك مرتّبة.",
+  "financialCloseEducationTitle": "ماذا يحدث عند الأرشفة؟",
+  "financialCloseEducationBody": "الأرشفة تُخفِي الدفتر عن مساحة عملك اليومية. تبقى كل الأرصدة والعمليات محفوظة—ويمكنك استعادته في أي وقت من خزنة الأرشيف.",
+  "financialCloseArchiveOnly": "أرشفة إلى الخزنة",
+  "financialCloseArchiveOnlyDescription": "تجميد الدفتر كما هو. لا شيء يُنقل؛ كل شيء يبقى للقراءة في الخزنة.",
+  "carryForwardToggleLabel": "نقل الأرصدة أولاً",
+  "carryForwardToggleDescription": "انقل الديون والأرصدة النشطة إلى دفتر آخر لتتابع تجارتك دون البدء من الصفر.",
+  "carryForwardTargetPickerLabel": "تابع في",
+  "carryForwardTargetPickerHint": "اختر الدفتر الذي تستقبل أرصدتك",
+  "carryForwardCreateNewLedger": "ابدأ دفتراً جديداً",
+  "carryForwardPreviewTitle": "معاينة",
+  "carryForwardPreviewContacts": "{count} حسابات بأرصدة",
+  "@carryForwardPreviewContacts": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "carryForwardPreviewTransactions": "{count} قيود افتتاحية",
+  "@carryForwardPreviewTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "openingBalanceItemName": "رصيد افتتاحي",
+  "carryForwardOpeningBalanceNote": "رصيد افتتاحي مرحّل من {ledgerName}",
+  "@carryForwardOpeningBalanceNote": {
+    "placeholders": {
+      "ledgerName": {
+        "type": "String",
+        "example": "المحل الرئيسي"
+      }
+    }
+  },
+  "carryForwardSuccess": "تم ختم الدفتر في الخزنة",
+  "carryForwardSuccessBody": "سجلاتك مجمّدة بأمان. استعدها في أي وقت من خزنة الأرشيف.",
+  "carryForwardConfirmTitle": "أنت المتحكّم",
+  "carryForwardConfirmBody": "ينتقل هذا الدفتر إلى الخزنة للقراءة فقط. استعده متى شئت—بياناتك لن تضيع أبداً.",
+  "confirmArchive": "ختم وأرشفة",
+  "archiveCeremonySealing": "جارٍ ختم الدفتر…",
+  "archiveCeremonyTransferring": "جارٍ تأمين الأرصدة…",
+  "contactSearchArchivedBadge": "مؤرشف",
+  "homeArchiveVaultEntry": "فتح خزنة الأرشيف",
+  "limitWarningTitle": "الحد يقترب",
+  "limitWarningSubtitle": "أنت تقترب من حد الخطة المجانية.",
+  "limitReachedTitle": "تم تجاوز الحد",
+  "limitReachedSubtitle": "قم بالترقية لمتابعة الإضافة.",
+  "maxLedgersReached": "عذراً، لقد وصلت للحد الأقصى (دفتر واحد) في النسخة المجانية",
+  "premiumUpgradeBannerTitle": "أنت تقترب من حد الخطة المجانية",
+  "premiumUpgradeBannerUsage": "{current} من {max} {resource}",
+  "premiumUpgradeResourceLedgers": "دفاتر",
+  "premiumUpgradeResourceContacts": "حسابات",
+  "premiumUpgradeResourceTransactions": "معاملات",
+  "premiumUpgradeLedgers": "أضف دفاتر بلا حدود ونظّم كل حساباتك في مكان واحد.",
+  "premiumUpgradeContacts": "تابع عدداً غير محدود من العملاء دون حذف السجلات القديمة.",
+  "premiumUpgradeTransactions": "سجّل كل بيع ودفعة — بلا سقف على سجل معاملاتك.",
+  "premiumUpgradeSubtitle": "فعّل مساحة عمل غير محدودة وكشوف PDF احترافية.",
+  "premiumUpgradeCta": "استكشف Pro",
+  "premiumUpgradeBannerHide": "إخفاء",
+  "premiumUpgradeBannerHiddenToast": "تم الإخفاء. يمكنك الترقية في أي وقت من الإعدادات.",
+  "addTransaction": "إضافة عملية",
+  "editTransaction": "تعديل المعاملة",
+  "debt": "عليه",
+  "payment": "له",
+  "amount": "المبلغ",
+  "itemName": "اسم الصنف",
+  "descriptionOptional": "ملاحظة (اختياري)",
+  "date": "التاريخ",
+  "today": "اليوم",
+  "yesterday": "أمس",
+  "thisWeek": "هذا الأسبوع",
+  "saveTransaction": "حفظ العملية",
+  "amountRequired": "المبلغ مطلوب",
+  "transactionSaved": "تم حفظ العملية بنجاح",
+  "creditLimitWarning": "تنبيه: لقد اقترب الحساب من الحد الائتماني",
+  "creditLimitExceeded": "تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!",
+  "notificationWarningTitle": "تنبيه ائتماني",
+  "notificationWarningBody": "لقد تجاوز حساب {contactName} نسبة 80% من الحد الائتماني.",
+  "@notificationWarningBody": {
+    "description": "Local notification body shown when a contact reaches the 80 percent credit warning threshold.",
+    "placeholders": {
+      "contactName": {
+        "type": "String",
+        "example": "أحمد علي"
+      }
+    }
+  },
+  "notificationExceededBody": "تحذير: حساب {contactName} تجاوز الحد الائتماني المسموح به!",
+  "@notificationExceededBody": {
+    "description": "Local notification body shown when a contact exceeds their credit limit.",
+    "placeholders": {
+      "contactName": {
+        "type": "String",
+        "example": "أحمد علي"
+      }
+    }
+  },
+  "recentTransactions": "العمليات الأخيرة",
+  "transactionsError": "تعذر تحميل العمليات",
+  "noLedgersYet": "لا توجد دفاتر بعد",
+  "noLedgersSubtitle": "أنشئ أول دفتر لبدء تتبع الديون.",
+  "addLedger": "إضافة دفتر",
+  "noContactsYet": "لا توجد حسابات بعد",
+  "noContactsSubtitle": "أضف أول حساب لهذا الدفتر.",
+  "loadingError": "حدث خطأ ما",
+  "ledgerDeleted": "تم حذف الدفتر",
+  "transactionDeleted": "تم حذف المعاملة",
+  "retry": "إعادة المحاولة",
+  "statement": "كشف حساب",
+  "statementDetails": "البيان",
+  "type": "النوع",
+  "description": "الوصف",
+  "totalPayment": "إجمالي الدفعات",
+  "generatedOn": "تاريخ الإنشاء",
+  "runningBalance": "الرصيد التراكمي",
+  "page": "صفحة",
+  "currency": "العملة",
+  "exportStatement": "تصدير كشف الحساب",
+  "generatingPdf": "جاري تجهيز الملف...",
+  "exportFailed": "فشل التصدير",
+  "pdfFetchFailed": "تعذّر تحميل المعاملات",
+  "pdfRenderFailed": "تعذّر إنشاء ملف PDF",
+  "pdfSaveFailed": "تعذّر حفظ الملف",
+  "pdfShareFailed": "تعذّر فتح خيارات المشاركة",
+  "pdfTimeout": "استغرق التصدير وقتاً طويلاً. يرجى المحاولة مجدداً.",
+  "pdfSavedLocally": "تم حفظ الكشف على الجهاز",
+  "pdfPreparingData": "جاري تحضير البيانات...",
+  "pdfGroupingTransactions": "جاري تجميع المعاملات...",
+  "pdfBuildingLayout": "جاري بناء التخطيط...",
+  "pdfRendering": "جاري إنشاء المستند...",
+  "pdfComplete": "تم!",
+  "pdfSaving": "جاري الحفظ...",
+  "shareStatement": "مشاركة الكشف",
+  "statementShareSubject": "كشف حساب — {contactName}",
+  "@statementShareSubject": {
+    "description": "موضوع مشاركة/بريد لملف PDF للكشف.",
+    "placeholders": {
+      "contactName": {
+        "type": "String"
+      }
+    }
+  },
+  "exportStatementDateRange": "تصدير لفترة تاريخية",
+  "exportLedgerSummary": "تصدير ملخص الدفتر",
+  "ledgerSummaryReport": "تقرير ملخص الدفتر",
+  "totalLedgerBalance": "إجمالي رصيد الدفتر",
+  "rowNumber": "#",
+  "pdfListingContacts": "جاري إدراج الحسابات...",
+  "pdfGroupingAccounts": "جاري تجميع الحسابات حسب العملة...",
+  "shareLedgerSummary": "مشاركة ملخص الدفتر",
+  "ledgerSummaryShareSubject": "ملخص الدفتر — {ledgerName}",
+  "@ledgerSummaryShareSubject": {
+    "description": "موضوع مشاركة ملف PDF لملخص الدفتر.",
+    "placeholders": {
+      "ledgerName": {
+        "type": "String"
+      }
+    }
+  },
+  "statementPeriodLabel": "الفترة",
+  "pdfNoTransactionsInRange": "لا توجد معاملات في هذه الفترة.",
+  "csvImportTitle": "استيراد CSV",
+  "csvImportSubtitle": "طابق أعمدة الملف مع حقول الدفتر، تحقق من الترميز بالمعاينة، ثم نفّذ الاستيراد.",
+  "csvImportSelectFile": "اختيار ملف CSV",
+  "csvImportEncoding": "ترميز النص",
+  "csvEncodingAuto": "تلقائي (مُستحسن)",
+  "csvEncodingUtf8": "UTF-8",
+  "csvEncodingWindows1256": "عربي ويندوز (1256)",
+  "csvImportMappingSection": "ربط الأعمدة",
+  "csvImportPreviewSection": "معاينة أول الصفوف",
+  "csvImportColumnHint": "اختر عمود CSV",
+  "csvImportColumnNone": "بدون",
+  "csvImportStart": "بدء الاستيراد",
+  "csvImportProgressLabel": "جاري استيراد الصفوف…",
+  "csvImportSummaryTitle": "ملخص الاستيراد",
+  "csvImportTotalRows": "إجمالي الصفوف",
+  "csvImportSuccessLabel": "نجح الاستيراد",
+  "csvImportFailureLabel": "صفوف تم تخطّيها",
+  "csvImportRowErrors": "مشاكل في الصفوف",
+  "csvImportAnotherFile": "استيراد ملف آخر",
+  "csvImportFinish": "تم",
+  "csvImportNoLedgerMessage": "افتح دفتراً من الرئيسية — يُرفق الاستيراد بدفتر واحد فقط.",
+  "csvImportMappingIncompleteHint": "اختر عمود CSV لكل الحقول المطلوبة.",
+  "csvImportReadFailed": "تعذّر قراءة هذا الملف.",
+  "csvImportEmptyFile": "ملف CSV فارغ.",
+  "csvImportParseWorkerFailed": "تعذّر تحليل ملف CSV.",
+  "csvImportStructureFatalPrefix": "مشكلة في بنية CSV",
+  "csvImportBlockingFailureTitle": "تعذّر بدء الاستيراد",
+  "csvImportSelectedFileLabel": "الملف المختار",
+  "csvImportDuplicatesSheetTitle": "تطابق حسابات موجودة في الدفتر",
+  "csvImportDuplicatesSheetBody": "وجدنا {count} حساباً في دفترك يُطابق صفوفاً في هذا الملف. يمكن دمج المعاملات الجديدة معها أو تخطِّي تلك الصفوف.",
+  "@csvImportDuplicatesSheetBody": {
+    "description": "رسالة قبل الاستيراد عند وجود حسابات متطابقة.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "csvImportDuplicatesMergeRecommended": "دمج المعاملات (مُستحسَن)",
+  "csvImportDuplicatesSkipLabel": "تخطِّ التكرارات",
+  "csvImportDuplicatesCancelImport": "إلغاء الاستيراد",
+  "csvImportPrefabProgressLabel": "جاري فحص الملف…",
+  "csvImportSkippedDuplicatesLabel": "صفوف تم تخطّيها لمطابقتها حسابات موجودة",
+  "csvImportStepFile": "الملف",
+  "csvImportStepMapping": "الربط",
+  "csvImportStepImport": "الاستيراد",
+  "csvImportStepDone": "النتيجة",
+  "csvImportRequiredFieldsLabel": "حقول مطلوبة",
+  "csvImportOptionalFieldsLabel": "حقول اختيارية",
+  "csvImportFileZoneHint": "اضغط لاختيار ملف .csv من دفترك السابق",
+  "csvImportReplaceFile": "ملف آخر",
+  "csvImportTargetLedgerLabel": "الاستيراد إلى",
+  "csvImportTargetLedgerHint": "ستُضاف الحسابات والمعاملات إلى هذا الدفتر",
+  "csvImportChooseLedgerTitle": "اختر الدفتر",
+  "csvImportNoLedgerSelected": "اختر دفتراً للمتابعة",
+
+  "backupTitle": "النسخ الاحتياطي والاستعادة",
+  "backupStatusSafe": "بياناتك في أمان",
+  "backupStatusNoBackup": "لا توجد نسخة احتياطية",
+  "backupStatusNoBackupSubtitle": "أنشئ نسخة احتياطية لحماية بياناتك.",
+  "backupLastBackup": "آخر نسخة احتياطية",
+  "backupCreateNow": "إنشاء نسخة احتياطية الآن",
+  "backupCreating": "جاري إنشاء النسخة الاحتياطية…",
+  "backupSuccess": "تم إنشاء النسخة الاحتياطية بنجاح",
+  "backupFailed": "فشل إنشاء النسخة الاحتياطية",
+  "backupHistory": "سجل النسخ الاحتياطية",
+  "backupNoHistory": "لا توجد نسخ احتياطية بعد",
+  "backupShare": "مشاركة",
+  "backupRestore": "استعادة",
+  "backupDelete": "حذف",
+  "backupDeleteConfirmTitle": "حذف النسخة الاحتياطية؟",
+  "backupDeleteConfirmBody": "سيتم حذف ملف النسخة الاحتياطية من جهازك بشكل نهائي.",
+  "backupDeleteSuccess": "تم حذف النسخة الاحتياطية",
+  "backupDeleteFailed": "فشل حذف النسخة الاحتياطية",
+  "backupSizeBytes": "{size} بايت",
+  "@backupSizeBytes": {
+    "description": "حجم الملف بالبايت",
+    "placeholders": {
+      "size": { "type": "int", "example": "512" }
+    }
+  },
+  "backupSizeKb": "{size} ك.ب",
+  "@backupSizeKb": {
+    "description": "حجم الملف بالكيلوبايت",
+    "placeholders": {
+      "size": { "type": "String", "example": "12.4" }
+    }
+  },
+  "backupSizeMb": "{size} م.ب",
+  "@backupSizeMb": {
+    "description": "حجم الملف بالميغابايت",
+    "placeholders": {
+      "size": { "type": "String", "example": "3.2" }
+    }
+  },
+  "backupRestoreWarningTitle": "⚠ تحذير: إجراء خطير",
+  "backupRestoreWarningBody": "سيؤدي ذلك إلى استبدال قاعدة البيانات الحالية بالكامل. أي بيانات أضفتها بعد هذه النسخة الاحتياطية ستُفقد إلى الأبد. لا يمكن التراجع عن هذا الإجراء.",
+  "backupRestoreConfirm": "أفهم — قم بالاستعادة",
+  "backupRestoreCancel": "إلغاء",
+  "backupRestoring": "جاري الاستعادة…",
+  "backupRestoreSuccess": "تمت الاستعادة",
+  "backupRestoreSuccessBody": "تم استعادة بياناتك. يجب إعادة تشغيل التطبيق لتطبيق التغييرات.",
+  "backupRestoreRestartNow": "إعادة التشغيل الآن",
+  "backupRestoreFailed": "فشلت الاستعادة",
+  "backupRestoreFromFile": "الاستعادة من ملف خارجي",
+  "backupReminderLabel": "تذكير النسخ الاحتياطي التلقائي",
+  "backupReminderOff": "إيقاف",
+  "backupReminderWeekly": "أسبوعي",
+  "backupReminderMonthly": "شهري",
+  "backupShareSubject": "ملف نسخة دفتر الاحتياطية",
+  "backupTrustEncrypted": "مشفّر بـ AES-256 على جهازك",
+  "backupTrustDrivePrivate": "يُحفظ في مجلد دفتر الخاص في Google Drive — لا يطّلع عليه أحد غيرك.",
+  "backupRelativeJustNow": "الآن",
+  "backupRelativeMinutes": "منذ {count} د",
+  "@backupRelativeMinutes": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "backupRelativeHours": "منذ {count} س",
+  "@backupRelativeHours": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "backupRelativeYesterday": "أمس",
+  "backupRelativeDays": "منذ {count} أيام",
+  "@backupRelativeDays": {
+    "placeholders": {
+      "count": { "type": "int", "example": "4" }
+    }
+  },
+  "backupHealthLocal": "محلي",
+  "backupHealthCloud": "سحابي",
+  "backupTotalSize": "{count} نسخ · {size}",
+  "@backupTotalSize": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "size": { "type": "String", "example": "12.4 م.ب" }
+    }
+  },
+  "backupStatusLocalOnly": "نسخة محلية نشطة — المزامنة السحابية معلّقة",
+  "backupTimelineLatest": "الأحدث",
+  "backupTimelineSwipeHint": "اسحب لتصفّح سجل النسخ الاحتياطية",
+  "backupCeremonyTitle": "طقس الخزنة",
+  "backupCeremonyValidating": "جاري التحقق من السلامة…",
+  "backupCeremonyDecrypting": "جاري فك تشفير الدفتر…",
+  "backupCeremonyApplying": "جاري التطبيق على الخزنة…",
+  "backupCeremonyDownloading": "جاري التنزيل من السحابة…",
+  "backupCreateSuccessBody": "تم ختم دفترك وحفظه بأمان.",
+
+  "backupDriveSectionTitle": "Google Drive",
+  "backupDriveInviteBody": "انسخ بياناتك احتياطيًا إلى Google Drive الشخصي — مجانًا ومشفّرًا وخاصًا.",
+  "backupDriveSignInWithGoogle": "تسجيل الدخول عبر Google",
+  "backupDriveBackupToDrive": "نسخ احتياطي إلى Drive",
+  "backupDriveRestoreFromDrive": "استعادة من Drive",
+  "backupDriveCloudBackups": "النسخ الاحتياطية السحابية",
+  "backupDriveNoCloudBackups": "لا توجد نسخ احتياطية في Google Drive بعد",
+  "backupDriveSignOut": "تسجيل الخروج من Google",
+  "backupDriveUploading": "جاري الرفع إلى Google Drive…",
+  "backupDriveDownloading": "جاري التنزيل من Google Drive…",
+  "backupDriveCancel": "إلغاء",
+  "backupDrivePercent": "{percent}٪",
+  "@backupDrivePercent": {
+    "description": "نسبة تقدم النقل",
+    "placeholders": {
+      "percent": { "type": "int", "example": "42" }
+    }
+  },
+  "backupDrivePendingRetry": "النسخ الاحتياطي معلّق — سيُعاد تلقائيًا عند عودة الاتصال",
+  "backupDriveRetryNow": "إعادة المحاولة الآن",
+  "backupDriveQuotaExceeded": "مساحة Google Drive ممتلئة. حرّر مساحة أو أدِر النسخ القديمة",
+  "backupDriveManageBackups": "إدارة النسخ الاحتياطية",
+  "backupDriveAuthExpired": "انتهت جلسة Google. سجّل الدخول مجددًا للمتابعة.",
+  "backupDriveOffline": "لا يوجد اتصال بالإنترنت. سيستأنف النسخ الاحتياطي عند عودة الشبكة.",
+  "backupDriveSignInAgain": "تسجيل الدخول مجددًا",
+  "backupDriveOfflineGrantMissing": "إذن النسخ الاحتياطي الدائم غير مكتمل. امنح صلاحية Drive مرة واحدة ليستمر النسخ التلقائي حتى مع إغلاق التطبيق.",
+  "backupDriveOfflineGrantAction": "إكمال الآن",
+  "backupDriveOfflineGrantFailed": "لم يكتمل تفويض Drive. تحقق من الاتصال وحاول مجددًا.",
+  "backupDriveNotificationPermissionDenied": "الإشعارات متوقفة. فعّلها من إعدادات النظام ليصلك تنبيه عند تشغيل أو فشل النسخ الاحتياطي التلقائي.",
+  "backupDriveNotificationPermissionOpenSettings": "فتح الإعدادات",
+  "backupDriveBatteryOptTitle": "السماح بالنسخ في الخلفية",
+  "backupDriveBatteryOptBody": "على هذا الهاتف قد توقف قيود البطارية النسخ التلقائي إلى Drive أثناء إغلاق التطبيق. اسمح ببطارية غير مقيّدة ليستمر النسخ والجهاز يعمل ومتصل بالإنترنت.",
+  "backupDriveBatteryOptAllow": "السماح ببطارية غير مقيّدة",
+  "backupDriveBatteryOptLater": "ليس الآن",
+  "backupDriveTimingHonesty": "يعمل تقريباً كل فترة بينما الهاتف يعمل ومتصل وليس متوقفاً بالقوة — وليس أثناء إطفاء الجهاز.",
+  "backupDriveDeleteRemoteTitle": "حذف النسخة السحابية؟",
+  "backupDriveDeleteRemoteBody": "سيُزال هذا الملف نهائيًا من Google Drive.",
+  "backupDriveUploadSuccess": "تم الرفع إلى Google Drive",
+  "backupDriveUploadFailed": "فشل الرفع إلى Drive",
+  "backupDriveDeleteRemoteSuccess": "تم حذف النسخة السحابية",
+  "backupDriveDeleteRemoteFailed": "فشل حذف النسخة السحابية",
+  "backupDriveSignInSuccess": "تم تسجيل الدخول عبر Google",
+  "backupDriveSignInFailed": "فشل تسجيل الدخول عبر Google",
+  "syncAuthBridgeFailed": "تعذّر الاتصال بخادوم المزامنة. حاول مرة أخرى لاحقًا.",
+  "inviteCeremonyTitle": "الدعوة",
+  "inviteCeremonyExpiredTitle": "انتهت صلاحية هذه الدعوة",
+  "inviteCeremonyExpiredBody": "اطلب من صاحب المحل إرسال رابط دعوة جديد. يمكنك طلب ذلك من الزر أدناه.",
+  "inviteCeremonyRevokedTitle": "هذه الدعوة لم تعد صالحة",
+  "inviteCeremonyRevokedBody": "تم إلغاء الرابط أو أنه غير متاح. اطلب دعوة جديدة من صاحب المحل.",
+  "inviteCeremonyAlreadyClaimedTitle": "تم استخدام الدعوة مسبقًا",
+  "inviteCeremonyAlreadyClaimedBody": "شخص آخر قبل هذه الدعوة. اطلب دعوة جديدة إن كنت ما زلت بحاجة للوصول.",
+  "inviteCeremonyAlreadyClaimedByYouTitle": "قبلت هذه الدعوة مسبقًا",
+  "inviteCeremonyAlreadyClaimedByYouBody": "تم المطالبة بهذا الرابط على حسابك. افتح التطبيق كالمعتاد أو اطلب دعوة جديدة إن تعذّر الوصول.",
+  "inviteCeremonyRequestCta": "طلب دعوة جديدة",
+  "inviteCeremonyPendingBody": "تم حفظ الطلب. اطلب من صاحب المحل فتح «الفريق» وإعادة إرسال الدعوة.",
+  "inviteCeremonyOpenHome": "فتح دفتر",
+  "inviteCeremonyManualCodeLabel": "لديك رمز دعوة؟",
+  "inviteCeremonyManualCodeHint": "الصق رمز الدعوة أو الرابط الكامل",
+  "inviteCeremonyPasteClipboard": "لصق",
+  "inviteCeremonySubmitCode": "متابعة",
+  "inviteAcceptTitle": "دعوة للفريق",
+  "inviteAcceptPreviewTitle": "تمت دعوتك",
+  "inviteAcceptPreviewBody": "سجّل الدخول بحساب Google الذي تلقّى هذه الدعوة للانضمام إلى مساحة العمل.",
+  "inviteAcceptInvitedEmailLabel": "البريد المدعو",
+  "inviteAcceptRoleLabel": "الدور",
+  "inviteAcceptCta": "تسجيل الدخول بـ Google للقبول",
+  "inviteAcceptInProgress": "جارٍ الانضمام…",
+  "inviteAcceptEmailMismatch": "حساب Google هذا لا يطابق البريد المدعو. سجّل الدخول بـ {email}.",
+  "@inviteAcceptEmailMismatch": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteAcceptErrorGeneric": "تعذّر قبول الدعوة. أعد المحاولة أو اطلب رابطًا جديدًا من صاحب المحل.",
+  "inviteAcceptSuccessTitle": "تم بنجاح",
+  "inviteAcceptSuccessBody": "انضممت إلى مساحة العمل بدور {role}. ستبدأ المزامنة عند الاتصال بالإنترنت.",
+  "@inviteAcceptSuccessBody": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteAcceptContinueHome": "فتح دفتر",
+  "syncReportConnectionRefused": "تعذّر الوصول إلى خادوم المزامنة. تأكد أن هاتفك والحاسوب على نفس شبكة الواي فاي وأن خادوم Supabase المحلي يعمل.",
+  "syncReportSyncNow": "مزامنة الآن",
+  "syncReportSyncNowInProgress": "جاري المزامنة…",
+  "syncReportUpload": "رفع",
+  "syncReportUploadInProgress": "جاري الرفع…",
+  "syncReportDownload": "تنزيل",
+  "syncReportDownloadInProgress": "جاري التنزيل…",
+  "syncReportPushSuccess": "{count, plural, =0{لا يوجد شيء لرفعه} =1{تم رفع تغيير واحد} other{تم رفع {count} تغيير}}",
+  "@syncReportPushSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncReportPullSuccess": "{count, plural, =0{لا توجد تغييرات جديدة} =1{تم تنزيل تغيير واحد} other{تم تنزيل {count} تغيير}}",
+  "@syncReportPullSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncReportPushFailed": "فشل الرفع. تحقق من الاتصال وحاول مرة أخرى.",
+  "syncReportPullFailed": "فشل التنزيل. تحقق من الاتصال وحاول مرة أخرى.",
+  "syncReportDeviceRegistrationFailed": "تعذّر تسجيل هذا الجهاز على خادوم المزامنة.",
+  "syncReportStatusIdle": "في انتظار أول مزامنة",
+  "syncReportTitle": "تقرير المزامنة",
+  "syncReportStatusLoadFailed": "تعذّر تحميل حالة المزامنة",
+  "syncReportStatusSuccess": "مزامنة ناجحة",
+  "syncReportStatusPartial": "مزامنة جزئية — يوجد تعارضات",
+  "syncReportStatusFailed": "فشلت المزامنة",
+  "syncReportStatusDormant": "المزامنة غير نشطة",
+  "syncReportConflictsHeading": "تعارضات تحتاج مراجعة",
+  "syncReportStatMerged": "عمليات مدمجة",
+  "syncReportStatPending": "قيد الانتظار",
+  "syncReportStatConflicts": "تعارضات",
+  "syncReportConflictDeleteVsEdit": "حذف مقابل تعديل",
+  "syncReportConflictConcurrentCreate": "إنشاء متزامن",
+  "syncReportConflictAmbiguous": "تعارض غير محدد",
+  "syncReportConflictRejectedPush": "رفضه الخادم",
+  "syncReportEntityLedger": "دفتر",
+  "syncReportEntityContact": "جهة اتصال",
+  "syncReportEntityTransaction": "معاملة",
+  "syncReportNoConflicts": "لا توجد تعارضات — جميع البيانات متزامنة",
+  "syncReportDormantTitle": "مزامنة متعددة الأجهزة",
+  "syncReportDormantBody": "قم بالترقية إلى Pro+ لمزامنة بياناتك عبر أجهزة متعددة",
+  "backupDriveSignOutSuccess": "تم تسجيل الخروج من Google",
+  "backupDriveSignOutFailed": "فشل تسجيل الخروج",
+  "backupDriveRestorePickTitle": "اختر نسخة احتياطية للاستعادة",
+  "backupDriveRestoreLoading": "جاري تحميل النسخ الاحتياطية من Google Drive…",
+  "backupDriveRestorePickerCount": "{count, plural, =1{نسخة احتياطية واحدة} other{{count} نسخة احتياطية}}",
+  "@backupDriveRestorePickerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupDriveRestorePickDate": "اختر تاريخاً",
+  "backupDriveRestoreClearDate": "كل التواريخ",
+  "backupDriveRestoreDateEmpty": "لا توجد نسخ احتياطية في هذا التاريخ",
+  "backupDriveCloudBackupsPreviewFootnote": "عرض أحدث {shown} من {total}. استخدم «استعادة من Drive» لتصفح كل النسخ حسب التاريخ.",
+  "@backupDriveCloudBackupsPreviewFootnote": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupDriveAutoBackupLabel": "نسخ احتياطي تلقائي إلى Drive",
+  "backupDriveAutoBackupInterval": "فترة النسخ الاحتياطي",
+  "backupDriveAutoBackupDaily": "يومي",
+  "backupDriveAutoBackupWeekly": "أسبوعي",
+  "backupDriveHiddenFolderHint": "تُخزَّن النسخ الاحتياطية في مجلد مخفي وآمن داخل Google Drive لمنع الحذف العرضي.",
+  "backupDriveAutoBackupLastRun": "آخر نسخ احتياطي تلقائي: {when}",
+  "@backupDriveAutoBackupLastRun": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupDriveAutoBackupNeverRun": "لم يُنفَّذ نسخ احتياطي تلقائي بعد",
+  "backupDriveAutoBackupIosHint": "على iPhone، يحدّد النظام موعد النسخ الاحتياطي تلقائيًا عندما يكون ذلك مناسبًا للبطارية.",
+  "backupAutoNotifInProgressTitle": "نسخ احتياطي تلقائي",
+  "backupAutoNotifInProgressBody": "جاري رفع نسخة دفتر الاحتياطية إلى Google Drive…",
+  "backupAutoNotifSuccessTitle": "اكتمل النسخ الاحتياطي التلقائي",
+  "backupAutoNotifSuccessBody": "تم حفظ نسختك المشفّرة في Google Drive بنجاح.",
+  "backupAutoNotifRetryTitle": "النسخ الاحتياطي معلّق",
+  "backupAutoNotifRetryBody": "لا يوجد اتصال بالإنترنت. سيُعاد الرفع تلقائيًا عند عودة الشبكة.",
+  "backupAutoNotifNeedsReauthTitle": "يلزم تسجيل الدخول مجددًا",
+  "backupAutoNotifNeedsReauthBody": "انتهت جلسة Google. افتح دفتر وسجّل الدخول لاستئناف النسخ الاحتياطي التلقائي.",
+  "backupAutoNotifQuotaTitle": "مساحة Google Drive ممتلئة",
+  "backupAutoNotifQuotaBody": "حرّر مساحة في Drive أو احذف نسخ دفتر القديمة من الإعدادات.",
+  "backupAutoNotifStorageFullTitle": "مساحة الجهاز غير كافية",
+  "backupAutoNotifStorageFullBody": "لا يمكن إنشاء نسخة احتياطية. حرّر مساحة على جهازك ثم أعد المحاولة.",
+  "backupAutoNotifFailedTitle": "فشل النسخ الاحتياطي التلقائي",
+  "backupAutoNotifFailedBody": "تعذّر رفع النسخة الاحتياطية. افتح دفتر للاطلاع على التفاصيل.",
+
+  "smokeTestTitle": "اختبار السحابة",
+  "smokeTestButton": "تشغيل اختبار السحابة",
+  "smokeTestSubtitle": "تحقق من تسجيل الدخول بـ Google و Drive",
+  "smokeTestRunning": "جاري التشخيص…",
+  "smokeTestComplete": "اكتمل التشخيص",
+  "smokeTestClose": "إغلاق",
+  "preflightSignIn": "تسجيل دخول تفاعلي",
+  "preflightDriveRoundTrip": "اختبار Drive الكامل",
+  "preflightSilentSignIn": "تسجيل دخول صامت",
+  "preflightSignOut": "تسجيل الخروج",
+  "preflightConsoleTitle": "سجل التشخيص",
+  "preflightClearLog": "مسح السجل",
+
+  "premiumTitle": "الخطط",
+  "premiumHeroTitle": "اختر الخطة المناسبة لمتجرك",
+  "premiumHeroTagline": "حدود واضحة في المجاني. مساحة عمل بلا سقف في Pro. مزامنة وأتمتة في Pro+.",
+  "premiumHeroTaglineContest": "حدود واضحة في المجاني. مساحة عمل بلا سقف في Pro. تحليلات وأتمتة في Pro+.",
+  "premiumVaultSealTitle": "رمز التفعيل",
+  "premiumVaultSealSubtitle": "أدخل رمز Pro أو Pro+. تظهر الشرطات أثناء الكتابة.",
+  "premiumTrustEncrypted": "تشفير AES-256 على جهازك قبل أي رفع",
+  "premiumTrustOffline": "الخطط تعمل دون إنترنت — يُزامَن التفعيل عند عودة الاتصال",
+  "activationBrowsePlans": "تصفّح الخطط",
+  "activationCodeLabel": "رمز التفعيل",
+  "activationCodeHint": "PROPLUS-XXXX-XXXX-XXXX-XXXX",
+  "activationHaveCode": "إضافة رمز تفعيل",
+  "activationAddCode": "إضافة رمز تفعيل",
+  "activateButton": "تفعيل",
+  "activating": "جاري التفعيل…",
+  "activationSuccessTitle": "تم تفعيل الخطة",
+  "activationSuccessSubtitle": "خطتك الجديدة جاهزة. استمتع بقوة دفترك الكاملة.",
+  "activationSuccessDone": "متابعة",
+  "activationErrorInvalid": "رمز غير صالح. تحقق من الرمز وحاول مجدداً.",
+  "planStatusTitle": "خطتك",
+  "planTierFree": "مجاني",
+  "planTierPro": "Pro",
+  "planTierProPlus": "Pro+",
+  "planLegendCurrent": "الحالية",
+  "planExpiresOn": "ينتهي في {date}",
+  "planDaysRemaining": "متبقي {count} يوماً",
+  "planLifetime": "اشتراك نشط",
+  "tierCompareFree": "مجاني",
+  "tierComparePro": "Pro",
+  "tierCompareProPlus": "Pro+",
+  "tierPriceFree": "0 $",
+  "freeTierPrice": "مجاني",
+  "tierPricePro": "24.99$/سنة",
+  "tierPriceProPlus": "49.99$/سنة",
+  "tierPriceProAmount": "$24.99",
+  "tierPriceProPeriod": "/سنة",
+  "tierPriceProPlusAmount": "$49.99",
+  "tierPriceProPlusPeriod": "/سنة",
+  "tierBadgeSavePro": "وفّر 20٪",
+  "tierBadgeSaveProPlus": "الأقوى",
+  "tierBadgeRecommended": "موصى بها",
+  "tierCardHighlightFree1": "دفتر واحد و50 حساباً",
+  "tierCardHighlightFree2": "500 معاملة نشطة",
+  "tierCardHighlightFree3": "استيراد CSV مجاناً",
+  "tierCardHighlightPro1": "مساحة عمل غير محدودة",
+  "tierCardHighlightPro2": "كشوف PDF بعلامتك التجارية",
+  "tierCardHighlightProPlus1": "كل مزايا Pro",
+  "tierCardHighlightProPlus2": "مزامنة متعددة الأجهزة",
+  "tierCardHighlightProPlus2Contest": "مكتب تحصيل الوكيل الذكي",
+  "tierCardHighlightProPlus3": "وكيل الإغلاق — صوت وطقوس",
+  "tierCardCtaFree": "استمر مجاناً",
+  "tierCardCtaPro": "فعّل Pro",
+  "tierCardCtaProPlus": "فعّل Pro+",
+  "tierCardCurrentPlan": "خطتك الحالية",
+  "tierCardTaglineFree": "كل ما تحتاجه للبداية",
+  "tierCardTaglinePro": "للمتاجر النامية — بلا سقف",
+  "tierCardTaglineProPlus": "مزامنة متعددة الأجهزة والأتمتة",
+  "tierCardTaglineProPlusContest": "وكيل الإغلاق والتحصيل",
+  "tierCardBilledAnnually": "يُدفع سنوياً",
+  "tierCardOldPricePro": "$31.99",
+  "tierCardOldPriceProPlus": "$62.99",
+  "tierCompareTitle": "قارن المزايا",
+  "tierCompareSubtitle": "اضغط فئة لعرض ما تتضمنه كل خطة",
+  "tierMatrixGroupWorkspace": "مساحة العمل",
+  "tierMatrixGroupData": "البيانات والنسخ الاحتياطي",
+  "tierMatrixGroupCloud": "السحابة والأتمتة",
+  "tierMatrixGroupGrowth": "نموّ الأعمال",
+  "tierBadgeFree": "مجاني",
+  "tierBadgeComingSoon": "قريباً",
+  "tierFeatureWorkspaceLimits": "الدفاتر والحسابات والمعاملات",
+  "tierFeatureBackupLocalCloud": "نسخ احتياطي محلي وسحابي عبر Google Drive",
+  "tierFeatureDataExport": "كشوف PDF",
+  "tierFeatureAiVoice": "الإدخال الصوتي بالذكاء الاصطناعي",
+  "tierFeatureWhatsappStatements": "كشوف واتساب شهرية آلية",
+  "tierFeatureAnalyticsDashboard": "لوحة تحليلات ورسوم بيانية متقدمة",
+  "tierFeatureStoreBranding": "هوية متجرك على التقارير المصدّرة",
+  "tierFeatureCustomerPortal": "بوابة لحظية للعملاء",
+  "tierValueBasicPdf": "PDF أساسي",
+  "tierValueBrandedExport": "PDF بعلامتك",
+  "tierFeatureLedgers": "دفاتر نشطة",
+  "tierFeatureContacts": "حسابات نشطة",
+  "tierFeatureTransactions": "معاملات نشطة",
+  "tierFeatureCsvImport": "استيراد CSV",
+  "tierFeatureBrandedPdf": "كشوف PDF بعلامتك",
+  "tierFeatureLedgerArchiving": "أرشفة الدفاتر واستعادتها",
+  "tierFeatureSync": "مزامنة متعددة الأجهزة",
+  "tierFeatureWhatsapp": "أتمتة واتساب",
+  "tierFeatureAnalytics": "تحليلات متقدمة",
+  "tierFeaturePortal": "بوابة العملاء",
+  "tierUnlimited": "غير محدود",
+  "tierValueStarter": "1 / 50 / 500",
+  "tierLimitLedgersFree": "1",
+  "tierLimitContactsFree": "50",
+  "tierLimitTransactionsFree": "500",
+  "manageSubscriptionTitle": "الخطة والتفعيل",
+  "manageSubscriptionSubtitle": "اعرض خطتك، فعّل رمزاً، أو قارن الباقات.",
+  "manageSubscriptionCta": "فتح مركز الخطط",
+  "limitUpsellTitle": "تجاوزت حد المجاني",
+  "limitUpsellSubtitle": "رقِّ إلى Pro لمساحة عمل غير محدودة — الاستيراد يبقى مجانياً دائماً.",
+  "limitUpsellProgress": "{current} من {max} مستخدم",
+  "limitUpsellCta": "فعّل Pro",
+  "limitUpsellDismiss": "ليس الآن",
+  "premiumBadgeFree": "مجاني",
+  "premiumBadgePro": "Pro",
+  "premiumBadgeProPlus": "Pro+",
+
+  "securityTitle": "الأمان",
+  "securitySubtitle": "احمِ دفترك برمز PIN وفتح القفل بالبصمة.",
+  "securityAppLockTitle": "قفل التطبيق (PIN)",
+  "securityAppLockSubtitle": "يطلب رمز PIN عند العودة إلى دفتر بعد مهلة.",
+  "securityChangePinTitle": "تغيير الرمز",
+  "securityChangePinSubtitle": "حدّث رمز فتح القفل",
+  "securityBiometricTitle": "فتح بالبصمة",
+  "securityBiometricSubtitle": "استخدم البصمة أو Face ID عند التوفّر",
+  "securityBiometricEnrollReason": "تحقق من هويتك لتفعيل فتح القفل بالبصمة في دفتر",
+  "securityBiometricRequiresAppLock": "فعّل قفل التطبيق أولاً لاستخدام فتح القفل بالبصمة.",
+  "securityTimeoutTitle": "قفل تلقائي",
+  "securityTimeoutSubtitle": "مدة بقاء التطبيق في الخلفية قبل إعادة القفل",
+  "securityTimeoutImmediate": "فوراً",
+  "securityTimeoutOneMinute": "1 د",
+  "securityTimeoutFiveMinutes": "5 د",
+  "securityTimeoutFifteenMinutes": "15 د",
+  "securityPinCreateTitle": "إنشاء رمز PIN",
+  "securityPinConfirmTitle": "تأكيد الرمز",
+  "securityPinChangeTitle": "تغيير الرمز",
+  "securityPinCurrentTitle": "الرمز الحالي",
+  "securityPinNewTitle": "رمز جديد",
+  "securityPinDisableTitle": "أدخل الرمز للإيقاف",
+  "securityPinSubtitle": "اختر رمزاً من 4 أرقام",
+  "securityPinConfirmSubtitle": "أعد إدخال نفس الرمز",
+  "securityPinCurrentSubtitle": "أدخل رمزك الحالي",
+  "securityPinDisableSubtitle": "تحقق من الرمز لإيقاف قفل التطبيق",
+  "securityPinHint": "4 أرقام",
+  "securityPinMismatch": "الرمزان غير متطابقين. حاول مجدداً.",
+  "securityPinIncorrect": "رمز غير صحيح",
+  "securityPinLockedOut": "محاولات كثيرة. انتظر ثم حاول.",
+  "securityPinInvalid": "يجب أن يكون الرمز 4 أرقام",
+  "securityPinSaveFailed": "تعذّر حفظ إعدادات الأمان",
+  "securitySettingsError": "حدث خطأ. حاول مجدداً.",
+  "securityStatusProtected": "محمي بالكامل",
+  "securityStatusProtectedSubtitle": "رمز PIN وفتح القفل بالبصمة مفعّلان",
+  "securityStatusPinOnly": "محمي برمز PIN",
+  "securityStatusPinOnlySubtitle": "يُقفل دفترك عند مغادرة التطبيق",
+  "securityStatusUnprotected": "لا يوجد قفل",
+  "securityStatusUnprotectedSubtitle": "أي شخص يملك هاتفك يمكنه فتح دفتر",
+  "securityGroupAccess": "التحكم بالوصول",
+  "securityGroupAutoLock": "قفل تلقائي",
+  "securityTrustPinSecure": "يُخزَّن الرمز مشفّراً في الخزنة الآمنة للجهاز — وليس في قاعدة البيانات",
+  "securityTrustBiometricLocal": "بيانات البصمة لا تغادر جهازك أبداً",
+  "securityHeroPinRing": "PIN",
+  "securityHeroBiometricRing": "بصمة",
+
+  "lockScreenTitle": "دفتر مقفل",
+  "lockScreenSubtitle": "أدخل رمز PIN للمتابعة",
+  "lockScreenBiometricRetry": "فتح بالبصمة",
+  "lockScreenForgotPin": "نسيت رمز الدخول؟",
+  "lockScreenForgotPinTitle": "مسح البيانات المحلية؟",
+  "lockScreenForgotPinBody": "لحماية معلوماتك، استعادة الوصول بدون الرمز سيمسح نهائياً كل البيانات على هذا الجهاز—الدفاتر والجهات والمعاملات. يجب أن يكون لديك ملف نسخ احتياطي بصيغة .daftar لاستعادة سجلاتك. لا يمكن التراجع عن هذا الإجراء.",
+  "lockScreenForgotPinCta": "مسح البيانات والمتابعة",
+  "lockScreenForgotPinTypeCode": "اكتب هذا الرمز للتأكيد",
+  "lockScreenForgotPinCodeHint": "أدخل الرمز المكوّن من 4 أرقام",
+  "lockScreenForgotPinPreparing": "جارٍ تجهيز بيئة آمنة…",
+
+  "fatalErrorTitle": "عذراً، حدث خطأ غير متوقع",
+  "fatalErrorBody": "لا تقلق، جميع بياناتك ودفاترك في أمان تام.",
+  "fatalErrorRestart": "إعادة تشغيل التطبيق",
+
+  "errorSheetDismiss": "حسناً",
+  "errorGenericTitle": "حدث خطأ ما",
+  "errorGenericMessage": "تعذّر إتمام هذا الإجراء. يُرجى المحاولة مرة أخرى.",
+  "errorValidationTitle": "تحقق من المدخلات",
+  "errorValidationMessage": "يُرجى تصحيح بعض التفاصيل قبل المتابعة.",
+  "errorDatabaseTitle": "تعذّر حفظ التغييرات",
+  "errorDatabaseMessage": "بياناتك في أمان. يُرجى المحاولة بعد قليل.",
+  "errorNetworkTitle": "مشكلة في الاتصال",
+  "errorNetworkMessage": "تحقق من اتصال الإنترنت وحاول مجدداً.",
+  "errorRateLimitedTitle": "طلبات كثيرة جداً",
+  "errorRateLimitedMessage": "أرسلت عدة دعوات خلال وقت قصير. انتظر قليلاً ثم حاول مجدداً.",
+  "errorRateLimitedMessageWithRetry": "أرسلت عدة دعوات خلال وقت قصير. حاول مجدداً بعد نحو {minutes} دقيقة.",
+  "@errorRateLimitedMessageWithRetry": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "errorSeatCapTitle": "الفريق مكتمل",
+  "errorSeatCapMessage": "يمكنك دعوة حتى {maxWorkers} عاملين في برو+. أزل عاملاً معلقاً أو نشطاً لدعوة شخص آخر.",
+  "@errorSeatCapMessage": {
+    "placeholders": {
+      "maxWorkers": {
+        "type": "int"
+      }
+    }
+  },
+  "errorForbiddenTitle": "غير مسموح",
+  "errorForbiddenMessage": "صلاحيتك في مساحة العمل لا تسمح بهذا الإجراء. اطلب الإذن من مالك مساحة العمل.",
+  "errorInvalidRequestMessage": "لم يُقبل هذا الطلب. حدّث التطبيق ثم أعد المحاولة.",
+  "errorInvalidActionMessage": "تعذّرت مزامنة هذا التغيير لأن الخادم لم يتعرّف عليه. حدّث التطبيق ثم أعد المحاولة.",
+  "errorNotFoundMessage": "لم نعثر على هذا العنصر. ربما تم حذفه.",
+  "errorConflictMessage": "قام شخص آخر بتعديل هذا قبلك. حدّث الصفحة ثم أعد المحاولة.",
+  "errorServerMessage": "واجه خادم المزامنة مشكلة. بياناتك محفوظة على هذا الجهاز — أعد المحاولة لاحقاً.",
+  "errorServiceUnavailableMessage": "خادم المزامنة غير متاح مؤقتاً. بياناتك محفوظة على هذا الجهاز.",
+  "errorDeviceCapMessage": "وصلت إلى عدد الأجهزة المسموح به في مساحة العمل. أزل جهازاً لإضافة آخر.",
+  "errorSyncEventCapMessage": "بلغت مساحة العمل حد المزامنة الشهري. ستُستأنف المزامنة الشهر القادم.",
+  "errorStorageTitle": "مشكلة في التخزين",
+  "errorStorageMessage": "تعذّر الوصول إلى مساحة الجهاز. حرّر مساحة إن لزم، ثم أعد المحاولة.",
+  "errorAuthTitle": "يلزم تسجيل الدخول",
+  "errorAuthMessage": "يُرجى تسجيل الدخول مجدداً للمتابعة.",
+  "errorInvalidAmountTitle": "مبلغ غير صالح",
+  "errorInvalidAmountMessage": "أدخل مبلغاً صحيحاً أكبر من صفر.",
+  "errorQuotaExceededTitle": "المساحة ممتلئة",
+  "errorQuotaExceededMessage": "مساحة التخزين السحابي ممتلئة. حرّر مساحة وحاول مجدداً.",
+  "errorContactNameExists": "يوجد حساب بهذا الاسم في الدفتر بالفعل.",
+  "errorExportFailedTitle": "تعذّر التصدير",
+  "errorExportFailedMessage": "تعذّر إنشاء الملف أو مشاركته. يُرجى المحاولة مرة أخرى.",
+  "errorStorageFullTitle": "مساحة التخزين ممتلئة",
+  "errorStorageFullMessage": "يرجى تفريغ 50 ميغابايت على الأقل من مساحة الجهاز للمتابعة بأمان.",
+
+  "cloudSyncStatusOffline": "غير متصل — بياناتك محفوظة على هذا الجهاز",
+  "cloudSyncStatusSyncing": "جارٍ مزامنة النسخة الاحتياطية مع السحابة",
+  "cloudSyncStatusSynced": "تم النسخ الاحتياطي إلى السحابة",
+  "cloudSyncStatusNeedsReauth": "سجّل الدخول مجدداً لاستئناف النسخ الاحتياطي",
+  "cloudSyncStatusQuota": "مساحة التخزين السحابي ممتلئة",
+
+  "recoveryTitle": "استرداد النظام",
+  "recoveryBody": "تعرض ملف البيانات المحلي للتلف بسبب انقطاع في التخزين أو الطاقة. لحماية أموالك، تم إيقاف التطبيق مؤقتاً.",
+  "recoveryRestoreDrive": "استعادة من Google Drive",
+  "recoveryStartFresh": "بدء من جديد (حذف البيانات المحلية)",
+  "recoveryStartFreshConfirmTitle": "حذف البيانات المحلية؟",
+  "recoveryStartFreshConfirmBody": "سيؤدي هذا إلى إزالة قاعدة البيانات التالفة من هذا الجهاز نهائياً. نسخ Google Drive الاحتياطية لن تتأثر. سيعيد التطبيق التشغيل بدفتر فارغ جديد.",
+  "recoveryNoDriveBackups": "لم يُعثر على نسخ احتياطية في Google Drive لهذا الحساب.",
+  "recoveryPickBackupTitle": "اختر نسخة للاستعادة",
+  "recoveryRestoreFromFile": "استعادة من ملف نسخة احتياطية",
+
+  "settingsCloudBackupLegend": "السحابة",
+
+  "quickAddTitle": "إضافة سريعة",
+  "quickAddNewAccountBadge": "حساب جديد",
+  "quickAddSelectLedgerHint": "اختر الدفتر الذي ينتمي إليه هذا الحساب",
+  "quickAddLedgerLockedHint": "تم تحديد الدفتر تلقائياً",
+  "quickAddNoLedgerTitle": "أنشئ دفتراً أولاً",
+  "quickAddNoLedgerMessage": "كل معاملة تنتمي إلى دفتر. أنشئ دفترك الأول لتسجيل الديون والمدفوعات.",
+
+  "onboardingSkip": "تخطّي",
+  "onboardingNext": "التالي",
+  "onboardingGetStarted": "ابدأ الآن",
+  "onboardingTrackDebtsTitle": "نظّم ديونك بسهولة",
+  "onboardingTrackDebtsBody": "استبدل الكشكول الورقي بدفتر رقمي بسيط يعمل بدون إنترنت.",
+  "onboardingDriveBackupTitle": "نسخ احتياطي آمن على Google Drive",
+  "onboardingDriveBackupBody": "نسختك الاحتياطية المشفّرة في حسابك على Google — مخفية وخاصة.",
+  "onboardingSharePdfTitle": "شارك كشوفات PDF بعلامتك",
+  "onboardingSharePdfBody": "أرسل كشف حساب احترافي لعملائك عبر واتساب بلمسة واحدة.",
+  "onboardingPremiumTitle": "فعّل مزايا Pro",
+  "onboardingPremiumBody": "احصل على التصدير بعلامتك التجارية، أرشفة الدفاتر، والمزيد من الأدوات المتقدمة.",
+  "onboardingSetupHeroLine": "حِسابك مضبوط، وحقّك محفوظ.",
+  "onboardingSetupLanguageTitle": "لغة التطبيق",
+  "onboardingSetupLookTitle": "المظهر",
+  "onboardingSetupLookDark": "داكن",
+  "onboardingSetupLookLight": "فاتح",
+  "onboardingSetupLookSystem": "حسب الجهاز",
+  "onboardingSetupCurrencyLabel": "عملة الدفتر",
+  "onboardingSetupStoreTitle": "اسم المحل",
+  "onboardingSetupStoreNameHint": "مثل: متجر نموذجي",
+  "onboardingSetupStoreLogoPro": "الشعار ميزة Pro — يمكنك تسميه المحل الآن.",
+  "onboardingSetupGoogleTitle": "حفظ نسخة على Google",
+  "onboardingSetupGooglePrimary": "المتابعة مع Google",
+  "onboardingSetupGoogleLater": "إعداد لاحقاً",
+  "onboardingSetupGoogleFailed": "تعذّر تسجيل الدخول. دفترك يعمل بدون إنترنت — أعد المحاولة من هنا.",
+  "onboardingSetupProExpander": "لديك رمز؟",
+  "onboardingSetupProHint": "رمز التفعيل اختياري. يمكنك المتابعة بدونه.",
+  "onboardingSetupLedgerTitle": "أول دفتر",
+  "onboardingSetupLanguageBody": "يمكنك تغييرها لاحقاً من الإعدادات.",
+  "onboardingSetupLookBody": "يُطبَّق اختيارك على هذا الشاشة فوراً.",
+  "onboardingSetupStoreBody": "يظهر على كشوف PDF التي ترسلها للعملاء.",
+  "onboardingTryDemoStore": "تجربة متجر افتراضي",
+  "onboardingSetupGoogleBody": "نسخة احتياطية مشفّرة في حساب Google. دفترك يبقى على هذا الجهاز.",
+  "onboardingSetupGoogleCompleteDrive": "إكمال صلاحية Drive",
+  "onboardingSetupGoogleGrantError": "لم يكتمل تفويض Drive. تحقق من الاتصال وحاول مجدداً.",
+  "onboardingSetupGoogleSignedIn": "تم تسجيل الدخول — خطوة واحدة للنسخ التلقائي.",
+  "onboardingSetupProTitle": "علامة المحل Pro",
+  "onboardingSetupProBrandingSubtitle": "اسم محلك وشعارك على كل PDF تشاركه.",
+  "onboardingSetupProStoreFallback": "محلك",
+  "onboardingSetupLedgerLedgerLine": "الدفتر هو الكشكول — زبائن، موردين، أو شخصي.",
+  "onboardingSetupLedgerAccountsLine": "الحسابات هي الأشخاص داخل هذا الكشكول.",
+  "onboardingSetupLedgerCustomChip": "اسم مخصص",
+  "onboardingSetupLedgerCustomHint": "مثل: ديون الورشة",
+  "onboardingSetupLedgerCreate": "إنشاء الدفتر",
+
+  "demoSeedReportTitle": "المتجر النموذجي جاهز",
+  "demoSeedReportStoreKept": "اسم المحل: {name} (محفوظ)",
+  "@demoSeedReportStoreKept": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "demoSeedReportStoreGenerated": "اسم المحل: {name} (تم إنشاؤه)",
+  "@demoSeedReportStoreGenerated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "demoSeedReportLedger": "الدفتر: {name}",
+  "@demoSeedReportLedger": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "demoSeedReportContacts": "{count} حسابات متأخرة مع بريد",
+  "@demoSeedReportContacts": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "demoSeedReportTones": "نطاقات ودية، تذكير، وحازمة",
+  "demoSeedReportSendSplit": "أعلى {pdfCount} بكشف PDF؛ {textCount} بتذكير نصي",
+  "@demoSeedReportSendSplit": {
+    "placeholders": {
+      "pdfCount": { "type": "int" },
+      "textCount": { "type": "int" }
+    }
+  },
+  "demoSeedReportDone": "متابعة",
+  "demoSeedReportError": "تعذّر تحميل المتجر النموذجي. أعد المحاولة.",
+
+  "settingsSampleStoreSection": "متجر نموذجي",
+  "settingsSampleStoreBody": "ملء دفتر زبائن نموذجي بسبعة حسابات متأخرة للمقيّمين.",
+  "settingsSampleStoreReset": "إعادة بيانات المتجر النموذجي",
+  "settingsSampleStoreFootnote": "يستبدل الحسابات والدفاتر والحركات. اسم المحل يُحفظ إن كان مضبوطاً.",
+  "settingsSampleStoreResetConfirmTitle": "إعادة المتجر النموذجي؟",
+  "settingsSampleStoreResetConfirmBody": "سيستبدل هذا الحسابات والدفاتر والحركات ببيانات تجريبية. اسم المحل يبقى إن كان مضبوطاً.",
+  "settingsSampleStoreResetConfirm": "إعادة",
+  "settingsSampleStoreResetCancel": "إلغاء",
+
+  "settingsTeam": "الفريق",
+  "settingsTeamSubtitle": "ادعُ العمال إلى مساحة عملك",
+  "settingsJoinWorkspace": "لديك رمز دعوة؟",
+  "settingsJoinWorkspaceSubtitle": "الصق رابط دعوة الفريق للانضمام إلى مساحة العمل",
+  "joinWorkspaceTitle": "الانضمام إلى مساحة العمل",
+  "joinWorkspaceBody": "الصق رابط الدعوة أو الرمز من صاحب المحل. ستسجّل الدخول بحساب Google الذي تلقّى الدعوة.",
+  "joinWorkspaceCodeLabel": "رابط الدعوة أو الرمز",
+  "joinWorkspaceCodeHint": "https://daftar.app/i/… أو الصق الرمز",
+  "joinWorkspaceContinue": "متابعة",
+  "joinWorkspaceInvalidCode": "أدخل رابط دعوة أو رمزًا صالحًا.",
+  "joinWorkspaceAlreadyUsed": "سبق فتح هذه الدعوة على هذا الجهاز.",
+  "joinWorkspaceBusy": "ما زال فتح الدعوة السابقة جاريًا. حاول بعد لحظات.",
+  "inviteAcceptWorkspaceMismatch": "تعذّر الانضمام إلى مساحة عمل التاجر. جرّب تسجيل الخروج والمحاولة مجددًا أو تواصل مع صاحب المحل.",
+  "settingsSyncReport": "تقرير المزامنة",
+  "settingsSyncReportSubtitle": "حالة المزامنة بين الأجهزة والمزامنة اليدوية",
+  "memberManagementTitle": "الفريق",
+  "memberManagementSubtitle": "ادعُ حتى عاملين للتعاون على دفاترك.",
+  "memberManagementSeatsHint": "المالك + حتى عاملين (3 مقاعد كحد أقصى).",
+  "memberManagementUpgradeTitle": "التعاون الجماعي ميزة Pro+",
+  "memberManagementUpgradeSubtitle": "قم بالترقية لدعوة عمال يمكنهم عرض أو تعديل دفاترك عبر الأجهزة.",
+  "memberManagementUpgradeCta": "عرض الخطط",
+  "memberManagementPermissionDenied": "مالك مساحة العمل فقط يمكنه إدارة أعضاء الفريق.",
+  "memberManagementActiveSection": "الأعضاء النشطون",
+  "memberManagementPendingSection": "الدعوات المعلّقة",
+  "memberManagementEmptySection": "لا يوجد أعضاء في هذا القسم.",
+  "memberManagementInviteCta": "دعوة عامل",
+  "memberManagementInviteSheetTitle": "دعوة عامل",
+  "memberManagementEmailLabel": "البريد الإلكتروني",
+  "memberManagementRoleLabel": "الدور",
+  "memberManagementRoleOwner": "مالك",
+  "memberManagementRoleEditor": "محرّر",
+  "memberManagementRoleViewer": "مشاهد",
+  "memberManagementStatusPending": "معلّق",
+  "memberManagementStatusActive": "نشط",
+  "memberManagementSendInvite": "إرسال الدعوة",
+  "memberManagementInviteSuccessTitle": "رابط الدعوة جاهز",
+  "memberManagementInviteRoleGranted": "الصلاحية الممنوحة: {role}",
+  "@memberManagementInviteRoleGranted": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "memberManagementInviteDowngradedTitle": "تمت الدعوة كمشاهد وليس كمحرّر",
+  "memberManagementInviteDowngradedBody": "جميع مقاعد المحرّرين مستخدمة، لذلك أُنشئت هذه الدعوة بصلاحية الاطلاع فقط. أزل محرّرًا أولًا إذا كنت تحتاج مقعدًا آخر.",
+  "memberManagementCopyLink": "نسخ الرابط",
+  "memberManagementShareLink": "مشاركة الرابط",
+  "memberManagementLinkCopied": "تم نسخ رابط الدعوة",
+  "memberManagementRevokeInvite": "إلغاء",
+  "memberManagementRemoveMember": "إزالة",
+  "memberManagementRevokeConfirmTitle": "إلغاء الدعوة؟",
+  "memberManagementRevokeConfirmBody": "سيُلغى هذا الطلب المعلّق ويُحرّر المقعد.",
+  "memberManagementRemoveConfirmTitle": "إزالة العضو؟",
+  "memberManagementRemoveConfirmBody": "سيفقد هذا العضو الوصول عند المزامنة التالية.",
+  "memberManagementRenewalSection": "طلبات تجديد الدعوة",
+  "memberManagementRenewalEmpty": "لا توجد طلبات تجديد معلّقة.",
+  "memberManagementRenewalResend": "إعادة إرسال الدعوة",
+  "memberManagementRenewalRequestedAt": "طُلب في {date}",
+  "@memberManagementRenewalRequestedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentTitle": "وكيل الإقفال",
+  "closingAgentEmptyTitle": "ما الذي نسجّل؟",
+  "closingAgentEmptySubtitle": "اضغط مثالاً أو اكتب الاسم والمبلغ",
+  "closingAgentComposerHint": "اكتب في الدفتر",
+  "closingAgentSpeakWorking": "جاري مراجعة وتدقيق الدفتر...",
+  "closingAgentExampleChip1": "محمد سدد 500",
+  "closingAgentExampleChip2": "أحمد عليه 200",
+  "closingAgentCloseToday": "أقفل اليوم",
+  "closingAgentCloseTodayGoal": "اقفل يومي",
+  "closingAgentCloseTodaySemantics": "أقفل اليوم وابدأ إقفال نهاية اليوم",
+  "closingAgentSendSemantics": "إرسال الهدف",
+  "closingAgentMicSemantics": "الصوت",
+  "closingAgentMicBanner": "اضغط مطولاً للتحدث",
+  "closingAgentMicRecording": "جارٍ التسجيل",
+  "closingAgentMicSlideToCancel": "اسحب للأعلى للإلغاء",
+  "closingAgentMicReleaseToCancel": "ارفع لإلغاء التسجيل",
+  "closingAgentMicRecordingElapsed": "جارٍ التسجيل، مضى {seconds} ثانية",
+  "@closingAgentMicRecordingElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "closingAgentMicPermissionDenied": "الوصول إلى الميكروفون متوقف. افتح الإعدادات للسماح لدفتر بالتسجيل.",
+  "closingAgentMicOpenSettings": "فتح الإعدادات",
+  "closingAgentContactsPermissionDenied": "الوصول إلى جهات الاتصال متوقف. افتح الإعدادات للسماح لدفتر بملء الاسم والهاتف.",
+  "closingAgentPermissionBannerSemantics": "تنبيه صلاحية",
+  "backupDriveNotSignedIn": "سجّل الدخول لحفظ نسخة على درايف.",
+  "closingAgentConfirmDebt": "سجل الدين",
+  "closingAgentConfirmPayment": "سجّل السداد",
+  "closingAgentConfirmCreateContact": "أنشئ الحساب",
+  "closingAgentConfirmCreateLedger": "أنشئ الدفتر",
+  "closingAgentConfirmAll": "سجّل في الدفتر",
+  "closingAgentConfirmPlan": "تأكيد الخطة",
+  "closingAgentIntentDebt": "دين",
+  "closingAgentIntentPayment": "سداد",
+  "closingAgentIntentNewAccount": "حساب جديد",
+  "closingAgentIntentLedger": "دفتر",
+  "closingAgentIntentStatement": "كشف",
+  "closingAgentSkip": "تخطي",
+  "closingAgentConfirmed": "تم التسجيل",
+  "closingAgentSkipped": "تم التخطي",
+  "closingAgentSelectLedger": "اختر الدفتر",
+  "closingAgentSelectCurrency": "اختر العملة",
+  "closingAgentContactUnresolvedHelper": "حدّد الحساب قبل التسجيل.",
+  "closingAgentWhichContact": "أي حساب؟",
+  "closingAgentDidYouMean": "هل تقصد أحد هؤلاء، أم إنشاء حساب جديد باسم {name}؟",
+  "@closingAgentDidYouMean": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentCreateNewNamed": "أنشئ «{name}»",
+  "@closingAgentCreateNewNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentContactAlreadyExists": "يوجد حساب باسم {name} في الدفتر.",
+  "@closingAgentContactAlreadyExists": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentLedgerTypeCustomers": "زبائن",
+  "closingAgentLedgerTypeSuppliers": "موردون",
+  "closingAgentLedgerTypePersonal": "شخصي",
+  "closingAgentLedgerTypeCustom": "مخصص",
+  "closingAgentAskOverdueTitle": "من عليه باقٍ",
+  "closingAgentAskLargestTitle": "أكبر دين",
+  "closingAgentAskSmallestTitle": "أقل دين",
+  "closingAgentAskLastPaymentTitle": "آخر دفعة",
+  "closingAgentAskLastDebtTitle": "آخر دين",
+  "closingAgentAskNoLastPayment": "لا توجد دفعة في الدفتر لـ {name}.",
+  "@closingAgentAskNoLastPayment": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentAskNoLastDebt": "لا يوجد دين في الدفتر لـ {name}.",
+  "@closingAgentAskNoLastDebt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentAskNeedName": "حدّد اسم الحساب.",
+  "closingAgentAskEmpty": "لا أحد عليه شيء الآن.",
+  "closingAgentAskBalanceTitle": "الرصيد",
+  "closingAgentAskUnresolved": "لا يوجد حساب مطابق في الدفتر.",
+  "closingAgentSpeakDebt": "{name} عليه {amount}",
+  "@closingAgentSpeakDebt": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakPayment": "{name} سدد {amount}",
+  "@closingAgentSpeakPayment": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakDebtWithItem": "{name} عليه {amount} {item}",
+  "@closingAgentSpeakDebtWithItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakPaymentWithItem": "{name} سدد {amount} {item}",
+  "@closingAgentSpeakPaymentWithItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakBalance": "{name} عليه {amount}",
+  "@closingAgentSpeakBalance": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakCredit": "{name} له {amount}",
+  "@closingAgentSpeakCredit": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakSettled": "{name} لا عليه شيء",
+  "@closingAgentSpeakSettled": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakThisAccount": "هذا الحساب",
+  "closingAgentSpeakPlanReady": "خطة إقفال اليوم جاهزة. راجعها على الشاشة ثم أكّد.",
+  "closingAgentSpeakRiyals": "{amount} ريال",
+  "@closingAgentSpeakRiyals": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakDollars": "{amount} دولار",
+  "@closingAgentSpeakDollars": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebt": "سأسجل {amount} ديناً على {name}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmDebt": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPayment": "سأسجل {amount} سداداً من {name}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmPayment": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebtCreate": "لا يوجد حساب باسم {name}. سأنشئ الحساب وأسجل عليه ديناً بمبلغ {amount}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmDebtCreate": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPaymentCreate": "لا يوجد حساب باسم {name}. سأنشئ الحساب وأسجل عليه سداداً بمبلغ {amount}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmPaymentCreate": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebtItem": "سأسجل {amount} ديناً على {name} مقابل {item}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmDebtItem": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPaymentItem": "سأسجل {amount} سداداً من {name} مقابل {item}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmPaymentItem": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "name": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmDebtCreateItem": "لا يوجد حساب باسم {name}. سأنشئ الحساب وأسجل عليه ديناً بمبلغ {amount} مقابل {item}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmDebtCreateItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmPaymentCreateItem": "لا يوجد حساب باسم {name}. سأنشئ الحساب وأسجل عليه سداداً بمبلغ {amount} مقابل {item}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmPaymentCreateItem": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" },
+      "item": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmStatement": "سأجهّز كشف حساب بي دي إف لـ {name}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmStatement": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmCreateContact": "سأنشئ حساباً باسم {name}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmCreateContact": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakConfirmCreateLedger": "سأنشئ دفتراً باسم {name}. اضغط {cta}.",
+  "@closingAgentSpeakConfirmCreateLedger": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "cta": { "type": "String" }
+    }
+  },
+  "closingAgentStatementTitle": "كشف حساب {name}",
+  "@closingAgentStatementTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "closingAgentSpeakOverdueIntro": "{count, plural, =1{حساب واحد عليه باقٍ.} other{{count} حسابات عليها باقٍ.}}",
+  "@closingAgentSpeakOverdueIntro": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "closingAgentSpeakWhichCandidates": "أي حساب؟ {names}.",
+  "@closingAgentSpeakWhichCandidates": {
+    "placeholders": {
+      "names": { "type": "String" }
+    }
+  },
+  "closingAgentLedgerRequiredHelper": "اختر دفتراً قبل إنشاء الحساب.",
+  "closingAgentUnknownContactHelper": "لا يوجد حساب باسم {name}. إنشاؤه وتسجيل المبلغ؟",
+  "@closingAgentUnknownContactHelper": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closingAgentNoLedgerHelper": "لا يوجد دفتر بعد. سمِّ دفتراً لإنشائه.",
+  "closingAgentLedgerNameHint": "اسم الدفتر",
+  "closingAgentConfirmCreateAndRecordDebt": "أنشئ الحساب وسجّل الدين",
+  "closingAgentConfirmCreateAndRecordPayment": "أنشئ الحساب وسجّل السداد",
+  "closingAgentCurrencyRequiredHelper": "اختر عملة قبل إنشاء هذا الحساب.",
+  "closingAgentPlanTitle": "خطة الإقفال",
+  "closingAgentPlanSendSplit": "أعلى خمسة حسابات ثقلاً تحصل على كشف حساب مرفق. بقية مجموعة الإرسال تحصل على تذكير بالبريد. الترتيب من التقادم؛ لا يختار جيميناي المعرّفات.",
+  "closingAgentPlanDeviceRuns": "بعد النسخ الاحتياطي والتقادم يُرسل بريد للمتأخرين الذين لديهم بريد صالح (حتى 20). النص ثابت؛ لن تعدّل كل رسالة. لا يختار جيميناي المعرّفات.",
+  "closingAgentPlanOutreachConsent": "تأكيد وإرسال الكشوفات هو موافقة التواصل. تأكيد دون إرسال يقفل الدفاتر ودرايف بلا بريد.",
+  "closingAgentTaskmasterTitle": "خطة إقفال اليوم",
+  "closingAgentApprovePlan": "اعتماد الخطة",
+  "closingAgentConfirmAndSend": "تأكيد وإرسال الكشوفات",
+  "closingAgentConfirmWithoutSending": "تأكيد دون إرسال",
+  "closingTaskmasterSealed": "أُنجزت {count} مهمة",
+  "@closingTaskmasterSealed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "closingTaskBindLedger": "مطابقة القيود",
+  "closingTaskCollectDebts": "جمع ديون اليوم",
+  "closingTaskCollectPayments": "جمع دفعات اليوم",
+  "closingTaskTallyTotals": "جمع المجاميع لكل عملة",
+  "closingTaskStampSnapshot": "ختم لقطة اليوم",
+  "closingTaskPrepareVault": "تحضير حمولة الخزنة",
+  "closingTaskSealDrive": "ختم النسخة على درايف",
+  "closingTaskScanAging": "مسح أرصدة التقادم",
+  "closingTaskRankUrgency": "ترتيب حسب الإلحاح",
+  "closingTaskBuildSendSet": "تجهيز قائمة المدينين المستهدفين",
+  "closingTaskOpenDesk": "إرسال مطالبات التحصيل",
+  "closingTaskComposeReport": "تأليف تقرير اليوم",
+  "closingTaskPresentSeal": "عرض ختم اليوم",
+  "closingTaskCaptionDebts": "{count} ديون اليوم",
+  "@closingTaskCaptionDebts": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionPayments": "{count} دفعات اليوم",
+  "@closingTaskCaptionPayments": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionCurrencies": "{count} عملات",
+  "@closingTaskCaptionCurrencies": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionSendSet": "حتى {count} حساباً",
+  "@closingTaskCaptionSendSet": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionOverdue": "{count} متأخرون",
+  "@closingTaskCaptionOverdue": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "closingTaskCaptionSendAuth": "يلزم إذن Google قبل الإرسال",
+  "closingAgentCurrencyLabel": "العملة",
+  "closingAgentNoteLabel": "ملاحظة",
+  "closingAgentReadOnlyTool": "هذه الخطوة للعرض فقط في هذه النسخة.",
+  "closingAgentFabTipTitle": "الوكيل والإدخال اليدوي",
+  "closingAgentFabTipBody": "اضغط للوكيل · اضغط مطولاً للإدخال اليدوي",
+  "closingAgentFabTipTapRow": "اضغط → الوكيل",
+  "closingAgentFabTipHoldRow": "اضغط مطولاً → إدخال يدوي",
+  "closingAgentFabTipSkip": "تخطي",
+  "closingAgentFabTipDismiss": "حسناً",
+  "closingAgentFabTipSemantics": "تلميح زر الإضافة: اضغط للوكيل، اضغط مطولاً للإدخال اليدوي",
+  "closingAgentConfirmCoachTitle": "أكد المبلغ",
+  "closingAgentConfirmCoachBody": "لا يُسجَّل شيء حتى تؤكد.",
+  "closingAgentConfirmCoachSemantics": "تلميح تأكيد المبلغ",
+  "collectionsDeskApproveCoachTitle": "تأكيد وإرسال الكشوفات",
+  "collectionsDeskApproveCoachBody": "تُرسل التذكيرات دفعة واحدة. أثقل خمسة حسابات تحصل على كشف.",
+  "collectionsDeskApproveCoachSemantics": "تلميح تأكيد وإرسال الكشوفات",
+  "closingRitualBackupUnsigned": "سجّل الدخول لحفظ نسخة الليلة على درايف.",
+  "closingRitualBackupGrantMissing": "لم تُمنح صلاحية Drive. وافق عليها مرة واحدة لحفظ نسخة الليلة.",
+  "closingRitualRunning": "جاري إقفال اليوم…",
+  "closingRitualProgressSummary": "جاري عدّ قيود اليوم",
+  "closingRitualProgressBackup": "جاري حفظ نسخة على درايف",
+  "closingRitualProgressShortlist": "جاري إيجاد الحسابات المتأخرة",
+  "closingRitualRemindersTitle": "تحضير تذكيرات التحصيل؟",
+  "closingRitualRemindersYes": "نعم",
+  "closingRitualRemindersTop5": "أعلى 5",
+  "closingRitualRemindersNo": "لا",
+  "closingRitualPdfsTitle": "إرفاق كشوف الحساب؟",
+  "closingRitualPdfsNone": "بدون",
+  "closingRitualPdfsSelective": "انتقائي",
+  "closingRitualPdfsSelected": "المحددون",
+  "closingRitualReportTitle": "أُقفل اليوم",
+  "closingRitualSpeakBooks": "اليوم سجّلت {debtCount} ديون و{paymentCount} دفعات",
+  "@closingRitualSpeakBooks": {
+    "placeholders": {
+      "debtCount": { "type": "int", "example": "3" },
+      "paymentCount": { "type": "int", "example": "2" }
+    }
+  },
+  "closingRitualSpeakBackupSafe": "نسخة الليلة على درايف. دفترك بأمان",
+  "closingRitualSpeakBackupQueued": "ستكتمل نسخة الليلة عند عودة الاتصال",
+  "closingRitualSpeakBackupUnsigned": "سجّل الدخول لحفظ نسخة الليلة على درايف",
+  "closingRitualSpeakBackupGrant": "وافق على صلاحية درايف مرة واحدة لحفظ نسخة الليلة",
+  "closingRitualSpeakBackupFailed": "نسخة درايف تحتاج محاولة أخرى",
+  "closingRitualSpeakQueue": "{prepared} جاهزة، {sent} أُرسلت، {failed} فشلت",
+  "@closingRitualSpeakQueue": {
+    "placeholders": {
+      "prepared": { "type": "int", "example": "7" },
+      "sent": { "type": "int", "example": "0" },
+      "failed": { "type": "int", "example": "0" }
+    }
+  },
+  "closingRitualSpeakOverdueRemain": "{count} حسابات ما زالت متأخرة",
+  "@closingRitualSpeakOverdueRemain": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "closingRitualSpeakClose": "هذا إقفال اليوم",
+  "closingRitualReportDebtCount": "{count} ديون",
+  "@closingRitualReportDebtCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "closingRitualReportDebtsUnit": "ديون اليوم",
+  "closingRitualReportPaymentCount": "{count} دفعات",
+  "@closingRitualReportPaymentCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "closingRitualReportPaymentsUnit": "دفعات اليوم",
+  "closingRitualReportTotals": "{currencyCode}: {debt} دين · {payment} سداد",
+  "@closingRitualReportTotals": {
+    "placeholders": {
+      "currencyCode": { "type": "String", "example": "YER" },
+      "debt": { "type": "String", "example": "1500" },
+      "payment": { "type": "String", "example": "500" }
+    }
+  },
+  "closingRitualBackupUploaded": "حُفظت النسخة على درايف",
+  "closingRitualEmptyOverdue": "لا شيء للتحصيل",
+  "closingRitualSkipAll": "تم تخطي التذكيرات",
+  "closingRitualReminderAll": "التذكيرات: مجموعة الإرسال (حتى 20)",
+  "closingRitualReminderTop5": "التذكيرات: أعلى 5",
+  "closingRitualReminderNone": "التذكيرات: لا شيء",
+  "closingRitualPdfNone": "الكشوف: بدون",
+  "closingRitualPdfSelective": "الكشوف: انتقائي",
+  "closingRitualPdfAll": "الكشوف: المحددون",
+  "closingRitualPdfRankedTop5": "الكشوف: أعلى 5 مرتبة",
+  "closingRitualNeedsHuman": "يحتاج انتباهك",
+  "closingRitualOverdueCount": "{count} متأخرون",
+  "@closingRitualOverdueCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "4" }
+    }
+  },
+  "closingRitualRetry": "متابعة إقفال اليوم",
+  "collectionsDeskTitle": "التحصيل",
+  "collectionsDeskCount": "{count} تذكيرات",
+  "@collectionsDeskCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskOpenWhatsApp": "فتح واتساب",
+  "collectionsDeskCopy": "نسخ",
+  "collectionsDeskSkip": "تخطي",
+  "collectionsDeskAttachStatement": "إرفاق كشف الحساب",
+  "collectionsDeskStartSending": "بدء الإرسال",
+  "collectionsDeskApproveSend": "تأكيد وإرسال الكشوفات",
+  "collectionsDeskSkipOutreach": "تخطي التواصل",
+  "collectionsDeskRetrySend": "إعادة الإرسال",
+  "collectionsDeskSending": "جاري الإرسال…",
+  "collectionsDeskPdfAttached": "PDF مرفق",
+  "collectionsDeskReminderOnly": "تذكير فقط",
+  "collectionsDeskDone": "تم",
+  "collectionsDeskCopied": "تم نسخ التذكير",
+  "collectionsDeskWhatsAppFailed": "لم يُفتح واتساب. انسخ التذكير وأرسله بنفسك.",
+  "collectionsDeskToneFriendly": "ودي",
+  "collectionsDeskToneReminder": "تذكير",
+  "collectionsDeskToneFirm": "حازم",
+  "collectionsDeskAgeDays": "{days} يوماً",
+  "@collectionsDeskAgeDays": {
+    "placeholders": {
+      "days": { "type": "int", "example": "12" }
+    }
+  },
+  "collectionsDeskLastPaymentDays": "{days, plural, =0{آخر سداد اليوم} =1{آخر سداد قبل يوم} other{آخر سداد قبل {days} يوماً}}",
+  "@collectionsDeskLastPaymentDays": {
+    "placeholders": {
+      "days": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskOpened": "فُتح",
+  "collectionsDeskSkippedStatus": "مُتخطى",
+  "collectionsDeskSentStatus": "أُرسل",
+  "collectionsDeskFailedStatus": "فشل",
+  "collectionsQueueSending": "إرسال {index} من {total}",
+  "@collectionsQueueSending": {
+    "placeholders": {
+      "index": { "type": "int", "example": "2" },
+      "total": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsQueuePaused": "متوقف · {index} من {total}",
+  "@collectionsQueuePaused": {
+    "placeholders": {
+      "index": { "type": "int", "example": "2" },
+      "total": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsQueuePause": "إيقاف",
+  "collectionsQueueResume": "متابعة",
+  "closingRitualQueuePrepared": "{count} جاهزة",
+  "@closingRitualQueuePrepared": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "closingRitualQueueOpened": "{count} فُتحت",
+  "@closingRitualQueueOpened": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "closingRitualQueueSkipped": "{count} مُتخطاة",
+  "@closingRitualQueueSkipped": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "closingRitualQueueSent": "{count} أُرسلت",
+  "@closingRitualQueueSent": {
+    "placeholders": {
+      "count": { "type": "int", "example": "4" }
+    }
+  },
+  "closingRitualQueueFailed": "{count} فشلت",
+  "@closingRitualQueueFailed": {
+    "placeholders": {
+      "count": { "type": "int", "example": "1" }
+    }
+  },
+  "errorGoalTextRequired": "اكتب الهدف أولاً.",
+  "errorAgentIdTokenMissing": "يلزم تسجيل الدخول إلى Google لاستخدام الوكيل.",
+  "errorAgentOpenIdGrantRequired": "يلزم تحديث صلاحية Google مرة واحدة ليبقى الوكيل متصلاً. وافق مرة واحدة — النسخ الاحتياطي على Drive دون تغيير.",
+  "errorClosingAgentForbidden": "هذا الحساب لا يملك صلاحية استخدام الوكيل. سجّل الدخول بحساب Google المصرّح.",
+  "errorClosingAgentRequestFailed": "تعذّر الوصول إلى الوكيل. دفترك آمن على هذا الجهاز — اضغط مطولاً على + لإضافة قيد.",
+  "errorProposalInFlight": "التأكيد جارٍ لهذه العملية.",
+  "errorContactUnresolved": "لم يُعثر على حساب واحد مطابق. وضّح الاسم أو أنشئ الحساب.",
+  "errorLedgerRequired": "اختر دفتراً قبل إنشاء هذا الحساب.",
+  "errorCurrencyRequired": "اختر عملة قبل إنشاء هذا الحساب.",
+  "errorProposalAlreadyCommitted": "تم تسجيل هذا القيد مسبقاً.",
+  "errorClosingAgentParseFailed": "تعذّر قراءة رد الوكيل. حاول مرة أخرى.",
+  "errorSmtpTitle": "لم يُرسل البريد",
+  "errorSmtpNeedsHuman": "رفضت Gmail على Cloud Run كلمة مرور التطبيق. تسجيل الدخول إلى التطبيق مجدداً لن يفيد. دفترك لم يتغيّر.",
+  "errorSmtpSenderMisconfigured": "مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.",
+  "errorCollectionsEmailCap": "يمكنك إرسال 20 تذكيراً كحد أقصى في المرة الواحدة."
+}

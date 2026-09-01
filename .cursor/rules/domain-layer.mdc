@@ -1,0 +1,80 @@
+---
+description: Domain layer standards — entities, value objects, repository interfaces, failures.
+globs: lib/domain/**/*.dart
+---
+
+# Domain Layer Standards
+
+The domain layer has ZERO dependencies on Flutter, Drift, Riverpod, or any external package.
+
+**PERMITTED:** `dart:core`, `equatable`, `freezed_annotation`, `fpdart`
+**FORBIDDEN:** `package:flutter/*`, `package:drift/*`, `package:riverpod/*`, `package:dio/*`, `lib/data/`, `lib/presentation/`
+
+## Entities — Freezed Immutable Data Classes
+
+- Use `@freezed` annotation. All fields use named parameters.
+- Domain entities do NOT have `toJson()` — serialization is the data layer's job.
+- Use `copyWith()` for modifications. Collections are unmodifiable views.
+- Every mutable entity MUST include: `id` (String, UUID v4), `createdAt`, `updatedAt`, `isDeleted` (default false), `syncVersion` (default 0).
+
+```dart
+@freezed
+class Ledger with _$Ledger {
+  const factory Ledger({
+    required String id,
+    required String name,
+    required LedgerType type,
+    required String icon,
+    required String color,
+    required int sortOrder,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    @Default(false) bool isDeleted,
+    @Default(0) int syncVersion,
+  }) = _Ledger;
+}
+```
+
+## Value Objects — Self-Validating Types
+
+- `Money`: amount as `int` + `currencyCode`. Arithmetic ops, display formatting via `Currency.decimalPlaces`.
+- `PhoneNumber`: validation, normalization, WhatsApp deep-link generation.
+- Immutable. Factory constructors validate on creation. Invalid state is unrepresentable.
+
+## Repository Interfaces
+
+- Abstract classes in `lib/domain/repositories/`.
+- Return `Either<Failure, T>` for fallible operations. `Stream` for reactive queries.
+- Cohesive — split by aggregate root. No God repositories.
+- Document behavioral contracts in dartdoc.
+
+## Failure Hierarchy — Sealed Error Types
+
+```dart
+sealed class Failure {
+  final String message;
+  final String? code;
+  const Failure(this.message, {this.code});
+}
+final class DatabaseFailure extends Failure { ... }
+final class ValidationFailure extends Failure { ... }
+final class NetworkFailure extends Failure { ... }
+final class StorageFailure extends Failure { ... }
+final class AuthFailure extends Failure { ... }
+final class LimitExceededFailure extends Failure {
+  final String featureKey;
+  final int currentCount;
+  final int maxAllowed;
+}
+```
+
+## Enums
+
+- `LedgerType`: customers, suppliers, personal, custom
+- `TransactionType`: debt, payment
+- `BackupType`: local, cloud
+- PascalCase type, camelCase values. Exhaustive `switch` expressions.
+
+## Dartdoc
+
+All public APIs MUST have `///` dartdoc. Document business meaning of each field, validation rules, behavioral contracts.

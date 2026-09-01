@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only cleartext allowance for local Supabase (http://<lan-ip>:54321).
+  Release builds are unaffected — this file lives under src/debug only.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

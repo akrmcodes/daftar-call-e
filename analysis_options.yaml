@@ -1,0 +1,71 @@
+# Daftar — Strict Analysis Options
+# Uses very_good_analysis as the base with additional project-specific rules.
+
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  # Strict type checking
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  # Exclude generated files from analysis
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.drift.dart"
+    - "lib/generated_plugin_registrant.dart"
+    - "build/**"
+    - ".dart_tool/**"
+
+  errors:
+    # Treat these as errors (not warnings)
+    invalid_annotation_target: ignore # Freezed generates these
+    missing_required_param: error
+    missing_return: error
+    todo: ignore
+
+  plugins:
+    - custom_lint
+
+linter:
+  rules:
+    # === Enabled Rules ===
+    # Architecture enforcement
+    always_use_package_imports: true
+    prefer_relative_imports: false
+
+    # Code quality
+    always_declare_return_types: true
+    annotate_overrides: true
+    avoid_dynamic_calls: true
+    avoid_print: true
+    avoid_slow_async_io: true
+    avoid_type_to_string: true
+    cancel_subscriptions: true
+    cascade_invocations: true
+    literal_only_boolean_expressions: true
+    no_adjacent_strings_in_list: true
+    prefer_asserts_in_initializer_lists: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_locals: true
+    prefer_single_quotes: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    type_annotate_public_apis: true
+    unawaited_futures: true
+    unnecessary_await_in_return: true
+    unnecessary_lambdas: true
+    unnecessary_statements: true
+    use_string_buffers: true
+
+    # === Disabled Rules ===
+    # These conflict with project conventions
+    public_member_api_docs: false # We use /// dartdoc selectively per layer rules
+    lines_longer_than_80_chars: false # Modern screens allow wider lines
+    one_member_abstracts: false # Repository interfaces may have single method
+    sort_pub_dependencies: false # We group by concern, not alphabetically

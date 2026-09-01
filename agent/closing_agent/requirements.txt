@@ -1,0 +1,4 @@
+# ADK pin note (contest model runtime). Container install is the root
+# agent/requirements.txt via Dockerfile. Do not `adk deploy cloud_run` —
+# that overwrites agent/main.py (Stage 4.7 custom FastAPI).
+google-adk==1.14.0

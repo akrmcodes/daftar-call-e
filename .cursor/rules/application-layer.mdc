@@ -1,0 +1,70 @@
+---
+description: Application layer standards — use cases, free-tier enforcement, error handling.
+globs: lib/application/**/*.dart
+---
+
+# Application Layer Standards
+
+Use cases orchestrate business logic. One class, one responsibility, one public `call()` method.
+
+**PERMITTED:** `lib/domain/`, `dart:core`, `dart:async`, `fpdart`
+**FORBIDDEN:** `package:flutter/*`, `package:drift/*`, `package:riverpod/*`, `lib/data/`, `lib/presentation/`
+
+## Use Case Design
+
+1. Return type: `Future<Either<Failure, T>>` using fpdart. NEVER throw exceptions.
+2. Constructor injection of repository interfaces (dependency inversion).
+3. Use cases MUST NOT use try/catch — they operate on `Either` values from repositories.
+4. All validation logic lives here — input validation, business rule enforcement, limit checks.
+5. Free-tier enforcement happens HERE — not in UI, not in data layer.
+
+## Canonical Example
+
+```dart
+class CreateLedgerUseCase {
+  final LedgerRepository _ledgerRepository;
+  final ActivationRepository _activationRepository;
+  const CreateLedgerUseCase(this._ledgerRepository, this._activationRepository);
+
+  Future<Either<Failure, Ledger>> call(CreateLedgerParams params) async {
+    // 1. Validate input
+    if (params.name.trim().isEmpty) {
+      return Left(ValidationFailure('Ledger name cannot be empty'));
+    }
+    // 2. Check free-tier limit
+    final isPremium = await _activationRepository.isFeatureUnlocked('unlimitedLedgers');
+    if (!isPremium) {
+      final count = await _ledgerRepository.getActiveCount();
+      if (count >= AppConstants.maxFreeLedgers) {
+        return Left(LimitExceededFailure('Ledger limit reached',
+          featureKey: 'unlimitedLedgers', currentCount: count, maxAllowed: AppConstants.maxFreeLedgers));
+      }
+    }
+    // 3. Create and persist
+    return _ledgerRepository.create(params);
+  }
+}
+```
+
+## Free-Tier Limits
+
+| Resource | Free | Premium |
+|---|---|---|
+| Ledgers | 1 | Unlimited |
+| Contacts (total) | 50 | Unlimited |
+| Transactions (total) | 500 | Unlimited |
+
+- Check in use cases ONLY. Return `LimitExceededFailure` with `featureKey`, `currentCount`, `maxAllowed`.
+- 80% threshold warnings (e.g., 40/50 contacts).
+- Premium feature flags: `unlimitedLedgers`, `unlimitedContacts`, `unlimitedTransactions`, `cloudBackup`, `csvImport`, `creditLimits`, `whatsappAutomation`.
+
+## Complex Logic Protocol
+
+For complex business logic (balance recalculation, credit limits, encryption orchestration):
+1. State intent in a brief inline comment
+2. List steps as numbered comments before implementation
+3. Document edge cases as comments
+
+## Dartdoc
+
+All use cases MUST have `///` dartdoc documenting: what it does, business rules enforced, preconditions, postconditions, and every `Failure` subtype that can be returned with its trigger condition.

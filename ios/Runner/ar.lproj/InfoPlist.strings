@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "دفتر";
+"NSContactsUsageDescription" = "يستخدم دفتر جهات الاتصال لملء اسم العميل ورقم الهاتف عند إضافة الحسابات.";
+"NSMicrophoneUsageDescription" = "يسجّل دفتر مقطعاً صوتياً قصيراً ليمكنك نطق قيد الدفتر بدل كتابته.";

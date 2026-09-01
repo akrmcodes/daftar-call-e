@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1006508283232",
+    "project_id": "daftar-core-prod",
+    "storage_bucket": "daftar-core-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006508283232:android:c85bc6b54075d6346fba05",
+        "android_client_info": {
+          "package_name": "com.akrmcodes.daftar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1006508283232-d81m4q7jt8q3b4r830njsg85b9l1qdsu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.akrmcodes.daftar",
+            "certificate_hash": "50457e95ec90b7b26656bf643a42e12332c5892c"
+          }
+        },
+        {
+          "client_id": "1006508283232-40uhmc9n99gve94pq55e7g2841mqjuvj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGYrRc72AWYOSEoR7qSlmqYzcADGOOXOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1006508283232-40uhmc9n99gve94pq55e7g2841mqjuvj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1006508283232-aird5krpnqovuu2tcgvi6qhuu6i7ouds.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.akrmcodes.daftar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
