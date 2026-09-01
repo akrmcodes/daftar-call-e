@@ -4153,4 +4153,28 @@ Inspected DID file **format only** (length, `+1`, mode). Did not print E.164. No
 ### Status
 0.2 blocked on **Registered** + **human ring**. 0.3 can still run in parallel.
 
+## 2026-09-02 — Stage 0.3 Secret Manager + call-e-runner IAM
+
+### Context
+Roadmap §0.3: same contest GCP project, name Cloud Run `daftar-call-e` without creating it, store `calle-api-key` in Secret Manager, keep Gmail secret available to the future service, leave frozen All Things Agentic Cloud Run untouched.
+
+### Done
+- [`agent/scripts/stage0_3_gcp.sh`](../agent/scripts/stage0_3_gcp.sh): freeze preflight, `--data-file` create, additive secret + project IAM, post-describe
+- Secret `calle-api-key` version 1; accessor `call-e-runner` only (secret-level)
+- `gmail-smtp-app-password`: added `call-e-runner` `secretAccessor`; **kept** `agent-runner`
+- `call-e-runner` project roles: `aiplatform.user`, `logging.logWriter`, `speech.client` (no project-wide `secretAccessor`)
+- Frozen revision still `daftar-closing-agent-00055-pbm`; Vertex still `TRUE` / `global`; `daftar-call-e` still absent
+- Roadmap 0.3 boxes `[x]` including owner Console budget confirm ($50 / $100 / $140); Gate 0 freeze + no-secrets-in-git `[x]`; KYC still open
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md), [`docs/contest/AGENTIC_CLOUD_RUN_FREEZE.md`](contest/AGENTIC_CLOUD_RUN_FREEZE.md)
+- [`test/core/contest/agentic_cloud_run_freeze_test.dart`](../test/core/contest/agentic_cloud_run_freeze_test.dart) forbids mutate/`versions access` in the 0.3 script
+
+### Architecture / decisions
+Dedicated SA `call-e-runner` for future `daftar-call-e`. File mounts are Stage 1 on that service only. Envied frozen hostname default unchanged. Did not enable `billingbudgets.googleapis.com`.
+
+### Ops / verification
+Script exit 0. Independent describe: secrets `calle-api-key` + `gmail-smtp-app-password`; IAM members as above. Payload never printed. No Cloud Run create/deploy.
+
+### Status
+0.3 code/GCP done. Budgets **$50 / $100 / $140** owner-confirmed in Console. Next: 0.4 kill switch docs, then 0.5 `create_and_wait` after Linphone human ring.
+
 

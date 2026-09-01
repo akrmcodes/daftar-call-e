@@ -6,8 +6,10 @@ void main() {
   late String freezeRule;
   late String deployWrapper;
   late String refuseScript;
+  late String stage03Script;
   late String agentReadme;
   late String roadmapV3;
+  late String envDart;
 
   setUpAll(() {
     freezeRule = File(
@@ -19,8 +21,10 @@ void main() {
     refuseScript = File(
       'agent/scripts/refuse_frozen_cloud_run.sh',
     ).readAsStringSync();
+    stage03Script = File('agent/scripts/stage0_3_gcp.sh').readAsStringSync();
     agentReadme = File('agent/README.md').readAsStringSync();
     roadmapV3 = File('docs/roadmap_v3.md').readAsStringSync();
+    envDart = File('lib/core/env/env.dart').readAsStringSync();
   });
 
   group('Agentic Cloud Run freeze (file checks)', () {
@@ -82,6 +86,28 @@ void main() {
       expect(
         roadmapV3.toLowerCase(),
         contains('do not redeploy'),
+      );
+    });
+
+    test('stage 0.3 script never mutates Cloud Run or prints secret payload', () {
+      expect(stage03Script, contains('calle-api-key'));
+      expect(stage03Script, contains('call-e-runner@'));
+      expect(stage03Script, contains('check_agentic_freeze.sh'));
+      expect(stage03Script, contains('gcloud secrets create'));
+      expect(stage03Script, contains('akrm.codes@gmail.com'));
+      expect(stage03Script, contains('daftar-call-e'));
+      expect(stage03Script, isNot(contains('gcloud run deploy')));
+      expect(stage03Script, isNot(contains('services update')));
+      expect(stage03Script, isNot(contains('replace-traffic')));
+      expect(stage03Script, isNot(contains('versions access')));
+      expect(stage03Script, isNot(contains('adk deploy')));
+      expect(stage03Script, isNot(contains('services enable')));
+      expect(stage03Script, isNot(contains('set-iam-policy')));
+      expect(
+        envDart,
+        contains(
+          'https://daftar-closing-agent-1487285471.us-central1.run.app',
+        ),
       );
     });
   });

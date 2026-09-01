@@ -453,13 +453,13 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **0.3 Google Cloud (new service, same project)**
 
-- [ ] Same contest project `daftar-closing-agent` / `akrm.codes@gmail.com`
-- [ ] **Do not** `gcloud run deploy` onto service `daftar-closing-agent` / the frozen URL
-- [ ] Plan new service name **`daftar-call-e`**, region `us-central1`, min 0 / max 2, same runtime SA `agent-runner@…` **or** a dedicated SA with the same least privilege **plus** Secret Manager access to `calle-api-key`
-- [ ] Create secret `calle-api-key` (file mount, not plaintext env in Console screenshots)
-- [ ] Keep `gmail-smtp-app-password` available to the **new** service (SMTP rail stays)
-- [ ] Budget alerts remain $50 / $100 / $140
-- [ ] Vertex routing unchanged: `GOOGLE_GENAI_USE_VERTEXAI=TRUE`, `GOOGLE_CLOUD_LOCATION=global`
+- [x] Same contest project `daftar-closing-agent` / `akrm.codes@gmail.com`
+- [x] **Do not** `gcloud run deploy` onto service `daftar-closing-agent` / the frozen URL
+- [x] Plan new service name **`daftar-call-e`**, region `us-central1`, min 0 / max 2, dedicated SA `call-e-runner@…` with Vertex/logging/speech **plus** secret-level `calle-api-key` (and Gmail accessor). Cloud Run service **not** created (Stage 1)
+- [x] Create secret `calle-api-key` (file mount, not plaintext env in Console screenshots)
+- [x] Keep `gmail-smtp-app-password` available to the **new** service (SMTP rail stays)
+- [x] Budget alerts remain $50 / $100 / $140 — owner confirmed in Console 2026-09-02 (did not enable `billingbudgets.googleapis.com`)
+- [x] Vertex routing unchanged: `GOOGLE_GENAI_USE_VERTEXAI=TRUE`, `GOOGLE_CLOUD_LOCATION=global`
 
 **0.4 Kill switch + allowlist (owner-ops)**
 
@@ -478,13 +478,13 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 #### Stage 0 Validation Gate
 
 - [x] Disclosure drafted for CALL-E (substrate vs Agentic vs CALL-E-new)
-- [ ] CALL-E account + KYC + API key in Secret Manager (not git)
+- [ ] CALL-E account + KYC + API key in Secret Manager (not git) — key is in Secret Manager; **outbound KYC** still open
 - [x] Extra-calls form submitted
 - [x] Authenticated `GET /v1/calls/{nonexistent}` → `404` (API key works)
 - [ ] US DID rings in provider app
 - [ ] One consented **Developer API** `create_and_wait` succeeded (not Chat/MCP-only)
-- [ ] Frozen Agentic URL was **not** redeployed
-- [ ] No phone numbers, keys, or App Passwords in git
+- [x] Frozen Agentic URL was **not** redeployed
+- [x] No phone numbers, keys, or App Passwords in git
 
 ---
 

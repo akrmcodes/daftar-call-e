@@ -9,7 +9,7 @@ Local secret directory (mode 700): `$HOME/.daftar-owner-ops/` — not in git.
 | Item | Status |
 | --- | --- |
 | CALL-E dashboard login | **Done** — `akrmcodes@gmail.com` at [heycall-e.com](https://www.heycall-e.com/) / [API keys](https://dashboard.heycall-e.com/account/api-keys). This is the email for the Devpost “CALL-E account email” field (Stage 7). Contest **GCP** remains `akrm.codes@gmail.com` — do not mix OAuth clients. |
-| Developer API key | **Created.** Hold **only** on this machine until Stage **0.3** Secret Manager `calle-api-key`. Never Flutter `.env`, never git, never chat, never screenshots. |
+| Developer API key | **Created.** In Secret Manager `calle-api-key` (2026-09-02) **and** local `$HOME/.daftar-owner-ops/calle-api-key`. Never Flutter `.env`, never git, never chat, never screenshots. |
 | Extra-calls form | **Submitted** ([form](https://forms.gle/EPQttEZ1rkW8iq9q6)) — **+200** if this is an existing account; 1–5 business days, **not guaranteed**. |
 | Free pool until extras land | **20** calls. Exhaustion **pauses** access — **no auto-charge**. Optional `~$0.05` / call is a purchase, not required. **Do not** burn calls on Flutter UI. Live cap **3** recipients until extras confirm (product cap 5). |
 | Outbound KYC | **Not a separate control on the API keys page.** CALL-E’s marketing FAQ: outbound needs KYC **before number/outbound activation** ([heycall-e.com](https://www.heycall-e.com/)). Look under Account / Verification / Numbers — not API Keys. **Developer API key works:** 2026-09-01 probe `GET /v1/calls/{missing}` → **404** `not_found` (not 401/403 / `credential_grant_unavailable`). First live `create` (0.5) is the real outbound gate. |
@@ -33,17 +33,25 @@ Replace `PASTE_KEY_HERE` locally. Confirm the file is **one line**, no quotes, m
 
 Laptop smoke (Stage **0.5**, after KYC + DID) can `export CALLE_API_KEY="$(cat "$HOME/.daftar-owner-ops/calle-api-key")"` in that shell only.
 
-### Stage 0.3 — Secret Manager (allowed now)
+### Stage 0.3 — Secret Manager (done 2026-09-02)
 
-Create the secret from the local file (never Console paste in a screenshot). **Do not** `gcloud run deploy daftar-closing-agent`.
+Ran [`agent/scripts/stage0_3_gcp.sh`](../../agent/scripts/stage0_3_gcp.sh) as `akrm.codes@gmail.com`. Payload never printed.
 
-```bash
-gcloud secrets create calle-api-key \
-  --project=daftar-closing-agent \
-  --data-file="$HOME/.daftar-owner-ops/calle-api-key"
-```
+| Item | Status |
+| --- | --- |
+| Secret `calle-api-key` | **Created** (version 1). File mount is **Stage 1** on `daftar-call-e` only |
+| `call-e-runner` secretAccessor on `calle-api-key` | **Yes** (secret-level; not project-wide) |
+| `call-e-runner` secretAccessor on `gmail-smtp-app-password` | **Added**; `agent-runner` **kept** |
+| Project roles on `call-e-runner` | `aiplatform.user` · `logging.logWriter` · `speech.client` |
+| Cloud Run `daftar-call-e` | **Absent** (Stage 1) |
+| Frozen revision | still `daftar-closing-agent-00055-pbm` |
+| Vertex on frozen revision | `GOOGLE_GENAI_USE_VERTEXAI=TRUE` · `GOOGLE_CLOUD_LOCATION=global` |
 
-If the secret already exists, use `gcloud secrets versions add` — do **not** print the value. Bind it as a **file mount** on service **`daftar-call-e` only** (Stage 1). Never bind it to frozen `daftar-closing-agent`.
+Re-run is safe (existing secret → `versions add`; existing IAM → already-present ok). Never `gcloud secrets versions access` (prints the key). Never bind either secret to frozen `daftar-closing-agent`.
+
+### Owner: confirm billing budgets (Console only)
+
+Owner confirmed 2026-09-02: alerts **$50 / $100 / $140** still exist. Did **not** enable `billingbudgets.googleapis.com`.
 
 ## 0.2 US DID (Zadarma/Sonetel blocked on +967 SMS)
 
@@ -70,4 +78,4 @@ Prove it: a **human** calls the +1 from a normal phone; it rings the softphone/a
 - **Linphone:** SIP username = Callcentric `1777…` (default extension `100` suffix is OK). Domain `sip.callcentric.net`. Transport **UDP**. Password must be the **extension SIP password** (My Callcentric → Extensions), not the website login and not Gmail.
 - **Still required:** Linphone shows **Registered** on the Callcentric account (not only sip.linphone.org). Human PSTN call rings Linphone. Do **not** Activate SMS. Do **not** `create_and_wait` until that ring.
 
-0.3 GCP (secret + naming) can run in parallel. Live ring = this DID + remaining 0.5.
+0.3 GCP (secret + naming) **done 2026-09-02**. Live ring = this DID + remaining 0.5.
