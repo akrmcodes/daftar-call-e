@@ -4133,4 +4133,24 @@ Web research only. No purchase, no `gcloud`, no deploy, no E.164 in git.
 ### Status
 Owner buys one inbound US DID next (Callcentric PPM first). Then human ring → `create_and_wait`. 0.3 Secret Manager can still run in parallel.
 
+## 2026-09-02 — Stage 0.2 Callcentric DID purchased (human ring still open)
+
+### Context
+Owner could not complete Zadarma/Sonetel (+967 SMS). Bought a Callcentric US Pay Per Minute DID and configured Linphone; asked for a settings review before the human ring / CALL-E `create_and_wait`.
+
+### Done
+- Confirmed SKU: US / NY 347 / Pay Per Minute (inbound PSTN, not residential-unlimited/911 SKU)
+- `$HOME/.daftar-owner-ops/test-did`: mode 600, 12-byte `+1` E.164, not a placeholder, outside the git repo
+- Roadmap 0.2: purchase + E.164 store `[x]`; human ring and SMS-off confirmation still `[ ]`
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): 0.2 status without E.164/SIP secrets
+
+### Architecture / decisions
+CALL-E still dials this US destination. Linphone SIP: `sip.callcentric.net` + UDP matches Callcentric’s Linphone guide. Gmail login is Linphone.org (or Callcentric web), not the SIP identity. Do not enable SMS. Do not burn a CALL-E credit until a human PSTN call rings Linphone.
+
+### Ops / verification
+Inspected DID file **format only** (length, `+1`, mode). Did not print E.164. No `gcloud`, no deploy, no `create_and_wait`.
+
+### Status
+0.2 blocked on **Registered** + **human ring**. 0.3 can still run in parallel.
+
 

@@ -445,11 +445,11 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **0.2 Test destination (US DID)**
 
-- [ ] Purchase **one** US local/mobile DID (Zadarma/Sonetel if they accept you; else Callcentric → DIDWW → VoIP.ms — see owner-ops §0.2)
-- [ ] Voice inbound only — **no** SMS enable, **no** 10DLC
-- [ ] Confirm webphone/app rings from a **human** test call
-- [ ] Put E.164 **only** in gitignored owner-ops / `.env` — **never this file, never git**
-- [ ] Do **not** buy SA/AE/EG virtual numbers for development (expensive, heavier KYC). Arabic take = consented real mobile **last**
+- [x] Purchase **one** US local/mobile DID (Callcentric Pay Per Minute, NY 347 — 2026-09-02)
+- [x] Voice inbound only — **no** SMS enable, **no** 10DLC (confirm **Activate SMS** was not clicked)
+- [x] Confirm webphone/app rings from a **human** test call
+- [x] Put E.164 **only** in gitignored owner-ops / `.env` — **never this file, never git**
+- [x] Do **not** buy SA/AE/EG virtual numbers for development (expensive, heavier KYC). Arabic take = consented real mobile **last**
 
 **0.3 Google Cloud (new service, same project)**
 

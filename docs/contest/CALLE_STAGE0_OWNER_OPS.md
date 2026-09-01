@@ -64,4 +64,10 @@ Try in this order (researched 2026-09-01):
 
 Prove it: a **human** calls the +1 from a normal phone; it rings the softphone/app on Wi‑Fi. Then CALL-E `create_and_wait`. Put E.164 only in `$HOME/.daftar-owner-ops/` — never git.
 
+### 0.2 status (2026-09-02)
+
+- **Bought:** Callcentric **Pay Per Minute**, United States, NY 347. E.164 in `$HOME/.daftar-owner-ops/test-did` (mode 600, valid `+1` + 10 digits, not in git).
+- **Linphone:** SIP username = Callcentric `1777…` (default extension `100` suffix is OK). Domain `sip.callcentric.net`. Transport **UDP**. Password must be the **extension SIP password** (My Callcentric → Extensions), not the website login and not Gmail.
+- **Still required:** Linphone shows **Registered** on the Callcentric account (not only sip.linphone.org). Human PSTN call rings Linphone. Do **not** Activate SMS. Do **not** `create_and_wait` until that ring.
+
 0.3 GCP (secret + naming) can run in parallel. Live ring = this DID + remaining 0.5.
