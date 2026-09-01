@@ -4177,4 +4177,26 @@ Script exit 0. Independent describe: secrets `calle-api-key` + `gmail-smtp-app-p
 ### Status
 0.3 code/GCP done. Budgets **$50 / $100 / $140** owner-confirmed in Console. Next: 0.4 kill switch docs, then 0.5 `create_and_wait` after Linphone human ring.
 
+## 2026-09-02 — Stage 0.4 kill switch + allowlist (owner-ops)
+
+### Context
+Roadmap §0.4: document `CALLE_ALLOW_DIAL` default false, gitignored comma-separated E.164 allowlist, and Gate 0 local `true` for the one DID only.
+
+### Done
+- [`agent/scripts/stage0_4_allowlist.sh`](../agent/scripts/stage0_4_allowlist.sh): writes `calle-allow-dial=false`, copies `test-did` → `calle-allowlist`, `calle-allowlist-region=US` (mode 600; E.164 never printed)
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.4: parse rules (`true` exact lowercase only); 0.5 shell export recipe
+- [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md): kill switch / allowlist are not Envied
+- [`.gitignore`](../.gitignore): `.daftar-owner-ops/`
+- Roadmap 0.4 boxes `[x]`
+- [`test/core/contest/agentic_cloud_run_freeze_test.dart`](../test/core/contest/agentic_cloud_run_freeze_test.dart): no `\+1\d{10}` in owner-ops; script has no Cloud Run mutate strings
+
+### Architecture / decisions
+Locked env names for Stage 1: `CALLE_ALLOW_DIAL`, `CALLE_ALLOWLIST`, `CALLE_ALLOWLIST_REGION`. NANP region is **US** from config, not inferred from `+1`. No FastAPI parser this pass. Friend SA/AE/EG not on the list.
+
+### Ops / verification
+Script exit 0. Files outside the repo. No `gcloud`, no deploy, no `create_and_wait`.
+
+### Status
+0.4 done. Next: 0.5 laptop `create_and_wait` after Linphone human ring, with `CALLE_ALLOW_DIAL=true` in that shell only.
+
 

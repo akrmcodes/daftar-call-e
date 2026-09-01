@@ -463,9 +463,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **0.4 Kill switch + allowlist (owner-ops)**
 
-- [ ] Document env `CALLE_ALLOW_DIAL` default **false**
-- [ ] Document allowlist env (comma-separated E.164) — gitignored
-- [ ] Gate 0 smoke may set `CALLE_ALLOW_DIAL=true` **locally** for the one DID only
+- [x] Document env `CALLE_ALLOW_DIAL` default **false**
+- [x] Document allowlist env (comma-separated E.164) — gitignored
+- [x] Gate 0 smoke may set `CALLE_ALLOW_DIAL=true` **locally** for the one DID only
 
 **0.5 Laptop smoke (required for Gate 0)**
 

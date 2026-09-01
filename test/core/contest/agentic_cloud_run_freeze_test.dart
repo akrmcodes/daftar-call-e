@@ -110,5 +110,31 @@ void main() {
         ),
       );
     });
+
+    test('stage 0.4 kill switch is documented; no leaked US DID', () {
+      final stage04 = File(
+        'agent/scripts/stage0_4_allowlist.sh',
+      ).readAsStringSync();
+      final ownerOps = File(
+        'docs/contest/CALLE_STAGE0_OWNER_OPS.md',
+      ).readAsStringSync();
+      final gitignore = File('.gitignore').readAsStringSync();
+
+      expect(stage04, contains('calle-allow-dial'));
+      expect(stage04, contains('calle-allowlist'));
+      expect(stage04, contains('false'));
+      expect(stage04, isNot(contains('gcloud run deploy')));
+      expect(stage04, isNot(contains('versions access')));
+      expect(stage04, isNot(contains('adk deploy')));
+
+      expect(ownerOps, contains('CALLE_ALLOW_DIAL'));
+      expect(ownerOps, contains('CALLE_ALLOWLIST'));
+      expect(ownerOps, contains('CALLE_ALLOWLIST_REGION'));
+      expect(ownerOps, contains('false'));
+      expect(ownerOps, contains('exact lowercase string `true`'));
+      expect(gitignore, contains('.daftar-owner-ops/'));
+      expect(RegExp(r'\+1\d{10}').hasMatch(ownerOps), isFalse);
+      expect(RegExp(r'\+1\d{10}').hasMatch(stage04), isFalse);
+    });
   });
 }

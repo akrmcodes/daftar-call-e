@@ -76,6 +76,9 @@ docs/.obsidian/
 *.env
 .env.*
 
+# Owner-ops (API keys, E.164 allowlist, DID). Never commit, even if copied into the repo.
+.daftar-owner-ops/
+
 # Demo SMTP overlay — live To: addresses. Never commit.
 tool/demo_seed_emails.local.json
 

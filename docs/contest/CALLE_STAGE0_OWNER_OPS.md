@@ -79,3 +79,32 @@ Prove it: a **human** calls the +1 from a normal phone; it rings the softphone/a
 - **Still required:** Linphone shows **Registered** on the Callcentric account (not only sip.linphone.org). Human PSTN call rings Linphone. Do **not** Activate SMS. Do **not** `create_and_wait` until that ring.
 
 0.3 GCP (secret + naming) **done 2026-09-02**. Live ring = this DID + remaining 0.5.
+
+## 0.4 Kill switch + allowlist (2026-09-02)
+
+Not judging copy. **Never** paste E.164 here. Values live only under `$HOME/.daftar-owner-ops/` (mode 700). Provision: `bash agent/scripts/stage0_4_allowlist.sh`.
+
+| Env | File | Default | Parse |
+| --- | --- | --- | --- |
+| `CALLE_ALLOW_DIAL` | `calle-allow-dial` | **false** (file contents `false`) | PSTN only if the env value is the exact lowercase string `true`. Unset, empty, `TRUE`, `1`, `yes`, `false` → **off**. |
+| `CALLE_ALLOWLIST` | `calle-allowlist` | empty = nobody | Comma-separated E.164 (`+` + digits). Trim each entry; exact match. Gate 0: the single US DID from `test-did`. |
+| `CALLE_ALLOWLIST_REGION` | `calle-allowlist-region` | **US** for the demo DID | Required when the number is NANP. **Never** infer `US` from a leading `+1`. |
+
+Not Envied. Not Flutter `.env`. Stage 1 `run-batch` (J.9) will 403 when the kill switch is off and reject any phone not on the allowlist. This pass does **not** implement that server.
+
+### Status
+
+Kill switch file is **`false`**. Allowlist is the one Callcentric US DID (not printed). Region **`US`**. Friend SA/AE/EG numbers stay **off** the list.
+
+### Gate 0 smoke (0.5) — that shell only
+
+After Linphone rings from a human call. Do **not** export `true` in a profile/rc file.
+
+```bash
+export CALLE_ALLOW_DIAL=true
+export CALLE_ALLOWLIST="$(cat "$HOME/.daftar-owner-ops/calle-allowlist")"
+export CALLE_ALLOWLIST_REGION="$(cat "$HOME/.daftar-owner-ops/calle-allowlist-region")"
+export CALLE_API_KEY="$(cat "$HOME/.daftar-owner-ops/calle-api-key")"
+```
+
+When the smoke finishes: `unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY` or leave `CALLE_ALLOW_DIAL` unset (treated as false). Do not leave `true` in the environment.
