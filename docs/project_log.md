@@ -4095,4 +4095,23 @@ No `gcloud secrets create` this pass (no key file in owner-ops yet). No deploy.
 ### Status
 0.1 blocked only on **outbound KYC**. Then 0.2 DID; 0.3 GCP secret + `daftar-call-e` naming (still no deploy of frozen service).
 
+## 2026-09-01 — Stage 0.5 API 404 probe (pulse check)
+
+### Context
+Owner saved `calle-api-key` at `$HOME/.daftar-owner-ops/` (mode 600). Requested a zero-cost Developer API probe and whether outbound KYC / 0.3 can proceed.
+
+### Done
+- `GET https://api.heycall-e.com/v1/calls/{nonexistent}` with bearer from that file → HTTP **404** `not_found` (key authenticates; not 401/403 / `credential_grant_unavailable`)
+- Bearer not printed. Roadmap 0.5 probe + Gate 0 404 / disclosure / extra-calls boxes `[x]`
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): KYC likely not on the API Keys page; 0.3 secret create allowed
+
+### Architecture / decisions
+404 proves the **Developer API key**, not outbound PSTN KYC. Live `create_and_wait` (rest of 0.5) still needs a US DID (0.2). Frozen Cloud Run still untouched.
+
+### Ops / verification
+curl only. No Secret Manager write. No deploy.
+
+### Status
+Key is good. **0.3 yes** (secret + naming, never deploy `daftar-closing-agent`). **0.1 KYC** leave open until a dashboard Verification/Numbers flow exists or first `create` fails. **0.2** still required before Gate 0 live ring.
+
 

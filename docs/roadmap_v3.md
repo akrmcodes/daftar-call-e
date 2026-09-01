@@ -468,7 +468,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **0.5 Laptop smoke (required for Gate 0)**
 
-- [ ] Zero-cost API probe **before** a live call: `GET https://api.heycall-e.com/v1/calls/{nonexistent-id}` with `Authorization: Bearer $CALLE_API_KEY` — authenticated **`404`** means the key works; `401`/`403`/`credential_grant_unavailable` means **stop** (Chat ringing is **not** this test)
+- [x] Zero-cost API probe **before** a live call: `GET https://api.heycall-e.com/v1/calls/{nonexistent-id}` with `Authorization: Bearer $CALLE_API_KEY` — authenticated **`404`** means the key works; `401`/`403`/`credential_grant_unavailable` means **stop** (Chat ringing is **not** this test)
 - [ ] From a trusted laptop (not Flutter): `calle-ai==0.7.0` / `CalleClient.calls.create_and_wait` to the US DID with a trivial `result_schema` (`from calle import CalleClient`)
 - [ ] Answer in Zadarma/Sonetel webphone
 - [ ] Confirm terminal status + structured result locally
@@ -476,10 +476,10 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 #### Stage 0 Validation Gate
 
-- [ ] Disclosure drafted for CALL-E (substrate vs Agentic vs CALL-E-new)
+- [x] Disclosure drafted for CALL-E (substrate vs Agentic vs CALL-E-new)
 - [ ] CALL-E account + KYC + API key in Secret Manager (not git)
-- [ ] Extra-calls form submitted
-- [ ] Authenticated `GET /v1/calls/{nonexistent}` → `404` (API key works)
+- [x] Extra-calls form submitted
+- [x] Authenticated `GET /v1/calls/{nonexistent}` → `404` (API key works)
 - [ ] US DID rings in provider app
 - [ ] One consented **Developer API** `create_and_wait` succeeded (not Chat/MCP-only)
 - [ ] Frozen Agentic URL was **not** redeployed

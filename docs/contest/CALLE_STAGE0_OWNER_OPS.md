@@ -12,7 +12,11 @@ Local secret directory (mode 700): `$HOME/.daftar-owner-ops/` — not in git.
 | Developer API key | **Created.** Hold **only** on this machine until Stage **0.3** Secret Manager `calle-api-key`. Never Flutter `.env`, never git, never chat, never screenshots. |
 | Extra-calls form | **Submitted** ([form](https://forms.gle/EPQttEZ1rkW8iq9q6)) — **+200** if this is an existing account; 1–5 business days, **not guaranteed**. |
 | Free pool until extras land | **20** calls. Exhaustion **pauses** access — **no auto-charge**. Optional `~$0.05` / call is a purchase, not required. **Do not** burn calls on Flutter UI. Live cap **3** recipients until extras confirm (product cap 5). |
-| Outbound KYC | **Not done** until the owner confirms it in the CALL-E dashboard. Outbound requires KYC ([heycall-e.com](https://www.heycall-e.com/)). Chat or MCP ringing does **not** prove Developer API KYC. |
+| Outbound KYC | **Not a separate control on the API keys page.** CALL-E’s marketing FAQ: outbound needs KYC **before number/outbound activation** ([heycall-e.com](https://www.heycall-e.com/)). Look under Account / Verification / Numbers — not API Keys. **Developer API key works:** 2026-09-01 probe `GET /v1/calls/{missing}` → **404** `not_found` (not 401/403 / `credential_grant_unavailable`). First live `create` (0.5) is the real outbound gate. |
+
+### 0.5 API 404 probe (2026-09-01)
+
+Ran from this machine against `https://api.heycall-e.com/v1/calls/00000000-0000-0000-0000-00000000dead`. HTTP **404**, body `error.code=not_found`. Bearer token **not** logged. Key file remains mode 600.
 
 ### Where to put the API key (now)
 
@@ -29,9 +33,9 @@ Replace `PASTE_KEY_HERE` locally. Confirm the file is **one line**, no quotes, m
 
 Laptop smoke (Stage **0.5**, after KYC + DID) can `export CALLE_API_KEY="$(cat "$HOME/.daftar-owner-ops/calle-api-key")"` in that shell only.
 
-### Stage 0.3 (not now) — Secret Manager
+### Stage 0.3 — Secret Manager (allowed now)
 
-When 0.3 starts, create the secret from the file (never Console paste in a screenshot):
+Create the secret from the local file (never Console paste in a screenshot). **Do not** `gcloud run deploy daftar-closing-agent`.
 
 ```bash
 gcloud secrets create calle-api-key \
@@ -43,4 +47,4 @@ If the secret already exists, use `gcloud secrets versions add` — do **not** p
 
 ## Do not skip 0.2
 
-Gate 0 needs a **US DID** (Zadarma/Sonetel) before laptop `create_and_wait`. GCP 0.3 can proceed in parallel **after** KYC is confirmed, but the live ring is 0.2 + 0.5.
+Gate 0 still needs a **US DID** (Zadarma/Sonetel) before laptop `create_and_wait`. 0.3 GCP (secret + naming) can run **in parallel**. Live ring = 0.2 + remaining 0.5.
