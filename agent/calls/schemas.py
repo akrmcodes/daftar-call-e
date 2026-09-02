@@ -18,7 +18,41 @@ RejectReason = Literal[
     "killSwitch",
     "dnc",
     "invalidPhone",
+    "invalidHandle",
 ]
+RunStatus = Literal["queued", "rejected", "failed", "skippedDuplicate"]
+
+TASK_RESULT_SCHEMA: dict[str, object] = {
+    "type": "object",
+    "required": ["completed_count"],
+    "properties": {
+        "completed_count": {"type": "integer"},
+    },
+}
+
+RECIPIENT_RESULT_SCHEMA: dict[str, object] = {
+    "type": "object",
+    "required": ["outcome"],
+    "properties": {
+        "outcome": {
+            "type": "string",
+            "enum": [
+                "promised",
+                "refused",
+                "voicemail",
+                "no_answer",
+                "wrong_number",
+                "callback_requested",
+            ],
+        },
+        "promised_amount_minor": {"type": ["integer", "null"]},
+        "promised_currency": {"type": ["string", "null"]},
+        "promised_date": {"type": ["string", "null"]},
+        "language": {"type": "string", "enum": ["ar", "en"]},
+        "acknowledged_hold": {"type": ["boolean", "null"]},
+        "evidence_quote": {"type": ["string", "null"]},
+    },
+}
 
 
 class CallRecipient(BaseModel):
@@ -63,3 +97,36 @@ class PlanBatchResponse(BaseModel):
 
     batchId: UUID
     results: list[PlanBatchRowResult]
+
+
+class RunRecipient(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    contactId: UUID
+    confirmHandle: str = Field(min_length=1)
+
+
+class RunBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    batchId: UUID
+    correlationId: UUID
+    recipients: list[RunRecipient] = Field(min_length=1, max_length=MAX_RECIPIENTS)
+
+
+class RunBatchRowResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    contactId: UUID
+    status: RunStatus
+    runId: str | None = None
+    reason: RejectReason | None = None
+    phoneMasked: str | None = None
+
+
+class RunBatchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    batchId: UUID
+    results: list[RunBatchRowResult]
+    needsHuman: bool

@@ -31,6 +31,7 @@ def test_openapi_has_no_webhook_or_whatsapp_path() -> None:
     assert "/v1/email/send-batch" in paths
     assert "/v1/tts" in paths
     assert "/v1/calls/plan-batch" in paths
+    assert "/v1/calls/run-batch" in paths
     for path in paths:
         lowered = str(path).lower()
         assert "webhook" not in lowered

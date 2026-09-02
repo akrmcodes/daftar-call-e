@@ -4269,4 +4269,27 @@ Plan-batch is Daftar-local. `confirmHandle` is process-local; min-instances 0 dr
 ### Status
 1.1 done. Next: 1.2 `POST /v1/calls/run-batch` (`calls.create`, kill switch, exact confirm handle). No commit unless asked.
 
+## 2026-09-02 — Stage 1.2 `POST /v1/calls/run-batch`
+
+### Context
+Roadmap §1.2 / J.9: after exact Daftar confirm handle, queue non-blocking `calle-ai` `calls.create`. Kill switch 403. No `create_and_wait`, no GET, no live PSTN.
+
+### Done
+- [`agent/calls/handles.py`](../agent/calls/handles.py): plan snapshot (token, phone, region, locale, task, DNC, trigger) + runId store; `compare_digest`; consume handle after queue
+- [`agent/calls/client.py`](../agent/calls/client.py): lazy `from calle import CalleClient`; key file `/calle-secrets/calle-api-key`; `create` only with J.9 schemas; no wait
+- [`agent/calls/router.py`](../agent/calls/router.py) `POST /v1/calls/run-batch`: 403 kill switch; sequential per-recipient create (`Idempotency-Key = {batchId}:{contactId}`) because C.3 is unique per contact
+- [`agent/tests/test_calls_run_batch.py`](../agent/tests/test_calls_run_batch.py): RFC 555; recording fake.create; missing handle 400; wrong handle `invalidHandle`; YE / not-allowlisted no create; skippedDuplicate; logs have no handle / E.164 / key
+- OpenAPI 2.6.0 run-batch path; catalog still eight tools; no GET path
+- Deploy **`daftar-call-e-00004-l6n`**. Frozen still **`daftar-closing-agent-00055-pbm`**. `CALLE_ALLOW_DIAL=false`
+- Roadmap §1.2 boxes `[x]`; owner-ops 1.2 without E.164
+
+### Architecture / decisions
+Cloud Run kill switch stays off — authenticated run-batch is 403 until Stage 1.4 / 4. Sequential `create` (one recipient per task) so each C.3 `task` is sent as-is. Plan snapshot required because J.9 run body is only `contactId` + `confirmHandle`. Min-instances 0 drops handles and runIds (same class as email idempotency).
+
+### Ops / verification
+`agent/.venv` pytest plan-batch + run-batch + catalog + retired webhooks — **35 passed**. Freeze Dart tests — 8 passed. Wrapper post-verify: scale 0/2, audiences 3, allowlist present, region `US`, kill switch false. Unauthenticated `POST /v1/calls/run-batch` → **403**. `tool/check_agentic_freeze.sh` Freeze OK. No live `/run`, SMTP, TTS, or authenticated run-batch.
+
+### Status
+1.2 done. Next: 1.3 `GET /v1/calls/{runId}`. No commit unless asked.
+
 

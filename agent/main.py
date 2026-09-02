@@ -1,4 +1,4 @@
-"""Cloud Run FastAPI entrypoint — ADK routes plus email, TTS, and plan-batch.
+"""Cloud Run FastAPI entrypoint — ADK routes plus email, TTS, and CALL-E plan/run-batch.
 
 ``adk deploy cloud_run`` generates a closed main.py (ADK only). Extra routes
 must use ``get_fast_api_app`` then ``include_router``. ``web=False`` so a

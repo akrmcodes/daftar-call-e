@@ -146,3 +146,20 @@ Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run
 
 `run-batch` / `GET /v1/calls/{runId}` are **not** deployed. Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 1.2.
 
+## 1.2 run-batch (2026-09-02)
+
+`POST /v1/calls/run-batch` is live on `daftar-call-e`. Exact confirm handle + stored plan snapshot, then non-blocking `calls.create`. **Cloud Run kill switch stays `false`.** Authenticated run-batch returns **403** `killSwitch` / `needsHuman` until the owner turns the switch on (Stage 1.4 smoke / Stage 4). No live PSTN this slice.
+
+| Item | Status |
+| --- | --- |
+| Revision | `daftar-call-e-00004-l6n` |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk still `false`) |
+| Confirm handle + snapshot | Process-local `(batchId, contactId)` → token, E.164, region, locale, C.3 task, trigger. Consumed after queue. Min-instances 0 drops memory |
+| runId store | Process-local `(batchId, contactId)` → CALL-E `call.id`. Replay → `skippedDuplicate` |
+| Create | Per-recipient sequential `create` (C.3 is unique per contact). `Idempotency-Key = {batchId}:{contactId}`. Never wait |
+| Secrets | Unchanged split mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` |
+| Auth | Unauthenticated `POST /v1/calls/run-batch` → **403** |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+`GET /v1/calls/{runId}` is **not** deployed (1.3). Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 1.4 / Stage 4.
+

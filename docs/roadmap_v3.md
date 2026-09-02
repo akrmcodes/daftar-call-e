@@ -532,13 +532,13 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **1.2 `POST /v1/calls/run-batch`**
 
-- [ ] Requires exact Daftar confirm handle from the immediately preceding plan-batch
-- [ ] Calls `client.calls.create(...)` (or raw `POST /v1/calls`) — **can place a real call** — only if `CALLE_ALLOW_DIAL=true` and allowlist match
-- [ ] Prefer one CALL-E task with `recipients[]`; fallback sequential if spike fails
-- [ ] Returns `runId` (= CALL-E `call.id`) immediately — **do not** `create_and_wait` on this request
-- [ ] Same recipient cap and server-side guards as plan
-- [ ] Idempotent on `batchId` (+ `contactId` if sequential) if `runId` already stored
-- [ ] Observability action=`run`
+- [x] Requires exact Daftar confirm handle from the immediately preceding plan-batch
+- [x] Calls `client.calls.create(...)` (or raw `POST /v1/calls`) — **can place a real call** — only if `CALLE_ALLOW_DIAL=true` and allowlist match
+- [x] Prefer one CALL-E task with `recipients[]`; fallback sequential if spike fails
+- [x] Returns `runId` (= CALL-E `call.id`) immediately — **do not** `create_and_wait` on this request
+- [x] Same recipient cap and server-side guards as plan
+- [x] Idempotent on `batchId` (+ `contactId` if sequential) if `runId` already stored
+- [x] Observability action=`run`
 
 **1.3 `GET /v1/calls/{runId}`**
 

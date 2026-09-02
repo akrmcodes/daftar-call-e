@@ -28,7 +28,8 @@ YE_PHONE = "+967700000000"
 SA_PHONE = "+966500000000"
 C3_TASK = "C3-ECHO: collect 500 YER from Mohamed — do not reformat"
 
-FORBIDDEN_SOURCE = ("calle", "CalleClient", "create_and_wait", "heycall-e.com")
+FORBIDDEN_WAIT = ("create_and_wait", "wait_for_result")
+FORBIDDEN_SDK = ("calle", "CalleClient", "heycall-e.com")
 
 
 class FakeCallsApi:
@@ -118,10 +119,18 @@ def test_calls_source_never_imports_developer_api() -> None:
     hits: list[str] = []
     for path in CALLS_ROOT.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
-        for needle in FORBIDDEN_SOURCE:
+        for needle in FORBIDDEN_WAIT:
+            if needle in text:
+                hits.append(f"{path.name}:{needle}")
+        if path.name == "client.py":
+            continue
+        for needle in FORBIDDEN_SDK:
             if needle in text:
                 hits.append(f"{path.name}:{needle}")
     assert hits == []
+    client_src = (CALLS_ROOT / "client.py").read_text(encoding="utf-8")
+    assert "from calle import CalleClient" in client_src
+    assert "heycall-e.com" in client_src
 
 
 def test_parse_allow_dial_is_exact_lowercase_true() -> None:
@@ -272,7 +281,8 @@ def test_happy_path_issues_handle_without_logging_secrets(
     assert row["task"] == C3_TASK
     handle = row["confirmHandle"]
     assert isinstance(handle, str) and len(handle) >= 16
-    assert store.get(batch_id, contact_id) == handle
+    assert store.get(batch_id, contact_id) is not None
+    assert store.get(batch_id, contact_id).token == handle
     captured = capsys.readouterr()
     combined = captured.out + captured.err
     assert handle not in combined
@@ -292,7 +302,8 @@ def test_replan_replaces_handle() -> None:
     b = second.json()["results"][0]["confirmHandle"]
     assert a != b
     contact_id = payload["recipients"][0]["contactId"]
-    assert store.get(payload["batchId"], contact_id) == b
+    assert store.get(payload["batchId"], contact_id) is not None
+    assert store.get(payload["batchId"], contact_id).token == b
 
 
 def test_plan_never_calls_create(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -313,16 +324,16 @@ def test_invalid_phone() -> None:
     assert response.json()["results"][0]["reason"] == "invalidPhone"
 
 
-def test_openapi_has_plan_batch_only() -> None:
+def test_openapi_has_plan_and_run_not_get() -> None:
     import yaml
 
     spec = yaml.safe_load(OPENAPI_PATH.read_text(encoding="utf-8"))
     paths = spec["paths"]
     assert "/v1/calls/plan-batch" in paths
-    assert "/v1/calls/run-batch" not in paths
+    assert "/v1/calls/run-batch" in paths
     assert "/v1/calls/{runId}" not in paths
-    post = paths["/v1/calls/plan-batch"]["post"]
+    post = paths["/v1/calls/run-batch"]["post"]
     assert post["security"] == [{"GoogleIdToken": []}]
-    assert "PlanBatchRequest" in spec["components"]["schemas"]
+    assert "RunBatchRequest" in spec["components"]["schemas"]
     enum = spec["components"]["schemas"]["ProposalTool"]["enum"]
     assert len(enum) == 8
