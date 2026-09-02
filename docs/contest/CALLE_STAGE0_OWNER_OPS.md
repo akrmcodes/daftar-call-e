@@ -43,7 +43,7 @@ Ran [`agent/scripts/stage0_3_gcp.sh`](../../agent/scripts/stage0_3_gcp.sh) as `a
 | `call-e-runner` secretAccessor on `calle-api-key` | **Yes** (secret-level; not project-wide) |
 | `call-e-runner` secretAccessor on `gmail-smtp-app-password` | **Added**; `agent-runner` **kept** |
 | Project roles on `call-e-runner` | `aiplatform.user` · `logging.logWriter` · `speech.client` |
-| Cloud Run `daftar-call-e` | **Absent** (Stage 1) |
+| Cloud Run `daftar-call-e` | **Created 2026-09-02** (Stage 1.0). URL in `$HOME/.daftar-owner-ops/daftar-call-e-url` (not README) |
 | Frozen revision | still `daftar-closing-agent-00055-pbm` |
 | Vertex on frozen revision | `GOOGLE_GENAI_USE_VERTEXAI=TRUE` · `GOOGLE_CLOUD_LOCATION=global` |
 
@@ -111,3 +111,22 @@ Wrapper: [`agent/scripts/stage0_5_laptop_smoke.sh`](../../agent/scripts/stage0_5
 **Result (no E.164, no key):** `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`. Masked dest last-4 only in local `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git). Contest credits: **1 of 20** spent.
 
 When the smoke finishes: `unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY` or leave `CALLE_ALLOW_DIAL` unset (treated as false). Do not leave `true` in the environment.
+
+## 1.0 Deploy skeleton (2026-09-02)
+
+Ran [`agent/scripts/deploy_daftar_call_e.sh`](../../agent/scripts/deploy_daftar_call_e.sh) with `DAFTAR_CALL_E_DEPLOY=true`. Frozen All Things Agentic revision **unchanged**.
+
+| Item | Status |
+| --- | --- |
+| Service | `daftar-call-e` · `us-central1` · runtime SA `call-e-runner@…` |
+| Revision | `daftar-call-e-00002-k46` (audiences=3; 00001 had count 1) |
+| URL | `$HOME/.daftar-owner-ops/daftar-call-e-url` → `https://daftar-call-e-1487285471.us-central1.run.app` (project number in the host is **not** the frozen Agentic hostname `daftar-closing-agent-1487285471…`) |
+| Auth | `--no-allow-unauthenticated`. Invoker: `allAuthenticatedUsers` + `user:akrm.codes@gmail.com`. No public unauthenticated principal. |
+| Cost lock | Min 0 / max 2 on **service and revision** |
+| Secrets | `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` (Cloud Run cannot mount two secrets in one directory) |
+| Kill switch | `CALLE_ALLOW_DIAL=false` (no DID in Cloud Run env) |
+| Envied | `CLOSING_AGENT_BASE_URL` default **empty**; gitignored `.env` points at the new URL |
+| Frozen | still `daftar-closing-agent-00055-pbm` / `agent-runner` |
+
+Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run deploy daftar-closing-agent`. Never ADK Cloud Run deployer. 1.1+ call routes **not** in this revision.
+

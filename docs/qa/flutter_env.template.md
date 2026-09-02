@@ -25,7 +25,7 @@ Generated `*.g.dart` is gitignored. `BACKUP_AES_KEY` and `GOOGLE_SERVER_CLIENT_I
 | `ACTIVATION_API_BASE_URL` | Supabase Edge Functions base | Contest path may not exercise activation |
 | `SUPABASE_PUBLISHABLE_KEY` | Supabase `apikey` header | Client-safe with RLS |
 | `DEEP_LINK_BASE_URL` | Minted invite URL base | Default `https://daftar.app/i` |
-| `CLOSING_AGENT_BASE_URL` | Cloud Run agent base URL | Default in code: `https://daftar-closing-agent-1487285471.us-central1.run.app` |
+| `CLOSING_AGENT_BASE_URL` | Cloud Run agent base URL | **Required.** Empty Envied default. Use the `daftar-call-e` URL from `$HOME/.daftar-owner-ops/daftar-call-e-url`. Never the frozen Agentic hostname. |
 
 ## Optional dart-defines (demo inboxes)
 

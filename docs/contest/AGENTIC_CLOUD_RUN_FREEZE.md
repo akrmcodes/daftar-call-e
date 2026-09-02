@@ -4,7 +4,7 @@
 
 This file is a **read-only snapshot**. Recording a revision is **not permission to update**, deploy, replace traffic, delete, or change IAM on this service.
 
-CALL-E work in `daftar-call-e` must not mutate All Things Agentic production through at least **13 Oct 2026**. Legal CALL-E Cloud Run name is **`daftar-call-e`**, via [`agent/scripts/deploy_daftar_call_e.sh`](../../agent/scripts/deploy_daftar_call_e.sh) only (Stage 1 — not this pass).
+CALL-E work in `daftar-call-e` must not mutate All Things Agentic production through at least **13 Oct 2026**. Legal CALL-E Cloud Run name is **`daftar-call-e`**, via [`agent/scripts/deploy_daftar_call_e.sh`](../../agent/scripts/deploy_daftar_call_e.sh) only.
 
 ## Frozen identity
 
@@ -18,7 +18,7 @@ CALL-E work in `daftar-call-e` must not mutate All Things Agentic production thr
 
 **latestReadyRevisionName:** `daftar-closing-agent-00055-pbm`
 
-Recorded with `gcloud run services describe` on 2026-09-01. The numbered `*.run.app` URL above is the frozen Envied default. Describe also reports a hash hostname; that is the same service, not a second deploy target.
+Recorded with `gcloud run services describe` on 2026-09-01. The numbered `*.run.app` URL above is the **frozen Agentic** hostname (no longer the Envied default after Stage 1.0). Describe also reports a hash hostname; that is the same service, not a second deploy target.
 
 Owner-machine local copy (not in git): `$HOME/.daftar-owner-ops/daftar-closing-agent-00055-identity.yaml` (revision, URL, SA, image) and `daftar-closing-agent-iam.yaml` (IAM policy only, no env).
 
@@ -38,7 +38,7 @@ Re-check (read-only): [`tool/check_agentic_freeze.sh`](../../tool/check_agentic_
 
 ## CALL-E runtime SA (not the frozen runner)
 
-Created 2026-09-01: `call-e-runner@daftar-closing-agent.iam.gserviceaccount.com`. Future service `daftar-call-e` uses this SA. Do **not** change `agent-runner`.
+Created 2026-09-01: `call-e-runner@daftar-closing-agent.iam.gserviceaccount.com`. Service `daftar-call-e` uses this SA. Do **not** change `agent-runner`.
 
 ## Secret `calle-api-key`
 
@@ -49,13 +49,17 @@ Owner created a Developer API key out of band (2026-09-01). It is **not** in git
 - Secret `calle-api-key` version 1 enabled. Accessor: `call-e-runner` only (secret-level).
 - Secret `gmail-smtp-app-password`: **added** `call-e-runner` `secretAccessor`; **kept** `agent-runner`. Frozen Cloud Run mount unchanged.
 - Project IAM on `call-e-runner` only: `roles/aiplatform.user`, `roles/logging.logWriter`, `roles/speech.client`. **No** project-level `secretAccessor` on this SA.
-- Cloud Run `daftar-call-e` still **does not exist**. Frozen revision still `daftar-closing-agent-00055-pbm`. Vertex env on the frozen revision still `TRUE` / `global`.
-- Stage 1 will file-mount `/secrets/calle-api-key` and `/secrets/gmail-smtp-app-password` on **`daftar-call-e` only**.
+- Cloud Run `daftar-call-e` **created 2026-09-02** (see Stage 1.0 below). Frozen revision still `daftar-closing-agent-00055-pbm`. Vertex env on the frozen revision still `TRUE` / `global`.
+- Stage 1.0 file-mounted Gmail at `/secrets/gmail-smtp-app-password` and CALL-E key at `/calle-secrets/calle-api-key` on **`daftar-call-e` only** (two secrets cannot share one Cloud Run directory).
 
-## Non-goals (still)
+## Stage 1.0 (2026-09-02) — new service only
 
-- No Confirm & Call
-- No `daftar-call-e` Cloud Run create/deploy
+- `daftar-call-e` revision `daftar-call-e-00002-k46`. URL in `$HOME/.daftar-owner-ops/daftar-call-e-url`.
+- Frozen `latestReadyRevisionName` still `daftar-closing-agent-00055-pbm`. Frozen SA still `agent-runner`. **No** deploy/update/IAM/traffic on `daftar-closing-agent`.
+- Envied `CLOSING_AGENT_BASE_URL` default emptied.
+
+## Remaining non-goals
+
+- No Confirm & Call UI / no `agent/calls/` yet (1.1+)
 - No Cloud Run mutate / IAM on `daftar-closing-agent`
-- No Envied `defaultValue` change
 - Do not enable `billingbudgets.googleapis.com`. Owner confirmed 2026-09-02 that $50 / $100 / $140 budgets remain.

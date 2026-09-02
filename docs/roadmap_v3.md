@@ -509,17 +509,17 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - Persist `runId` := CALL-E `call.id`; **never** `create` again to “retry poll”
 - Extend [`test_tool_catalog_freeze.py`](../agent/tests/test_tool_catalog_freeze.py): `ALL_TOOLS` still exactly the eight `propose_*` / `parse_goal` names; **assert** no `plan_call` / `run_call` / `propose_call` FunctionTool
 - OpenAPI in [`agent/openapi.yaml`](../agent/openapi.yaml) must match J.9
-- **URL landmine:** [`lib/core/env/env.dart`](../lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` still defaults to the **frozen** Agentic hostname. This fork Must point `.env` / Envied default at **`daftar-call-e` only** — never a silent fallback to `https://daftar-closing-agent-1487285471.us-central1.run.app`
+- **URL landmine (1.0):** [`lib/core/env/env.dart`](../lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` default is **empty**. Gitignored `.env` must point at **`daftar-call-e` only** — never a silent fallback to `https://daftar-closing-agent-1487285471.us-central1.run.app`
 
 ### Task Checklist
 
 **1.0 Deploy skeleton**
 
-- [ ] Deploy **`daftar-call-e`** from this fork (`adk` + FastAPI as today: `/run`, send-batch, tts)
-- [ ] Confirm frozen `daftar-closing-agent` revision is untouched
-- [ ] Flutter `.env` / dart-define **new** base URL only — no secrets; **change or empty** the Envied default so a missing `.env` cannot hit the frozen URL
-- [ ] Min 0 / max 2 on service **and** revision
-- [ ] `calle-ai==0.7.0` in agent requirements; Python **≥3.11**
+- [x] Deploy **`daftar-call-e`** from this fork (`adk` + FastAPI as today: `/run`, send-batch, tts)
+- [x] Confirm frozen `daftar-closing-agent` revision is untouched
+- [x] Flutter `.env` / dart-define **new** base URL only — no secrets; **change or empty** the Envied default so a missing `.env` cannot hit the frozen URL
+- [x] Min 0 / max 2 on service **and** revision
+- [x] `calle-ai==0.7.0` in agent requirements; Python **≥3.11**
 
 **1.1 `POST /v1/calls/plan-batch`**
 
@@ -555,13 +555,13 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 #### Stage 1 Validation Gate
 
-- [ ] `daftar-call-e` URL documented in owner-ops only (optional in README after Stage 6)
+- [x] `daftar-call-e` URL documented in owner-ops only (optional in README after Stage 6)
 - [ ] Plan-batch does not call CALL-E and does not dial
 - [ ] Run-batch dials only with exact Daftar handle + allowlist + kill switch on
 - [ ] Dry-run never hits PSTN
 - [ ] Eight ADK tools unchanged; no call FunctionTool
 - [ ] OpenAPI matches J.9
-- [ ] Agentic URL untouched; Envied/`.env` does not default to the frozen hostname
+- [x] Agentic URL untouched; Envied/`.env` does not default to the frozen hostname
 
 ---
 

@@ -99,19 +99,19 @@ abstract class Env {
   )
   static String deepLinkBaseUrl = _Env.deepLinkBaseUrl;
 
-  /// Authenticated Cloud Run base URL for the Closing Agent ADK API.
+  /// Authenticated Cloud Run base URL for the CALL-E agent (`daftar-call-e`).
   ///
-  /// Contest `.env` only (gitignored). Default is the live Stage 1.1 service.
-  /// This is a public hostname, not a secret — Gemini/Vertex keys must never
-  /// appear here.
+  /// Contest `.env` only (gitignored). Public hostname, not a secret —
+  /// Gemini/Vertex keys must never appear here.
   ///
-  /// CALL-E freeze: that default is the **frozen All Things Agentic** URL.
-  /// Do not flutter-run against it for this submission. Stage 1 must point
-  /// `.env` at `daftar-call-e`. See `.cursor/rules/calle-agentic-freeze.mdc`.
+  /// Empty default: a missing `.env` must not fall back to the frozen
+  /// All Things Agentic Cloud Run host. Set `CLOSING_AGENT_BASE_URL` to the
+  /// `daftar-call-e` URL from `$HOME/.daftar-owner-ops/daftar-call-e-url`.
+  /// See `.cursor/rules/calle-agentic-freeze.mdc`.
   @EnviedField(
     varName: 'CLOSING_AGENT_BASE_URL',
     obfuscate: true,
-    defaultValue: 'https://daftar-closing-agent-1487285471.us-central1.run.app',
+    defaultValue: '',
   )
   static String closingAgentBaseUrl = _Env.closingAgentBaseUrl;
 }

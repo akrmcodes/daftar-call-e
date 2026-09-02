@@ -4221,4 +4221,29 @@ Copied `agent/.venv` `bin/pip` originally targeted the heritage Agentic tree; in
 ### Status
 Gate 0 live ring **passed**. Stage 1 UI is unblocked. Credits **19 / 20** remaining until extras land.
 
+## 2026-09-02 — Stage 1.0 deploy skeleton `daftar-call-e`
+
+### Context
+Roadmap §1.0: create authenticated Cloud Run `daftar-call-e` from this fork (ADK `/run` + send-batch + TTS), leave frozen All Things Agentic revision untouched, and cut Envied off the frozen hostname. No call routes.
+
+### Done
+- [`agent/.gcloudignore`](../agent/.gcloudignore) so `--source=.` does not upload `.venv`
+- Unlocked [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh): `DAFTAR_CALL_E_DEPLOY=true`; freeze preflight; Gmail copy from frozen describe; three custom audiences; `call-e-runner` actAs; `gcloud run deploy daftar-call-e` only
+- Service **`daftar-call-e`**: revision `daftar-call-e-00002-k46` (00001 created; audiences set to 3 on 00002). URL `https://daftar-call-e-1487285471.us-central1.run.app` in `$HOME/.daftar-owner-ops/daftar-call-e-url`
+- Runtime SA `call-e-runner@…`; min 0 / max 2 both layers; `--no-allow-unauthenticated`; invoker `allAuthenticatedUsers` + owner
+- Secret mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` (Cloud Run rejects two secrets in one directory)
+- `CALLE_ALLOW_DIAL=false`; no DID in Cloud Run env; `calle-ai==0.7.0` in the image, not called
+- Envied `CLOSING_AGENT_BASE_URL` default `''`; gitignored `.env` pointed at the new URL; `env.g.dart` regenerated
+- Frozen revision still `daftar-closing-agent-00055-pbm` / SA `agent-runner`
+- Roadmap 1.0 boxes `[x]`; freeze tests updated; owner-ops + freeze snapshot notes
+
+### Architecture / decisions
+No `agent/calls/`. No `create_and_wait` on Cloud Run. Custom audiences must be `--set-custom-audiences` (three `--add` on first create stored one). Envied empty default is the fail-closed landmine fix. Same GCP project number appears in both `*.run.app` hosts; service **name** is the freeze boundary.
+
+### Ops / verification
+Wrapper first attempt failed validation (two secrets under `/secrets`) — no service created. Second attempt created 00001. Audience update created 00002. `tool/check_agentic_freeze.sh` Freeze OK throughout. Unauthenticated `GET /list-apps` → **403**. User `gcloud auth print-identity-token --audiences` is not valid for user accounts; Flutter uses the three custom audiences (J.1).
+
+### Status
+1.0 done. Next: 1.1 `POST /v1/calls/plan-batch` (Daftar-local, zero PSTN).
+
 
