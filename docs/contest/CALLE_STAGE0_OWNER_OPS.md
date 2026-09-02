@@ -144,7 +144,7 @@ Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run
 | Auth | Unauthenticated `POST /v1/calls/plan-batch` → **403** (GFE IAM; no in-process JWT) |
 | Frozen | still `daftar-closing-agent-00055-pbm` |
 
-`run-batch` / `GET /v1/calls/{runId}` are **not** deployed. Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 1.2.
+`run-batch` is deployed (§1.2). `GET /v1/calls/{runId}` is deployed (§1.3). Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 1.4 smoke / Stage 4.
 
 ## 1.2 run-batch (2026-09-02)
 
@@ -162,4 +162,20 @@ Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run
 | Frozen | still `daftar-closing-agent-00055-pbm` |
 
 `GET /v1/calls/{runId}` is **not** deployed (1.3). Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 1.4 / Stage 4.
+
+## 1.3 get call (2026-09-02)
+
+`GET /v1/calls/{runId}` is live on `daftar-call-e`. Read-only `calls.get` proxy — **never waits, never dials**. Kill switch off does **not** block GET (polling works after a future live `run-batch`). No live CALL-E GET of Gate 0 call ids this slice.
+
+| Item | Status |
+| --- | --- |
+| Revision | `daftar-call-e-00005-8kw` |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk still `false`) |
+| GET | Single `client.calls.get` per request. J.9 camelCase + integer coercion for `promised_amount_minor`. `terminal` when status ∈ `{completed, failed, canceled}` |
+| Mask index | Process-local `runId → phoneMasked` after successful queue (min-instances 0 drops it; GET masks from CALL-E payload) |
+| Secrets | Unchanged split mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` |
+| Auth | Unauthenticated `GET /v1/calls/{runId}` → **403** |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 1.4 / Stage 4.
 

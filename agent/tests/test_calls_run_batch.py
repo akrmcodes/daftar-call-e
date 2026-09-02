@@ -38,6 +38,9 @@ class RecordingCreator:
             raise RuntimeError("upstream")
         return self.next_id
 
+    def get(self, **kwargs: Any) -> dict[str, Any]:
+        raise AssertionError("get must not run on run-batch tests")
+
     def create_and_wait(self, **kwargs: Any) -> str:
         raise AssertionError("create_and_wait must not run on run-batch")
 
@@ -346,6 +349,7 @@ def test_source_bans_wait_and_isolates_sdk_import() -> None:
     client_src = (CALLS_ROOT / "client.py").read_text(encoding="utf-8")
     assert "from calle import CalleClient" in client_src
     assert "client.calls.create" in client_src
+    assert "client.calls.get" in client_src
     assert "TASK_RESULT_SCHEMA" in client_src
     assert "RECIPIENT_RESULT_SCHEMA" in client_src
     assert "create_and_wait" not in client_src

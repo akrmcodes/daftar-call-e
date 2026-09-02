@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Daftar Closing Agent — Device ↔ Cloud Run Wire Contract
-  version: 2.6.0
-  summary: Frozen Appendix J contract plus CALL-E plan-batch and run-batch.
+  version: 2.7.0
+  summary: Frozen Appendix J contract plus CALL-E plan-batch, run-batch, and get.
   description: |
     Normative machine-readable contract for Stages 1–4 of `docs/roadmap_v2.md` **Appendix J**,
     plus roadmap v3 **J.9** plan-batch (Daftar-local) and run-batch (`calls.create`).
@@ -12,7 +12,8 @@ info:
     It does **not** call CALL-E and does **not** dial.
     Stage 1.2 adds `POST /v1/calls/run-batch` — exact Daftar confirm handle, then non-blocking
     `calls.create`. Kill switch off returns 403. Never `create_and_wait` on this request.
-    `GET /v1/calls/{runId}` is Stage 1.3 and is **not** in this spec yet.
+    Stage 1.3 adds `GET /v1/calls/{runId}` — read-only `calls.get` proxy. Kill switch does
+    **not** block GET. Never wait, never dial, never return API key or confirm handle.
 
     ## Architecture
     - Cloud Run hosts a Google **ADK** agent (Python) that emits **proposals**, never Drift writes.
@@ -456,6 +457,69 @@ paths:
                   detail:
                     type: string
                     enum: [killSwitch]
+                  needsHuman:
+                    type: boolean
+                    enum: [true]
+
+  /v1/calls/{runId}:
+    get:
+      tags: [calls]
+      operationId: getCall
+      summary: Poll CALL-E call status (read-only)
+      description: |
+        Proxies a single `client.calls.get` / `GET /v1/calls/{id}`. Never waits or dials.
+        Returns J.9 camelCase with masked phone and validated `structuredResult`.
+        `CALLE_ALLOW_DIAL` false does **not** block this route. Never returns API key,
+        confirm handle, transcripts, or full E.164. Auth is Cloud Run IAM + J.1.
+      security:
+        - GoogleIdToken: []
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: CALL-E call.id returned by run-batch
+      responses:
+        "200":
+          description: Current call status (poll until terminal is true)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallGetResponse"
+        "400":
+          description: Empty or whitespace runId
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: CALL-E call not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [detail]
+                properties:
+                  detail:
+                    type: string
+                    enum: [not_found]
+        "502":
+          description: CALL-E upstream auth or availability failure
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [detail, needsHuman]
+                properties:
+                  detail:
+                    type: string
+                    enum: [upstream_auth, upstream_unavailable]
                   needsHuman:
                     type: boolean
                     enum: [true]
@@ -1357,3 +1421,66 @@ components:
         needsHuman:
           type: boolean
           description: true on CALL-E auth/credits failure; kill switch uses HTTP 403
+
+    CallStructuredResult:
+      type: object
+      additionalProperties: false
+      properties:
+        completed_count:
+          type: integer
+          description: Task-level result from CALL-E structured_result
+        outcome:
+          type: string
+          enum:
+            - promised
+            - refused
+            - voicemail
+            - no_answer
+            - wrong_number
+            - callback_requested
+        promised_amount_minor:
+          type: integer
+          nullable: true
+          description: Integer only; whole-number JSON floats are coerced server-side
+        promised_currency:
+          type: string
+          nullable: true
+        promised_date:
+          type: string
+          nullable: true
+          description: YYYY-MM-DD
+        language:
+          type: string
+          enum: [ar, en]
+        acknowledged_hold:
+          type: boolean
+          nullable: true
+        evidence_quote:
+          type: string
+          nullable: true
+
+    CallGetResponse:
+      type: object
+      additionalProperties: false
+      required: [runId, status, terminal, phoneMasked, needsHuman]
+      properties:
+        runId:
+          type: string
+          description: Echo of path param (= CALL-E call.id)
+        status:
+          type: string
+          description: CALL-E status pass-through
+        terminal:
+          type: boolean
+          description: true when status is completed, failed, or canceled
+        taskCompleted:
+          type: boolean
+          description: CALL-E task_completed when present. Not paid.
+        structuredResult:
+          $ref: "#/components/schemas/CallStructuredResult"
+        phoneMasked:
+          type: string
+          description: Last-4 only; never full E.164
+        needsHuman:
+          type: boolean
+          description: Invalid schema or missing outcome on terminal; device must not write amount

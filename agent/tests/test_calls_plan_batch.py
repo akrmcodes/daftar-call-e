@@ -324,16 +324,21 @@ def test_invalid_phone() -> None:
     assert response.json()["results"][0]["reason"] == "invalidPhone"
 
 
-def test_openapi_has_plan_and_run_not_get() -> None:
+def test_openapi_has_plan_run_and_get() -> None:
     import yaml
 
     spec = yaml.safe_load(OPENAPI_PATH.read_text(encoding="utf-8"))
+    assert spec["info"]["version"] == "2.7.0"
     paths = spec["paths"]
     assert "/v1/calls/plan-batch" in paths
     assert "/v1/calls/run-batch" in paths
-    assert "/v1/calls/{runId}" not in paths
+    assert "/v1/calls/{runId}" in paths
+    assert "get" in paths["/v1/calls/{runId}"]
     post = paths["/v1/calls/run-batch"]["post"]
     assert post["security"] == [{"GoogleIdToken": []}]
+    get_call = paths["/v1/calls/{runId}"]["get"]
+    assert get_call["security"] == [{"GoogleIdToken": []}]
     assert "RunBatchRequest" in spec["components"]["schemas"]
+    assert "CallGetResponse" in spec["components"]["schemas"]
     enum = spec["components"]["schemas"]["ProposalTool"]["enum"]
     assert len(enum) == 8

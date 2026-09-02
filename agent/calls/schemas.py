@@ -21,6 +21,24 @@ RejectReason = Literal[
     "invalidHandle",
 ]
 RunStatus = Literal["queued", "rejected", "failed", "skippedDuplicate"]
+Outcome = Literal[
+    "promised",
+    "refused",
+    "voicemail",
+    "no_answer",
+    "wrong_number",
+    "callback_requested",
+]
+OUTCOME_VALUES = frozenset(
+    {
+        "promised",
+        "refused",
+        "voicemail",
+        "no_answer",
+        "wrong_number",
+        "callback_requested",
+    }
+)
 
 TASK_RESULT_SCHEMA: dict[str, object] = {
     "type": "object",
@@ -129,4 +147,29 @@ class RunBatchResponse(BaseModel):
 
     batchId: UUID
     results: list[RunBatchRowResult]
+    needsHuman: bool
+
+
+class CallStructuredResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    completed_count: int | None = None
+    outcome: Outcome | None = None
+    promised_amount_minor: int | None = None
+    promised_currency: str | None = None
+    promised_date: str | None = None
+    language: Literal["ar", "en"] | None = None
+    acknowledged_hold: bool | None = None
+    evidence_quote: str | None = None
+
+
+class CallGetResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    runId: str
+    status: str
+    terminal: bool
+    taskCompleted: bool | None = None
+    structuredResult: CallStructuredResult | None = None
+    phoneMasked: str
     needsHuman: bool

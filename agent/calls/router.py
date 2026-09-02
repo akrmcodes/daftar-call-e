@@ -11,7 +11,14 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from closing_agent.observability import emit_structured
-from calls.client import CallCreator, StdlibCallCreator
+from calls.client import (
+    CallCreator,
+    CallNotFoundError,
+    StdlibCallCreator,
+    UpstreamAuthError,
+    UpstreamUnavailableError,
+)
+from calls.get_map import map_call_get_response
 from calls.handles import (
     ConfirmHandleStore,
     InMemoryConfirmHandleStore,
@@ -69,23 +76,36 @@ def _validation_detail(exc: ValidationError) -> str:
 def _emit_call(
     *,
     action: str,
-    correlation_id: str,
-    batch_id: str,
+    correlation_id: str = "",
+    batch_id: str = "",
     status: str,
     phone_masked: str,
     reason: str | None = None,
     run_id: str | None = None,
+    terminal: bool | None = None,
+    outcome: str | None = None,
 ) -> None:
+    fields: dict[str, object] = {
+        "action": action,
+        "status": status,
+        "phoneMasked": phone_masked,
+    }
+    if correlation_id:
+        fields["correlationId"] = correlation_id
+    if batch_id:
+        fields["batchId"] = batch_id
+    if reason is not None:
+        fields["reason"] = reason
+    if run_id is not None:
+        fields["runId"] = run_id
+    if terminal is not None:
+        fields["terminal"] = terminal
+    if outcome is not None:
+        fields["outcome"] = outcome
     emit_structured(
         "daftar.agent.call",
         message=f"call_{action} status={status}",
-        action=action,
-        correlationId=correlation_id,
-        batchId=batch_id,
-        status=status,
-        reason=reason,
-        phoneMasked=phone_masked,
-        runId=run_id,
+        **fields,
     )
 
 
@@ -292,6 +312,7 @@ async def _run_row(
         )
 
     store.put_run_id(batch_id, contact_key, run_id)
+    store.put_run_mask(run_id, masked)
     store.delete(batch_id, contact_key)
     return (
         RunBatchRowResult(
@@ -392,6 +413,65 @@ async def run_batch(
         batchId=body.batchId,
         results=results,
         needsHuman=needs_human,
+    )
+    return JSONResponse(
+        content=payload.model_dump(mode="json", exclude_none=True),
+    )
+
+
+@router.get("/v1/calls/{runId}")
+async def get_call(
+    runId: str,
+    settings: Annotated[CallSettings, Depends(get_call_settings)],
+    store: Annotated[ConfirmHandleStore, Depends(get_handle_store)],
+    creator: Annotated[CallCreator, Depends(get_call_creator)],
+) -> JSONResponse:
+    run_id = runId.strip()
+    if not run_id:
+        raise HTTPException(status_code=400, detail="invalid_run_id")
+
+    try:
+        call = await asyncio.to_thread(
+            lambda: creator.get(
+                api_key_file=settings.api_key_file,
+                run_id=run_id,
+            )
+        )
+    except CallNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="not_found") from exc
+    except UpstreamAuthError as exc:
+        return JSONResponse(
+            status_code=502,
+            content={"detail": "upstream_auth", "needsHuman": True},
+        )
+    except UpstreamUnavailableError as exc:
+        return JSONResponse(
+            status_code=502,
+            content={"detail": "upstream_unavailable", "needsHuman": True},
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=502,
+            content={"detail": "upstream_unavailable", "needsHuman": True},
+        )
+
+    payload = map_call_get_response(
+        run_id,
+        call,
+        phone_masked_hint=store.get_run_mask(run_id),
+    )
+    outcome = (
+        payload.structuredResult.outcome
+        if payload.structuredResult is not None
+        else None
+    )
+    _emit_call(
+        action="get",
+        status=payload.status,
+        phone_masked=payload.phoneMasked,
+        run_id=payload.runId,
+        terminal=payload.terminal,
+        outcome=outcome,
     )
     return JSONResponse(
         content=payload.model_dump(mode="json", exclude_none=True),

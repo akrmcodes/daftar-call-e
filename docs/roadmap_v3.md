@@ -542,9 +542,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **1.3 `GET /v1/calls/{runId}`**
 
-- [ ] Proxies `client.calls.get` / `GET /v1/calls/{id}`
-- [ ] Returns status, terminal flag, `structured_result` validated against J.9 schema, masked phone
-- [ ] Never returns API key or confirm handle
+- [x] Proxies `client.calls.get` / `GET /v1/calls/{id}`
+- [x] Returns status, terminal flag, `structured_result` validated against J.9 schema, masked phone
+- [x] Never returns API key or confirm handle
 
 **1.4 Tests + OpenAPI**
 

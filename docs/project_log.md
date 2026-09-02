@@ -4292,4 +4292,29 @@ Cloud Run kill switch stays off — authenticated run-batch is 403 until Stage 1
 ### Status
 1.2 done. Next: 1.3 `GET /v1/calls/{runId}`. No commit unless asked.
 
+## 2026-09-02 — Stage 1.3 `GET /v1/calls/{runId}`
+
+### Context
+Roadmap §1.3 / J.9: read-only proxy of `calle-ai` `calls.get` returning J.9 camelCase (status, terminal, taskCompleted, validated structuredResult, masked phone). Never wait, never dial, never return API key or confirm handle. Kill switch does not 403 GET.
+
+### Done
+- [`agent/calls/client.py`](../agent/calls/client.py): `get()` — lazy `CalleClient`, single `client.calls.get`, maps 404 → `CallNotFoundError`, auth → `UpstreamAuthError`, timeout/connection → `UpstreamUnavailableError`
+- [`agent/calls/get_map.py`](../agent/calls/get_map.py): snake_case → J.9 GET; `terminal` for `{completed, failed, canceled}`; integer coercion (`500.0` → `500`; `500.5` omitted + `needsHuman` when terminal)
+- [`agent/calls/schemas.py`](../agent/calls/schemas.py): `CallStructuredResult`, `CallGetResponse`
+- [`agent/calls/handles.py`](../agent/calls/handles.py): `runId → phoneMasked` index on successful queue
+- [`agent/calls/router.py`](../agent/calls/router.py) `GET /v1/calls/{runId}`: observability `action=get`; never log handle/key/full E.164/evidence_quote
+- [`agent/tests/test_calls_get.py`](../agent/tests/test_calls_get.py): fake get; queued/in_progress non-terminal; coercion; terminal missing outcome; 404; kill switch off still 200; E.164 masked in response/logs
+- OpenAPI **2.7.0** GET path + `CallGetResponse`; catalog still eight tools
+- Deploy **`daftar-call-e-00005-8kw`**. Frozen still **`daftar-closing-agent-00055-pbm`**. `CALLE_ALLOW_DIAL=false`
+- Roadmap §1.3 boxes `[x]`; owner-ops §1.3 without E.164
+
+### Architecture / decisions
+GET is read-only — `CALLE_ALLOW_DIAL=false` does not block polling. One `get` per request; no `wait_for_result`. Outbound JSON strips raw CALL-E blob (no transcripts, full phones, evidence arrays). `needsHuman` on GET body for invalid schema or missing `outcome` on terminal. Process-local mask index is best-effort (same class as confirm handles).
+
+### Ops / verification
+`agent/.venv` pytest plan + run + get + catalog + retired webhooks — **46 passed**. Freeze Dart tests — 8 passed. Pre/post `tool/check_agentic_freeze.sh` = `daftar-closing-agent-00055-pbm`. Unauthenticated `GET /v1/calls/{runId}` → **403**. No live CALL-E GET of Gate 0 call ids. No commit unless asked.
+
+### Status
+1.3 done. Next: 1.4 smoke script + Stage 1 validation gate. No commit unless asked.
+
 
