@@ -548,19 +548,19 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **1.4 Tests + OpenAPI**
 
-- [ ] Unit tests with fake CALL-E client: plan does not call fake.create; run without handle → 400; dry-run never dials; YE region → 400; over-cap → 400
-- [ ] Catalog freeze test updated
-- [ ] `openapi.yaml` J.9 paths
-- [ ] Smoke script `agent/scripts/smoke_calls_plan_run.py` (owner-ops; no numbers in git)
+- [x] Unit tests with fake CALL-E client: plan does not call fake.create; run without handle → 400; dry-run never dials; YE region → 400; over-cap → 400
+- [x] Catalog freeze test updated
+- [x] `openapi.yaml` J.9 paths
+- [x] Smoke script `agent/scripts/smoke_calls_plan_run.py` (owner-ops; no numbers in git)
 
 #### Stage 1 Validation Gate
 
 - [x] `daftar-call-e` URL documented in owner-ops only (optional in README after Stage 6)
-- [ ] Plan-batch does not call CALL-E and does not dial
-- [ ] Run-batch dials only with exact Daftar handle + allowlist + kill switch on
-- [ ] Dry-run never hits PSTN
-- [ ] Eight ADK tools unchanged; no call FunctionTool
-- [ ] OpenAPI matches J.9
+- [x] Plan-batch does not call CALL-E and does not dial
+- [x] Run-batch dials only with exact Daftar handle + allowlist + kill switch on
+- [x] Dry-run never hits PSTN
+- [x] Eight ADK tools unchanged; no call FunctionTool
+- [x] OpenAPI matches J.9
 - [x] Agentic URL untouched; Envied/`.env` does not default to the frozen hostname
 
 ---

@@ -4317,4 +4317,25 @@ GET is read-only — `CALLE_ALLOW_DIAL=false` does not block polling. One `get` 
 ### Status
 1.3 done. Next: 1.4 smoke script + Stage 1 validation gate. No commit unless asked.
 
+## 2026-09-02 — Stage 1.4 Tests + OpenAPI + no-PSTN smoke
+
+### Context
+Roadmap §1.4 / Stage 1 validation gate: unit tests with fake CALL-E client, catalog freeze, OpenAPI J.9 paths, owner-ops smoke. No PSTN. Kill switch stays false. No `daftar-call-e` redeploy (routes already on `00005-8kw`).
+
+### Done
+- [`agent/tests/test_calls_plan_batch.py`](../agent/tests/test_calls_plan_batch.py): SpyCreator — dry-run and kill-switch-off plan never call `create`
+- [`agent/tests/test_calls_openapi_j9.py`](../agent/tests/test_calls_openapi_j9.py): OpenAPI 2.7.0 J.9 paths, GoogleIdToken, GET kill switch does not block, required fields, integer amount, eight tools
+- [`agent/tests/test_tool_catalog_freeze.py`](../agent/tests/test_tool_catalog_freeze.py): ban `plan_call` / `run_call` / `get_call_run` / `propose_call`; calls router is FastAPI `include_router`
+- [`agent/scripts/smoke_calls_plan_run.py`](../agent/scripts/smoke_calls_plan_run.py): owner-ops URL/allowlist, identity token, no E.164 in logs/evidence
+- Roadmap §1.4 + Stage 1 validation gate `[x]`; owner-ops §1.4; README sibling smoke (heritage `smoke_1_4.py` not retargeted)
+
+### Architecture / decisions
+YE remains HTTP 200 + `unsupportedRegion` (J.9 per-row reject). HTTP 400 is cap / invalid request / missing handle. Smoke does not flip `CALLE_ALLOW_DIAL`. GET of a fake `call.id` is a read-only 404 probe, not a dial. OpenAPI stays **2.7.0** (no schema change).
+
+### Ops / verification
+`agent/.venv` pytest plan + run + get + OpenAPI J.9 + catalog + retired webhooks — **57 passed**. Freeze Dart tests — 8 passed. `tool/check_agentic_freeze.sh` = `daftar-closing-agent-00055-pbm`. Smoke `smoke_calls_plan_run.py` against `daftar-call-e` — **8/8 pass** (unauth 403, dry-run, YE reject, over-cap 400, plan killSwitch, run-batch 403, GET fake id 404). No deploy. No commit unless asked.
+
+### Status
+1.4 and Stage 1 gate done. Next: Stage 2 (schema 26 / device contract). No commit unless asked.
+
 

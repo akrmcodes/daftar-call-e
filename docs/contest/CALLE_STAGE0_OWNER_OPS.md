@@ -144,11 +144,11 @@ Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run
 | Auth | Unauthenticated `POST /v1/calls/plan-batch` → **403** (GFE IAM; no in-process JWT) |
 | Frozen | still `daftar-closing-agent-00055-pbm` |
 
-`run-batch` is deployed (§1.2). `GET /v1/calls/{runId}` is deployed (§1.3). Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 1.4 smoke / Stage 4.
+`run-batch` is deployed (§1.2). `GET /v1/calls/{runId}` is deployed (§1.3). Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 4.
 
 ## 1.2 run-batch (2026-09-02)
 
-`POST /v1/calls/run-batch` is live on `daftar-call-e`. Exact confirm handle + stored plan snapshot, then non-blocking `calls.create`. **Cloud Run kill switch stays `false`.** Authenticated run-batch returns **403** `killSwitch` / `needsHuman` until the owner turns the switch on (Stage 1.4 smoke / Stage 4). No live PSTN this slice.
+`POST /v1/calls/run-batch` is live on `daftar-call-e`. Exact confirm handle + stored plan snapshot, then non-blocking `calls.create`. **Cloud Run kill switch stays `false`.** Authenticated run-batch returns **403** `killSwitch` / `needsHuman` until the owner turns the switch on (Stage 4). No live PSTN this slice.
 
 | Item | Status |
 | --- | --- |
@@ -161,7 +161,7 @@ Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run
 | Auth | Unauthenticated `POST /v1/calls/run-batch` → **403** |
 | Frozen | still `daftar-closing-agent-00055-pbm` |
 
-`GET /v1/calls/{runId}` is **not** deployed (1.3). Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 1.4 / Stage 4.
+`GET /v1/calls/{runId}` is deployed (§1.3). Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 4.
 
 ## 1.3 get call (2026-09-02)
 
@@ -177,5 +177,21 @@ Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run
 | Auth | Unauthenticated `GET /v1/calls/{runId}` → **403** |
 | Frozen | still `daftar-closing-agent-00055-pbm` |
 
-Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 1.4 / Stage 4.
+Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 4.
+
+## 1.4 tests + OpenAPI + no-PSTN smoke (2026-09-02)
+
+Stage 1.4 closes the sibling-route test/OpenAPI gate. **No PSTN.** Cloud Run kill switch stays `false`. Smoke reads URL + allowlist from `$HOME/.daftar-owner-ops/` and never prints E.164.
+
+| Item | Status |
+| --- | --- |
+| Revision | still `daftar-call-e-00005-8kw` (no redeploy — routes already live) |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk still `false`) |
+| Unit tests | Fake client: plan never `create`; missing handle 400; dry-run never dials; YE → 200 `unsupportedRegion` (J.9 row reject, not HTTP 400); over-cap 400 |
+| Catalog | Eight ADK tools; `plan_call` / `run_call` / `get_call_run` / `propose_call` banned; calls router is FastAPI `include_router` |
+| OpenAPI | **2.7.0** J.9 plan / run / get |
+| Smoke | [`agent/scripts/smoke_calls_plan_run.py`](../../agent/scripts/smoke_calls_plan_run.py) — unauth 403, dry-run, YE reject, over-cap 400, plan killSwitch row, run-batch 403, GET fake id 404 |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 4.
 

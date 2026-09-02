@@ -6,6 +6,7 @@ import builtins
 import sys
 import types
 import uuid
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +16,7 @@ from fastapi.testclient import TestClient
 
 from calls.handles import InMemoryConfirmHandleStore
 from calls.masking import mask_e164
-from calls.router import get_call_settings, get_handle_store, router
+from calls.router import get_call_creator, get_call_settings, get_handle_store, router
 from calls.settings import CallSettings, parse_allow_dial
 
 CALLS_ROOT = Path(__file__).resolve().parents[1] / "calls"
@@ -45,6 +46,20 @@ class FakeCalleClient:
         raise AssertionError("CalleClient must not be constructed on plan-batch")
 
     calls = FakeCallsApi()
+
+
+@dataclass
+class SpyCreator:
+    """Records create/get if plan-batch ever reaches the CALL-E client."""
+
+    calls: list[dict[str, Any]] = field(default_factory=list)
+
+    def create(self, **kwargs: Any) -> str:
+        self.calls.append(kwargs)
+        raise AssertionError("create must not run on plan-batch")
+
+    def get(self, **kwargs: Any) -> dict[str, Any]:
+        raise AssertionError("get must not run on plan-batch")
 
 
 def _install_fake_calle(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -77,12 +92,15 @@ def _settings(
 def _app(
     settings: CallSettings,
     store: InMemoryConfirmHandleStore | None = None,
+    creator: SpyCreator | None = None,
 ) -> tuple[TestClient, InMemoryConfirmHandleStore]:
     handles = store or InMemoryConfirmHandleStore()
     app = FastAPI()
     app.include_router(router)
     app.dependency_overrides[get_call_settings] = lambda: settings
     app.dependency_overrides[get_handle_store] = lambda: handles
+    if creator is not None:
+        app.dependency_overrides[get_call_creator] = lambda: creator
     return TestClient(app), handles
 
 
@@ -312,6 +330,24 @@ def test_plan_never_calls_create(monkeypatch: pytest.MonkeyPatch) -> None:
     response = client.post("/v1/calls/plan-batch", json=_body(dryRun=False))
     assert response.status_code == 200
     assert response.json()["results"][0]["status"] == "planned"
+
+
+def test_dry_run_never_calls_create() -> None:
+    spy = SpyCreator()
+    client, _ = _app(_settings(allow_dial=True), creator=spy)
+    response = client.post("/v1/calls/plan-batch", json=_body(dryRun=True))
+    assert response.status_code == 200
+    assert response.json()["results"][0]["status"] == "dryRun"
+    assert spy.calls == []
+
+
+def test_kill_switch_off_plan_never_calls_create() -> None:
+    spy = SpyCreator()
+    client, _ = _app(_settings(allow_dial=False), creator=spy)
+    response = client.post("/v1/calls/plan-batch", json=_body(dryRun=False))
+    assert response.status_code == 200
+    assert response.json()["results"][0]["reason"] == "killSwitch"
+    assert spy.calls == []
 
 
 def test_invalid_phone() -> None:
