@@ -39,7 +39,7 @@ If asked to “just redeploy the agent” or to copy-paste [`agent/README.md`](a
 
 ## Flutter / Envied
 
-[`lib/core/env/env.dart`](lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` still **defaults** to the frozen hostname. Do **not** `flutter run` against production until Stage 1 points this fork at `daftar-call-e`. Once `daftar-call-e` exists, never point Envied at `daftar-closing-agent-1487285471`.
+[`lib/core/env/env.dart`](lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` **default is empty**. Do **not** `flutter run` against the frozen Agentic hostname. Point gitignored `.env` at `daftar-call-e` only (`$HOME/.daftar-owner-ops/daftar-call-e-url`). Never point Envied at `daftar-closing-agent-1487285471`.
 
 Package id `com.akrmcodes.daftar`: use a **dedicated demo profile**. Do not overwrite the Agentic APK on the judging device.
 

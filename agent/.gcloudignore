@@ -1,0 +1,18 @@
+# Cloud Run --source upload. Keep in sync with .dockerignore.
+# Never upload agent/.venv or owner secrets.
+.gcloudignore
+.git
+.gitignore
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+tests
+smoke_evidence
+scripts
+*.md
+.DS_Store
+.env
+.env.*
+adk_apps

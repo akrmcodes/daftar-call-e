@@ -4221,4 +4221,121 @@ Copied `agent/.venv` `bin/pip` originally targeted the heritage Agentic tree; in
 ### Status
 Gate 0 live ring **passed**. Stage 1 UI is unblocked. Credits **19 / 20** remaining until extras land.
 
+## 2026-09-02 — Stage 1.0 deploy skeleton `daftar-call-e`
+
+### Context
+Roadmap §1.0: create authenticated Cloud Run `daftar-call-e` from this fork (ADK `/run` + send-batch + TTS), leave frozen All Things Agentic revision untouched, and cut Envied off the frozen hostname. No call routes.
+
+### Done
+- [`agent/.gcloudignore`](../agent/.gcloudignore) so `--source=.` does not upload `.venv`
+- Unlocked [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh): `DAFTAR_CALL_E_DEPLOY=true`; freeze preflight; Gmail copy from frozen describe; three custom audiences; `call-e-runner` actAs; `gcloud run deploy daftar-call-e` only
+- Service **`daftar-call-e`**: revision `daftar-call-e-00002-k46` (00001 created; audiences set to 3 on 00002). URL `https://daftar-call-e-1487285471.us-central1.run.app` in `$HOME/.daftar-owner-ops/daftar-call-e-url`
+- Runtime SA `call-e-runner@…`; min 0 / max 2 both layers; `--no-allow-unauthenticated`; invoker `allAuthenticatedUsers` + owner
+- Secret mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` (Cloud Run rejects two secrets in one directory)
+- `CALLE_ALLOW_DIAL=false`; no DID in Cloud Run env; `calle-ai==0.7.0` in the image, not called
+- Envied `CLOSING_AGENT_BASE_URL` default `''`; gitignored `.env` pointed at the new URL; `env.g.dart` regenerated
+- Frozen revision still `daftar-closing-agent-00055-pbm` / SA `agent-runner`
+- Roadmap 1.0 boxes `[x]`; freeze tests updated; owner-ops + freeze snapshot notes
+
+### Architecture / decisions
+No `agent/calls/`. No `create_and_wait` on Cloud Run. Custom audiences must be `--set-custom-audiences` (three `--add` on first create stored one). Envied empty default is the fail-closed landmine fix. Same GCP project number appears in both `*.run.app` hosts; service **name** is the freeze boundary.
+
+### Ops / verification
+Wrapper first attempt failed validation (two secrets under `/secrets`) — no service created. Second attempt created 00001. Audience update created 00002. `tool/check_agentic_freeze.sh` Freeze OK throughout. Unauthenticated `GET /list-apps` → **403**. User `gcloud auth print-identity-token --audiences` is not valid for user accounts; Flutter uses the three custom audiences (J.1).
+
+### Status
+1.0 done. Next: 1.1 `POST /v1/calls/plan-batch` (Daftar-local, zero PSTN).
+
+## 2026-09-02 — Stage 1.1 `POST /v1/calls/plan-batch`
+
+### Context
+Roadmap §1.1 / J.9: Daftar-local plan-batch beside email/TTS. Allowlist, J.10, DNC, kill switch, C.3 echo, memory-only confirm handle. Never import `calle` or dial. Deploy `daftar-call-e` only.
+
+### Done
+- [`agent/calls/`](../agent/calls/): `settings.py`, `j10.py`, `masking.py`, `schemas.py`, `handles.py`, `router.py` (`POST /v1/calls/plan-batch` only). No `client.py`
+- Wired [`agent/main.py`](../agent/main.py) `include_router` (GFE IAM, no in-process JWT) and [`agent/Dockerfile`](../agent/Dockerfile) `COPY calls ./calls`
+- [`agent/tests/test_calls_plan_batch.py`](../agent/tests/test_calls_plan_batch.py): RFC 555 numbers; YE / not-allowlisted / DNC / NANP region / kill switch / dry-run echo / happy-path handle; fake `CalleClient.calls.create` must not run; source has no `calle` / `create_and_wait`
+- Catalog freeze still eight tools; no `plan_call` / `run_call` / `propose_call`. OpenAPI 2.5.0 path `POST /v1/calls/plan-batch` only (no run/get)
+- [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh): `--env-vars-file` loads `CALLE_ALLOWLIST` / `CALLE_ALLOWLIST_REGION` from owner-ops without printing E.164; `CALLE_ALLOW_DIAL=false`
+- Service revision **`daftar-call-e-00003-f4q`**. Frozen still **`daftar-closing-agent-00055-pbm`**
+- Roadmap §1.1 boxes `[x]`; owner-ops 1.1 without E.164
+
+### Architecture / decisions
+Plan-batch is Daftar-local. `confirmHandle` is process-local; min-instances 0 drops it (same class as email idempotency). NANP `region` must equal `CALLE_ALLOWLIST_REGION` (demo `US`), never inferred from `+1`. YE / `+967` always `unsupportedRegion`. Kill switch off + `dryRun: true` → `dryRun` + C.3 echo, no handle, no 403. 403 remains for **run-batch** (1.2). Secrets stay split (`/secrets/gmail-smtp-app-password`, `/calle-secrets/calle-api-key`).
+
+### Ops / verification
+`agent/.venv` pytest: `tests/test_calls_plan_batch.py` + catalog freeze + retired webhooks — 24 passed. `flutter test test/core/contest/agentic_cloud_run_freeze_test.dart` — 8 passed. Wrapper deploy created 00003; first post-verify used `CALLE_ALLOWLIST_REGION` as the gcloud `--region` (fixed in wrapper, not redeployed). Re-ran describe/IAM verify: scale 0/2 both layers, audiences 3, allowlist present, region `US`, kill switch false. Unauthenticated `POST /v1/calls/plan-batch` → **403**. `tool/check_agentic_freeze.sh` Freeze OK. No live `/run`, send-batch, TTS, or run-batch.
+
+### Status
+1.1 done. Next: 1.2 `POST /v1/calls/run-batch` (`calls.create`, kill switch, exact confirm handle). No commit unless asked.
+
+## 2026-09-02 — Stage 1.2 `POST /v1/calls/run-batch`
+
+### Context
+Roadmap §1.2 / J.9: after exact Daftar confirm handle, queue non-blocking `calle-ai` `calls.create`. Kill switch 403. No `create_and_wait`, no GET, no live PSTN.
+
+### Done
+- [`agent/calls/handles.py`](../agent/calls/handles.py): plan snapshot (token, phone, region, locale, task, DNC, trigger) + runId store; `compare_digest`; consume handle after queue
+- [`agent/calls/client.py`](../agent/calls/client.py): lazy `from calle import CalleClient`; key file `/calle-secrets/calle-api-key`; `create` only with J.9 schemas; no wait
+- [`agent/calls/router.py`](../agent/calls/router.py) `POST /v1/calls/run-batch`: 403 kill switch; sequential per-recipient create (`Idempotency-Key = {batchId}:{contactId}`) because C.3 is unique per contact
+- [`agent/tests/test_calls_run_batch.py`](../agent/tests/test_calls_run_batch.py): RFC 555; recording fake.create; missing handle 400; wrong handle `invalidHandle`; YE / not-allowlisted no create; skippedDuplicate; logs have no handle / E.164 / key
+- OpenAPI 2.6.0 run-batch path; catalog still eight tools; no GET path
+- Deploy **`daftar-call-e-00004-l6n`**. Frozen still **`daftar-closing-agent-00055-pbm`**. `CALLE_ALLOW_DIAL=false`
+- Roadmap §1.2 boxes `[x]`; owner-ops 1.2 without E.164
+
+### Architecture / decisions
+Cloud Run kill switch stays off — authenticated run-batch is 403 until Stage 1.4 / 4. Sequential `create` (one recipient per task) so each C.3 `task` is sent as-is. Plan snapshot required because J.9 run body is only `contactId` + `confirmHandle`. Min-instances 0 drops handles and runIds (same class as email idempotency).
+
+### Ops / verification
+`agent/.venv` pytest plan-batch + run-batch + catalog + retired webhooks — **35 passed**. Freeze Dart tests — 8 passed. Wrapper post-verify: scale 0/2, audiences 3, allowlist present, region `US`, kill switch false. Unauthenticated `POST /v1/calls/run-batch` → **403**. `tool/check_agentic_freeze.sh` Freeze OK. No live `/run`, SMTP, TTS, or authenticated run-batch.
+
+### Status
+1.2 done. Next: 1.3 `GET /v1/calls/{runId}`. No commit unless asked.
+
+## 2026-09-02 — Stage 1.3 `GET /v1/calls/{runId}`
+
+### Context
+Roadmap §1.3 / J.9: read-only proxy of `calle-ai` `calls.get` returning J.9 camelCase (status, terminal, taskCompleted, validated structuredResult, masked phone). Never wait, never dial, never return API key or confirm handle. Kill switch does not 403 GET.
+
+### Done
+- [`agent/calls/client.py`](../agent/calls/client.py): `get()` — lazy `CalleClient`, single `client.calls.get`, maps 404 → `CallNotFoundError`, auth → `UpstreamAuthError`, timeout/connection → `UpstreamUnavailableError`
+- [`agent/calls/get_map.py`](../agent/calls/get_map.py): snake_case → J.9 GET; `terminal` for `{completed, failed, canceled}`; integer coercion (`500.0` → `500`; `500.5` omitted + `needsHuman` when terminal)
+- [`agent/calls/schemas.py`](../agent/calls/schemas.py): `CallStructuredResult`, `CallGetResponse`
+- [`agent/calls/handles.py`](../agent/calls/handles.py): `runId → phoneMasked` index on successful queue
+- [`agent/calls/router.py`](../agent/calls/router.py) `GET /v1/calls/{runId}`: observability `action=get`; never log handle/key/full E.164/evidence_quote
+- [`agent/tests/test_calls_get.py`](../agent/tests/test_calls_get.py): fake get; queued/in_progress non-terminal; coercion; terminal missing outcome; 404; kill switch off still 200; E.164 masked in response/logs
+- OpenAPI **2.7.0** GET path + `CallGetResponse`; catalog still eight tools
+- Deploy **`daftar-call-e-00005-8kw`**. Frozen still **`daftar-closing-agent-00055-pbm`**. `CALLE_ALLOW_DIAL=false`
+- Roadmap §1.3 boxes `[x]`; owner-ops §1.3 without E.164
+
+### Architecture / decisions
+GET is read-only — `CALLE_ALLOW_DIAL=false` does not block polling. One `get` per request; no `wait_for_result`. Outbound JSON strips raw CALL-E blob (no transcripts, full phones, evidence arrays). `needsHuman` on GET body for invalid schema or missing `outcome` on terminal. Process-local mask index is best-effort (same class as confirm handles).
+
+### Ops / verification
+`agent/.venv` pytest plan + run + get + catalog + retired webhooks — **46 passed**. Freeze Dart tests — 8 passed. Pre/post `tool/check_agentic_freeze.sh` = `daftar-closing-agent-00055-pbm`. Unauthenticated `GET /v1/calls/{runId}` → **403**. No live CALL-E GET of Gate 0 call ids. No commit unless asked.
+
+### Status
+1.3 done. Next: 1.4 smoke script + Stage 1 validation gate. No commit unless asked.
+
+## 2026-09-02 — Stage 1.4 Tests + OpenAPI + no-PSTN smoke
+
+### Context
+Roadmap §1.4 / Stage 1 validation gate: unit tests with fake CALL-E client, catalog freeze, OpenAPI J.9 paths, owner-ops smoke. No PSTN. Kill switch stays false. No `daftar-call-e` redeploy (routes already on `00005-8kw`).
+
+### Done
+- [`agent/tests/test_calls_plan_batch.py`](../agent/tests/test_calls_plan_batch.py): SpyCreator — dry-run and kill-switch-off plan never call `create`
+- [`agent/tests/test_calls_openapi_j9.py`](../agent/tests/test_calls_openapi_j9.py): OpenAPI 2.7.0 J.9 paths, GoogleIdToken, GET kill switch does not block, required fields, integer amount, eight tools
+- [`agent/tests/test_tool_catalog_freeze.py`](../agent/tests/test_tool_catalog_freeze.py): ban `plan_call` / `run_call` / `get_call_run` / `propose_call`; calls router is FastAPI `include_router`
+- [`agent/scripts/smoke_calls_plan_run.py`](../agent/scripts/smoke_calls_plan_run.py): owner-ops URL/allowlist, identity token, no E.164 in logs/evidence
+- Roadmap §1.4 + Stage 1 validation gate `[x]`; owner-ops §1.4; README sibling smoke (heritage `smoke_1_4.py` not retargeted)
+
+### Architecture / decisions
+YE remains HTTP 200 + `unsupportedRegion` (J.9 per-row reject). HTTP 400 is cap / invalid request / missing handle. Smoke does not flip `CALLE_ALLOW_DIAL`. GET of a fake `call.id` is a read-only 404 probe, not a dial. OpenAPI stays **2.7.0** (no schema change).
+
+### Ops / verification
+`agent/.venv` pytest plan + run + get + OpenAPI J.9 + catalog + retired webhooks — **57 passed**. Freeze Dart tests — 8 passed. `tool/check_agentic_freeze.sh` = `daftar-closing-agent-00055-pbm`. Smoke `smoke_calls_plan_run.py` against `daftar-call-e` — **8/8 pass** (unauth 403, dry-run, YE reject, over-cap 400, plan killSwitch, run-batch 403, GET fake id 404). No deploy. No commit unless asked.
+
+### Status
+1.4 and Stage 1 gate done. Next: Stage 2 (schema 26 / device contract). No commit unless asked.
+
 

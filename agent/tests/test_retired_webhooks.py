@@ -30,6 +30,8 @@ def test_openapi_has_no_webhook_or_whatsapp_path() -> None:
     paths = spec.get("paths") or {}
     assert "/v1/email/send-batch" in paths
     assert "/v1/tts" in paths
+    assert "/v1/calls/plan-batch" in paths
+    assert "/v1/calls/run-batch" in paths
     for path in paths:
         lowered = str(path).lower()
         assert "webhook" not in lowered
@@ -41,6 +43,7 @@ def test_agent_source_has_no_webhook_status_events() -> None:
         _AGENT_ROOT / "email_send",
         _AGENT_ROOT / "closing_agent",
         _AGENT_ROOT / "tts",
+        _AGENT_ROOT / "calls",
     )
     hits: list[str] = []
     for root in roots:

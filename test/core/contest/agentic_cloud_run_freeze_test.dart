@@ -45,8 +45,24 @@ void main() {
       expect(deployWrapper, contains('daftar-closing-agent.git'));
       expect(deployWrapper, contains('daftar-closing-agent-1487285471'));
       expect(deployWrapper, contains('require explicit service daftar-call-e'));
-      expect(deployWrapper, contains('Stage 1 not started'));
+      expect(deployWrapper, contains('DAFTAR_CALL_E_DEPLOY'));
       expect(deployWrapper, contains('exit 2'));
+      expect(deployWrapper, contains('gcloud run deploy daftar-call-e'));
+      expect(deployWrapper, contains('--no-allow-unauthenticated'));
+      expect(deployWrapper, contains('call-e-runner'));
+      expect(deployWrapper, contains('--min=0 --max=2'));
+      expect(deployWrapper, contains('--min-instances=0 --max-instances=2'));
+      expect(deployWrapper, contains('gmail-smtp-app-password'));
+      expect(deployWrapper, contains('calle-api-key'));
+      expect(deployWrapper, contains('/calle-secrets/calle-api-key'));
+      expect(deployWrapper, contains('CALLE_ALLOWLIST'));
+      expect(deployWrapper, contains('CALLE_ALLOWLIST_REGION'));
+      expect(deployWrapper, contains('--env-vars-file'));
+      expect(RegExp(r'\+1\d{10}').hasMatch(deployWrapper), isFalse);
+      expect(deployWrapper, isNot(contains('gcloud run deploy daftar-closing-agent')));
+      expect(deployWrapper, isNot(contains('adk deploy')));
+      expect(deployWrapper, isNot(contains('allUsers')));
+      expect(deployWrapper, isNot(contains('versions access')));
       expect(refuseScript, contains('daftar-call-e'));
       expect(refuseScript, contains('daftar-closing-agent.git'));
       expect(refuseScript, contains('daftar-closing-agent-1487285471'));
@@ -105,10 +121,13 @@ void main() {
       expect(stage03Script, isNot(contains('set-iam-policy')));
       expect(
         envDart,
-        contains(
-          'https://daftar-closing-agent-1487285471.us-central1.run.app',
+        isNot(
+          contains(
+            "defaultValue: 'https://daftar-closing-agent-1487285471.us-central1.run.app'",
+          ),
         ),
       );
+      expect(envDart, contains("defaultValue: ''"));
     });
 
     test('stage 0.4 kill switch is documented; no leaked US DID', () {
@@ -164,6 +183,24 @@ void main() {
       expect(RegExp(r'\+1\d{10}').hasMatch(stage05Py), isFalse);
       expect(RegExp(r'\+1\d{10}').hasMatch(stage05Sh), isFalse);
       expect(RegExp(r'\+1\d{10}').hasMatch(ownerOps), isFalse);
+    });
+
+    test('stage 1.0 Envied default is not the frozen hostname', () {
+      expect(
+        envDart,
+        isNot(
+          contains(
+            "defaultValue: 'https://daftar-closing-agent-1487285471.us-central1.run.app'",
+          ),
+        ),
+      );
+      expect(envDart, contains("defaultValue: ''"));
+      expect(
+        freezeRule,
+        contains(
+          'https://daftar-closing-agent-1487285471.us-central1.run.app',
+        ),
+      );
     });
   });
 }

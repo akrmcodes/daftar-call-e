@@ -509,59 +509,59 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - Persist `runId` := CALL-E `call.id`; **never** `create` again to “retry poll”
 - Extend [`test_tool_catalog_freeze.py`](../agent/tests/test_tool_catalog_freeze.py): `ALL_TOOLS` still exactly the eight `propose_*` / `parse_goal` names; **assert** no `plan_call` / `run_call` / `propose_call` FunctionTool
 - OpenAPI in [`agent/openapi.yaml`](../agent/openapi.yaml) must match J.9
-- **URL landmine:** [`lib/core/env/env.dart`](../lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` still defaults to the **frozen** Agentic hostname. This fork Must point `.env` / Envied default at **`daftar-call-e` only** — never a silent fallback to `https://daftar-closing-agent-1487285471.us-central1.run.app`
+- **URL landmine (1.0):** [`lib/core/env/env.dart`](../lib/core/env/env.dart) `CLOSING_AGENT_BASE_URL` default is **empty**. Gitignored `.env` must point at **`daftar-call-e` only** — never a silent fallback to `https://daftar-closing-agent-1487285471.us-central1.run.app`
 
 ### Task Checklist
 
 **1.0 Deploy skeleton**
 
-- [ ] Deploy **`daftar-call-e`** from this fork (`adk` + FastAPI as today: `/run`, send-batch, tts)
-- [ ] Confirm frozen `daftar-closing-agent` revision is untouched
-- [ ] Flutter `.env` / dart-define **new** base URL only — no secrets; **change or empty** the Envied default so a missing `.env` cannot hit the frozen URL
-- [ ] Min 0 / max 2 on service **and** revision
-- [ ] `calle-ai==0.7.0` in agent requirements; Python **≥3.11**
+- [x] Deploy **`daftar-call-e`** from this fork (`adk` + FastAPI as today: `/run`, send-batch, tts)
+- [x] Confirm frozen `daftar-closing-agent` revision is untouched
+- [x] Flutter `.env` / dart-define **new** base URL only — no secrets; **change or empty** the Envied default so a missing `.env` cannot hit the frozen URL
+- [x] Min 0 / max 2 on service **and** revision
+- [x] `calle-ai==0.7.0` in agent requirements; Python **≥3.11**
 
 **1.1 `POST /v1/calls/plan-batch`**
 
-- [ ] Accepts device-owned recipients (J.9) ≤5
-- [ ] **Daftar-local only** — allowlist, J.10, DNC, kill switch, C.3 echo. **Does not** call CALL-E. **Does not dial**
-- [ ] Returns a one-time **Daftar** confirm handle to the device (not logs)
-- [ ] Rejects: not allowlisted, unsupported region (J.10), DNC, `CALLE_ALLOW_DIAL=false` (unless `dryRun: true` which still must **not** dial), `recipients.length > 5`
-- [ ] `dryRun: true` → validate + echo C.3 task — **zero PSTN**, **zero** `POST /v1/calls`
-- [ ] Observability `daftar.agent.call` action=`plan` · masked E.164 · `correlationId` · `batchId`
+- [x] Accepts device-owned recipients (J.9) ≤5
+- [x] **Daftar-local only** — allowlist, J.10, DNC, kill switch, C.3 echo. **Does not** call CALL-E. **Does not dial**
+- [x] Returns a one-time **Daftar** confirm handle to the device (not logs)
+- [x] Rejects: not allowlisted, unsupported region (J.10), DNC, `CALLE_ALLOW_DIAL=false` (unless `dryRun: true` which still must **not** dial), `recipients.length > 5`
+- [x] `dryRun: true` → validate + echo C.3 task — **zero PSTN**, **zero** `POST /v1/calls`
+- [x] Observability `daftar.agent.call` action=`plan` · masked E.164 · `correlationId` · `batchId`
 
 **1.2 `POST /v1/calls/run-batch`**
 
-- [ ] Requires exact Daftar confirm handle from the immediately preceding plan-batch
-- [ ] Calls `client.calls.create(...)` (or raw `POST /v1/calls`) — **can place a real call** — only if `CALLE_ALLOW_DIAL=true` and allowlist match
-- [ ] Prefer one CALL-E task with `recipients[]`; fallback sequential if spike fails
-- [ ] Returns `runId` (= CALL-E `call.id`) immediately — **do not** `create_and_wait` on this request
-- [ ] Same recipient cap and server-side guards as plan
-- [ ] Idempotent on `batchId` (+ `contactId` if sequential) if `runId` already stored
-- [ ] Observability action=`run`
+- [x] Requires exact Daftar confirm handle from the immediately preceding plan-batch
+- [x] Calls `client.calls.create(...)` (or raw `POST /v1/calls`) — **can place a real call** — only if `CALLE_ALLOW_DIAL=true` and allowlist match
+- [x] Prefer one CALL-E task with `recipients[]`; fallback sequential if spike fails
+- [x] Returns `runId` (= CALL-E `call.id`) immediately — **do not** `create_and_wait` on this request
+- [x] Same recipient cap and server-side guards as plan
+- [x] Idempotent on `batchId` (+ `contactId` if sequential) if `runId` already stored
+- [x] Observability action=`run`
 
 **1.3 `GET /v1/calls/{runId}`**
 
-- [ ] Proxies `client.calls.get` / `GET /v1/calls/{id}`
-- [ ] Returns status, terminal flag, `structured_result` validated against J.9 schema, masked phone
-- [ ] Never returns API key or confirm handle
+- [x] Proxies `client.calls.get` / `GET /v1/calls/{id}`
+- [x] Returns status, terminal flag, `structured_result` validated against J.9 schema, masked phone
+- [x] Never returns API key or confirm handle
 
 **1.4 Tests + OpenAPI**
 
-- [ ] Unit tests with fake CALL-E client: plan does not call fake.create; run without handle → 400; dry-run never dials; YE region → 400; over-cap → 400
-- [ ] Catalog freeze test updated
-- [ ] `openapi.yaml` J.9 paths
-- [ ] Smoke script `agent/scripts/smoke_calls_plan_run.py` (owner-ops; no numbers in git)
+- [x] Unit tests with fake CALL-E client: plan does not call fake.create; run without handle → 400; dry-run never dials; YE region → 400; over-cap → 400
+- [x] Catalog freeze test updated
+- [x] `openapi.yaml` J.9 paths
+- [x] Smoke script `agent/scripts/smoke_calls_plan_run.py` (owner-ops; no numbers in git)
 
 #### Stage 1 Validation Gate
 
-- [ ] `daftar-call-e` URL documented in owner-ops only (optional in README after Stage 6)
-- [ ] Plan-batch does not call CALL-E and does not dial
-- [ ] Run-batch dials only with exact Daftar handle + allowlist + kill switch on
-- [ ] Dry-run never hits PSTN
-- [ ] Eight ADK tools unchanged; no call FunctionTool
-- [ ] OpenAPI matches J.9
-- [ ] Agentic URL untouched; Envied/`.env` does not default to the frozen hostname
+- [x] `daftar-call-e` URL documented in owner-ops only (optional in README after Stage 6)
+- [x] Plan-batch does not call CALL-E and does not dial
+- [x] Run-batch dials only with exact Daftar handle + allowlist + kill switch on
+- [x] Dry-run never hits PSTN
+- [x] Eight ADK tools unchanged; no call FunctionTool
+- [x] OpenAPI matches J.9
+- [x] Agentic URL untouched; Envied/`.env` does not default to the frozen hostname
 
 ---
 

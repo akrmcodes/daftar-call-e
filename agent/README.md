@@ -275,7 +275,7 @@ Documented in OpenAPI under `/contract/confirm` and `/contract/cancel` (**not** 
 
 ## Smoke
 
-Reproducible Stage 1.4 script:
+Heritage ADK `/run` smoke (All Things Agentic, **frozen** service — describe-only; do not retarget):
 
 ```bash
 cd agent
@@ -283,17 +283,18 @@ python3 scripts/smoke_1_4.py
 # Writes agent/smoke_evidence/*_report.json (gitignored)
 ```
 
-Manual equivalent:
+**Verified (13 Aug 2026):** close-day → `propose_closing_plan` with ≥3 steps; Mohamed → `propose_debt` `amountMinor=500` (YER); logs show `model_id=gemini-3.5-flash`.
+
+CALL-E sibling smoke (Stage 1.4 — **`daftar-call-e` only**, no PSTN, kill switch stays false). URL and allowlist come from `$HOME/.daftar-owner-ops/` (never git):
 
 ```bash
-SERVICE_URL=https://daftar-closing-agent-1487285471.us-central1.run.app
-TOKEN=$(gcloud auth print-identity-token)
-curl -sS -H "Authorization: Bearer $TOKEN" "$SERVICE_URL/list-apps"
-# → ["closing_agent"]
-# Then session create + POST /run for "close my day" and "Mohamed owes 500"
+cd agent
+python3 scripts/smoke_calls_plan_run.py
+# unauth 403, dry-run, YE unsupportedRegion, over-cap 400,
+# plan killSwitch, run-batch 403, GET fake runId 404
 ```
 
-**Verified (13 Aug 2026):** close-day → `propose_closing_plan` with ≥3 steps; Mohamed → `propose_debt` `amountMinor=500` (YER); logs show `model_id=gemini-3.5-flash`.
+Do **not** use `smoke_1_4.py` for CALL-E routes. Do **not** pass `--live` or set `CALLE_ALLOW_DIAL=true` for this script.
 
 Stage 4.7 send-batch (after deploy; one owned To from env — do not print the mailbox):
 

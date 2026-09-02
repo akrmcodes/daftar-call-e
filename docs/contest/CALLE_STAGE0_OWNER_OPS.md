@@ -43,7 +43,7 @@ Ran [`agent/scripts/stage0_3_gcp.sh`](../../agent/scripts/stage0_3_gcp.sh) as `a
 | `call-e-runner` secretAccessor on `calle-api-key` | **Yes** (secret-level; not project-wide) |
 | `call-e-runner` secretAccessor on `gmail-smtp-app-password` | **Added**; `agent-runner` **kept** |
 | Project roles on `call-e-runner` | `aiplatform.user` · `logging.logWriter` · `speech.client` |
-| Cloud Run `daftar-call-e` | **Absent** (Stage 1) |
+| Cloud Run `daftar-call-e` | **Created 2026-09-02** (Stage 1.0). URL in `$HOME/.daftar-owner-ops/daftar-call-e-url` (not README) |
 | Frozen revision | still `daftar-closing-agent-00055-pbm` |
 | Vertex on frozen revision | `GOOGLE_GENAI_USE_VERTEXAI=TRUE` · `GOOGLE_CLOUD_LOCATION=global` |
 
@@ -111,3 +111,87 @@ Wrapper: [`agent/scripts/stage0_5_laptop_smoke.sh`](../../agent/scripts/stage0_5
 **Result (no E.164, no key):** `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`. Masked dest last-4 only in local `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git). Contest credits: **1 of 20** spent.
 
 When the smoke finishes: `unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY` or leave `CALLE_ALLOW_DIAL` unset (treated as false). Do not leave `true` in the environment.
+
+## 1.0 Deploy skeleton (2026-09-02)
+
+Ran [`agent/scripts/deploy_daftar_call_e.sh`](../../agent/scripts/deploy_daftar_call_e.sh) with `DAFTAR_CALL_E_DEPLOY=true`. Frozen All Things Agentic revision **unchanged**.
+
+| Item | Status |
+| --- | --- |
+| Service | `daftar-call-e` · `us-central1` · runtime SA `call-e-runner@…` |
+| Revision | `daftar-call-e-00002-k46` (audiences=3; 00001 had count 1) |
+| URL | `$HOME/.daftar-owner-ops/daftar-call-e-url` → `https://daftar-call-e-1487285471.us-central1.run.app` (project number in the host is **not** the frozen Agentic hostname `daftar-closing-agent-1487285471…`) |
+| Auth | `--no-allow-unauthenticated`. Invoker: `allAuthenticatedUsers` + `user:akrm.codes@gmail.com`. No public unauthenticated principal. |
+| Cost lock | Min 0 / max 2 on **service and revision** |
+| Secrets | `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` (Cloud Run cannot mount two secrets in one directory) |
+| Kill switch | `CALLE_ALLOW_DIAL=false` (no DID in Cloud Run env) |
+| Envied | `CLOSING_AGENT_BASE_URL` default **empty**; gitignored `.env` points at the new URL |
+| Frozen | still `daftar-closing-agent-00055-pbm` / `agent-runner` |
+
+Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run deploy daftar-closing-agent`. Never ADK Cloud Run deployer. 1.1+ call routes **not** in this revision.
+
+## 1.1 plan-batch (2026-09-02)
+
+`POST /v1/calls/plan-batch` is live on `daftar-call-e` only. Daftar-local: allowlist, J.10, DNC, kill switch, C.3 echo. **Does not** call CALL-E. **Does not dial.**
+
+| Item | Status |
+| --- | --- |
+| Revision | `daftar-call-e-00003-f4q` |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk `calle-allow-dial` still `false`) |
+| Allowlist | Loaded from `$HOME/.daftar-owner-ops/calle-allowlist` into Cloud Run env via `--env-vars-file` (comma-safe). **Never printed.** Region env `US` from `calle-allowlist-region` |
+| Confirm handle | Process-local `(batchId, contactId) → token`. Re-plan replaces it. **Min instances 0 drops memory** (same class as email idempotency — not durable) |
+| Secrets | Unchanged split mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` |
+| Auth | Unauthenticated `POST /v1/calls/plan-batch` → **403** (GFE IAM; no in-process JWT) |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+`run-batch` is deployed (§1.2). `GET /v1/calls/{runId}` is deployed (§1.3). Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 4.
+
+## 1.2 run-batch (2026-09-02)
+
+`POST /v1/calls/run-batch` is live on `daftar-call-e`. Exact confirm handle + stored plan snapshot, then non-blocking `calls.create`. **Cloud Run kill switch stays `false`.** Authenticated run-batch returns **403** `killSwitch` / `needsHuman` until the owner turns the switch on (Stage 4). No live PSTN this slice.
+
+| Item | Status |
+| --- | --- |
+| Revision | `daftar-call-e-00004-l6n` |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk still `false`) |
+| Confirm handle + snapshot | Process-local `(batchId, contactId)` → token, E.164, region, locale, C.3 task, trigger. Consumed after queue. Min-instances 0 drops memory |
+| runId store | Process-local `(batchId, contactId)` → CALL-E `call.id`. Replay → `skippedDuplicate` |
+| Create | Per-recipient sequential `create` (C.3 is unique per contact). `Idempotency-Key = {batchId}:{contactId}`. Never wait |
+| Secrets | Unchanged split mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` |
+| Auth | Unauthenticated `POST /v1/calls/run-batch` → **403** |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+`GET /v1/calls/{runId}` is deployed (§1.3). Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 4.
+
+## 1.3 get call (2026-09-02)
+
+`GET /v1/calls/{runId}` is live on `daftar-call-e`. Read-only `calls.get` proxy — **never waits, never dials**. Kill switch off does **not** block GET (polling works after a future live `run-batch`). No live CALL-E GET of Gate 0 call ids this slice.
+
+| Item | Status |
+| --- | --- |
+| Revision | `daftar-call-e-00005-8kw` |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk still `false`) |
+| GET | Single `client.calls.get` per request. J.9 camelCase + integer coercion for `promised_amount_minor`. `terminal` when status ∈ `{completed, failed, canceled}` |
+| Mask index | Process-local `runId → phoneMasked` after successful queue (min-instances 0 drops it; GET masks from CALL-E payload) |
+| Secrets | Unchanged split mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` |
+| Auth | Unauthenticated `GET /v1/calls/{runId}` → **403** |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 4.
+
+## 1.4 tests + OpenAPI + no-PSTN smoke (2026-09-02)
+
+Stage 1.4 closes the sibling-route test/OpenAPI gate. **No PSTN.** Cloud Run kill switch stays `false`. Smoke reads URL + allowlist from `$HOME/.daftar-owner-ops/` and never prints E.164.
+
+| Item | Status |
+| --- | --- |
+| Revision | still `daftar-call-e-00005-8kw` (no redeploy — routes already live) |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk still `false`) |
+| Unit tests | Fake client: plan never `create`; missing handle 400; dry-run never dials; YE → 200 `unsupportedRegion` (J.9 row reject, not HTTP 400); over-cap 400 |
+| Catalog | Eight ADK tools; `plan_call` / `run_call` / `get_call_run` / `propose_call` banned; calls router is FastAPI `include_router` |
+| OpenAPI | **2.7.0** J.9 plan / run / get |
+| Smoke | [`agent/scripts/smoke_calls_plan_run.py`](../../agent/scripts/smoke_calls_plan_run.py) — unauth 403, dry-run, YE reject, over-cap 400, plan killSwitch row, run-batch 403, GET fake id 404 |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+Do **not** set `CALLE_ALLOW_DIAL=true` on Cloud Run for a live ring until Stage 4.
+
