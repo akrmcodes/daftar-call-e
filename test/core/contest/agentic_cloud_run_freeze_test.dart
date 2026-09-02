@@ -55,6 +55,10 @@ void main() {
       expect(deployWrapper, contains('gmail-smtp-app-password'));
       expect(deployWrapper, contains('calle-api-key'));
       expect(deployWrapper, contains('/calle-secrets/calle-api-key'));
+      expect(deployWrapper, contains('CALLE_ALLOWLIST'));
+      expect(deployWrapper, contains('CALLE_ALLOWLIST_REGION'));
+      expect(deployWrapper, contains('--env-vars-file'));
+      expect(RegExp(r'\+1\d{10}').hasMatch(deployWrapper), isFalse);
       expect(deployWrapper, isNot(contains('gcloud run deploy daftar-closing-agent')));
       expect(deployWrapper, isNot(contains('adk deploy')));
       expect(deployWrapper, isNot(contains('allUsers')));

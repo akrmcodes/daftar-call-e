@@ -1,4 +1,4 @@
-"""Cloud Run FastAPI entrypoint — ADK routes plus email send-batch and TTS.
+"""Cloud Run FastAPI entrypoint — ADK routes plus email, TTS, and plan-batch.
 
 ``adk deploy cloud_run`` generates a closed main.py (ADK only). Extra routes
 must use ``get_fast_api_app`` then ``include_router``. ``web=False`` so a
@@ -14,6 +14,7 @@ from pathlib import Path
 
 from google.adk.cli.fast_api import get_fast_api_app
 
+from calls.router import router as calls_router
 from email_send.router import router as email_router
 from email_send.settings import log_smtp_boot_config
 from tts.router import router as tts_router
@@ -32,6 +33,7 @@ app = get_fast_api_app(
 
 app.include_router(email_router)
 app.include_router(tts_router)
+app.include_router(calls_router)
 
 
 @app.on_event("startup")

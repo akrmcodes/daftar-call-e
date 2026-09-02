@@ -29,6 +29,11 @@ def test_all_tools_frozen_to_gate4_catalog() -> None:
     assert len(names) == 8
     assert len(set(names)) == 8
     assert set(names) == FROZEN_PROPOSAL_TOOLS
+    banned = ("plan_call", "run_call", "propose_call")
+    joined = " ".join(names)
+    for needle in banned:
+        assert needle not in names
+        assert needle not in joined
 
 
 def test_openapi_proposal_tool_enum_matches_all_tools() -> None:

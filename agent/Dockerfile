@@ -1,4 +1,4 @@
-# Custom FastAPI entrypoint: ADK /run + send-batch + POST /v1/tts.
+# Custom FastAPI entrypoint: ADK /run + send-batch + POST /v1/tts + plan-batch.
 # Built by `gcloud run deploy --source` from agent/. Do not `adk deploy`.
 FROM python:3.12-slim
 
@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py .
 COPY email_send ./email_send
 COPY tts ./tts
+COPY calls ./calls
 COPY closing_agent ./adk_apps/closing_agent
 
 EXPOSE 8000

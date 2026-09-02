@@ -4246,4 +4246,27 @@ Wrapper first attempt failed validation (two secrets under `/secrets`) — no se
 ### Status
 1.0 done. Next: 1.1 `POST /v1/calls/plan-batch` (Daftar-local, zero PSTN).
 
+## 2026-09-02 — Stage 1.1 `POST /v1/calls/plan-batch`
+
+### Context
+Roadmap §1.1 / J.9: Daftar-local plan-batch beside email/TTS. Allowlist, J.10, DNC, kill switch, C.3 echo, memory-only confirm handle. Never import `calle` or dial. Deploy `daftar-call-e` only.
+
+### Done
+- [`agent/calls/`](../agent/calls/): `settings.py`, `j10.py`, `masking.py`, `schemas.py`, `handles.py`, `router.py` (`POST /v1/calls/plan-batch` only). No `client.py`
+- Wired [`agent/main.py`](../agent/main.py) `include_router` (GFE IAM, no in-process JWT) and [`agent/Dockerfile`](../agent/Dockerfile) `COPY calls ./calls`
+- [`agent/tests/test_calls_plan_batch.py`](../agent/tests/test_calls_plan_batch.py): RFC 555 numbers; YE / not-allowlisted / DNC / NANP region / kill switch / dry-run echo / happy-path handle; fake `CalleClient.calls.create` must not run; source has no `calle` / `create_and_wait`
+- Catalog freeze still eight tools; no `plan_call` / `run_call` / `propose_call`. OpenAPI 2.5.0 path `POST /v1/calls/plan-batch` only (no run/get)
+- [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh): `--env-vars-file` loads `CALLE_ALLOWLIST` / `CALLE_ALLOWLIST_REGION` from owner-ops without printing E.164; `CALLE_ALLOW_DIAL=false`
+- Service revision **`daftar-call-e-00003-f4q`**. Frozen still **`daftar-closing-agent-00055-pbm`**
+- Roadmap §1.1 boxes `[x]`; owner-ops 1.1 without E.164
+
+### Architecture / decisions
+Plan-batch is Daftar-local. `confirmHandle` is process-local; min-instances 0 drops it (same class as email idempotency). NANP `region` must equal `CALLE_ALLOWLIST_REGION` (demo `US`), never inferred from `+1`. YE / `+967` always `unsupportedRegion`. Kill switch off + `dryRun: true` → `dryRun` + C.3 echo, no handle, no 403. 403 remains for **run-batch** (1.2). Secrets stay split (`/secrets/gmail-smtp-app-password`, `/calle-secrets/calle-api-key`).
+
+### Ops / verification
+`agent/.venv` pytest: `tests/test_calls_plan_batch.py` + catalog freeze + retired webhooks — 24 passed. `flutter test test/core/contest/agentic_cloud_run_freeze_test.dart` — 8 passed. Wrapper deploy created 00003; first post-verify used `CALLE_ALLOWLIST_REGION` as the gcloud `--region` (fixed in wrapper, not redeployed). Re-ran describe/IAM verify: scale 0/2 both layers, audiences 3, allowlist present, region `US`, kill switch false. Unauthenticated `POST /v1/calls/plan-batch` → **403**. `tool/check_agentic_freeze.sh` Freeze OK. No live `/run`, send-batch, TTS, or run-batch.
+
+### Status
+1.1 done. Next: 1.2 `POST /v1/calls/run-batch` (`calls.create`, kill switch, exact confirm handle). No commit unless asked.
+
 

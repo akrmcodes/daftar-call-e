@@ -130,3 +130,19 @@ Ran [`agent/scripts/deploy_daftar_call_e.sh`](../../agent/scripts/deploy_daftar_
 
 Redeploy: `export DAFTAR_CALL_E_DEPLOY=true` then the wrapper. Never `gcloud run deploy daftar-closing-agent`. Never ADK Cloud Run deployer. 1.1+ call routes **not** in this revision.
 
+## 1.1 plan-batch (2026-09-02)
+
+`POST /v1/calls/plan-batch` is live on `daftar-call-e` only. Daftar-local: allowlist, J.10, DNC, kill switch, C.3 echo. **Does not** call CALL-E. **Does not dial.**
+
+| Item | Status |
+| --- | --- |
+| Revision | `daftar-call-e-00003-f4q` |
+| Kill switch | Cloud Run `CALLE_ALLOW_DIAL=false` (disk `calle-allow-dial` still `false`) |
+| Allowlist | Loaded from `$HOME/.daftar-owner-ops/calle-allowlist` into Cloud Run env via `--env-vars-file` (comma-safe). **Never printed.** Region env `US` from `calle-allowlist-region` |
+| Confirm handle | Process-local `(batchId, contactId) → token`. Re-plan replaces it. **Min instances 0 drops memory** (same class as email idempotency — not durable) |
+| Secrets | Unchanged split mounts: `/secrets/gmail-smtp-app-password` and `/calle-secrets/calle-api-key` |
+| Auth | Unauthenticated `POST /v1/calls/plan-batch` → **403** (GFE IAM; no in-process JWT) |
+| Frozen | still `daftar-closing-agent-00055-pbm` |
+
+`run-batch` / `GET /v1/calls/{runId}` are **not** deployed. Do not set `CALLE_ALLOW_DIAL=true` on Cloud Run until Stage 1.2.
+

@@ -229,7 +229,59 @@ daftar_iam_add gcloud iam service-accounts add-iam-policy-binding "${RUNNER_SA}"
   --role="roles/iam.serviceAccountUser" \
   --quiet
 
-_env_vars="GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=${PROJECT},GOOGLE_CLOUD_LOCATION=global,GMAIL_SMTP_HOST=smtp.gmail.com,GMAIL_SMTP_PORT=587,GMAIL_SMTP_USER=${GMAIL_SMTP_USER},GMAIL_SMTP_FROM=${GMAIL_SMTP_FROM},CALLE_ALLOW_DIAL=false"
+echo "deploy_daftar_call_e: loading allowlist from owner-ops (values not printed)" >&2
+ALLOWLIST_FILE="${OPS}/calle-allowlist"
+REGION_FILE="${OPS}/calle-allowlist-region"
+if [[ ! -f "${ALLOWLIST_FILE}" || ! -f "${REGION_FILE}" ]]; then
+  echo "deploy_daftar_call_e.sh: missing calle-allowlist or calle-allowlist-region" >&2
+  exit 1
+fi
+# YAML env file so comma-separated E.164 is not split by --update-env-vars.
+_env_file="$(mktemp "${OPS}/daftar-call-e-env.XXXXXX")"
+chmod 600 "${_env_file}"
+trap 'rm -f "${_env_file:-}"' EXIT
+python3 - "${ALLOWLIST_FILE}" "${REGION_FILE}" "${_env_file}" "${PROJECT}" <<'PY'
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+allow_path, region_path, out_path, project = sys.argv[1:5]
+gmail_user = os.environ.get("GMAIL_SMTP_USER", "").strip()
+gmail_from = os.environ.get("GMAIL_SMTP_FROM", "").strip()
+if not gmail_user or not gmail_from or gmail_user != gmail_from:
+    raise SystemExit("gmail sender env missing or mismatched")
+raw = Path(allow_path).read_text(encoding="utf-8")
+entries = [part.strip() for part in raw.split(",") if part.strip()]
+if not entries:
+    raise SystemExit("allowlist file is empty")
+e164 = re.compile(r"\+[1-9]\d{7,14}$")
+for item in entries:
+    if not e164.fullmatch(item):
+        raise SystemExit("allowlist entry is not E.164")
+region = Path(region_path).read_text(encoding="utf-8").strip()
+if not re.fullmatch(r"[A-Z]{2}", region):
+    raise SystemExit("allowlist region must be a 2-letter ISO code")
+# Kill switch stays off on Cloud Run for this slice.
+pairs = {
+    "GOOGLE_GENAI_USE_VERTEXAI": "TRUE",
+    "GOOGLE_CLOUD_PROJECT": project,
+    "GOOGLE_CLOUD_LOCATION": "global",
+    "GMAIL_SMTP_HOST": "smtp.gmail.com",
+    "GMAIL_SMTP_PORT": "587",
+    "GMAIL_SMTP_USER": gmail_user,
+    "GMAIL_SMTP_FROM": gmail_from,
+    "CALLE_ALLOW_DIAL": "false",
+    "CALLE_ALLOWLIST": ",".join(entries),
+    "CALLE_ALLOWLIST_REGION": region,
+}
+lines = [f"{key}: {json.dumps(value)}" for key, value in pairs.items()]
+Path(out_path).write_text("\n".join(lines) + "\n", encoding="utf-8")
+print(f"deploy_daftar_call_e: allowlist_region={region} entries={len(entries)}", file=sys.stderr)
+PY
 
 # Two Secret Manager files cannot share one mount directory on Cloud Run.
 # Gmail stays /secrets/gmail-smtp-app-password (email_send default).
@@ -249,13 +301,14 @@ gcloud run deploy daftar-call-e \
   --memory="${CR_MEMORY}" \
   --cpu="${CR_CPU}" \
   --service-account="${RUNNER_SA}" \
-  --update-env-vars="${_env_vars}" \
+  --env-vars-file="${_env_file}" \
   --update-secrets=/secrets/gmail-smtp-app-password=gmail-smtp-app-password:latest,/calle-secrets/calle-api-key=calle-api-key:latest \
   --set-custom-audiences="${WEB_AUD},${ANDROID_AUD},${IOS_AUD}" \
   >"${OPS}/daftar-call-e-deploy.out" \
   2>"${OPS}/daftar-call-e-deploy.err"
 _deploy_rc=$?
 set -e
+rm -f "${_env_file}"
 python3 - "${OPS}/daftar-call-e-deploy.out" "${OPS}/daftar-call-e-deploy.err" <<'PY'
 from pathlib import Path
 import re
@@ -266,6 +319,8 @@ def scrub(path: Path) -> str:
     text = re.sub(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}", "[redacted-email]", text)
     text = re.sub(r"[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com", "[redacted-audience]", text)
     text = re.sub(r"GMAIL_SMTP_(USER|FROM)=[^,\s]+", r"GMAIL_SMTP_\1=[redacted]", text)
+    text = re.sub(r"CALLE_ALLOWLIST=\S+", "CALLE_ALLOWLIST=[redacted]", text)
+    text = re.sub(r"\+[1-9]\d{7,14}", "[redacted-e164]", text)
     lines = [line for line in text.splitlines() if len(line) <= 400]
     return "\n".join(lines[-40:])
 
@@ -296,7 +351,7 @@ printf '%s\n' "${_new_url}" > "${URL_FILE}"
 chmod 600 "${URL_FILE}"
 echo "deploy_daftar_call_e: URL written to owner-ops (not README)" >&2
 
-unset WEB_AUD ANDROID_AUD IOS_AUD GMAIL_SMTP_USER GMAIL_SMTP_FROM _env_vars
+unset WEB_AUD ANDROID_AUD IOS_AUD GMAIL_SMTP_USER GMAIL_SMTP_FROM CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION
 
 echo "deploy_daftar_call_e: invoker IAM on daftar-call-e only" >&2
 _invoker_rc=0
@@ -462,6 +517,14 @@ vertex_ok = (
 if not vertex_ok:
     print("Vertex/kill-switch env mismatch", file=sys.stderr)
     raise SystemExit(1)
+allowlist = envs.get("CALLE_ALLOWLIST", "").strip()
+allowlist_region = envs.get("CALLE_ALLOWLIST_REGION", "").strip()
+if not allowlist:
+    print("allowlist env missing", file=sys.stderr)
+    raise SystemExit(1)
+if len(allowlist_region) != 2 or not allowlist_region.isalpha():
+    print("allowlist region missing", file=sys.stderr)
+    raise SystemExit(1)
 secrets = secret_names(legal_res)
 if "gmail-smtp-app-password" not in secrets or "calle-api-key" not in secrets:
     print(f"secret mounts missing: {sorted(secrets)}", file=sys.stderr)
@@ -490,6 +553,8 @@ print(f"scale service={svc_min}/{svc_max} revision={rev_min}/{rev_max}")
 print(f"audiences={n_aud}")
 print("secrets=gmail+calle")
 print("vertex=ok calle_allow_dial=false")
+print(f"allowlist_region={allowlist_region}")
+print("allowlist=present")
 print("invoker=authenticated-users+owner")
 print("freeze=ok")
 PY

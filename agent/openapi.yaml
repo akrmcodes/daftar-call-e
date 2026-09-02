@@ -1,12 +1,16 @@
 openapi: 3.1.0
 info:
   title: Daftar Closing Agent — Device ↔ Cloud Run Wire Contract
-  version: 2.4.1
-  summary: Frozen Appendix J contract for All Things Agentic (Submission Period 2026).
+  version: 2.5.0
+  summary: Frozen Appendix J contract plus CALL-E plan-batch (Stage 1.1).
   description: |
-    Normative machine-readable contract for Stages 1–4 of `docs/roadmap_v2.md` **Appendix J**.
+    Normative machine-readable contract for Stages 1–4 of `docs/roadmap_v2.md` **Appendix J**,
+    plus roadmap v3 **J.9** `POST /v1/calls/plan-batch` (Daftar-local; no PSTN).
     Stage 4.7 adds deterministic `POST /v1/email/send-batch` (J.7) beside ADK `/run`.
     Stage 5 speech quality adds unary `POST /v1/tts` (Chirp 3 HD Enceladus MP3; not Gemini Live).
+    Stage 1.1 adds `POST /v1/calls/plan-batch` — allowlist / J.10 / DNC / kill switch / C.3 echo.
+    It does **not** call CALL-E and does **not** dial. `run-batch` / `GET /v1/calls/{runId}`
+    are Stage 1.2–1.3 and are **not** in this spec yet.
 
     ## Architecture
     - Cloud Run hosts a Google **ADK** agent (Python) that emits **proposals**, never Drift writes.
@@ -70,6 +74,8 @@ tags:
     description: Deterministic Gmail SMTP send-batch (Appendix J.7). Not an ADK tool.
   - name: tts
     description: Unary Chirp 3 HD Enceladus MP3 (same Cloud Run IAM as `/run`). Not Gemini Live.
+  - name: calls
+    description: Daftar-local CALL-E plan-batch (J.9). Not an ADK tool. Zero PSTN.
 
 security:
   - GoogleIdToken: []
@@ -359,6 +365,46 @@ paths:
                   detail:
                     type: string
                     enum: [tts_unavailable]
+
+  /v1/calls/plan-batch:
+    post:
+      tags: [calls]
+      operationId: planCallBatch
+      summary: Daftar-local plan-batch (no CALL-E, no dial)
+      description: |
+        Validate the device-owned call set (cap 5). Enforce allowlist, J.10 region
+        (YE / +967 always rejected; NANP `region` must equal `CALLE_ALLOWLIST_REGION`),
+        DNC, and kill switch. Echo C.3 `task` as-is. Issue a one-time Daftar
+        `confirmHandle` only when `dryRun` is false and every gate passed.
+        Auth is Cloud Run IAM + J.1 Google ID token (same custom audiences as `/run`).
+        Do not add a second in-process JWT check. Never log `confirmHandle`, the
+        API key, or full E.164.
+      security:
+        - GoogleIdToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlanBatchRequest"
+      responses:
+        "200":
+          description: Per-recipient plan results (same order as the request)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanBatchResponse"
+        "400":
+          description: Cap 0 or >5, extra fields, or invalid UUID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
 components:
   securitySchemes:
@@ -1074,3 +1120,117 @@ components:
           type: string
           minLength: 1
           description: MP3 bytes, standard base64. Never logged.
+
+    PlanBatchRequest:
+      type: object
+      additionalProperties: false
+      required: [batchId, correlationId, trigger, dryRun, locale, recipients]
+      properties:
+        batchId:
+          $ref: "#/components/schemas/Uuid"
+        correlationId:
+          $ref: "#/components/schemas/Uuid"
+        trigger:
+          type: string
+          enum: [closeDay, creditLimit]
+        dryRun:
+          type: boolean
+          description: If true, validate and echo C.3 only. No confirmHandle. Zero PSTN.
+        locale:
+          $ref: "#/components/schemas/LocaleCode"
+        recipients:
+          type: array
+          minItems: 1
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/CallRecipient"
+
+    CallRecipient:
+      type: object
+      additionalProperties: false
+      required:
+        - contactId
+        - phoneE164
+        - region
+        - locale
+        - task
+        - customer_name
+        - store_name
+        - amount_line
+      properties:
+        contactId:
+          $ref: "#/components/schemas/Uuid"
+        phoneE164:
+          type: string
+          minLength: 2
+          description: Plus-prefixed digits. Must match the server allowlist.
+        region:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166-1 alpha-2. Not YE. NANP must equal CALLE_ALLOWLIST_REGION.
+        locale:
+          type: string
+          minLength: 1
+          description: Recipient language (e.g. en-US, ar). Not reformatted.
+        task:
+          type: string
+          minLength: 1
+          description: Device-filled C.3. Server echoes as-is (no money reformat).
+        customer_name:
+          type: string
+          minLength: 1
+        store_name:
+          type: string
+          minLength: 1
+        amount_line:
+          type: string
+          minLength: 1
+          description: Already formatted from integer amountMinor on the device.
+        doNotCall:
+          type: boolean
+          default: false
+
+    PlanBatchRowResult:
+      type: object
+      additionalProperties: false
+      required: [contactId, phoneMasked, readyToRun, status]
+      properties:
+        contactId:
+          $ref: "#/components/schemas/Uuid"
+        phoneMasked:
+          type: string
+          description: Last-4 only (never full E.164)
+        readyToRun:
+          type: boolean
+        status:
+          type: string
+          enum: [planned, dryRun, rejected, failed]
+        reason:
+          type: string
+          enum:
+            - notAllowlisted
+            - unsupportedRegion
+            - killSwitch
+            - dnc
+            - invalidPhone
+        task:
+          type: string
+          description: C.3 echo on planned / dryRun
+        confirmHandle:
+          type: string
+          description: |
+            Opaque Daftar secret for run-batch. Present only when status=planned.
+            Never log. Not an MCP confirm_token.
+
+    PlanBatchResponse:
+      type: object
+      additionalProperties: false
+      required: [batchId, results]
+      properties:
+        batchId:
+          $ref: "#/components/schemas/Uuid"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanBatchRowResult"

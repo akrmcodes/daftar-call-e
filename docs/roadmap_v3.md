@@ -523,12 +523,12 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **1.1 `POST /v1/calls/plan-batch`**
 
-- [ ] Accepts device-owned recipients (J.9) ≤5
-- [ ] **Daftar-local only** — allowlist, J.10, DNC, kill switch, C.3 echo. **Does not** call CALL-E. **Does not dial**
-- [ ] Returns a one-time **Daftar** confirm handle to the device (not logs)
-- [ ] Rejects: not allowlisted, unsupported region (J.10), DNC, `CALLE_ALLOW_DIAL=false` (unless `dryRun: true` which still must **not** dial), `recipients.length > 5`
-- [ ] `dryRun: true` → validate + echo C.3 task — **zero PSTN**, **zero** `POST /v1/calls`
-- [ ] Observability `daftar.agent.call` action=`plan` · masked E.164 · `correlationId` · `batchId`
+- [x] Accepts device-owned recipients (J.9) ≤5
+- [x] **Daftar-local only** — allowlist, J.10, DNC, kill switch, C.3 echo. **Does not** call CALL-E. **Does not dial**
+- [x] Returns a one-time **Daftar** confirm handle to the device (not logs)
+- [x] Rejects: not allowlisted, unsupported region (J.10), DNC, `CALLE_ALLOW_DIAL=false` (unless `dryRun: true` which still must **not** dial), `recipients.length > 5`
+- [x] `dryRun: true` → validate + echo C.3 task — **zero PSTN**, **zero** `POST /v1/calls`
+- [x] Observability `daftar.agent.call` action=`plan` · masked E.164 · `correlationId` · `batchId`
 
 **1.2 `POST /v1/calls/run-batch`**
 
