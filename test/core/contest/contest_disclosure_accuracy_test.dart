@@ -22,7 +22,7 @@ void main() {
     text = File(_disclosurePath).readAsStringSync();
   });
 
-  String _section(String start, String end) {
+  String section(String start, String end) {
     final from = text.indexOf(start);
     final to = text.indexOf(end);
     expect(from, greaterThanOrEqualTo(0), reason: 'missing $start');
@@ -61,12 +61,12 @@ void main() {
       const host = 'daftar-closing-agent-1487285471.us-central1.run.app';
       expect(text, contains(host));
       expect(text, contains('daftar-call-e'));
-      final prior = _section(
+      final prior = section(
         '## Prior work — All Things Agentic (Aug 2026)',
         '## CALL-E contest-new (this submission)',
       );
       expect(prior, contains(host));
-      final calleNew = _section(
+      final calleNew = section(
         '## CALL-E contest-new (this submission)',
         '## What we are submitting',
       );
@@ -96,22 +96,24 @@ void main() {
     });
 
     test('pre-existing substrate table still lists whatsapp_util', () {
-      final substrate = _section(
+      final substrate = section(
         '## Pre-existing substrate',
         '## Prior work — All Things Agentic (Aug 2026)',
       );
       expect(substrate, contains('whatsapp_util'));
     });
 
-    test('CALL-E-new is Planned, not Landed, and not Agentic August work', () {
-      final calleNew = _section(
+    test('CALL-E-new runtime is mostly Planned; Schema 26 is Landed', () {
+      final calleNew = section(
         '## CALL-E contest-new (this submission)',
         '## What we are submitting',
       );
       expect(calleNew, contains('Confirm & Call'));
       expect(calleNew, contains('agent/calls/'));
-      expect(calleNew, contains('**Planned**'));
-      expect(calleNew, isNot(contains('**Landed**')));
+      expect(calleNew, contains('| Confirm & Call |'));
+      expect(calleNew, contains('**Planned** (Stages 1–4)'));
+      expect(calleNew, contains('| Schema 26 |'));
+      expect(calleNew, contains('**Landed** (Stage 2.1)'));
       expect(calleNew, contains('not this bucket'));
     });
   });

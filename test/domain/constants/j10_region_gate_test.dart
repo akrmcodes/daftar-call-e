@@ -57,7 +57,6 @@ void main() {
       final result = evaluate(
         phone: phone,
         declaredRegion: 'SA',
-        allowlistRegion: 'US',
         allowlist: {saPhone},
       );
 
@@ -83,7 +82,6 @@ void main() {
       final result = evaluate(
         phone: phone,
         declaredRegion: 'US',
-        allowlistRegion: 'US',
         allowlist: {usPhone},
       );
 
@@ -98,7 +96,6 @@ void main() {
       final result = evaluate(
         phone: phone,
         declaredRegion: 'CA',
-        allowlistRegion: 'US',
         allowlist: {usPhone},
       );
 
@@ -107,9 +104,9 @@ void main() {
 
     test('AE EG OM eligible only when on allowlist', () {
       for (final entry in [
-        (PhoneNumber(aePhone), 'AE', aePhone),
-        (PhoneNumber(egPhone), 'EG', egPhone),
-        (PhoneNumber(omPhone), 'OM', omPhone),
+        (const PhoneNumber(aePhone), 'AE', aePhone),
+        (const PhoneNumber(egPhone), 'EG', egPhone),
+        (const PhoneNumber(omPhone), 'OM', omPhone),
       ]) {
         final (phone, region, e164) = entry;
 
@@ -156,9 +153,8 @@ void main() {
       expect(sa.region, 'SA');
 
       final us = evaluate(
-        phone: PhoneNumber(usPhone),
+        phone: const PhoneNumber(usPhone),
         declaredRegion: 'US',
-        allowlistRegion: 'US',
       );
       expect(us, isA<CallNotAllowlisted>());
       expect((us as CallNotAllowlisted).e164, usPhone);

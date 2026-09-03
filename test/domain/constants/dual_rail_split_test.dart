@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const usPhone = '+15555550100';
-  const saPhone = '+966501234567';
 
   CollectionsCandidate candidate({
     required String id,

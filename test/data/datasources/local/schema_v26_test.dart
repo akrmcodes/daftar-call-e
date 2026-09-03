@@ -88,8 +88,8 @@ void main() {
           contactId: 'contact-v26',
           region: 'YE',
           locale: 'ar',
-          runId: Value(runId),
-          outcome: Value(CallRunOutcome.promised),
+          runId: const Value(runId),
+          outcome: const Value(CallRunOutcome.promised),
           promisedAmountMinor: const Value(500),
           promisedCurrency: const Value('YER'),
           promisedDate: const Value('2026-09-05'),
@@ -190,12 +190,7 @@ void main() {
     test('sqlite_master contains collection call tables', () async {
       final rows = await database
           .customSelect(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name IN ("
-            "'collection_call_batches', "
-            "'collection_call_runs', "
-            "'collection_promises'"
-            ')',
+            "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('collection_call_batches', 'collection_call_runs', 'collection_promises')",
           )
           .get();
 
