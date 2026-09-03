@@ -612,7 +612,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 #### Stage 2 Validation Gate
 
-- [ ] Schema 26 migrates on a debug install
+- [x] Schema 26 migrates on a debug install
 - [x] Unit tests for E.164, YE gate, split, DNC — **no PSTN**
 - [x] Seeder has no committed phone numbers
 - [x] `flutter analyze` clean for touched files
