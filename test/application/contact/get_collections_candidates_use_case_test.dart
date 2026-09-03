@@ -405,7 +405,6 @@ void main() {
       asOf: asOf,
       allowDial: true,
       allowlist: {'+15555550100'},
-      allowlistRegion: 'US',
     );
     final row = result.getRight().toNullable()!.single;
 

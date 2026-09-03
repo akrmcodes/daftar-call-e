@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/core/services/device_identity_store.dart';
 import 'package:daftar/data/datasources/local/audit_log_local_ds.dart';
 import 'package:daftar/data/datasources/local/balance_local_ds.dart';
@@ -65,16 +68,24 @@ void main() {
   });
 
   test('name-only update preserves doNotCall', () async {
-    final renamed = await contactRepository
-        .update(
-          const UpdateContactParams(
-            id: contactId,
-            name: 'Renamed only',
-          ),
-        )
-        .then((either) => either.getOrElse((failure) => throw failure));
+    final renamed = await expectRight(
+      contactRepository.update(
+        const UpdateContactParams(
+          id: contactId,
+          name: 'Renamed only',
+        ),
+      ),
+    );
 
     expect(renamed.name, 'Renamed only');
     expect(renamed.doNotCall, isTrue);
   });
+}
+
+Future<T> expectRight<T>(FutureOr<Either<Failure, T>> futureOrResult) async {
+  final result = await futureOrResult;
+  return result.fold(
+    (failure) => fail('Expected Right but got Left($failure)'),
+    (value) => value,
+  );
 }

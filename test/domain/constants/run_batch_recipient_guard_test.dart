@@ -96,7 +96,6 @@ void main() {
         candidate(
           id: 'ye',
           phone: '0771234567',
-          rail: OutreachRail.both,
         ),
       ],
       policy: policy(allowlist: {'+967771234567'}),
