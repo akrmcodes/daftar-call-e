@@ -1,21 +1,18 @@
 import 'package:daftar/application/contact/get_collections_candidates_use_case.dart';
-import 'package:daftar/application/contact/get_reminder_eligible_contacts_use_case.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/contact_balance.dart';
 import 'package:daftar/domain/entities/transaction.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/payment_behavior_band.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/enums/transaction_type.dart';
 import 'package:daftar/domain/repositories/balance_repository.dart';
 import 'package:daftar/domain/repositories/contact_repository.dart';
 import 'package:daftar/domain/repositories/transaction_repository.dart';
-import 'package:daftar/domain/value_objects/reminder_eligible_contact_entry.dart';
+import 'package:daftar/domain/value_objects/collections_outreach_contact_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-
-class MockGetReminderEligibleContactsUseCase extends Mock
-    implements GetReminderEligibleContactsUseCase {}
 
 class MockBalanceRepository extends Mock implements BalanceRepository {}
 
@@ -31,11 +28,12 @@ void main() {
   final asOf = DateTime(2026, 8, 14);
   final created = DateTime.utc(2026, 8, 14);
 
-  const mohamedPhone = ReminderEligibleContactEntry(
+  const mohamedOutreach = CollectionsOutreachContactEntry(
     contactId: 'contact-mohamed',
     contactName: 'Mohamed',
     ledgerId: 'ledger-1',
     phone: '+967700000001',
+    email: 'mohamed@example.com',
   );
 
   final mohamed = Contact(
@@ -46,6 +44,7 @@ void main() {
     createdAt: created,
     updatedAt: created,
     phone: '+967700000001',
+    email: 'mohamed@example.com',
     creditCurrency: 'YER',
   );
 
@@ -85,27 +84,26 @@ void main() {
     );
   }
 
-  late MockGetReminderEligibleContactsUseCase reminders;
   late MockBalanceRepository balances;
   late MockTransactionRepository transactions;
   late MockContactRepository contacts;
   late GetCollectionsCandidatesUseCase useCase;
 
   setUp(() {
-    reminders = MockGetReminderEligibleContactsUseCase();
     balances = MockBalanceRepository();
     transactions = MockTransactionRepository();
     contacts = MockContactRepository();
     useCase = GetCollectionsCandidatesUseCase(
-      getReminderEligibleContactsUseCase: reminders,
       balanceRepository: balances,
       transactionRepository: transactions,
       contactRepository: contacts,
     );
   });
 
-  void stubPhone(List<ReminderEligibleContactEntry> entries) {
-    when(reminders.execute).thenAnswer((_) async => Right(entries));
+  void stubOutreach(List<CollectionsOutreachContactEntry> entries) {
+    when(contacts.getContactsEligibleForCollectionsOutreach).thenAnswer(
+      (_) async => Right(entries),
+    );
   }
 
   void stubBalances(List<ContactBalance> rows) {
@@ -124,8 +122,8 @@ void main() {
     ).thenAnswer((_) async => Right(rows));
   }
 
-  test('empty phone list is success', () async {
-    stubPhone(const []);
+  test('empty outreach list is success', () async {
+    stubOutreach(const []);
     stubBalances(const []);
 
     final result = await useCase.execute(asOf: asOf);
@@ -135,7 +133,7 @@ void main() {
   });
 
   test('Mohamed 100 then +50 is firm with owed 150', () async {
-    stubPhone(const [mohamedPhone]);
+    stubOutreach(const [mohamedOutreach]);
     stubBalances([balance(contactId: 'contact-mohamed', net: -150)]);
     stubContact(mohamed);
     stubTxns('contact-mohamed', [
@@ -164,10 +162,11 @@ void main() {
     expect(rows.single.toneBand, ReminderToneBand.firm);
     expect(rows.single.paymentBehaviorBand, PaymentBehaviorBand.none);
     expect(rows.single.phone, '+967700000001');
+    expect(rows.single.rail, OutreachRail.email);
   });
 
   test('FIFO payment 100 leaves reminder band on remaining 50', () async {
-    stubPhone(const [mohamedPhone]);
+    stubOutreach(const [mohamedOutreach]);
     stubBalances([balance(contactId: 'contact-mohamed', net: -50)]);
     stubContact(mohamed);
     stubTxns('contact-mohamed', [
@@ -202,7 +201,7 @@ void main() {
   });
 
   test('phone with netBalance >= 0 is omitted', () async {
-    stubPhone(const [mohamedPhone]);
+    stubOutreach(const [mohamedOutreach]);
     stubBalances([balance(contactId: 'contact-mohamed', net: 100)]);
     stubContact(mohamed);
 
@@ -212,24 +211,40 @@ void main() {
     verifyNever(() => transactions.getRawTransactionsByContact(any()));
   });
 
-  test('overdue without email eligibility is omitted', () async {
-    stubPhone(const []);
-    stubBalances([balance(contactId: 'contact-ghost', net: -200)]);
+  test('overdue without email is included as skipped', () async {
+    const phoneOnly = CollectionsOutreachContactEntry(
+      contactId: 'contact-mohamed',
+      contactName: 'Mohamed',
+      ledgerId: 'ledger-1',
+      phone: '+967700000001',
+    );
+    stubOutreach(const [phoneOnly]);
+    stubBalances([balance(contactId: 'contact-mohamed', net: -100)]);
+    stubContact(mohamed.copyWith(email: null));
+    stubTxns('contact-mohamed', [
+      txn(
+        id: 'd-100',
+        type: TransactionType.debt,
+        amount: 100,
+        date: DateTime(2026, 7, 5),
+      ),
+    ]);
 
     final result = await useCase.execute(asOf: asOf);
+    final row = result.getRight().toNullable()!.single;
 
-    expect(result.getRight().toNullable(), isEmpty);
-    verifyNever(() => contacts.getById(any()));
+    expect(row.email, isNull);
+    expect(row.rail, OutreachRail.skipped);
   });
 
   test('email-only overdue contact is included', () async {
-    const emailOnly = ReminderEligibleContactEntry(
+    const emailOnly = CollectionsOutreachContactEntry(
       contactId: 'contact-mohamed',
       contactName: 'Mohamed',
       ledgerId: 'ledger-1',
       email: 'local+tag@gmail.com',
     );
-    stubPhone(const [emailOnly]);
+    stubOutreach(const [emailOnly]);
     stubBalances([balance(contactId: 'contact-mohamed', net: -100)]);
     stubContact(mohamed.copyWith(phone: null, email: 'local+tag@gmail.com'));
     stubTxns('contact-mohamed', [
@@ -246,21 +261,24 @@ void main() {
     expect(row.email, 'local+tag@gmail.com');
     expect(row.phone, isNull);
     expect(row.owedMinor, 100);
+    expect(row.rail, OutreachRail.email);
   });
 
   test('friendly D-3 and firm D-30 sort oldest first', () async {
-    const aliPhone = ReminderEligibleContactEntry(
+    const aliOutreach = CollectionsOutreachContactEntry(
       contactId: 'contact-ali',
       contactName: 'Ali',
       ledgerId: 'ledger-1',
       phone: '+967700000002',
+      email: 'ali@example.com',
     );
     final ali = mohamed.copyWith(
       id: 'contact-ali',
       name: 'Ali',
       phone: '+967700000002',
+      email: 'ali@example.com',
     );
-    stubPhone(const [mohamedPhone, aliPhone]);
+    stubOutreach(const [mohamedOutreach, aliOutreach]);
     stubBalances([
       balance(contactId: 'contact-mohamed', net: -100),
       balance(contactId: 'contact-ali', net: -100),
@@ -298,7 +316,7 @@ void main() {
   });
 
   test('D-7 debt is reminder band', () async {
-    stubPhone(const [mohamedPhone]);
+    stubOutreach(const [mohamedOutreach]);
     stubBalances([balance(contactId: 'contact-mohamed', net: -100)]);
     stubContact(mohamed);
     stubTxns('contact-mohamed', [
@@ -315,5 +333,42 @@ void main() {
 
     expect(row.ageDays, 7);
     expect(row.toneBand, ReminderToneBand.reminder);
+  });
+
+  test('valid Yemen phone with email is callUnavailable', () async {
+    const yeOutreach = CollectionsOutreachContactEntry(
+      contactId: 'contact-ye',
+      contactName: 'Yemen',
+      ledgerId: 'ledger-1',
+      phone: '0771234567',
+      email: 'ye@example.com',
+    );
+    final yeContact = mohamed.copyWith(
+      id: 'contact-ye',
+      name: 'Yemen',
+      phone: '0771234567',
+      email: 'ye@example.com',
+    );
+    stubOutreach(const [yeOutreach]);
+    stubBalances([balance(contactId: 'contact-ye', net: -100)]);
+    stubContact(yeContact);
+    stubTxns('contact-ye', [
+      txn(
+        id: 'd-100',
+        type: TransactionType.debt,
+        amount: 100,
+        date: DateTime(2026, 7, 5),
+        contactId: 'contact-ye',
+      ),
+    ]);
+
+    final result = await useCase.execute(
+      asOf: asOf,
+      allowDial: true,
+      allowlist: {'+967771234567'},
+    );
+    final row = result.getRight().toNullable()!.single;
+
+    expect(row.rail, OutreachRail.callUnavailable);
   });
 }

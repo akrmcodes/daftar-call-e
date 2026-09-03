@@ -593,10 +593,10 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **2.3 Aging split**
 
-- [ ] After Appendix D rank: attach `rail` = `call` \| `email` \| `both` \| `callUnavailable` \| `skipped`
-- [ ] Call set = `min(call-eligible, 5)`
-- [ ] Email set = existing send-set rules (email present, cap 20, PDF Top 5)
-- [ ] Gemini does not receive a picker of IDs to choose from
+- [x] After Appendix D rank: attach `rail` = `call` \| `email` \| `both` \| `callUnavailable` \| `skipped`
+- [x] Call set = `min(call-eligible, 5)`
+- [x] Email set = existing send-set rules (email present, cap 20, PDF Top 5)
+- [x] Gemini does not receive a picker of IDs to choose from
 
 **2.4 Demo seeder**
 

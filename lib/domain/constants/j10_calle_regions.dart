@@ -113,4 +113,17 @@ abstract final class J10CalleRegions {
     }
     return null;
   }
+
+  /// ISO region for J.10 gate: NANP uses [allowlistRegion]; else mapped ISO.
+  static String declaredRegionFor(String? e164, String allowlistRegion) {
+    final fallback = allowlistRegion.trim().toUpperCase();
+    if (e164 == null || e164.isEmpty) {
+      return fallback;
+    }
+    final mapped = callingRegion(e164);
+    if (mapped == null || mapped == nanp) {
+      return fallback;
+    }
+    return mapped;
+  }
 }

@@ -19,4 +19,13 @@ abstract final class ContactEmail {
     }
     return _pattern.hasMatch(normalized);
   }
+
+  /// True when [raw] is non-empty and passes [isValid].
+  static bool isPresentAndValid(String? raw) {
+    final normalized = normalize(raw);
+    if (normalized == null) {
+      return false;
+    }
+    return _pattern.hasMatch(normalized);
+  }
 }

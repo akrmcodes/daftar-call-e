@@ -1,9 +1,10 @@
 import 'package:daftar/domain/constants/reminder_tone_resolver.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/payment_behavior_band.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:equatable/equatable.dart';
 
-/// One overdue, email-reachable contact for the Stage 4 Collections Desk.
+/// One overdue contact for the Collections Desk / dual-rail close path.
 ///
 /// Amounts are integer minor units. [netBalance] is Drift truth
 /// (`totalPayment - totalDebt`); they owe us when it is negative.
@@ -21,6 +22,8 @@ class CollectionsCandidate extends Equatable {
     this.email,
     this.daysSinceLastPayment,
     this.daysSinceLastDebt,
+    this.doNotCall = false,
+    this.rail = OutreachRail.skipped,
   });
 
   /// Contact UUID.
@@ -56,6 +59,12 @@ class CollectionsCandidate extends Equatable {
   /// Calendar days since the latest debt, or null if none.
   final int? daysSinceLastDebt;
 
+  /// Per-contact do-not-call flag (omit from call set when true).
+  final bool doNotCall;
+
+  /// Dual-rail assignment after aging rank and eligibility caps.
+  final OutreachRail rail;
+
   /// Absolute outstanding when [netBalance] is negative.
   int get owedMinor => netBalance < 0 ? -netBalance : 0;
 
@@ -76,5 +85,7 @@ class CollectionsCandidate extends Equatable {
         toneBand,
         daysSinceLastPayment,
         daysSinceLastDebt,
+        doNotCall,
+        rail,
       ];
 }

@@ -4384,4 +4384,31 @@ YE → `CallUnavailable` (email rail in 2.3). NANP `+1` never inferred as `US`; 
 ### Status
 §2.2 done. Next: §2.3 aging split (`rail`). No commit unless asked.
 
+## 2026-09-03 — Stage 2.3 Aging split
+
+### Context
+Roadmap §2.3 / Appendix D: after FIFO rank, attach dual-rail `OutreachRail`, cap call set at 5 and email set at 20 (PDF Top 5). Device ranks; Gemini does not pick contact IDs.
+
+### Done
+- [`lib/domain/enums/outreach_rail.dart`](../lib/domain/enums/outreach_rail.dart): `call`, `email`, `both`, `callUnavailable`, `skipped`
+- [`lib/domain/constants/dual_rail_split.dart`](../lib/domain/constants/dual_rail_split.dart): `DualRailSplit.split` + `DualRailSplitResult` (`callSet`, `emailSet`, `pdfTop5`)
+- [`lib/domain/value_objects/collections_candidate.dart`](../lib/domain/value_objects/collections_candidate.dart): `doNotCall`, `rail`
+- [`lib/domain/constants/contact_email.dart`](../lib/domain/constants/contact_email.dart): `isPresentAndValid`
+- [`lib/domain/constants/j10_calle_regions.dart`](../lib/domain/constants/j10_calle_regions.dart): `declaredRegionFor`
+- [`lib/domain/constants/closing_agent_constants.dart`](../lib/domain/constants/closing_agent_constants.dart): `maxCallRecipients = 5`
+- [`lib/data/datasources/local/contact_local_ds.dart`](../lib/data/datasources/local/contact_local_ds.dart): `getContactsEligibleForCollectionsOutreach` (no email predicate; includes `do_not_call`)
+- [`lib/application/contact/get_collections_candidates_use_case.dart`](../lib/application/contact/get_collections_candidates_use_case.dart): overdue universe + rank + split; optional `allowlist` / `allowlistRegion` / `allowDial`
+- [`lib/domain/value_objects/closing_ritual_result.dart`](../lib/domain/value_objects/closing_ritual_result.dart): `emailRailShortlist`, `callSet`; `reminderSet` from email rail
+- [`test/domain/constants/dual_rail_split_test.dart`](../test/domain/constants/dual_rail_split_test.dart), updated candidates + ritual tests
+- Roadmap §2.3 `[x]`
+
+### Architecture / decisions
+Rank first (FIFO + age/balance sort), split second. YE / unsupported phone + valid email → `callUnavailable` on email rail. Call eligibility uses Stage 2.2 `J10RegionGate` + DNC + `allowDial` (default false). Heritage SMTP reminder query unchanged. `ProposeClosingPlanPayload` still steps-only — no contact ID picker.
+
+### Ops / verification
+`flutter test` dual_rail_split + closing_ritual_result + get_collections_candidates — **27 passed**. `flutter analyze` on touched lib — clean. `build_runner` for `core_providers`. No PSTN. No commit unless asked.
+
+### Status
+§2.3 done. Next: §2.4 demo seeder. No commit unless asked.
+
 

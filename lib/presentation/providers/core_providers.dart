@@ -769,9 +769,6 @@ GetReminderEligibleContactsUseCase getReminderEligibleContactsUseCase(Ref ref) {
 @Riverpod(keepAlive: true)
 GetCollectionsCandidatesUseCase getCollectionsCandidatesUseCase(Ref ref) {
   return GetCollectionsCandidatesUseCase(
-    getReminderEligibleContactsUseCase: ref.watch(
-      getReminderEligibleContactsUseCaseProvider,
-    ),
     balanceRepository: ref.watch(balanceRepositoryProvider),
     transactionRepository: ref.watch(transactionRepositoryProvider),
     contactRepository: ref.watch(contactRepositoryProvider),
