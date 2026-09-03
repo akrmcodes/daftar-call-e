@@ -4460,4 +4460,70 @@ Server remains authoritative; device filter is defense in depth. `DAFTAR_SEED_US
 ### Status
 §2.5 done. Stage 2 gate: only **Schema 26 migrates on a debug install** remains unchecked. Next: Stage 3 Confirm & Call UI. No commit unless asked.
 
+## 2026-09-03 — Stage 3.1 Collections Desk (HITL, no HTTP)
+
+### Context
+Roadmap §3.1 / Chapter 3 steps 7–8 / Appendix C.3: Khazna HITL Collections Desk with one consent card (Confirm & Call · Confirm & Send), dual-rail badges, C.3 task preview matching wire `task`, promise≠payment copy, and call progress from per-row results only. No `plan-batch` HTTP, no PSTN, no auto-dispatch.
+
+### Done
+- [`lib/domain/constants/collections_call_task_composer.dart`](../lib/domain/constants/collections_call_task_composer.dart): C.3 EN lockstep + AR equivalent; `amount_line` from int via C.2 formatter; credit-limit extra sentence
+- [`lib/domain/value_objects/collections_call_task.dart`](../lib/domain/value_objects/collections_call_task.dart), [`collections_call_progress.dart`](../lib/domain/value_objects/collections_call_progress.dart), [`collections_call_row_status.dart`](../lib/domain/enums/collections_call_row_status.dart)
+- [`lib/domain/value_objects/collections_desk_row.dart`](../lib/domain/value_objects/collections_desk_row.dart): optional `callTask`
+- [`lib/application/agent/build_collections_desk_use_case.dart`](../lib/application/agent/build_collections_desk_use_case.dart): full shortlist rows; C.3 on call/both; C.2 on email rails
+- Presentation: [`collections_desk_consent_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart), [`outreach_rail_badge.dart`](../lib/presentation/screens/closing_agent/widgets/outreach_rail_badge.dart), [`collections_call_progress_bar.dart`](../lib/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart); panel/row/screen wiring
+- [`lib/presentation/providers/closing_agent_state.dart`](../lib/presentation/providers/closing_agent_state.dart): `callConsented`, `sendConsented`, `callProgress`, desk counts
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): `confirmAndCall` (guard + planned progress, no Dio); `confirmWithoutCalling`; `_autoDispatchOutreach` default false; desk opens when shortlist non-empty; email dispatch filters email-rail rows only
+- ARB `collectionsDesk*` + `flutter gen-l10n`
+- Tests: composer, progress, build desk dual-rail, consent card, panel SMTP HITL, controller Confirm & Call / without calling
+- Roadmap §3.1 `[x]` (3.2–3.4 and Stage 3 gate unchanged)
+
+### Architecture / decisions
+C.3 bodies live in domain constants (preview == wire). One lapis fill per desk (promise banner). Primary glow: Confirm & Call when `callSet` non-empty, else Confirm & Send. Progress `callingIndex` = count of non-`planned` rows — no timer. Heritage Hybrid E leftover behind `showHybridELeftover` (default false).
+
+### Ops / verification
+`flutter test` collections_desk_consent + panel + build_collections_desk + collections_call_task_composer + collections_call_progress — **26 passed**. Controller Confirm & Call / without-calling tests passed. `flutter analyze` — no errors (info lints in test helpers only). No HTTP. No PSTN. No commit unless asked.
+
+### Status
+§3.1 done. Next: §3.2 B-trigger sheet. Stage 3.4 device dry-run vs Cloud Run gate still open.
+
+## 2026-09-03 — CALL-E credits: +200 approved
+
+### Context
+Owner received **+200** extra CALL-E calls (form approved). Docs still referenced the original **20**-call free pool and “until extras land” language.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md): Credits row, slip protocol, §0.1 checkbox note, Appendix E budget hygiene, Appendix F risk register — **200** in pool (1 spent Gate 0)
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): §0.1 credits table + Gate 0 smoke credit line
+- [`docs/contest/README.md`](contest/README.md): index blurb **200**-call budget
+
+### Architecture / decisions
+Historical project-log entries (e.g. **19 / 20** after Gate 0) left unchanged — accurate at time of write. Email send-set cap **≤20** and unrelated “20” values untouched.
+
+### Ops / verification
+**199 / 200** remaining after Gate 0 smoke. Product recipient cap **5** now that credits are confirmed.
+
+### Status
+Credits docs current. No code changes.
+
+## 2026-09-03 — Stage 3.1 review + analyze fixes
+
+### Context
+Owner asked for a full review of the Stage 3.1 Collections Desk slice (many files) and a clean `flutter analyze`.
+
+### Done
+- Progress bar: track/fill now `StackFit.expand` + `SizedBox.expand` so `Calling i of N` actually paints (was 0×0)
+- `confirm()` `autoDispatch` default **false** — production Confirm & Send on the plan no longer silent-SMTP; desk Confirm & Send is the fire
+- `confirmAndCall` still runs the guard; kill switch / empty allowlist still seeds planned progress from the visible call set
+- SMTP success skips leftover pending call-only rows before the report
+- Lapis Law: Retry / SMTP Sending chrome is **secondary** while the consent card is on screen
+- Consent card: one primary glow; tertiary uses `DaftarButton` haptics only
+- Rail badge 32dp; C.3/C.2 gap; unused import; import order
+- Tests: kill-switch progress seed; desk shows full shortlist (email cap 20); Approve path explicit `approveAndSend()`
+- `flutter analyze` — **No issues found**
+
+### Ops / verification
+`flutter test` composer + progress + build desk + consent + panel + row + closing_agent_controller — **77 passed**. No HTTP. No PSTN. No commit unless asked.
+
+### Status
+§3.1 still ticked. 3.2–3.4 unchecked.
 

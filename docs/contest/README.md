@@ -13,5 +13,5 @@ Orientation and completed ops. **Not** a second checklist and **not** a first-pa
 | [`contest_checkin_christina_lin.md`](contest_checkin_christina_lin.md) | 25 Aug Agentic owner briefing (not a submission file) |
 | [`GATE0_OWNER_CHECKLIST.md`](GATE0_OWNER_CHECKLIST.md) | **Complete** Agentic Gate 0 — CALL-E Gate 0 lives in [`roadmap_v3.md`](../roadmap_v3.md) Stage 0 |
 | [`AGENTIC_CLOUD_RUN_FREEZE.md`](AGENTIC_CLOUD_RUN_FREEZE.md) | Read-only snapshot of frozen Cloud Run `daftar-closing-agent` (not permission to update) |
-| [`CALLE_STAGE0_OWNER_OPS.md`](CALLE_STAGE0_OWNER_OPS.md) | Stage 0 CALL-E account / key storage / 20-call budget (no secrets) |
+| [`CALLE_STAGE0_OWNER_OPS.md`](CALLE_STAGE0_OWNER_OPS.md) | Stage 0 CALL-E account / key storage / 200-call budget (no secrets) |
 | [`../CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md) | CALL-E eligibility (three-way split; Stage 0.0) |

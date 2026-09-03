@@ -17,6 +17,7 @@ import 'package:daftar/core/utils/native_contact_picker_service.dart';
 import 'package:daftar/core/utils/tts_sanitize.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
+import 'package:daftar/domain/constants/run_batch_recipient_guard.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/ledger.dart';
@@ -24,9 +25,11 @@ import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/confirm_proposal_status.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
@@ -34,6 +37,7 @@ import 'package:daftar/domain/value_objects/agent_proposal.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/domain/value_objects/collections_send_queue.dart';
@@ -64,7 +68,7 @@ const NetworkFailure _whatsAppOpenFailed = NetworkFailure(
 class ClosingAgentController extends _$ClosingAgentController {
   bool _buildingDesk = false;
   bool _sendOutreach = false;
-  bool _autoDispatchOutreach = true;
+  bool _autoDispatchOutreach = false;
   Timer? _holdHintDismissTimer;
 
   static const Duration holdHintVisible = Duration(milliseconds: 2800);
@@ -315,16 +319,14 @@ class ClosingAgentController extends _$ClosingAgentController {
     state = state.copyWith(confirmingProposalId: null);
   }
 
-  /// Commits money, a contact, a ledger, a statement confirm-state, or a plan.
-  ///
-  /// [sendOutreach] is ignored for money tools. Closing-plan default is
-  /// **false** so a stray confirm cannot silent-send. Pass `true` only from
-  /// Confirm & send. [autoDispatch] is test-only; production always
-  /// auto-dispatches after the desk opens on the send path.
+  /// Confirm a proposal. [sendOutreach] is ignored for money tools. Closing-plan
+  /// default is **false** so a stray confirm cannot silent-send. Pass `true`
+  /// only from Confirm & send. [autoDispatch] is test-only leftover Hybrid E;
+  /// production desk Confirm & Send is the SMTP fire (default **false**).
   Future<void> confirm(
     AgentProposal proposal, {
     bool sendOutreach = false,
-    @visibleForTesting bool autoDispatch = true,
+    @visibleForTesting bool autoDispatch = false,
   }) async {
     if (state.confirmingProposalId != null &&
         state.confirmingProposalId != proposal.proposalId) {
@@ -929,6 +931,62 @@ class ClosingAgentController extends _$ClosingAgentController {
     );
   }
 
+  /// Merchant consents to CALL-E outbound (local guard only — no HTTP in 3.1).
+  Future<void> confirmAndCall() async {
+    if (state.phase != ClosingAgentPhase.ritualDesk || state.callConsented) {
+      return;
+    }
+    final ritual = state.ritualResult;
+    if (ritual == null || ritual.callSet.isEmpty) {
+      return;
+    }
+
+    final policy = ref.read(calleDevicePolicyProvider);
+    final guard = RunBatchRecipientGuard.select(
+      candidates: ritual.callSet,
+      policy: policy,
+    );
+
+    // Seed the desk rail from guard recipients. When the kill switch / empty
+    // allowlist drops everyone, still show planned rows for the visible call set
+    // (3.1 HITL; Stage 3.4 uses the guard for HTTP).
+    final progressIds = [
+      for (final recipient in guard.recipients) recipient.contactId,
+    ];
+    final seedIds = progressIds.isNotEmpty
+        ? progressIds
+        : [for (final candidate in ritual.callSet) candidate.contactId];
+
+    state = state.copyWith(
+      callConsented: true,
+      callProgress: CollectionsCallProgress(
+        results: [
+          for (final id in seedIds)
+            CollectionsCallProgressRow(
+              contactId: id,
+              status: CollectionsCallRowStatus.planned,
+            ),
+        ],
+      ),
+      actionFailure: null,
+    );
+  }
+
+  /// Skip the call rail; email outreach remains available.
+  Future<void> confirmWithoutCalling() async {
+    if (state.phase != ClosingAgentPhase.ritualDesk) {
+      return;
+    }
+    state = state.copyWith(callConsented: false, callProgress: null);
+  }
+
+  static bool _isEmailDispatchRow(CollectionsDeskRow row) {
+    final rail = row.candidate.rail;
+    return rail == OutreachRail.email ||
+        rail == OutreachRail.both ||
+        rail == OutreachRail.callUnavailable;
+  }
+
   /// Skip outreach: remaining pending → skipped. No SMTP.
   Future<void> skipOutreach() async {
     if (state.ritualDeskPreflightPending &&
@@ -945,7 +1003,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     await finishDesk();
   }
 
-  /// Approve & send the send set via Cloud Run send-batch. Never opens `wa.me`.
+  /// Approve & send the email-rail send set via Cloud Run send-batch.
   Future<void> approveAndSend() async {
     if (state.phase != ClosingAgentPhase.ritualDesk ||
         state.collectionsDispatching) {
@@ -953,7 +1011,9 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
     final pending = [
       for (final row in state.deskRows)
-        if (row.status == CollectionsDeskRowStatus.pending) row,
+        if (row.status == CollectionsDeskRowStatus.pending &&
+            _isEmailDispatchRow(row))
+          row,
     ];
     if (pending.isEmpty) {
       await finishDesk();
@@ -978,6 +1038,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     state = state.copyWith(
       collectionsDispatching: true,
       collectionsBatchId: batchId,
+      sendConsented: true,
       actionFailure: null,
       deskBusyContactId: null,
     );
@@ -1016,6 +1077,15 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
+    final closedRows = [
+      for (final row in latestRows)
+        if (row.status == CollectionsDeskRowStatus.pending)
+          row.copyWith(status: CollectionsDeskRowStatus.skipped)
+        else
+          row,
+    ];
+    state = state.copyWith(deskRows: closedRows);
+
     if (ritual != null) {
       _showRitualReport(
         ritual.withQueueMetrics(metrics),
@@ -1024,7 +1094,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (failure != null) {
       state = state.copyWith(actionFailure: failure);
     }
-    await _persistSmtpQueue(batchId: batchId, rows: latestRows);
+    await _persistSmtpQueue(batchId: batchId, rows: closedRows);
     await _completePersistedQueue();
   }
 
@@ -1207,15 +1277,19 @@ class ClosingAgentController extends _$ClosingAgentController {
     state = state.copyWith(
       ritualResult: planned,
       ritualTaskCurrent: ClosingTaskId.openCollectionsDesk,
+      sendOutreachEnabled: true,
     );
 
-    final sendPreflight = await _preflightCollectionsSend();
-    if (sendPreflight != null) {
-      state = state.copyWith(
-        ritualDeskPreflightPending: true,
-        actionFailure: sendPreflight,
-      );
-      return;
+    final needsSmtpPreflight = planned.emailRailShortlist.isNotEmpty;
+    if (needsSmtpPreflight) {
+      final sendPreflight = await _preflightCollectionsSend();
+      if (sendPreflight != null) {
+        state = state.copyWith(
+          ritualDeskPreflightPending: true,
+          actionFailure: sendPreflight,
+        );
+        return;
+      }
     }
 
     await _openCollectionsDesk(planned);
@@ -1223,6 +1297,16 @@ class ClosingAgentController extends _$ClosingAgentController {
   }
 
   Future<void> _finishCloseWithoutOutreach(ClosingRitualResult ritual) async {
+    if (ritual.callSet.isNotEmpty) {
+      state = state.copyWith(
+        ritualResult: ritual,
+        ritualTaskCurrent: ClosingTaskId.openCollectionsDesk,
+        sendOutreachEnabled: false,
+      );
+      await _openCollectionsDesk(ritual);
+      return;
+    }
+
     final prepared = ritual.reminderSet.length;
     await _skipRitualTask(ClosingTaskId.openCollectionsDesk);
     await _completeReportTasks();
@@ -1388,7 +1472,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (_buildingDesk) {
       return;
     }
-    if (next.reminderSet.isEmpty) {
+    if (next.shortlist.isEmpty) {
       _showRitualReport(next);
       return;
     }
@@ -1420,6 +1504,10 @@ class ClosingAgentController extends _$ClosingAgentController {
         deskBusyContactId: null,
         collectionsDispatching: false,
         collectionsBatchId: null,
+        callConsented: false,
+        sendConsented: false,
+        callProgress: null,
+        sendOutreachEnabled: state.sendOutreachEnabled || _sendOutreach,
         actionFailure: null,
       );
     } finally {

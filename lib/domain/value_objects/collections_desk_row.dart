@@ -17,6 +17,7 @@ class CollectionsDeskRow extends Equatable {
     this.amountLine = '',
     this.ctaLine = '',
     this.note = '',
+    this.callTask = '',
     this.status = CollectionsDeskRowStatus.pending,
     this.smtpMessageId,
     this.smtpCode,
@@ -45,6 +46,9 @@ class CollectionsDeskRow extends Equatable {
 
   /// Named C.2 `note` (empty for Friendly).
   final String note;
+
+  /// Appendix C.3 CALL-E `task` when on the call rail. Empty otherwise.
+  final String callTask;
 
   /// Displayed tone; may differ from [CollectionsCandidate.toneBand] after override.
   final ReminderToneBand toneBand;
@@ -79,6 +83,7 @@ class CollectionsDeskRow extends Equatable {
     String? amountLine,
     String? ctaLine,
     String? note,
+    String? callTask,
     ReminderToneBand? toneBand,
     bool? attachPdf,
     CollectionsDeskRowStatus? status,
@@ -95,6 +100,7 @@ class CollectionsDeskRow extends Equatable {
       amountLine: amountLine ?? this.amountLine,
       ctaLine: ctaLine ?? this.ctaLine,
       note: note ?? this.note,
+      callTask: callTask ?? this.callTask,
       toneBand: toneBand ?? this.toneBand,
       attachPdf: attachPdf ?? this.attachPdf,
       status: status ?? this.status,
@@ -114,6 +120,7 @@ class CollectionsDeskRow extends Equatable {
         amountLine,
         ctaLine,
         note,
+        callTask,
         toneBand,
         attachPdf,
         status,

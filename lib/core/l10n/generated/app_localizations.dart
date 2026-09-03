@@ -6774,6 +6774,84 @@ abstract class AppLocalizations {
   /// **'فشل'**
   String get collectionsDeskFailedStatus;
 
+  /// No description provided for @collectionsDeskConfirmAndCall.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد والاتصال'**
+  String get collectionsDeskConfirmAndCall;
+
+  /// No description provided for @collectionsDeskConfirmWithoutCalling.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد دون اتصال'**
+  String get collectionsDeskConfirmWithoutCalling;
+
+  /// No description provided for @collectionsDeskPromiseNotPayment.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوعد ليس دفعة'**
+  String get collectionsDeskPromiseNotPayment;
+
+  /// No description provided for @collectionsDeskPromiseNotPaymentSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.'**
+  String get collectionsDeskPromiseNotPaymentSubtitle;
+
+  /// No description provided for @collectionsDeskCallPreviewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما سيقوله CALL-E'**
+  String get collectionsDeskCallPreviewTitle;
+
+  /// No description provided for @collectionsDeskCallingProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'جاري الاتصال {index} من {total}'**
+  String collectionsDeskCallingProgress(int index, int total);
+
+  /// No description provided for @collectionsDeskCallCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}'**
+  String collectionsDeskCallCount(int count);
+
+  /// No description provided for @collectionsDeskEmailCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{بريد واحد} =2{بريدان} few{{count} رسائل} many{{count} رسالة} other{{count} رسالة}}'**
+  String collectionsDeskEmailCount(int count);
+
+  /// No description provided for @collectionsDeskRailCall.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال'**
+  String get collectionsDeskRailCall;
+
+  /// No description provided for @collectionsDeskRailEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'بريد'**
+  String get collectionsDeskRailEmail;
+
+  /// No description provided for @collectionsDeskRailBoth.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاثنان'**
+  String get collectionsDeskRailBoth;
+
+  /// No description provided for @collectionsDeskRailCallUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن الاتصال'**
+  String get collectionsDeskRailCallUnavailable;
+
+  /// No description provided for @collectionsDeskRailSkipped.
+  ///
+  /// In ar, this message translates to:
+  /// **'متخطى'**
+  String get collectionsDeskRailSkipped;
+
   /// No description provided for @collectionsQueueSending.
   ///
   /// In ar, this message translates to:

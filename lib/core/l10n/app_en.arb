@@ -1709,6 +1709,35 @@
   "collectionsDeskSkippedStatus": "Skipped",
   "collectionsDeskSentStatus": "Sent",
   "collectionsDeskFailedStatus": "Failed",
+  "collectionsDeskConfirmAndCall": "Confirm & Call",
+  "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
+  "collectionsDeskPromiseNotPayment": "A promise is not a payment",
+  "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
+  "collectionsDeskCallPreviewTitle": "What CALL-E will say",
+  "collectionsDeskCallingProgress": "Calling {index} of {total}",
+  "@collectionsDeskCallingProgress": {
+    "placeholders": {
+      "index": { "type": "int", "example": "1" },
+      "total": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskCallCount": "{count, plural, =1{1 call} other{{count} calls}}",
+  "@collectionsDeskCallCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskEmailCount": "{count, plural, =1{1 email} other{{count} emails}}",
+  "@collectionsDeskEmailCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskRailCall": "Call",
+  "collectionsDeskRailEmail": "Email",
+  "collectionsDeskRailBoth": "Both",
+  "collectionsDeskRailCallUnavailable": "Can't call",
+  "collectionsDeskRailSkipped": "Skipped",
   "collectionsQueueSending": "Sending {index} of {total}",
   "@collectionsQueueSending": {
     "placeholders": {

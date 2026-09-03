@@ -17,6 +17,7 @@ import 'package:daftar/core/services/connectivity_service.dart';
 import 'package:daftar/core/utils/agent_speech.dart';
 import 'package:daftar/core/utils/device_tts.dart';
 import 'package:daftar/core/utils/native_contact_picker_service.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/backup_metadata.dart';
 import 'package:daftar/domain/enums/backup_type.dart';
@@ -24,9 +25,11 @@ import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/confirm_proposal_status.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
@@ -118,7 +121,7 @@ const _emptySummary = ClosingDaySummary(
   totals: [],
 );
 
-CollectionsCandidate _candidate(String id, {String? email}) {
+CollectionsCandidate _candidate(String id, {String? email, OutreachRail rail = OutreachRail.email}) {
   return CollectionsCandidate(
     contactId: id,
     name: id,
@@ -129,6 +132,7 @@ CollectionsCandidate _candidate(String id, {String? email}) {
     currencyCode: 'YER',
     ageDays: 12,
     toneBand: ReminderToneBand.reminder,
+    rail: rail,
   );
 }
 
@@ -241,7 +245,7 @@ void main() {
       return Right(
         CollectionsDeskBuildResult(
           rows: [
-            for (final candidate in ritualResult.reminderSet)
+            for (final candidate in ritualResult.shortlist)
               CollectionsDeskRow(
                 candidate: candidate,
                 body: 'body-${candidate.contactId}',
@@ -283,6 +287,7 @@ void main() {
 
   ProviderContainer container({
     AppSettings settings = const AppSettings(),
+    CalleDevicePolicy? callePolicy,
   }) {
     return ProviderContainer(
       overrides: [
@@ -323,6 +328,8 @@ void main() {
           ),
         ),
         appSettingsProvider.overrideWithValue(AsyncValue.data(settings)),
+        if (callePolicy != null)
+          calleDevicePolicyProvider.overrideWithValue(callePolicy),
       ],
     );
   }
@@ -490,7 +497,14 @@ void main() {
         ),
       };
     });
-    when(() => collectionsCandidates.execute()).thenAnswer(
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        allowDial: any(named: 'allowDial'),
+      ),
+    ).thenAnswer(
       (_) async => Right(result.shortlist),
     );
   }
@@ -520,7 +534,14 @@ void main() {
       ),
     ).called(1);
     verify(() => uploadBackup.call()).called(1);
-    verify(() => collectionsCandidates.execute()).called(1);
+    verify(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        allowDial: any(named: 'allowDial'),
+      ),
+    ).called(1);
   });
 
   test('plan confirm completes ritual task graph on empty overdue', () async {
@@ -618,7 +639,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
 
     final state = c.read(closingAgentControllerProvider);
@@ -637,7 +657,7 @@ void main() {
     );
   });
 
-  test('send set caps desk rows at 20', () async {
+  test('desk shows full shortlist; email send set caps at 20', () async {
     stubRitual(
       ClosingRitualResult(
         summary: _emptySummary,
@@ -652,10 +672,10 @@ void main() {
     await c.read(closingAgentControllerProvider.notifier).confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     final state = c.read(closingAgentControllerProvider);
-    expect(state.deskRows, hasLength(20));
+    expect(state.deskRows, hasLength(25));
+    expect(state.ritualResult?.reminderSet, hasLength(20));
     expect(state.deskRows.take(5).every((row) => row.attachPdf), isTrue);
     expect(state.deskRows.skip(5).every((row) => !row.attachPdf), isTrue);
   });
@@ -675,7 +695,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
 
     final state = c.read(closingAgentControllerProvider);
@@ -699,7 +718,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.skipDeskRow('a');
     await notifier.skipDeskRow('b');
@@ -734,7 +752,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
 
@@ -763,7 +780,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     expect(openedPhones, isEmpty);
@@ -796,7 +812,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     await notifier.pauseSendQueue();
@@ -867,7 +882,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     await notifier.finishDesk();
@@ -896,7 +910,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => false);
 
@@ -926,7 +939,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
 
@@ -951,7 +963,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     await notifier.pauseSendQueue();
@@ -1017,6 +1028,7 @@ void main() {
       final notifier = c.read(closingAgentControllerProvider.notifier);
 
       await notifier.confirm(_planProposal, sendOutreach: true);
+      await notifier.approveAndSend();
 
       final state = c.read(closingAgentControllerProvider);
       expect(state.phase, ClosingAgentPhase.ritualReport);
@@ -1089,7 +1101,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
 
     final desk = c.read(closingAgentControllerProvider);
@@ -1114,6 +1125,176 @@ void main() {
         sent: 8,
       ),
     );
+  });
+
+  test('Confirm and Call seeds progress without email dispatch', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callConsented, isTrue);
+    expect(state.callProgress?.total, 1);
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.planned,
+    );
+    verifyNever(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    );
+  });
+
+  test('Confirm and Call seeds planned progress when kill switch is off', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: false,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callConsented, isTrue);
+    expect(state.callProgress?.total, 1);
+    expect(state.callProgress?.callingIndex, 0);
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.planned,
+    );
+  });
+
+  test('Confirm without calling leaves SMTP available', () async {
+    when(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    ).thenAnswer((invocation) async {
+      final rows =
+          invocation.namedArguments[#rows]! as List<CollectionsDeskRow>;
+      final onRows =
+          invocation.namedArguments[#onRows]
+              as void Function(List<CollectionsDeskRow>)?;
+      final sent = [
+        for (final row in rows)
+          row.copyWith(
+            status: CollectionsDeskRowStatus.sent,
+            smtpCode: 250,
+          ),
+      ];
+      onRows?.call(sent);
+      return Right(
+        DispatchCollectionsEmailResult(
+          rows: sent,
+          metrics: CollectionsQueueMetrics.fromRows(sent),
+        ),
+      );
+    });
+    stubRitual(
+      ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [_candidate('a'), _candidate('b')],
+      ),
+    );
+    final c = container();
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmWithoutCalling();
+    await notifier.approveAndSend();
+
+    verify(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    ).called(1);
+    expect(c.read(closingAgentControllerProvider).callConsented, isFalse);
   });
 
   test(
@@ -1170,6 +1351,7 @@ void main() {
       final notifier = c.read(closingAgentControllerProvider.notifier);
 
       await notifier.confirm(_planProposal, sendOutreach: true);
+      await notifier.approveAndSend();
 
       final state = c.read(closingAgentControllerProvider);
       expect(openedPhones, isEmpty);
@@ -1215,6 +1397,7 @@ void main() {
       final notifier = c.read(closingAgentControllerProvider.notifier);
 
       await notifier.confirm(_planProposal, sendOutreach: true);
+      await notifier.approveAndSend();
 
       final state = c.read(closingAgentControllerProvider);
       expect(state.phase, ClosingAgentPhase.ritualDesk);

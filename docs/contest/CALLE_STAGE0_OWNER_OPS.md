@@ -4,14 +4,14 @@
 
 Local secret directory (mode 700): `$HOME/.daftar-owner-ops/` — not in git.
 
-## 0.1 Account / credits (as of 2026-09-01)
+## 0.1 Account / credits (as of 2026-09-03)
 
 | Item | Status |
 | --- | --- |
 | CALL-E dashboard login | **Done** — `akrmcodes@gmail.com` at [heycall-e.com](https://www.heycall-e.com/) / [API keys](https://dashboard.heycall-e.com/account/api-keys). This is the email for the Devpost “CALL-E account email” field (Stage 7). Contest **GCP** remains `akrm.codes@gmail.com` — do not mix OAuth clients. |
 | Developer API key | **Created.** In Secret Manager `calle-api-key` (2026-09-02) **and** local `$HOME/.daftar-owner-ops/calle-api-key`. Never Flutter `.env`, never git, never chat, never screenshots. |
-| Extra-calls form | **Submitted** ([form](https://forms.gle/EPQttEZ1rkW8iq9q6)) — **+200** if this is an existing account; 1–5 business days, **not guaranteed**. |
-| Free pool until extras land | **20** calls. Exhaustion **pauses** access — **no auto-charge**. Optional `~$0.05` / call is a purchase, not required. **Do not** burn calls on Flutter UI. Live cap **3** recipients until extras confirm (product cap 5). |
+| Extra-calls form | **Approved 2026-09-03** ([form](https://forms.gle/EPQttEZ1rkW8iq9q6)) — **+200** granted. |
+| Free pool | **200** calls (1 spent Gate 0 → **199** remaining). Exhaustion **pauses** access — **no auto-charge**. Optional `~$0.05` / call is a purchase, not required. **Do not** burn calls on Flutter UI. Product cap **5** recipients. |
 | Outbound KYC | **Proven 2026-09-02.** Live Developer API `create_and_wait` on `https://api.heycall-e.com` → terminal `completed`, `structured_result.can_hear_clearly=yes`. Not a separate control on the API keys page. 2026-09-01 probe `GET /v1/calls/{missing}` → **404** `not_found` still stands. |
 
 ### 0.5 API 404 probe (2026-09-01)
@@ -108,7 +108,7 @@ unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY
 
 Wrapper: [`agent/scripts/stage0_5_laptop_smoke.sh`](../../agent/scripts/stage0_5_laptop_smoke.sh) → [`agent/scripts/stage0_5_laptop_smoke.py`](../../agent/scripts/stage0_5_laptop_smoke.py). `calle-ai==0.7.0` in `agent/.venv` only. Production `https://api.heycall-e.com`. No webhook. No Cloud Run mutate.
 
-**Result (no E.164, no key):** `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`. Masked dest last-4 only in local `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git). Contest credits: **1 of 20** spent.
+**Result (no E.164, no key):** `status=completed`, `task_completed=true`, `structured_result.can_hear_clearly=yes`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`. Masked dest last-4 only in local `$HOME/.daftar-owner-ops/stage0_5-result.json` (not git). Contest credits: **1 of 200** spent (pool approved 2026-09-03).
 
 When the smoke finishes: `unset CALLE_ALLOW_DIAL CALLE_ALLOWLIST CALLE_ALLOWLIST_REGION CALLE_API_KEY` or leave `CALLE_ALLOW_DIAL` unset (treated as false). Do not leave `true` in the environment.
 

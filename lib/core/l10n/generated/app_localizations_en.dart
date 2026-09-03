@@ -3820,6 +3820,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskFailedStatus => 'Failed';
 
   @override
+  String get collectionsDeskConfirmAndCall => 'Confirm & Call';
+
+  @override
+  String get collectionsDeskConfirmWithoutCalling => 'Confirm without calling';
+
+  @override
+  String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
+
+  @override
+  String get collectionsDeskPromiseNotPaymentSubtitle =>
+      'CALL-E records what the customer said they will pay. It does not write money to your ledger.';
+
+  @override
+  String get collectionsDeskCallPreviewTitle => 'What CALL-E will say';
+
+  @override
+  String collectionsDeskCallingProgress(int index, int total) {
+    return 'Calling $index of $total';
+  }
+
+  @override
+  String collectionsDeskCallCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calls',
+      one: '1 call',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskEmailCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count emails',
+      one: '1 email',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectionsDeskRailCall => 'Call';
+
+  @override
+  String get collectionsDeskRailEmail => 'Email';
+
+  @override
+  String get collectionsDeskRailBoth => 'Both';
+
+  @override
+  String get collectionsDeskRailCallUnavailable => 'Can\'t call';
+
+  @override
+  String get collectionsDeskRailSkipped => 'Skipped';
+
+  @override
   String collectionsQueueSending(int index, int total) {
     return 'Sending $index of $total';
   }

@@ -3786,6 +3786,70 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskFailedStatus => 'فشل';
 
   @override
+  String get collectionsDeskConfirmAndCall => 'تأكيد والاتصال';
+
+  @override
+  String get collectionsDeskConfirmWithoutCalling => 'تأكيد دون اتصال';
+
+  @override
+  String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
+
+  @override
+  String get collectionsDeskPromiseNotPaymentSubtitle =>
+      'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.';
+
+  @override
+  String get collectionsDeskCallPreviewTitle => 'ما سيقوله CALL-E';
+
+  @override
+  String collectionsDeskCallingProgress(int index, int total) {
+    return 'جاري الاتصال $index من $total';
+  }
+
+  @override
+  String collectionsDeskCallCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مكالمة',
+      many: '$count مكالمة',
+      few: '$count مكالمات',
+      two: 'مكالمتان',
+      one: 'مكالمة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskEmailCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رسالة',
+      many: '$count رسالة',
+      few: '$count رسائل',
+      two: 'بريدان',
+      one: 'بريد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectionsDeskRailCall => 'اتصال';
+
+  @override
+  String get collectionsDeskRailEmail => 'بريد';
+
+  @override
+  String get collectionsDeskRailBoth => 'الاثنان';
+
+  @override
+  String get collectionsDeskRailCallUnavailable => 'لا يمكن الاتصال';
+
+  @override
+  String get collectionsDeskRailSkipped => 'متخطى';
+
+  @override
   String collectionsQueueSending(int index, int total) {
     return 'إرسال $index من $total';
   }

@@ -11,6 +11,7 @@ import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/contact_search_hit.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -114,6 +115,10 @@ abstract class ClosingAgentState with _$ClosingAgentState {
     DateTime? queueCreatedAt,
     @Default(false) bool collectionsDispatching,
     String? collectionsBatchId,
+    @Default(false) bool callConsented,
+    @Default(false) bool sendConsented,
+    @Default(false) bool sendOutreachEnabled,
+    CollectionsCallProgress? callProgress,
     String? speechLocaleOverride,
   }) = _ClosingAgentState;
 
@@ -197,6 +202,15 @@ abstract class ClosingAgentState with _$ClosingAgentState {
     }
     return done + 1;
   }
+
+  /// CALL-E call-set size from the ritual shortlist.
+  int get deskCallCount => ritualResult?.callSet.length ?? 0;
+
+  /// Email-rail size from the ritual shortlist.
+  int get deskEmailCount => ritualResult?.emailRailShortlist.length ?? 0;
+
+  /// Whether Confirm & Call should own the primary lapis glow.
+  bool get callPrimaryOnDesk => deskCallCount > 0 && !callConsented;
 
   static bool _isConfirmable(ProposalTool tool) {
     return tool == ProposalTool.proposeDebt ||

@@ -558,6 +558,11 @@ class _AgentBody extends ConsumerWidget {
             child: CollectionsDeskPanel(
               paddingBottom: paddingBottom,
               rows: agentState.deskRows,
+              callCount: agentState.deskCallCount,
+              emailCount: agentState.deskEmailCount,
+              callConsented: agentState.callConsented,
+              sendOutreachEnabled: agentState.sendOutreachEnabled,
+              callProgress: agentState.callProgress,
               startSendingIsPrimary: agentState.ownsPrimaryGlow,
               busyContactId: agentState.deskBusyContactId,
               isQueueInFlight: agentState.isQueueInFlight,
@@ -567,6 +572,9 @@ class _AgentBody extends ConsumerWidget {
               queueTotal: agentState.deskRows.length,
               queueContactName:
                   agentState.firstPendingDeskRow?.candidate.name ?? '',
+              onConfirmAndCall: () => unawaited(notifier.confirmAndCall()),
+              onConfirmWithoutCalling: () =>
+                  unawaited(notifier.confirmWithoutCalling()),
               onSkip: (contactId) {
                 unawaited(notifier.skipDeskRow(contactId));
               },

@@ -31,7 +31,7 @@
 | **Must use at runtime** | CALL-E **Python SDK (`calle-ai==0.7.0`)**, `from calle import CalleClient` — **imported and actually called** via Developer API `POST /v1/calls`. MCP / CLI / SKILL satisfy Stage One if used at runtime; **this submission’s production path is the SDK**, not MCP |
 | **Must submit** | Devpost + **PR** to [CALLE-AI/awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents) (correct Contribution Area) + public **≤3 min** YouTube/Vimeo + CALL-E **account email** |
 | **Setup vs submit repos** | Setup: [call-e-integrations](https://github.com/CALLE-AI/call-e-integrations) (optional [installation guide](https://open.heycall-e.com/document/mcp-archive/CALL-E-installation-guide.md) for CLI/MCP owner-ops). Submit list: **awesome-phone-call-agents**. Do not mix. |
-| **Credits** | **New** account: **20** free. **Existing** account: request **+200** via [form](https://forms.gle/EPQttEZ1rkW8iq9q6) (1–5 business days, not guaranteed). Exhaustion **pauses** access — **no auto-charge**. `~$0.05` / call is **optional purchase**. Film inside 20 until extras land |
+| **Credits** | **200** free (**+200** extra-calls approved 2026-09-03; 1 spent Gate 0). Exhaustion **pauses** access — **no auto-charge**. `~$0.05` / call is **optional purchase**. Film inside **200** |
 | **Outbound** | CALL-E **KYC** required before dial. Inbound numbers are **not** this submission. |
 | **Existing project** | Allowed if **significantly updated** during the Submission Period and disclosed |
 | **GCP account** | Contest compute + billing on **`akrm.codes@gmail.com`** / project **`daftar-closing-agent`**; keep Drive OAuth clients on **product** GCP — do not mix |
@@ -144,7 +144,7 @@ Must be **filmable by Gate 4 (~10 Sep)**. Everything beyond this is polish. **MF
 5. Cloud Logging **`daftar.agent.call`**
 6. A **YE-seeded** overdue row stays on **email** (region gate), never a failed CALL-E dial
 
-**Slip protocol:** If Gate 0 live ring fails, **do not** build Flutter UI on hope — fix PSTN/KYC/credits first. Collapse to one golden path (single recipient, English, `region: US`). If Arabic PSTN fails the week of filming, film US English and **narrate the region gate**. If extra-call credits lag, stay inside **20 free calls** (live cap **3** recipients). If SMTP owner-ops regress, film call rail only but **do not delete** J.7.
+**Slip protocol:** If Gate 0 live ring fails, **do not** build Flutter UI on hope — fix PSTN/KYC/credits first. Collapse to one golden path (single recipient, English, `region: US`). If Arabic PSTN fails the week of filming, film US English and **narrate the region gate**. Stay inside **200 free calls** (product cap **5** recipients). If SMTP owner-ops regress, film call rail only but **do not delete** J.7.
 
 **Demo utility framing:** Film a **specific phone-work problem** (close-the-day collections for shops that still keep paper books) — not “AI that makes phone calls.” **Why it matters:** they still make those calls themselves, or they forget; CALL-E returns a promise, not a payment; YE stays on email. **Worth building further:** Confirm & Call stays in the product after submit. Sequence: problem → one confirm → live CALL-E call → structured promise on device → HUD `runId`. Name **CALL-E SDK/API** out loud. **Do not open on Gemini / ADK / Cloud Run.** Judges may score from **video + repo + awesome-list PR**. Architecture HUD in-frame. English VO or EN subtitles. **≤3:00** (judges need not watch more). Beat sheet: §6.3.
 
@@ -441,7 +441,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Complete **outbound KYC** (proven 2026-09-02 by Developer API `create_and_wait` → `completed`)
 - [x] Create API key · store only in Secret Manager later (`calle-api-key`) · never chat/git
 - [x] Submit extra-calls form immediately: https://forms.gle/EPQttEZ1rkW8iq9q6 (**+200** if this is an existing account; 1–5 business days, not guaranteed)
-- [x] Note the **20**-call budget until extras land; exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
+- [x] Note the **200**-call budget (extras approved 2026-09-03); exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
 
 **0.2 Test destination (US DID)**
 
@@ -631,12 +631,12 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **3.1 Collections Desk**
 
-- [ ] One card, **two explicit buttons**: Confirm & Call · Confirm & Send Statements
-- [ ] Confirm without calling / without sending remain first-class
-- [ ] Badges: call · email · both · `callUnavailable` (YE) · skipped
-- [ ] Preview C.3 task string = what Cloud Run will send as `task` (store, `amount_line` from **int**, locale)
-- [ ] Copy: **promise ≠ payment** (ARB `ar` + `en`)
-- [ ] Live progress `Calling i of N` from **server per-row results**, not a fake spinner
+- [x] One card, **two explicit buttons**: Confirm & Call · Confirm & Send Statements
+- [x] Confirm without calling / without sending remain first-class
+- [x] Badges: call · email · both · `callUnavailable` (YE) · skipped
+- [x] Preview C.3 task string = what Cloud Run will send as `task` (store, `amount_line` from **int**, locale)
+- [x] Copy: **promise ≠ payment** (ARB `ar` + `en`)
+- [x] Live progress `Calling i of N` from **server per-row results**, not a fake spinner
 
 **3.2 B-trigger**
 
@@ -1000,10 +1000,10 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 
 ## Appendix E — Cost & Budget Hygiene
 
-- Extra-calls form **day 1** (Gate 0): **+200** if existing account; 1–5 business days, not guaranteed
-- Do **not** burn the 20 free calls on Flutter UI — fixtures until Gate 4
+- Extra-calls form **approved 2026-09-03**: **+200** granted (**200** in pool; 1 spent Gate 0)
+- Do **not** burn the **200** free calls on Flutter UI — fixtures until Gate 4
 - Exhaustion **pauses** CALL-E access — **no auto-charge**. `~$0.05` is optional purchase after the free/hackathon pool
-- Live cap **3** recipients until credits confirm; hard product cap **5**
+- Product cap **5** recipients (credits confirmed 2026-09-03)
 - Cloud Run **`daftar-call-e`**: min instances = 0 · **max instances = 2** · ID-token only
 - **Do not** deploy a public webhook service
 - Keep `daftar-call-e` deployable through **13 Oct 2026** (judging end)
@@ -1037,7 +1037,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | Public webhook IAM hole | Poll-first; J.8 stays retired |
 | Agentic URL drift | New service name; Gate 0/1 checks; Envied must not default to frozen hostname |
 | Collections/consent law | Allowlist; no real debtors; C.3 disclose assistant; DNC; Singapore residency note |
-| Credits lag / pause mid-film | Form day 1; stay within 20 until +200 lands; exhaustion pauses (no surprise bill) |
+| Credits lag / pause mid-film | Extras approved 2026-09-03 (**200** in pool); stay within budget; exhaustion pauses (no surprise bill) |
 | `credential_grant_unavailable` | Chat/MCP can ring while Developer API cannot. Gate 0 = API 404 probe + `create_and_wait`, not Chat |
 | NANP `+1` US vs CA | Demo DID `region: US` from allowlist config, never inferred from `+1` |
 | Arabic PSTN fail | Film US English; narrate J.10 |

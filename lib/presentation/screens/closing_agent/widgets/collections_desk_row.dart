@@ -9,6 +9,7 @@ import 'package:daftar/core/utils/money_util.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
+import 'package:daftar/presentation/screens/closing_agent/widgets/outreach_rail_badge.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_tap_target.dart';
@@ -107,13 +108,16 @@ class CollectionsDeskRowCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (statusLabel != null)
+                  OutreachRailBadge(rail: candidate.rail),
+                  if (statusLabel != null) ...[
+                    const Gap(AppDimensions.spacingXs),
                     Text(
                       statusLabel,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: inkSecondary,
                       ),
                     ),
+                  ],
                 ],
               ),
               const Gap(AppDimensions.spacingXs),
@@ -149,8 +153,23 @@ class CollectionsDeskRowCard extends StatelessWidget {
                   onTone: onTone,
                 ),
               ],
-              const Gap(AppDimensions.spacingSm),
+              if (row.callTask.isNotEmpty) ...[
+                const Gap(AppDimensions.spacingSm),
+                Text(
+                  l10n.collectionsDeskCallPreviewTitle,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: inkPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Gap(AppDimensions.spacingXxs),
+                SelectableText(
+                  row.callTask,
+                  style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
+                ),
+              ],
               if (row.subject.isNotEmpty) ...[
+                if (row.callTask.isNotEmpty) const Gap(AppDimensions.spacingSm),
                 Text(
                   row.subject,
                   maxLines: 2,
@@ -162,22 +181,19 @@ class CollectionsDeskRowCard extends StatelessWidget {
                 ),
                 const Gap(AppDimensions.spacingXxs),
               ],
-              Text(
-                row.body,
-                maxLines: 6,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
-              ),
-              if (row.attachPdf) ...[
-                const Gap(AppDimensions.spacingXxs),
+              if (row.body.isNotEmpty) ...[
+                const Gap(AppDimensions.spacingSm),
                 Text(
-                  l10n.collectionsDeskPdfAttached,
-                  style: AppTextStyles.labelSmall.copyWith(color: inkSecondary),
+                  row.body,
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
                 ),
-              ] else ...[
                 const Gap(AppDimensions.spacingXxs),
                 Text(
-                  l10n.collectionsDeskReminderOnly,
+                  row.attachPdf
+                      ? l10n.collectionsDeskPdfAttached
+                      : l10n.collectionsDeskReminderOnly,
                   style: AppTextStyles.labelSmall.copyWith(color: inkSecondary),
                 ),
               ],
