@@ -2,6 +2,7 @@ import 'package:daftar/application/contact/compute_fifo_contact_aging.dart';
 import 'package:daftar/core/constants/db_constants.dart';
 import 'package:daftar/core/utils/demo_seed_emails.dart';
 import 'package:daftar/core/utils/demo_seed_report.dart';
+import 'package:daftar/core/utils/demo_seed_us_did.dart';
 import 'package:daftar/core/utils/demo_store_seeder.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/data/datasources/local/drift_database.dart';
@@ -9,9 +10,14 @@ import 'package:daftar/data/models/contact_model.dart';
 import 'package:daftar/data/models/ledger_model.dart';
 import 'package:daftar/data/models/transaction_model.dart';
 import 'package:daftar/domain/constants/contact_email.dart';
+import 'package:daftar/domain/constants/dual_rail_split.dart';
+import 'package:daftar/domain/constants/j10_calle_regions.dart';
 import 'package:daftar/domain/enums/ledger_type.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/enums/transaction_type.dart';
+import 'package:daftar/domain/value_objects/collections_candidate.dart';
+import 'package:daftar/domain/value_objects/phone_number.dart';
 import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -117,6 +123,20 @@ void main() {
       for (var i = 0; i < contacts.length; i++) {
         final contact = contacts[i];
         expect(contact.phone, isNotNull, reason: contact.name);
+        final phone = PhoneNumber(contact.phone!);
+        expect(phone.isValid, isTrue, reason: contact.name);
+        expect(phone.e164, isNotNull, reason: contact.name);
+        expect(
+          J10CalleRegions.callingRegion(phone.e164!),
+          'YE',
+          reason: contact.name,
+        );
+        expect(
+          contact.phone,
+          DemoSeedUsDid.yemenPlaceholder(i),
+          reason: contact.name,
+        );
+        expect(contact.doNotCall, isFalse, reason: contact.name);
         final email = contact.email?.trim() ?? '';
         expect(email, isNotEmpty, reason: contact.name);
         expect(ContactEmail.isValid(email), isTrue, reason: contact.name);
@@ -141,6 +161,117 @@ void main() {
       expect(report.contactCount, 7);
       expect(report.pdfCount, 5);
       expect(report.textOnlyCount, 2);
+    });
+
+    test('Mohamed uses US DID override; others stay Yemen', () async {
+      const usFixture = '+15555550100';
+      await DemoStoreSeeder.seedData(
+        database,
+        now: now,
+        localeOverride: 'en',
+        callEligibleE164: usFixture,
+      );
+
+      final contacts = await database.select(database.contacts).get();
+      final mohamed = contacts.singleWhere(
+        (row) => row.name == DemoStoreSeeder.mohamedNameEn,
+      );
+      expect(mohamed.phone, usFixture);
+
+      final others = contacts.where(
+        (row) => row.name != DemoStoreSeeder.mohamedNameEn,
+      );
+      for (final contact in others) {
+        final phone = PhoneNumber(contact.phone!);
+        expect(J10CalleRegions.callingRegion(phone.e164!), 'YE');
+      }
+    });
+
+    test('invalid US DID override falls back to Yemen for Mohamed', () async {
+      await DemoStoreSeeder.seedData(
+        database,
+        now: now,
+        localeOverride: 'en',
+        callEligibleE164: '0771234567',
+      );
+
+      final mohamed = (await database.select(database.contacts).get())
+          .singleWhere((row) => row.name == DemoStoreSeeder.mohamedNameEn);
+      expect(mohamed.phone, DemoSeedUsDid.yemenPlaceholder(0));
+    });
+
+    test('dual rail: US Mohamed is both; Yemen contacts callUnavailable', () async {
+      const usFixture = '+15555550100';
+      await DemoStoreSeeder.seedData(
+        database,
+        now: now,
+        localeOverride: 'en',
+        callEligibleE164: usFixture,
+      );
+
+      final contacts = await database.select(database.contacts).get();
+      final ranked = <CollectionsCandidate>[];
+      for (final contact in contacts) {
+        final rows = await (database.select(
+          database.transactions,
+        )..where((table) => table.contactId.equals(contact.id))).get();
+        final aging = computeFifoContactAging(
+          transactions: [
+            for (final row in rows) TransactionModel.fromDrift(row).toDomain(),
+          ],
+          currencyCode: DemoStoreSeeder.demoCurrencyCode,
+          asOf: now,
+        );
+        final balance = await (database.select(
+          database.contactBalances,
+        )..where((table) => table.contactId.equals(contact.id))).getSingle();
+        ranked.add(
+          CollectionsCandidate(
+            contactId: contact.id,
+            name: contact.name,
+            phone: contact.phone,
+            email: contact.email,
+            ledgerId: contact.ledgerId,
+            netBalance: balance.netBalance,
+            currencyCode: DemoStoreSeeder.demoCurrencyCode,
+            ageDays: aging!.ageDays,
+            toneBand: aging.toneBand,
+            daysSinceLastPayment: aging.daysSinceLastPayment,
+            daysSinceLastDebt: aging.daysSinceLastDebt,
+            doNotCall: contact.doNotCall,
+          ),
+        );
+      }
+      ranked.sort((left, right) {
+        final byAge = right.ageDays.compareTo(left.ageDays);
+        if (byAge != 0) {
+          return byAge;
+        }
+        return right.netBalance.abs().compareTo(left.netBalance.abs());
+      });
+
+      final split = DualRailSplit.split(
+        ranked: ranked,
+        allowlistRegion: 'US',
+        allowlist: {usFixture},
+        allowDial: true,
+      );
+
+      final mohamed = split.ranked.singleWhere(
+        (row) => row.name == DemoStoreSeeder.mohamedNameEn,
+      );
+      expect(mohamed.rail, OutreachRail.both);
+      expect(split.callSet, contains(mohamed));
+
+      final yeContacts = split.ranked.where(
+        (row) => row.name != DemoStoreSeeder.mohamedNameEn,
+      );
+      expect(yeContacts, hasLength(6));
+      for (final row in yeContacts) {
+        expect(row.rail, OutreachRail.callUnavailable);
+        expect(split.emailSet, contains(row));
+        expect(split.callSet, isNot(contains(row)));
+      }
     });
 
     test('Arabic locale uses Arabic names and ledger label', () async {

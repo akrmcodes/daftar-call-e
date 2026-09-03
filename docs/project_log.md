@@ -4411,4 +4411,26 @@ Rank first (FIFO + age/balance sort), split second. YE / unsupported phone + val
 ### Status
 §2.3 done. Next: §2.4 demo seeder. No commit unless asked.
 
+## 2026-09-03 — Stage 2.4 Demo seeder
+
+### Context
+Roadmap §2.4: sample store seeds one call-eligible contact (Mohamed) from a gitignored US DID dart-define; remaining six overdue contacts use valid Yemen Mobile placeholders plus emails to prove J.10 → `callUnavailable` / email rail. No live numbers in `lib/` or committed `tool/`.
+
+### Done
+- [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart): `DAFTAR_SEED_US_DID` resolver (NANP only); `yemenPlaceholder(0…6)` with `+96777…` prefix
+- [`lib/core/utils/demo_store_seeder.dart`](../lib/core/utils/demo_store_seeder.dart): Mohamed phone from `DemoSeedUsDid.resolve` or YE fallback; optional `callEligibleE164` test param; indices 1–6 always YE
+- [`tool/demo_seed_emails.example.json`](../tool/demo_seed_emails.example.json): empty `DAFTAR_SEED_US_DID`
+- [`tool/demo_seed_emails.md`](../tool/demo_seed_emails.md), [`docs/qa/flutter_env.template.md`](../docs/qa/flutter_env.template.md): overlay docs (not Envied, not `CALLE_ALLOWLIST`)
+- Tests: [`test/core/utils/demo_seed_us_did_test.dart`](../test/core/utils/demo_seed_us_did_test.dart); extended [`dev_database_seeder_test.dart`](../test/core/utils/dev_database_seeder_test.dart) (YE E.164, US override, dual-rail `both` / `callUnavailable`); [`demo_seed_emails_test.dart`](../test/core/utils/demo_seed_emails_test.dart)
+- Roadmap §2.4 `[x]`
+
+### Architecture / decisions
+Mohamed (index 0) is the mid-day capture + call target. Empty/invalid DID → all seven on YE placeholders (CI/judge-safe). US DID via `--dart-define-from-file=tool/demo_seed_emails.local.json` only. Replaced invalid `+96770…` phones with `77`-prefix numbers so `PhoneNumber.isValid` and YE gate apply. No logging of DID. Stage 2 validation gate stays open (2.5).
+
+### Ops / verification
+`flutter test` demo_seed_us_did + demo_seed_emails + dev_database_seeder — **20 passed**. `flutter analyze` on touched lib/tests — clean. No PSTN. No commit unless asked.
+
+### Status
+§2.4 done. Next: §2.5 allowlist + DNC on device. No commit unless asked.
+
 

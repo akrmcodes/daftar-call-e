@@ -1,4 +1,4 @@
-# Demo seed emails (Stage 4.10)
+# Demo seed overlay (emails + US DID)
 
 Compile-time overlay for [`DemoStoreSeeder`](../lib/core/utils/demo_store_seeder.dart). Release builds use owner plus-aliases by default; forks may override via `--dart-define-from-file`.
 
@@ -6,14 +6,25 @@ Compile-time overlay for [`DemoStoreSeeder`](../lib/core/utils/demo_store_seeder
 
 | Path | Git | Values |
 | --- | --- | --- |
-| [`demo_seed_emails.example.json`](demo_seed_emails.example.json) | committed | owner plus-aliases (`akrm.codes+demo1` … `qubati.akrm+demo7`) |
-| `demo_seed_emails.local.json` | **gitignored** | optional overrides for forks |
+| [`demo_seed_emails.example.json`](demo_seed_emails.example.json) | committed | owner plus-aliases (`akrm.codes+demo1` … `qubati.akrm+demo7`); empty `DAFTAR_SEED_US_DID` |
+| `demo_seed_emails.local.json` | **gitignored** | optional overrides for forks (emails + owner US DID) |
 
-Copy the example to the local path only if you need different inboxes. Same keys. Do **not** commit secrets.
+Copy the example to the local path only if you need different inboxes or a live call target. Same keys. Do **not** commit secrets.
 
 ## Keys
 
-`DAFTAR_SEED_EMAIL_<tag>` for the **7** desk-eligible sample contacts.
+### `DAFTAR_SEED_US_DID` (Mohamed — call-eligible contact)
+
+Owner inbound **US DID** in E.164 (`+1` …). Seeds Mohamed (index 0) only. Remaining six contacts use Yemen Mobile placeholders (`+96777…`) plus valid emails.
+
+- **Not** Envied — do not add to repo-root `.env`.
+- **Not** `CALLE_ALLOWLIST` — that stays Cloud Run / `$HOME/.daftar-owner-ops/` only.
+- Empty or invalid → Mohamed also gets a Yemen placeholder (email rail / `callUnavailable` at close).
+- Never commit a live DID. Never log the resolved value.
+
+Resolver: [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart).
+
+### `DAFTAR_SEED_EMAIL_<tag>` (all seven contacts)
 
 Tags: `demo1`, `demo2`, `demo3`, `demo4`, `demo5`, `demo6`, `demo7`.
 
@@ -41,4 +52,4 @@ Optional override:
 flutter run --dart-define-from-file=tool/demo_seed_emails.local.json
 ```
 
-Resolver: [`lib/core/utils/demo_seed_emails.dart`](../lib/core/utils/demo_seed_emails.dart). Invalid dart-define values fall back to compiled defaults. Addresses are never logged.
+Resolver: [`lib/core/utils/demo_seed_emails.dart`](../lib/core/utils/demo_seed_emails.dart) and [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart). Invalid dart-define values fall back to compiled defaults. Addresses and DIDs are never logged.

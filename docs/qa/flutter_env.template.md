@@ -27,9 +27,16 @@ Generated `*.g.dart` is gitignored. `BACKUP_AES_KEY` and `GOOGLE_SERVER_CLIENT_I
 | `DEEP_LINK_BASE_URL` | Minted invite URL base | Default `https://daftar.app/i` |
 | `CLOSING_AGENT_BASE_URL` | Cloud Run agent base URL | **Required.** Empty Envied default. Use the `daftar-call-e` URL from `$HOME/.daftar-owner-ops/daftar-call-e-url`. Never the frozen Agentic hostname. |
 
-## Optional dart-defines (demo inboxes)
+## Optional dart-defines (demo overlay)
 
-Not in `.env` — use `--dart-define-from-file` for sample-store email overrides. See [`tool/demo_seed_emails.md`](../../tool/demo_seed_emails.md). Do **not** run live **Confirm & Send Statements** against the deployed service unless you own the To: addresses.
+Not in `.env` — use `--dart-define-from-file=tool/demo_seed_emails.local.json` for sample-store overrides. See [`tool/demo_seed_emails.md`](../../tool/demo_seed_emails.md).
+
+| Key | Purpose | Notes |
+| --- | --- | --- |
+| `DAFTAR_SEED_EMAIL_demo1` … `demo7` | SMTP To: for the seven overdue contacts | Committed defaults are owner plus-aliases |
+| `DAFTAR_SEED_US_DID` | Mohamed's phone (call-eligible US DID) | **Not Envied.** **Not** `CALLE_ALLOWLIST`. Gitignored local JSON only. Empty = Yemen placeholder for Mohamed |
+
+Do **not** run live **Confirm & Send Statements** or **Confirm & Call** unless you own the To: addresses and DID.
 
 ## Gmail SMTP (Cloud Run only)
 

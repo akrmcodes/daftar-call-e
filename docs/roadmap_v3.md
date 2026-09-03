@@ -600,9 +600,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **2.4 Demo seeder**
 
-- [ ] One call-eligible contact whose phone comes from **gitignored env** (US DID)
-- [ ] Remaining overdue contacts: **YE phones + valid emails** (prove region gate → email)
-- [ ] No live numbers in `tool/` or `lib/`
+- [x] One call-eligible contact whose phone comes from **gitignored env** (US DID)
+- [x] Remaining overdue contacts: **YE phones + valid emails** (prove region gate → email)
+- [x] No live numbers in `tool/` or `lib/`
 
 **2.5 Allowlist + DNC on device**
 
