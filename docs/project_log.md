@@ -4527,3 +4527,19 @@ Owner asked for a full review of the Stage 3.1 Collections Desk slice (many file
 ### Status
 §3.1 still ticked. 3.2–3.4 unchecked.
 
+## 2026-09-04 — CALL-E credits doc sweep (200 pool)
+
+### Context
+Owner confirmed **+200** extra CALL-E calls approved. Remaining forward-looking docs still had “submitted / not guaranteed” wording from the pre-approval **20**-call era.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md): v3.2 changelog credits note; §0.1 extra-calls checkbox; Stage 0 validation gate — **approved 2026-09-03**, **200** in pool
+
+### Architecture / decisions
+Historical `project_log` entries (e.g. **19 / 20** after Gate 0) unchanged. SMTP send-set cap **≤20**, Drift schema **20**, Egypt **+20**, and other unrelated “20” values untouched.
+
+### Ops / verification
+**199 / 200** remaining after Gate 0. Product recipient cap **5**.
+
+### Status
+Credits language current across active CALL-E docs.

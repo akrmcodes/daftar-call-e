@@ -10,7 +10,7 @@
 >
 > **v3.1 changelog:** Production path = Developer API `create` / `get` (not MCP `plan_call` / `confirm_token`). `plan-batch` is **Daftar-local** (zero PSTN). `runId` := CALL-E `call.id`. Minimum filmable slice renamed **MFP** (MCP = Model Context Protocol only). Credits: 20 new / +200 existing / pause not auto-charge. Pin `calle-ai==0.7.0`. Gate 0 API 404 probe; Chat ≠ API. Awesome-list `skills/` template + dry-run. Envied URL must not default to the frozen Agentic hostname. NANP `+1` region from allowlist. Integer coercion of structured amounts. Winning-criteria map.
 >
-> **v3.2 changelog:** Judging-criteria lock only. Winning map answers the four official Stage Two questions plus the Impact tie-break. Post-hackathon: Confirm & Call stays in the product. Skill one-liner, 3:00 beat sheet, four-paragraph Devpost About. Do not open the film on Gemini/ADK. Product, calendar, and J.9 unchanged from v3.1.
+> **v3.2 changelog:** Judging-criteria lock only. Winning map answers the four official Stage Two questions plus the Impact tie-break. Post-hackathon: Confirm & Call stays in the product. Skill one-liner, 3:00 beat sheet, four-paragraph Devpost About. Do not open the film on Gemini/ADK. Product, calendar, and J.9 unchanged from v3.1. **Credits:** extra-calls form **approved 2026-09-03** — **200** in pool (1 spent Gate 0); film inside **200**.
 
 **Binding contract:** `docs/roadmap_v3.md` is the **sole implementation contract** for this CALL-E submission. [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its Gates. Product Phase 2 (`docs/product/roadmap.md` stub + `docs/archive/`) remains **deferred**.
 
@@ -440,7 +440,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Create CALL-E account at [heycall-e.com](https://www.heycall-e.com/) / [dashboard](https://dashboard.heycall-e.com/account/api-keys)
 - [x] Complete **outbound KYC** (proven 2026-09-02 by Developer API `create_and_wait` → `completed`)
 - [x] Create API key · store only in Secret Manager later (`calle-api-key`) · never chat/git
-- [x] Submit extra-calls form immediately: https://forms.gle/EPQttEZ1rkW8iq9q6 (**+200** if this is an existing account; 1–5 business days, not guaranteed)
+- [x] Submit extra-calls form: https://forms.gle/EPQttEZ1rkW8iq9q6 — **approved 2026-09-03** (**+200** granted; **200** in pool)
 - [x] Note the **200**-call budget (extras approved 2026-09-03); exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
 
 **0.2 Test destination (US DID)**
@@ -479,7 +479,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 - [x] Disclosure drafted for CALL-E (substrate vs Agentic vs CALL-E-new)
 - [x] CALL-E account + KYC + API key in Secret Manager (not git) — key is in Secret Manager; outbound KYC proven by live `create`
-- [x] Extra-calls form submitted
+- [x] Extra-calls form **approved** (**+200**, 2026-09-03) — **200** in pool (1 spent Gate 0)
 - [x] Authenticated `GET /v1/calls/{nonexistent}` → `404` (API key works)
 - [x] US DID rings in provider app
 - [x] One consented **Developer API** `create_and_wait` succeeded (not Chat/MCP-only)
