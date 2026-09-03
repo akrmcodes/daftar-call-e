@@ -2,14 +2,16 @@
 
 Compile-time overlay for [`DemoStoreSeeder`](../lib/core/utils/demo_store_seeder.dart). Release builds use owner plus-aliases by default; forks may override via `--dart-define-from-file`.
 
+**Required for Confirm & Call on a debug device.** `flutter run` without this file seeds **all seven** contacts with Yemen placeholders. The Collections Desk then has an empty call set.
+
 ## Files
 
 | Path | Git | Values |
 | --- | --- | --- |
-| [`demo_seed_emails.example.json`](demo_seed_emails.example.json) | committed | owner plus-aliases (`akrm.codes+demo1` … `qubati.akrm+demo7`); empty `DAFTAR_SEED_US_DID` |
-| `demo_seed_emails.local.json` | **gitignored** | optional overrides for forks (emails + owner US DID) |
+| [`demo_seed_emails.example.json`](demo_seed_emails.example.json) | committed | owner plus-aliases (`akrm.codes+demo1` … `qubati.akrm+demo7`); empty `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` |
+| `demo_seed_emails.local.json` | **gitignored** | owner overlay: emails + US DID + device allowlist |
 
-Copy the example to the local path only if you need different inboxes or a live call target. Same keys. Do **not** commit secrets.
+Copy the example to the local path, then fill `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` from `$HOME/.daftar-owner-ops/test-did` (same E.164, `+` + digits). Leave `CALLE_ALLOW_DIAL` empty until Stage 4. Do **not** commit the local file. Never add a live DID to the example JSON.
 
 ## Keys
 
@@ -18,24 +20,23 @@ Copy the example to the local path only if you need different inboxes or a live 
 Owner inbound **US DID** in E.164 (`+1` …). Seeds Mohamed (index 0) only. Remaining six contacts use Yemen Mobile placeholders (`+96777…`) plus valid emails.
 
 - **Not** Envied — do not add to repo-root `.env`.
-- **Not** `CALLE_ALLOWLIST` — that stays Cloud Run / `$HOME/.daftar-owner-ops/` only.
-- Empty or invalid → Mohamed also gets a Yemen placeholder (email rail / `callUnavailable` at close).
+- Independent of `CALLE_ALLOWLIST` — you must set **both**. Empty DID → Mohamed also gets a Yemen placeholder (`callUnavailable` at close).
+- Empty allowlist with a US DID still puts Mohamed on **email** only (not allowlisted).
 - Never commit a live DID. Never log the resolved value.
 
 Resolver: [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart).
 
 ### Device CALL-E policy (`CALLE_*` dart-defines)
 
-Compile-time device defense in depth (mirrors Cloud Run parse rules). Used by dual-rail split and [`RunBatchRecipientGuard`](../lib/domain/constants/run_batch_recipient_guard.dart).
+Compile-time device defense in depth. Desk call-set uses allowlist + J.10 + DNC. PSTN still requires `CALLE_ALLOW_DIAL=true` via [`RunBatchRecipientGuard`](../lib/domain/constants/run_batch_recipient_guard.dart) (Stage 4). Cloud Run reads the same names from `$HOME/.daftar-owner-ops/` — that is a **separate** copy.
 
 | Key | Purpose |
 | --- | --- |
-| `CALLE_ALLOW_DIAL` | Exact lowercase `true` enables PSTN on device; anything else is off |
-| `CALLE_ALLOWLIST` | Comma-separated E.164 allowlist (empty = nobody) |
+| `CALLE_ALLOW_DIAL` | Exact lowercase `true` enables PSTN on device; anything else is off. Keep empty for Stage 3.1 |
+| `CALLE_ALLOWLIST` | Comma-separated E.164. Spaced/dashed input is normalized. Empty = nobody on the call rail |
 | `CALLE_ALLOWLIST_REGION` | NANP declared ISO (default `US`) |
 
 - **Not** Envied — do not add to repo-root `.env`.
-- **Not** the same as `DAFTAR_SEED_US_DID` — seed phone and allowlist are independent.
 - Settings shows a **read-only** stub until Stage 5.2.
 - Never commit live E.164. Never log allowlist values.
 
@@ -57,16 +58,18 @@ Tags: `demo1`, `demo2`, `demo3`, `demo4`, `demo5`, `demo6`, `demo7`.
 
 PDF vs text-only is **not** a seed flag. [`ClosingPdfPolicy.rankedTop5`](../lib/domain/value_objects/closing_ritual_result.dart) ranks at close (age then owed). Top 5 get statement PDFs; Omar and Yousef are text-only in the default mix.
 
-## Gate 4 film
+## Device run (Stage 3.1)
 
-**Onboarding:** Store beat → **Try with Demo Store** / **تجربة متجر افتراضي** (release-visible).
+Dart-defines are **compile-time**. Hot reload / hot restart does **not** pick up a new overlay. After changing `demo_seed_emails.local.json`:
 
-**Settings:** **Reset sample store data** (same fixture, with confirm).
-
-Optional override:
+1. Stop the running app.
+2. Relaunch with the flag below (full rebuild).
+3. **Reset sample store data** or **Try with Demo Store** so Mohamed’s phone is rewritten.
 
 ```bash
-flutter run --dart-define-from-file=tool/demo_seed_emails.local.json
+flutter run -d <device> --debug --dart-define-from-file=tool/demo_seed_emails.local.json
 ```
+
+Linphone will **not** ring in Stage 3.1 — Confirm & Call is local HITL only (`planned` progress). Live PSTN is Stage 4 with `CALLE_ALLOW_DIAL=true`.
 
 Resolver: [`lib/core/utils/demo_seed_emails.dart`](../lib/core/utils/demo_seed_emails.dart) and [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart). Invalid dart-define values fall back to compiled defaults. Addresses and DIDs are never logged.

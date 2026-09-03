@@ -38,11 +38,13 @@ class DualRailSplitResult extends Equatable {
 /// Device-side dual-rail split after FIFO aging rank.
 abstract final class DualRailSplit {
   /// Splits [ranked] into call/email sets and attaches [OutreachRail] per row.
+  ///
+  /// Kill switch (`CALLE_ALLOW_DIAL`) does **not** empty the desk call set.
+  /// PSTN / run-batch still require the switch via RunBatchRecipientGuard.
   static DualRailSplitResult split({
     required List<CollectionsCandidate> ranked,
     required String allowlistRegion,
     required Set<String> allowlist,
-    required bool allowDial,
   }) {
     final callIds = <String>{};
     final emailIds = <String>{};
@@ -66,8 +68,7 @@ abstract final class DualRailSplit {
       final regionUnavailable = phone.isNotEmpty && gate is CallUnavailable;
       regionUnavailableById[candidate.contactId] = regionUnavailable;
 
-      final callRaw =
-          gate is CallEligible && !candidate.doNotCall && allowDial;
+      final callRaw = gate is CallEligible && !candidate.doNotCall;
       if (callRaw && callIds.length < ClosingAgentConstants.maxCallRecipients) {
         callIds.add(candidate.contactId);
       }

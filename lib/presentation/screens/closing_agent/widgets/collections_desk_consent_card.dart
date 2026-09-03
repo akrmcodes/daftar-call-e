@@ -101,7 +101,7 @@ class CollectionsDeskConsentCard extends StatelessWidget {
             const Gap(AppDimensions.spacingMd),
             CollectionsCallProgressBar(progress: callProgress!),
           ],
-          if (!callConsented) ...[
+          if (!callConsented && callCount > 0) ...[
             const Gap(AppDimensions.spacingMd),
             DaftarButton(
               label: l10n.collectionsDeskConfirmAndCall,
@@ -109,7 +109,7 @@ class CollectionsDeskConsentCard extends StatelessWidget {
                   ? DaftarButtonVariant.primary
                   : DaftarButtonVariant.secondary,
               isExpanded: true,
-              onPressed: callCount > 0 && !actionsLocked
+              onPressed: !actionsLocked
                   ? () {
                       unawaited(HapticService.medium());
                       onConfirmAndCall();
@@ -136,7 +136,7 @@ class CollectionsDeskConsentCard extends StatelessWidget {
                   : null,
             ),
           ],
-          if (!callConsented) ...[
+          if (!callConsented && callCount > 0) ...[
             const Gap(AppDimensions.spacingSm),
             DaftarButton(
               label: l10n.collectionsDeskConfirmWithoutCalling,

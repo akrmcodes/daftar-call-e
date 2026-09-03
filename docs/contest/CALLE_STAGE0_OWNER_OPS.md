@@ -12,6 +12,7 @@ Local secret directory (mode 700): `$HOME/.daftar-owner-ops/` — not in git.
 | Developer API key | **Created.** In Secret Manager `calle-api-key` (2026-09-02) **and** local `$HOME/.daftar-owner-ops/calle-api-key`. Never Flutter `.env`, never git, never chat, never screenshots. |
 | Extra-calls form | **Approved 2026-09-03** ([form](https://forms.gle/EPQttEZ1rkW8iq9q6)) — **+200** granted. |
 | Free pool | **200** calls (1 spent Gate 0 → **199** remaining). Exhaustion **pauses** access — **no auto-charge**. Optional `~$0.05` / call is a purchase, not required. **Do not** burn calls on Flutter UI. Product cap **5** recipients. |
+| Device overlay | Gitignored `tool/demo_seed_emails.local.json` — copy DID from `test-did` into `DAFTAR_SEED_US_DID` **and** `CALLE_ALLOWLIST`. `CALLE_ALLOW_DIAL` stays empty until Stage 4. `flutter run --dart-define-from-file=…` then **re-seed**. |
 | Outbound KYC | **Proven 2026-09-02.** Live Developer API `create_and_wait` on `https://api.heycall-e.com` → terminal `completed`, `structured_result.can_hear_clearly=yes`. Not a separate control on the API keys page. 2026-09-01 probe `GET /v1/calls/{missing}` → **404** `not_found` still stands. |
 
 ### 0.5 API 404 probe (2026-09-01)

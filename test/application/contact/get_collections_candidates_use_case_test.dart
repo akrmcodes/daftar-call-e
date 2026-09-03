@@ -364,7 +364,6 @@ void main() {
 
     final result = await useCase.execute(
       asOf: asOf,
-      allowDial: true,
       allowlist: {'+967771234567'},
     );
     final row = result.getRight().toNullable()!.single;
@@ -403,12 +402,47 @@ void main() {
 
     final result = await useCase.execute(
       asOf: asOf,
-      allowDial: true,
       allowlist: {'+15555550100'},
     );
     final row = result.getRight().toNullable()!.single;
 
     expect(row.rail, OutreachRail.email);
     expect(row.doNotCall, isTrue);
+  });
+
+  test('allowlisted US with email is both even without kill switch', () async {
+    const usOutreach = CollectionsOutreachContactEntry(
+      contactId: 'contact-us',
+      contactName: 'US',
+      ledgerId: 'ledger-1',
+      phone: '+15555550100',
+      email: 'us@example.com',
+    );
+    final usContact = mohamed.copyWith(
+      id: 'contact-us',
+      name: 'US',
+      phone: '+15555550100',
+      email: 'us@example.com',
+    );
+    stubOutreach(const [usOutreach]);
+    stubBalances([balance(contactId: 'contact-us', net: -100)]);
+    stubContact(usContact);
+    stubTxns('contact-us', [
+      txn(
+        id: 'd-100',
+        type: TransactionType.debt,
+        amount: 100,
+        date: DateTime(2026, 7, 5),
+        contactId: 'contact-us',
+      ),
+    ]);
+
+    final result = await useCase.execute(
+      asOf: asOf,
+      allowlist: {'+15555550100'},
+    );
+    final row = result.getRight().toNullable()!.single;
+
+    expect(row.rail, OutreachRail.both);
   });
 }

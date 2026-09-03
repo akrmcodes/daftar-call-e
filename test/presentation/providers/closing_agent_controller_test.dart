@@ -502,7 +502,6 @@ void main() {
         asOf: any(named: 'asOf'),
         allowlist: any(named: 'allowlist'),
         allowlistRegion: any(named: 'allowlistRegion'),
-        allowDial: any(named: 'allowDial'),
       ),
     ).thenAnswer(
       (_) async => Right(result.shortlist),
@@ -539,7 +538,6 @@ void main() {
         asOf: any(named: 'asOf'),
         allowlist: any(named: 'allowlist'),
         allowlistRegion: any(named: 'allowlistRegion'),
-        allowDial: any(named: 'allowDial'),
       ),
     ).called(1);
   });
@@ -588,7 +586,7 @@ void main() {
     expect(state.ritualResult?.shortlist, isEmpty);
   });
 
-  test('Confirm without sending is skip-all report', () async {
+  test('Confirm without sending still opens the desk', () async {
     stubRitual(
       ClosingRitualResult(
         summary: _emptySummary,
@@ -603,12 +601,9 @@ void main() {
     await notifier.confirm(_planProposal);
 
     final state = c.read(closingAgentControllerProvider);
-    expect(state.phase, ClosingAgentPhase.ritualReport);
-    expect(state.ritualResult?.reminderPolicy, ClosingReminderPolicy.all);
-    expect(
-      state.ritualResult?.queueMetrics,
-      const CollectionsQueueMetrics(prepared: 2, opened: 0, skipped: 2),
-    );
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.sendOutreachEnabled, isFalse);
+    expect(state.deskRows, hasLength(2));
     verifyNever(
       () => dispatchEmail.execute(
         rows: any(named: 'rows'),
@@ -620,6 +615,47 @@ void main() {
         onRows: any(named: 'onRows'),
       ),
     );
+  });
+
+  test('Confirm without sending keeps call set on the desk', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: false,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(_planProposal);
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.sendOutreachEnabled, isFalse);
+    expect(state.deskCallCount, 1);
+    expect(state.callConsented, isFalse);
   });
 
   test('send set is min(shortlist, 20) with PDF on ranked Top 5', () async {
@@ -1231,6 +1267,81 @@ void main() {
       state.callProgress?.results.single.status,
       CollectionsCallRowStatus.planned,
     );
+  });
+
+  test('SMTP preflight failure still opens desk when call set exists', () async {
+    const usPhone = '+15555550100';
+    when(() => hydrate.execute()).thenAnswer(
+      (_) async => const Left(
+        AuthFailure('silent', code: 'silent_sign_in_failed'),
+      ),
+    );
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: false,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(closingAgentControllerProvider.notifier).confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.ritualDeskPreflightPending, isFalse);
+    expect(state.actionFailure, isA<AuthFailure>());
+    expect(state.deskCallCount, 1);
+  });
+
+  test('SMTP preflight failure blocks desk when call set is empty', () async {
+    when(() => hydrate.execute()).thenAnswer(
+      (_) async => const Left(
+        AuthFailure('silent', code: 'silent_sign_in_failed'),
+      ),
+    );
+    stubRitual(
+      ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [_candidate('a')],
+      ),
+    );
+    final c = container();
+    addTearDown(c.dispose);
+
+    await c.read(closingAgentControllerProvider.notifier).confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualRunning);
+    expect(state.ritualDeskPreflightPending, isTrue);
+    expect(state.actionFailure, isA<AuthFailure>());
   });
 
   test('Confirm without calling leaves SMTP available', () async {

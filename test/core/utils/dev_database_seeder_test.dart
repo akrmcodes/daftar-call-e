@@ -254,7 +254,6 @@ void main() {
         ranked: ranked,
         allowlistRegion: 'US',
         allowlist: {usFixture},
-        allowDial: true,
       );
 
       final mohamed = split.ranked.singleWhere(

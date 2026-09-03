@@ -3434,11 +3434,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closingAgentPlanDeviceRuns =>
-      'After backup and aging, overdue contacts with a valid email are emailed (up to 20). Copy is fixed; you will not edit each message. Gemini does not pick who.';
+      'After backup and aging, the Collections Desk splits call-eligible contacts from email. Yemen and other unsupported regions stay on email. Copy is fixed; Gemini does not pick who.';
 
   @override
   String get closingAgentPlanOutreachConsent =>
-      'Confirm & Send Statements is outreach consent. Confirm without sending closes the books and Drive with no email.';
+      'The next screen is Collections. Confirm & Call and Confirm & Send Statements are separate. Confirm without sending still opens the desk when anyone is overdue.';
 
   @override
   String get closingAgentTaskmasterTitle => 'Today\'s closing plan';

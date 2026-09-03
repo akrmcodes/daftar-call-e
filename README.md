@@ -104,7 +104,7 @@ Judges may score from **video + repo**. A live device build needs owner/collabor
 4. Copy keys from [`docs/qa/flutter_env.template.md`](docs/qa/flutter_env.template.md) into a **gitignored** repo-root `.env`. Generated `*.g.dart` is not in git — `BACKUP_AES_KEY` and `GOOGLE_SERVER_CLIENT_ID` have no defaults. Android Gradle **fails** without `GOOGLE_OAUTH_CLIENT_ID_ANDROID`. Never commit `.env`.
 5. `dart run build_runner build --delete-conflicting-outputs`
 6. **Flutter run:** emulator **API 34+ with Google Play**. Google sign-in for agent + Drive. Onboarding **Try with Demo Store** (or Settings **Reset sample store data**). Settings **Show agent architecture** ON for the HUD.
-   - Optional To: overlay: `flutter run --dart-define-from-file=tool/demo_seed_emails.local.json` (see [`tool/demo_seed_emails.md`](tool/demo_seed_emails.md)).
+   - Confirm & Call overlay (gitignored): `flutter run --dart-define-from-file=tool/demo_seed_emails.local.json` then **Reset sample store**. Without it, demo phones are Yemen-only. See [`tool/demo_seed_emails.md`](tool/demo_seed_emails.md).
    - **Do not** tap **Confirm & Send Statements** against the live service unless you own the To: addresses. Committed sample-store defaults are the **owner film fixture**; a clone would email those inboxes.
 
 ### Judge APK / emulator (no Flutter)

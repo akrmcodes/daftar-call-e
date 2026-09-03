@@ -242,4 +242,32 @@ void main() {
     expect(find.text('تأكيد والاتصال'), findsOneWidget);
     expect(find.text('تأكيد دون اتصال'), findsOneWidget);
   });
+
+  testWidgets('YE-only desk hides Confirm and Call', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: CollectionsDeskConsentCard(
+            callCount: 0,
+            emailCount: 2,
+            callConsented: false,
+            sendOutreachEnabled: true,
+            busy: false,
+            isDispatching: false,
+            onConfirmAndCall: () {},
+            onConfirmAndSend: () {},
+            onConfirmWithoutCalling: () {},
+            onConfirmWithoutSending: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Confirm & Call'), findsNothing);
+    expect(find.text('Confirm without calling'), findsNothing);
+    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+  });
 }

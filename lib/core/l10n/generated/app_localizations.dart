@@ -6119,13 +6119,13 @@ abstract class AppLocalizations {
   /// No description provided for @closingAgentPlanDeviceRuns.
   ///
   /// In ar, this message translates to:
-  /// **'بعد النسخ الاحتياطي والتقادم يُرسل بريد للمتأخرين الذين لديهم بريد صالح (حتى 20). النص ثابت؛ لن تعدّل كل رسالة. لا يختار جيميناي المعرّفات.'**
+  /// **'بعد النسخ الاحتياطي والتقادم يقسم مكتب التحصيل المتصلين المؤهلين عن البريد. اليمن والمناطق غير المدعومة تبقى على البريد. النص ثابت؛ لا يختار جيميناي المعرّفات.'**
   String get closingAgentPlanDeviceRuns;
 
   /// No description provided for @closingAgentPlanOutreachConsent.
   ///
   /// In ar, this message translates to:
-  /// **'تأكيد وإرسال الكشوفات هو موافقة التواصل. تأكيد دون إرسال يقفل الدفاتر ودرايف بلا بريد.'**
+  /// **'الشاشة التالية هي التحصيل. تأكيد والاتصال وتأكيد وإرسال الكشوفات منفصلان. تأكيد دون إرسال يفتح المكتب أيضاً إن وُجد متأخرون.'**
   String get closingAgentPlanOutreachConsent;
 
   /// No description provided for @closingAgentTaskmasterTitle.

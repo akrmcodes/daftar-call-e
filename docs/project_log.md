@@ -4543,3 +4543,26 @@ Historical `project_log` entries (e.g. **19 / 20** after Gate 0) unchanged. SMTP
 
 ### Status
 Credits language current across active CALL-E docs.
+
+## 2026-09-04 — Stage 3.1 desk gating + dual-rail demo seed
+
+### Context
+Owner debug-ran without `--dart-define-from-file`, so Try with Demo Store seeded seven Yemeni phones. Close-the-day showed only plan-review Send / without sending. Confirm & Call never appeared. Dual rail (YE → email, US DID → call) was already specified; the desk call set was emptied by kill switch + empty allowlist.
+
+### Done
+- [`lib/domain/constants/dual_rail_split.dart`](../lib/domain/constants/dual_rail_split.dart): call-set membership is region + allowlist + DNC + cap 5 — **not** `CALLE_ALLOW_DIAL`. Kill switch stays on [`RunBatchRecipientGuard`](../lib/domain/constants/run_batch_recipient_guard.dart)
+- [`lib/domain/constants/calle_device_policy.dart`](../lib/domain/constants/calle_device_policy.dart): allowlist entries normalized via `PhoneNumber.e164`
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): non-empty shortlist always opens the desk (including Confirm without sending). SMTP ID-token preflight no longer blocks the desk when a call set exists
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): hide Confirm & Call / without calling when `callCount == 0`
+- ARB plan copy: next screen is Collections (EN+AR)
+- Overlay docs: [`tool/demo_seed_emails.md`](../tool/demo_seed_emails.md), [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md), [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md), root README
+- Gitignored `tool/demo_seed_emails.local.json` written from owner-ops `test-did` (DID + allowlist, `CALLE_ALLOW_DIAL` empty). Not in git
+
+### Architecture / decisions
+Confirm & Call remains local HITL (`planned` progress only) — no `plan-batch` / `run-batch` / PSTN. Live ring is Stage 4. No E.164 in committed markdown. Cloud Run allowlist is a separate owner-ops copy.
+
+### Ops / verification
+`flutter analyze` on touched files — clean. Targeted tests — **132 passed**. Overlay `git check-ignore` confirmed. Linphone not used this pass.
+
+### Status
+§3.1 desk HITL is reachable with the overlay + re-seed. Next: §3.2 B-trigger, §3.3 HUD, §3.4 device dry-run.

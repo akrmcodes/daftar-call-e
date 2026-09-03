@@ -1231,7 +1231,6 @@ class ClosingAgentController extends _$ClosingAgentController {
         .execute(
           allowlist: callPolicy.allowlist,
           allowlistRegion: callPolicy.allowlistRegion,
-          allowDial: callPolicy.allowDial,
         );
     final shortlistFailure = shortlistResult.getLeft().toNullable();
     if (shortlistFailure != null) {
@@ -1269,21 +1268,16 @@ class ClosingAgentController extends _$ClosingAgentController {
         .withReminderPolicy(ClosingReminderPolicy.all)
         .withPdfPolicy(ClosingPdfPolicy.rankedTop5);
 
-    if (!_sendOutreach) {
-      await _finishCloseWithoutOutreach(planned);
-      return;
-    }
-
     state = state.copyWith(
       ritualResult: planned,
       ritualTaskCurrent: ClosingTaskId.openCollectionsDesk,
-      sendOutreachEnabled: true,
+      sendOutreachEnabled: _sendOutreach,
     );
 
-    final needsSmtpPreflight = planned.emailRailShortlist.isNotEmpty;
-    if (needsSmtpPreflight) {
-      final sendPreflight = await _preflightCollectionsSend();
-      if (sendPreflight != null) {
+    Failure? sendPreflight;
+    if (_sendOutreach && planned.emailRailShortlist.isNotEmpty) {
+      sendPreflight = await _preflightCollectionsSend();
+      if (sendPreflight != null && planned.callSet.isEmpty) {
         state = state.copyWith(
           ritualDeskPreflightPending: true,
           actionFailure: sendPreflight,
@@ -1293,32 +1287,10 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
 
     await _openCollectionsDesk(planned);
-    await _maybeAutoDispatchOutreach();
-  }
-
-  Future<void> _finishCloseWithoutOutreach(ClosingRitualResult ritual) async {
-    if (ritual.callSet.isNotEmpty) {
-      state = state.copyWith(
-        ritualResult: ritual,
-        ritualTaskCurrent: ClosingTaskId.openCollectionsDesk,
-        sendOutreachEnabled: false,
-      );
-      await _openCollectionsDesk(ritual);
-      return;
+    if (sendPreflight != null) {
+      state = state.copyWith(actionFailure: sendPreflight);
     }
-
-    final prepared = ritual.reminderSet.length;
-    await _skipRitualTask(ClosingTaskId.openCollectionsDesk);
-    await _completeReportTasks();
-    _showRitualReport(
-      ritual.withQueueMetrics(
-        CollectionsQueueMetrics(
-          prepared: prepared,
-          opened: 0,
-          skipped: prepared,
-        ),
-      ),
-    );
+    await _maybeAutoDispatchOutreach();
   }
 
   Future<void> _maybeAutoDispatchOutreach() async {

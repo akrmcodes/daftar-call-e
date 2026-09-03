@@ -33,14 +33,12 @@ void main() {
   DualRailSplitResult split({
     required List<CollectionsCandidate> ranked,
     Set<String>? allowlist,
-    bool allowDial = true,
     String allowlistRegion = 'US',
   }) {
     return DualRailSplit.split(
       ranked: ranked,
       allowlistRegion: allowlistRegion,
       allowlist: allowlist ?? const {},
-      allowDial: allowDial,
     );
   }
 
@@ -190,7 +188,7 @@ void main() {
     expect(result.pdfTop5.last.contactId, '4');
   });
 
-  test('allowDial false prevents call set membership', () {
+  test('kill switch is not applied: allowlisted US stays on call set', () {
     final result = split(
       ranked: [
         candidate(
@@ -200,11 +198,10 @@ void main() {
         ),
       ],
       allowlist: {usPhone},
-      allowDial: false,
     );
 
-    expect(result.callSet, isEmpty);
-    expect(result.ranked.single.rail, OutreachRail.email);
+    expect(result.callSet.single.contactId, 'us');
+    expect(result.ranked.single.rail, OutreachRail.both);
   });
 
   test('ProposeClosingPlanPayload has no contact id list', () {

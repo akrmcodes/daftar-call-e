@@ -4,7 +4,6 @@ import 'package:daftar/application/contact/compute_fifo_contact_aging.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/constants/dual_rail_split.dart';
 import 'package:daftar/domain/entities/contact_balance.dart';
-import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/repositories/balance_repository.dart';
 import 'package:daftar/domain/repositories/contact_repository.dart';
 import 'package:daftar/domain/repositories/transaction_repository.dart';
@@ -29,14 +28,14 @@ class GetCollectionsCandidatesUseCase {
   final TransactionRepository _transactionRepository;
   final ContactRepository _contactRepository;
 
-  /// Returns ranked candidates with [OutreachRail] attached.
+  /// Returns ranked candidates with OutreachRail attached.
   ///
-  /// [allowDial] defaults false (kill switch). Tests inject allowlist + true.
+  /// Kill switch is **not** applied here — desk call-set uses region +
+  /// allowlist + DNC. PSTN is gated later by RunBatchRecipientGuard.
   Future<Either<Failure, List<CollectionsCandidate>>> execute({
     DateTime? asOf,
     Set<String> allowlist = const {},
     String allowlistRegion = 'US',
-    bool allowDial = false,
   }) async {
     final asOfTime = asOf ?? DateTime.now();
 
@@ -138,7 +137,6 @@ class GetCollectionsCandidatesUseCase {
       ranked: candidates,
       allowlistRegion: allowlistRegion,
       allowlist: allowlist,
-      allowDial: allowDial,
     );
 
     return Right(split.ranked);

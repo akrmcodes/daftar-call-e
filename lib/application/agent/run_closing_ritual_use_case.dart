@@ -55,7 +55,6 @@ class RunClosingRitualUseCase {
       asOf: now,
       allowlist: policy.allowlist,
       allowlistRegion: policy.allowlistRegion,
-      allowDial: policy.allowDial,
     );
     final shortlistFailure = shortlistResult.getLeft().toNullable();
     if (shortlistFailure != null) {
