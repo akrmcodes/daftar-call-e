@@ -585,11 +585,11 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **2.2 E.164 + region**
 
-- [ ] Helper: digits-only `PhoneNumber.normalized` → **`+` + digits** for CALL-E `phones[]`
-- [ ] J.10 lookup: ISO country from calling code; YE → `callUnavailable`
-- [ ] **NANP:** `+1` is US **and** CA (and others). Demo DID → `region: US` from **allowlist/config**, not inferred from `+1`
-- [ ] US/AE/SA/EG/OM (and other J.10 rows we actually use) → eligible **iff** allowlisted
-- [ ] Tests: YE, SA `+9665…`, US `+1…` with explicit `region: US`, empty, invalid
+- [x] Helper: digits-only `PhoneNumber.normalized` → **`+` + digits** for CALL-E `phones[]`
+- [x] J.10 lookup: ISO country from calling code; YE → `callUnavailable`
+- [x] **NANP:** `+1` is US **and** CA (and others). Demo DID → `region: US` from **allowlist/config**, not inferred from `+1`
+- [x] US/AE/SA/EG/OM (and other J.10 rows we actually use) → eligible **iff** allowlisted
+- [x] Tests: YE, SA `+9665…`, US `+1…` with explicit `region: US`, empty, invalid
 
 **2.3 Aging split**
 

@@ -4361,4 +4361,27 @@ Roadmap §2.1: bump Drift/Drive backup schema **25 → 26** with Confirm & Call 
 ### Status
 §2.1 done. Next: §2.2 E.164 + region helper. No commit unless asked.
 
+## 2026-09-03 — Stage 2.2 E.164 + region
+
+### Context
+Roadmap §2.2: device-side CALL-E E.164 formatting and J.10 region/allowlist gate mirroring `agent/calls/j10.py`. No Flutter UI, no Envied allowlist, no PSTN.
+
+### Done
+- [`lib/domain/value_objects/phone_number.dart`](../lib/domain/value_objects/phone_number.dart): `e164` getter (`+` + digits, ITU regex); `normalized` unchanged for WhatsApp
+- [`lib/domain/constants/j10_calle_regions.dart`](../lib/domain/constants/j10_calle_regions.dart): `supportedRegions`, `callingRegion`, NANP sentinel — lockstep with `j10.py` / GitHub
+- [`lib/domain/value_objects/call_eligibility.dart`](../lib/domain/value_objects/call_eligibility.dart): sealed `CallEmpty` / `CallInvalid` / `CallUnavailable` / `CallNotAllowlisted` / `CallEligible`
+- [`lib/domain/constants/j10_region_gate.dart`](../lib/domain/constants/j10_region_gate.dart): `J10RegionGate.evaluate` (region gate + allowlist; no DNC/kill switch)
+- [`test/domain/value_objects/phone_number_test.dart`](../test/domain/value_objects/phone_number_test.dart): E.164 group
+- [`test/domain/constants/j10_region_gate_test.dart`](../test/domain/constants/j10_region_gate_test.dart): YE, SA, NANP+US, AE/EG/OM, empty, invalid, not allowlisted
+- Roadmap §2.2 `[x]`
+
+### Architecture / decisions
+YE → `CallUnavailable` (email rail in 2.3). NANP `+1` never inferred as `US`; `declaredRegion` must match `allowlistRegion` for +1. Allowlist passed as `Set<String>` argument (Stage 2.5 persists). Full GitHub `supportedRegions` set on device — not a 5-country subset.
+
+### Ops / verification
+`flutter test` phone_number + j10_region_gate — **64 passed**. `flutter analyze` on touched lib — clean. No Cloud Run deploy. No commit unless asked.
+
+### Status
+§2.2 done. Next: §2.3 aging split (`rail`). No commit unless asked.
+
 
