@@ -4338,4 +4338,27 @@ YE remains HTTP 200 + `unsupportedRegion` (J.9 per-row reject). HTTP 400 is cap 
 ### Status
 1.4 and Stage 1 gate done. Next: Stage 2 (schema 26 / device contract). No commit unless asked.
 
+## 2026-09-03 — Stage 2.1 Schema 26
+
+### Context
+Roadmap §2.1: bump Drift/Drive backup schema **25 → 26** with Confirm & Call collection tables, per-contact `doNotCall`, integer money only. No repositories, no PSTN, no Flutter call UI.
+
+### Done
+- Domain enums: `call_batch_trigger.dart`, `call_batch_status.dart`, `call_run_outcome.dart`, `collection_promise_status.dart`
+- Drift tables: `collection_call_batches_table.dart`, `collection_call_runs_table.dart`, `collection_promises_table.dart`; `contacts.doNotCall` on `contacts_table.dart`
+- `Contact` entity + `ContactModel` + `contact_local_ds.dart` FTS search map `doNotCall`
+- `DbConstants.schemaVersion` and `DriveBackupConstants.schemaVersion` **26**; `onUpgrade from < 26` in `drift_database.dart`
+- [`test/data/datasources/local/schema_v26_test.dart`](../test/data/datasources/local/schema_v26_test.dart): version parity, integer money inserts, `doNotCall` default + round-trip, `sqlite_master`, no `RealColumn`
+- `agent_schema_v19_test.dart` expects schema **26**
+- `BACKUP_SPEC.md`, `GOOGLE_DRIVE_BACKUP_SPEC.md`, roadmap §2.1 `[x]`, `CONTEST_DISCLOSURE.md` Schema 26 row
+
+### Architecture / decisions
+`doNotCall` on `contacts` (not settings). Persist `runId` (= CALL-E `call.id`) only — no confirm-handle column. `promisedDate` / promise dates as `TEXT` `YYYY-MM-DD`. Display-only `collection_promises` — no ledger movement until Stage 4. Stage 8 sync tables remain inert.
+
+### Ops / verification
+`dart run build_runner build --delete-conflicting-outputs`. `flutter test` schema_v26 + agent_schema_v19 — **8 passed**. `flutter analyze` on touched lib files — clean (import ordering fixed). No Cloud Run deploy. No commit unless asked.
+
+### Status
+§2.1 done. Next: §2.2 E.164 + region helper. No commit unless asked.
+
 

@@ -40,6 +40,7 @@ abstract class Contact with _$Contact {
     String? creditCurrency,
     @Default(false) bool isDeleted,
     @Default(false) bool isArchived,
+    @Default(false) bool doNotCall,
     @Default(0) int syncVersion,
   }) = _Contact;
 }

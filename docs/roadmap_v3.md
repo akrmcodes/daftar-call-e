@@ -368,7 +368,7 @@ flowchart TB
 
 ### New Drift tables (Stage 2) — schema **25 → 26**
 
-Today: [`DbConstants.schemaVersion`](../lib/core/constants/db_constants.dart) **25**. Bump **`DbConstants` and `DriveBackupConstants.schemaVersion` together**. `onUpgrade from < 26`. Stage 8 sync tables **remain inert**. Names indicative — finalize in the migration PR.
+Today: [`DbConstants.schemaVersion`](../lib/core/constants/db_constants.dart) **26**. Bump **`DbConstants` and `DriveBackupConstants.schemaVersion` together**. `onUpgrade from < 26`. Stage 8 sync tables **remain inert**. Names indicative — finalize in the migration PR.
 
 | Table | Purpose |
 | --- | --- |
@@ -577,11 +577,11 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **2.1 Schema 26**
 
-- [ ] Tables `collection_call_batches`, `collection_call_runs`, `collection_promises` (+ `doNotCall`)
-- [ ] `DbConstants.schemaVersion` **26** and `DriveBackupConstants.schemaVersion` **together**
-- [ ] `onUpgrade from < 26`
-- [ ] Integer money columns only
-- [ ] BACKUP_SPEC example versions bumped if required by existing hygiene
+- [x] Tables `collection_call_batches`, `collection_call_runs`, `collection_promises` (+ `doNotCall`)
+- [x] `DbConstants.schemaVersion` **26** and `DriveBackupConstants.schemaVersion` **together**
+- [x] `onUpgrade from < 26`
+- [x] Integer money columns only
+- [x] BACKUP_SPEC example versions bumped if required by existing hygiene
 
 **2.2 E.164 + region**
 

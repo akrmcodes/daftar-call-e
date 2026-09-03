@@ -245,6 +245,7 @@ ORDER BY c.name COLLATE NOCASE
         c.updated_at AS updatedAt,
         c.is_deleted AS isDeleted,
         c.is_archived AS isArchived,
+        c.do_not_call AS doNotCall,
         c.sync_version AS syncVersion,
         l.name AS ledgerName,
         l.is_user_archived AS isLedgerUserArchived
@@ -280,6 +281,7 @@ ORDER BY c.name COLLATE NOCASE
               updatedAt: row.read<DateTime>('updatedAt'),
               isDeleted: row.read<bool>('isDeleted'),
               isArchived: row.read<bool>('isArchived'),
+              doNotCall: row.read<bool>('doNotCall'),
               syncVersion: row.read<int>('syncVersion'),
             ).toModel(),
             ledgerName: row.read<String>('ledgerName'),

@@ -208,7 +208,7 @@ Drift schema version is **not** embedded inside `.daftar`. It is recorded in Goo
 
 | Constant | Value | File |
 |---|---|---|
-| `DbConstants.schemaVersion` | 25 (current) | `lib/core/constants/db_constants.dart` |
+| `DbConstants.schemaVersion` | 26 (current) | `lib/core/constants/db_constants.dart` |
 | `DriveBackupConstants.schemaVersion` | Must match Drift version | `lib/domain/constants/drive_backup_constants.dart` |
 
 Restore accepts any SQLite schema the current app can migrate forward from via Drift `onUpgrade`.
