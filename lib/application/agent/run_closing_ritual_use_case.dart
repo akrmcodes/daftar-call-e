@@ -3,6 +3,7 @@ import 'package:daftar/application/agent/map_closing_backup_status.dart';
 import 'package:daftar/application/backup/upload_drive_backup_use_case.dart';
 import 'package:daftar/application/contact/get_collections_candidates_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_ritual_step.dart';
@@ -31,7 +32,9 @@ class RunClosingRitualUseCase {
     String? localDay,
     DateTime? now,
     void Function(ClosingRitualStep step)? onStep,
+    CalleDevicePolicy? devicePolicy,
   }) async {
+    final policy = devicePolicy ?? CalleDevicePolicy.fromCompiled();
     final day = localDay ?? ClosingAgentConstants.merchantLocalDay(now);
     final summaryResult = await _getClosingDaySummaryUseCase.execute(
       localDay: day,
@@ -50,6 +53,9 @@ class RunClosingRitualUseCase {
 
     final shortlistResult = await _getCollectionsCandidatesUseCase.execute(
       asOf: now,
+      allowlist: policy.allowlist,
+      allowlistRegion: policy.allowlistRegion,
+      allowDial: policy.allowDial,
     );
     final shortlistFailure = shortlistResult.getLeft().toNullable();
     if (shortlistFailure != null) {

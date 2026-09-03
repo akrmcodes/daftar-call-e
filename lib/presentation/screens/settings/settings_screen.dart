@@ -167,6 +167,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final swipeToDeleteEnabled = settings?.isSwipeToDeleteEnabled ?? false;
     final ttsMuted = settings?.ttsMuted ?? false;
     final demoArchitectureHud = settings?.demoArchitectureHud ?? false;
+    final calleAllowDial = ref.watch(calleDevicePolicyProvider).allowDial;
 
     final session = authAsync.asData?.value;
     final accountSubtitle = _resolveAccountSubtitle(
@@ -362,6 +363,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                             context,
                                             enabled,
                                           ),
+                                    ),
+                                    const Gap(AppDimensions.spacingLg),
+                                    GlowPillToggle(
+                                      icon: Icons.phone_in_talk_outlined,
+                                      label: l10n.settingsCalleAllowDial,
+                                      sublabel: l10n.settingsCalleAllowDialSubtitle,
+                                      value: calleAllowDial,
+                                      enabled: false,
+                                      onChanged: (_) {},
+                                      onDisabledTap: () =>
+                                          _showCalleAllowDialStubHint(context),
                                     ),
                                   ],
                                 ),
@@ -839,6 +851,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       );
     }
+  }
+
+  void _showCalleAllowDialStubHint(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.settingsCalleAllowDialStubHint),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? AppColors.surface4 : AppColors.surface2Light,
+      ),
+    );
   }
 
   Future<void> _setDemoArchitectureHud(

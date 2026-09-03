@@ -4,7 +4,8 @@ import 'package:daftar/domain/value_objects/phone_number.dart';
 
 /// Device-side J.10 region gate (mirrors `agent/calls/j10.py` `region_gate`).
 ///
-/// Does not check DNC or kill switch — those belong to Stage 2.5 / 3.
+/// Does not check DNC or kill switch — those belong to dual-rail split and
+/// the run-batch recipient guard.
 abstract final class J10RegionGate {
   /// Evaluates call eligibility for a contact phone.
   static CallEligibility evaluate({

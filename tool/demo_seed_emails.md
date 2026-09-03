@@ -24,6 +24,23 @@ Owner inbound **US DID** in E.164 (`+1` …). Seeds Mohamed (index 0) only. Rema
 
 Resolver: [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart).
 
+### Device CALL-E policy (`CALLE_*` dart-defines)
+
+Compile-time device defense in depth (mirrors Cloud Run parse rules). Used by dual-rail split and [`RunBatchRecipientGuard`](../lib/domain/constants/run_batch_recipient_guard.dart).
+
+| Key | Purpose |
+| --- | --- |
+| `CALLE_ALLOW_DIAL` | Exact lowercase `true` enables PSTN on device; anything else is off |
+| `CALLE_ALLOWLIST` | Comma-separated E.164 allowlist (empty = nobody) |
+| `CALLE_ALLOWLIST_REGION` | NANP declared ISO (default `US`) |
+
+- **Not** Envied — do not add to repo-root `.env`.
+- **Not** the same as `DAFTAR_SEED_US_DID` — seed phone and allowlist are independent.
+- Settings shows a **read-only** stub until Stage 5.2.
+- Never commit live E.164. Never log allowlist values.
+
+Resolver: [`lib/domain/constants/calle_device_policy.dart`](../lib/domain/constants/calle_device_policy.dart).
+
 ### `DAFTAR_SEED_EMAIL_<tag>` (all seven contacts)
 
 Tags: `demo1`, `demo2`, `demo3`, `demo4`, `demo5`, `demo6`, `demo7`.

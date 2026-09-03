@@ -90,6 +90,7 @@ class UpdateContactUseCase {
         notes: normalizedContact.notes,
         creditLimit: normalizedContact.creditLimit,
         creditCurrency: normalizedContact.creditCurrency,
+        doNotCall: normalizedContact.doNotCall,
       ),
     );
   }

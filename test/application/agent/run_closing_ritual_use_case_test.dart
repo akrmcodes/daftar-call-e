@@ -3,6 +3,7 @@ import 'package:daftar/application/agent/run_closing_ritual_use_case.dart';
 import 'package:daftar/application/backup/upload_drive_backup_use_case.dart';
 import 'package:daftar/application/contact/get_collections_candidates_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
 import 'package:daftar/domain/entities/backup_metadata.dart';
 import 'package:daftar/domain/enums/backup_type.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
@@ -153,4 +154,34 @@ void main() {
       verifyNever(() => upload.resumeFromEncryptedFilePath(any()));
     },
   );
+
+  test('forwards device policy into collections candidates', () async {
+    const policy = CalleDevicePolicy(
+      allowDial: true,
+      allowlist: {'+15555550100'},
+      allowlistRegion: 'US',
+    );
+    when(
+      () => candidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: policy.allowlist,
+        allowlistRegion: policy.allowlistRegion,
+        allowDial: policy.allowDial,
+      ),
+    ).thenAnswer((_) async => const Right([]));
+
+    await useCase.execute(
+      localDay: '2026-08-15',
+      devicePolicy: policy,
+    );
+
+    verify(
+      () => candidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: policy.allowlist,
+        allowlistRegion: policy.allowlistRegion,
+        allowDial: policy.allowDial,
+      ),
+    ).called(1);
+  });
 }

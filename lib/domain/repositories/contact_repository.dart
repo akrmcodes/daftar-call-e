@@ -143,6 +143,7 @@ class UpdateContactParams {
     this.notes,
     this.creditLimit,
     this.creditCurrency,
+    this.doNotCall,
   });
   final String id;
   final String? name;
@@ -152,4 +153,7 @@ class UpdateContactParams {
   final String? notes;
   final int? creditLimit;
   final String? creditCurrency;
+
+  /// When null, the existing `doNotCall` flag is preserved.
+  final bool? doNotCall;
 }

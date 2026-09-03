@@ -4433,4 +4433,31 @@ Mohamed (index 0) is the mid-day capture + call target. Empty/invalid DID → al
 ### Status
 §2.4 done. Next: §2.5 allowlist + DNC on device. No commit unless asked.
 
+## 2026-09-03 — Stage 2.5 Allowlist + DNC on device
+
+### Context
+Roadmap §2.5: device-side defense in depth — compile-time `CALLE_*` policy (lockstep with Cloud Run), `RunBatchRecipientGuard` as last gate before future `run-batch`, read-only Settings kill-switch stub, and `doNotCall` preserved on contact update. No HTTP, Envied, schema 27, or PSTN.
+
+### Done
+- [`lib/domain/constants/calle_device_policy.dart`](../lib/domain/constants/calle_device_policy.dart): `parse` / `fromCompiled()` — exact `"true"` for `allowDial`, comma allowlist, default region `US`
+- [`lib/domain/constants/run_batch_recipient_guard.dart`](../lib/domain/constants/run_batch_recipient_guard.dart): `RunBatchRecipientGuard.select` with omit reasons + cap 5
+- [`lib/domain/constants/j10_region_gate.dart`](../lib/domain/constants/j10_region_gate.dart): comment — DNC/kill switch live in dual-rail + guard
+- [`lib/application/agent/run_closing_ritual_use_case.dart`](../lib/application/agent/run_closing_ritual_use_case.dart): optional `devicePolicy` → candidates
+- [`lib/presentation/providers/core_providers.dart`](../lib/presentation/providers/core_providers.dart): `calleDevicePolicyProvider`
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): policy into candidates query
+- [`lib/domain/repositories/contact_repository.dart`](../lib/domain/repositories/contact_repository.dart), [`update_contact_use_case.dart`](../lib/application/contact/update_contact_use_case.dart), [`contact_repository_impl.dart`](../lib/data/repositories/contact_repository_impl.dart): preserve `doNotCall` on update
+- Settings stub: [`settings_screen.dart`](../lib/presentation/screens/settings/settings_screen.dart) + ARB `settingsCalleAllowDial*`
+- Overlay docs: [`tool/demo_seed_emails.example.json`](../tool/demo_seed_emails.example.json), [`tool/demo_seed_emails.md`](../tool/demo_seed_emails.md), [`docs/qa/flutter_env.template.md`](../docs/qa/flutter_env.template.md)
+- Tests: `calle_device_policy_test`, `run_batch_recipient_guard_test`, candidates DNC, ritual policy forward, `contact_do_not_call_test`, extended `demo_seed_emails_test`
+- Roadmap §2.5 `[x]`; Stage 2 validation gate unit tests / seeder / analyze `[x]` (Schema 26 device smoke still open)
+
+### Architecture / decisions
+Server remains authoritative; device filter is defense in depth. `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` stay independent. Kill-switch stub is read-only (`GlowPillToggle` disabled) until Stage 5.2 persistence. No contact-edit DNC UI this slice.
+
+### Ops / verification
+`flutter test` policy + guard + candidates + ritual + contact DNC + demo_seed_emails — **30 passed**. `build_runner` for `calleDevicePolicyProvider`. `flutter gen-l10n`. `flutter analyze` on touched lib — clean. No PSTN. No commit unless asked.
+
+### Status
+§2.5 done. Stage 2 gate: only **Schema 26 migrates on a debug install** remains unchecked. Next: Stage 3 Confirm & Call UI. No commit unless asked.
+
 

@@ -253,6 +253,8 @@ class ContactRepositoryImpl implements ContactRepository {
         createdAt: existing.createdAt,
         updatedAt: DateTime.now().toUtc(),
         isDeleted: existing.isDeleted,
+        isArchived: existing.isArchived,
+        doNotCall: params.doNotCall ?? existing.doNotCall,
         syncVersion: existing.syncVersion + 1,
       );
 

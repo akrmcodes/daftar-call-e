@@ -606,16 +606,16 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **2.5 Allowlist + DNC on device**
 
-- [ ] Device refuses to put non-allowlisted E.164 in `run-batch`
-- [ ] `doNotCall` omits from call set
-- [ ] Settings stub for kill switch (wired Stage 5; env sufficient until then)
+- [x] Device refuses to put non-allowlisted E.164 in `run-batch`
+- [x] `doNotCall` omits from call set
+- [x] Settings stub for kill switch (wired Stage 5; env sufficient until then)
 
 #### Stage 2 Validation Gate
 
 - [ ] Schema 26 migrates on a debug install
-- [ ] Unit tests for E.164, YE gate, split, DNC — **no PSTN**
-- [ ] Seeder has no committed phone numbers
-- [ ] `flutter analyze` clean for touched files
+- [x] Unit tests for E.164, YE gate, split, DNC — **no PSTN**
+- [x] Seeder has no committed phone numbers
+- [x] `flutter analyze` clean for touched files
 
 ---
 

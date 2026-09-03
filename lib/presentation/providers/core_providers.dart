@@ -120,6 +120,7 @@ import 'package:daftar/data/repositories/settings_repository_impl.dart';
 import 'package:daftar/data/repositories/transaction_repository_impl.dart';
 import 'package:daftar/data/services/backup_notification_client.dart';
 import 'package:daftar/data/services/notification_service_impl.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/repositories/activation_repository.dart';
@@ -773,6 +774,12 @@ GetCollectionsCandidatesUseCase getCollectionsCandidatesUseCase(Ref ref) {
     transactionRepository: ref.watch(transactionRepositoryProvider),
     contactRepository: ref.watch(contactRepositoryProvider),
   );
+}
+
+/// Compile-time CALL-E kill switch + allowlist (not Envied).
+@Riverpod(keepAlive: true)
+CalleDevicePolicy calleDevicePolicy(Ref ref) {
+  return CalleDevicePolicy.fromCompiled();
 }
 
 /// Drift `localDay` snapshot for close-the-day (Appendix J.4).

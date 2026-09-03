@@ -1,5 +1,8 @@
 {
   "DAFTAR_SEED_US_DID": "",
+  "CALLE_ALLOW_DIAL": "",
+  "CALLE_ALLOWLIST": "",
+  "CALLE_ALLOWLIST_REGION": "US",
   "DAFTAR_SEED_EMAIL_demo1": "akrm.codes+demo1@gmail.com",
   "DAFTAR_SEED_EMAIL_demo2": "akrm.codes+demo2@gmail.com",
   "DAFTAR_SEED_EMAIL_demo3": "akrm.codes+demo3@gmail.com",
