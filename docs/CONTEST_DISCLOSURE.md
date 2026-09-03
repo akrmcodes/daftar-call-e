@@ -63,7 +63,7 @@ The August ADK/SMTP closer is **prior work above — not this bucket.** CALL-E-n
 | `agent/calls/` sibling | `calle-ai==0.7.0` `from calle import CalleClient`; `POST /v1/calls` (`calls.create`); poll `GET /v1/calls/{id}`; **not** an ADK tool; **no** API `confirm_token` | **Planned** (Stage 1) |
 | Cloud Run `daftar-call-e` | New service, min 0 / max 2, ID-token only. Must not mutate the frozen Agentic URL | **Planned** (Stage 1) |
 | Dual rail | Call set ≤5 (J.10 + allowlist); email remainder / YE `callUnavailable` via SMTP | **Planned** (Stages 2–3) |
-| Schema 26 | `collection_call_batches` / `collection_call_runs` / `collection_promises`; integer promise only — **no** txn from the call | **Planned** (Stage 2) |
+| Schema 26 | `collection_call_batches` / `collection_call_runs` / `collection_promises`; `contacts.doNotCall`; integer promise only — **no** txn from the call (write-back Stage 4) | **Landed** (Stage 2.1) |
 | HUD call chip | `runId` last-8 = CALL-E `call.id` | **Planned** (Stages 3–4) |
 | Agent Skill PR | `skills/ledger-collections-call/` on awesome-phone-call-agents | **Planned** (Stage 5) |
 

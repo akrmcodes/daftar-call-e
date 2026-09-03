@@ -128,7 +128,7 @@ String key-value map attached to each Drive file:
 | Key | Example | Purpose |
 |---|---|---|
 | `appVersion` | `0.1.0+1` | App build label |
-| `schemaVersion` | `25` | Drift schema at backup time |
+| `schemaVersion` | `26` | Drift schema at backup time |
 | `checksum` | SHA-256 hex | Encrypted file integrity |
 | `backupTimestamp` | ISO-8601 UTC | Backup creation time |
 | `googleAccountEmail` | `user@gmail.com` | Optional account label |

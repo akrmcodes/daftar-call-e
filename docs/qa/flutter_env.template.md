@@ -27,17 +27,29 @@ Generated `*.g.dart` is gitignored. `BACKUP_AES_KEY` and `GOOGLE_SERVER_CLIENT_I
 | `DEEP_LINK_BASE_URL` | Minted invite URL base | Default `https://daftar.app/i` |
 | `CLOSING_AGENT_BASE_URL` | Cloud Run agent base URL | **Required.** Empty Envied default. Use the `daftar-call-e` URL from `$HOME/.daftar-owner-ops/daftar-call-e-url`. Never the frozen Agentic hostname. |
 
-## Optional dart-defines (demo inboxes)
+## Optional dart-defines (demo overlay)
 
-Not in `.env` — use `--dart-define-from-file` for sample-store email overrides. See [`tool/demo_seed_emails.md`](../../tool/demo_seed_emails.md). Do **not** run live **Confirm & Send Statements** against the deployed service unless you own the To: addresses.
+Not in `.env` — use `--dart-define-from-file=tool/demo_seed_emails.local.json` for sample-store overrides. See [`tool/demo_seed_emails.md`](../../tool/demo_seed_emails.md).
+
+| Key | Purpose | Notes |
+| --- | --- | --- |
+| `DAFTAR_SEED_EMAIL_demo1` … `demo7` | SMTP To: for the seven overdue contacts | Committed defaults are owner plus-aliases |
+| `DAFTAR_SEED_US_DID` | Mohamed's phone (call-eligible US DID) | **Not Envied.** Gitignored local JSON only. Empty = Yemen placeholder for Mohamed |
+| `CALLE_ALLOW_DIAL` | Device kill switch for Confirm & Call | Exact `true` only. **Not Envied.** Same parse as Cloud Run |
+| `CALLE_ALLOWLIST` | Device E.164 allowlist (comma-separated) | **Not Envied.** Independent of `DAFTAR_SEED_US_DID` |
+| `CALLE_ALLOWLIST_REGION` | NANP declared ISO for `+1` numbers | Default `US` when empty |
+
+Do **not** run live **Confirm & Send Statements** or **Confirm & Call** unless you own the To: addresses and DID. `CALLE_API_KEY` is **never** a Flutter dart-define.
 
 ## Gmail SMTP (Cloud Run only)
 
 The Gmail **App Password** lives in Secret Manager `gmail-smtp-app-password` on project `daftar-closing-agent`. It is mounted on Cloud Run at `/secrets/gmail-smtp-app-password`. **Never** add it to Flutter `.env`.
 
-## CALL-E (Cloud Run / laptop only — never Flutter)
+## CALL-E device policy (dart-define — not `.env`)
 
-`CALLE_API_KEY` / Secret Manager `calle-api-key` is **not** an Envied key. **`CALLE_ALLOW_DIAL`**, **`CALLE_ALLOWLIST`**, and **`CALLE_ALLOWLIST_REGION`** are also **not** Envied — laptop / Cloud Run `daftar-call-e` only. **Never** add them to Flutter `.env`. Laptop Gate 0 smoke uses a shell export; production mounts the API key on **`daftar-call-e`**. Owner-ops (no values): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](../contest/CALLE_STAGE0_OWNER_OPS.md) §0.4.
+`CALLE_ALLOW_DIAL`, `CALLE_ALLOWLIST`, and `CALLE_ALLOWLIST_REGION` may be set in the gitignored `tool/demo_seed_emails.local.json` overlay for **device** defense in depth. Parse rules match Cloud Run ([`agent/calls/settings.py`](../../agent/calls/settings.py)). Settings shows a read-only stub until Stage 5.2.
+
+`CALLE_API_KEY` / Secret Manager `calle-api-key` is **not** an Envied key and **never** belongs in Flutter dart-defines. Laptop Gate 0 smoke uses a shell export; production mounts the API key on **`daftar-call-e`**. Owner-ops (no values): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](../contest/CALLE_STAGE0_OWNER_OPS.md) §0.4.
 
 Deploy and env details: [`agent/README.md`](../../agent/README.md).
 

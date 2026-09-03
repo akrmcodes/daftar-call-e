@@ -314,6 +314,24 @@ abstract class AppLocalizations {
   /// **'للتجربة: النموذج والأدوات ومسار التأكيد البشري وزمن الاستجابة. ليس جولة في المنتج.'**
   String get settingsDemoArchitectureHudSubtitle;
 
+  /// No description provided for @settingsCalleAllowDial.
+  ///
+  /// In ar, this message translates to:
+  /// **'السماح بالاتصال عبر CALL-E'**
+  String get settingsCalleAllowDial;
+
+  /// No description provided for @settingsCalleAllowDialSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.'**
+  String get settingsCalleAllowDialSubtitle;
+
+  /// No description provided for @settingsCalleAllowDialStubHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.'**
+  String get settingsCalleAllowDialStubHint;
+
   /// No description provided for @architectureHudSemantics.
   ///
   /// In ar, this message translates to:

@@ -1,49 +1,53 @@
 import 'dart:async';
 
 import 'package:daftar/application/contact/compute_fifo_contact_aging.dart';
-import 'package:daftar/application/contact/get_reminder_eligible_contacts_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/constants/dual_rail_split.dart';
 import 'package:daftar/domain/entities/contact_balance.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/repositories/balance_repository.dart';
 import 'package:daftar/domain/repositories/contact_repository.dart';
 import 'package:daftar/domain/repositories/transaction_repository.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
 import 'package:fpdart/fpdart.dart';
 
-/// Builds the Collections shortlist on device from Drift (email ∩ overdue).
+/// Builds the ranked overdue shortlist and dual-rail split on device.
 ///
 /// Outstanding debt is [ContactBalance.netBalance] negative. Cloud Run is never
 /// consulted. Empty list is success.
 class GetCollectionsCandidatesUseCase {
   /// Creates the use case.
   const GetCollectionsCandidatesUseCase({
-    required GetReminderEligibleContactsUseCase
-    getReminderEligibleContactsUseCase,
     required BalanceRepository balanceRepository,
     required TransactionRepository transactionRepository,
     required ContactRepository contactRepository,
-  }) : _getReminderEligibleContactsUseCase = getReminderEligibleContactsUseCase,
-       _balanceRepository = balanceRepository,
+  }) : _balanceRepository = balanceRepository,
        _transactionRepository = transactionRepository,
        _contactRepository = contactRepository;
 
-  final GetReminderEligibleContactsUseCase _getReminderEligibleContactsUseCase;
   final BalanceRepository _balanceRepository;
   final TransactionRepository _transactionRepository;
   final ContactRepository _contactRepository;
 
-  /// Returns ranked Collections candidates. [asOf] defaults to now (tests freeze it).
+  /// Returns ranked candidates with [OutreachRail] attached.
+  ///
+  /// [allowDial] defaults false (kill switch). Tests inject allowlist + true.
   Future<Either<Failure, List<CollectionsCandidate>>> execute({
     DateTime? asOf,
+    Set<String> allowlist = const {},
+    String allowlistRegion = 'US',
+    bool allowDial = false,
   }) async {
     final asOfTime = asOf ?? DateTime.now();
 
-    final phoneResult = await _getReminderEligibleContactsUseCase.execute();
-    if (phoneResult.isLeft()) {
-      return Left(phoneResult.getLeft().toNullable()!);
+    final outreachResult =
+        await _contactRepository.getContactsEligibleForCollectionsOutreach();
+    if (outreachResult.isLeft()) {
+      return Left(outreachResult.getLeft().toNullable()!);
     }
-    final phoneContacts = phoneResult.getRight().toNullable() ?? const [];
-    if (phoneContacts.isEmpty) {
+    final outreachContacts =
+        outreachResult.getRight().toNullable() ?? const [];
+    if (outreachContacts.isEmpty) {
       return const Right(<CollectionsCandidate>[]);
     }
 
@@ -56,7 +60,7 @@ class GetCollectionsCandidatesUseCase {
     }
 
     final candidates = <CollectionsCandidate>[];
-    for (final entry in phoneContacts) {
+    for (final entry in outreachContacts) {
       final rows = balancesByContact[entry.contactId] ?? const <ContactBalance>[];
       final overdue = [
         for (final row in rows)
@@ -114,8 +118,8 @@ class GetCollectionsCandidatesUseCase {
         CollectionsCandidate(
           contactId: entry.contactId,
           name: entry.contactName,
-          phone: entry.phone,
-          email: entry.email,
+          phone: contact?.phone ?? entry.phone,
+          email: contact?.email ?? entry.email,
           ledgerId: entry.ledgerId,
           netBalance: driftRow.netBalance,
           currencyCode: chosen.currencyCode,
@@ -123,12 +127,21 @@ class GetCollectionsCandidatesUseCase {
           toneBand: chosen.toneBand,
           daysSinceLastPayment: chosen.daysSinceLastPayment,
           daysSinceLastDebt: chosen.daysSinceLastDebt,
+          doNotCall: contact?.doNotCall ?? entry.doNotCall,
         ),
       );
     }
 
     candidates.sort(_byAgeThenOwedThenName);
-    return Right(List<CollectionsCandidate>.unmodifiable(candidates));
+
+    final split = DualRailSplit.split(
+      ranked: candidates,
+      allowlistRegion: allowlistRegion,
+      allowlist: allowlist,
+      allowDial: allowDial,
+    );
+
+    return Right(split.ranked);
   }
 
   static FifoContactAging? _pickSlice({

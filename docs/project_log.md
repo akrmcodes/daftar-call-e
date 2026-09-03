@@ -4338,4 +4338,126 @@ YE remains HTTP 200 + `unsupportedRegion` (J.9 per-row reject). HTTP 400 is cap 
 ### Status
 1.4 and Stage 1 gate done. Next: Stage 2 (schema 26 / device contract). No commit unless asked.
 
+## 2026-09-03 — Stage 2.1 Schema 26
+
+### Context
+Roadmap §2.1: bump Drift/Drive backup schema **25 → 26** with Confirm & Call collection tables, per-contact `doNotCall`, integer money only. No repositories, no PSTN, no Flutter call UI.
+
+### Done
+- Domain enums: `call_batch_trigger.dart`, `call_batch_status.dart`, `call_run_outcome.dart`, `collection_promise_status.dart`
+- Drift tables: `collection_call_batches_table.dart`, `collection_call_runs_table.dart`, `collection_promises_table.dart`; `contacts.doNotCall` on `contacts_table.dart`
+- `Contact` entity + `ContactModel` + `contact_local_ds.dart` FTS search map `doNotCall`
+- `DbConstants.schemaVersion` and `DriveBackupConstants.schemaVersion` **26**; `onUpgrade from < 26` in `drift_database.dart`
+- [`test/data/datasources/local/schema_v26_test.dart`](../test/data/datasources/local/schema_v26_test.dart): version parity, integer money inserts, `doNotCall` default + round-trip, `sqlite_master`, no `RealColumn`
+- `agent_schema_v19_test.dart` expects schema **26**
+- `BACKUP_SPEC.md`, `GOOGLE_DRIVE_BACKUP_SPEC.md`, roadmap §2.1 `[x]`, `CONTEST_DISCLOSURE.md` Schema 26 row
+
+### Architecture / decisions
+`doNotCall` on `contacts` (not settings). Persist `runId` (= CALL-E `call.id`) only — no confirm-handle column. `promisedDate` / promise dates as `TEXT` `YYYY-MM-DD`. Display-only `collection_promises` — no ledger movement until Stage 4. Stage 8 sync tables remain inert.
+
+### Ops / verification
+`dart run build_runner build --delete-conflicting-outputs`. `flutter test` schema_v26 + agent_schema_v19 — **8 passed**. `flutter analyze` on touched lib files — clean (import ordering fixed). No Cloud Run deploy. No commit unless asked.
+
+### Status
+§2.1 done. Next: §2.2 E.164 + region helper. No commit unless asked.
+
+## 2026-09-03 — Stage 2.2 E.164 + region
+
+### Context
+Roadmap §2.2: device-side CALL-E E.164 formatting and J.10 region/allowlist gate mirroring `agent/calls/j10.py`. No Flutter UI, no Envied allowlist, no PSTN.
+
+### Done
+- [`lib/domain/value_objects/phone_number.dart`](../lib/domain/value_objects/phone_number.dart): `e164` getter (`+` + digits, ITU regex); `normalized` unchanged for WhatsApp
+- [`lib/domain/constants/j10_calle_regions.dart`](../lib/domain/constants/j10_calle_regions.dart): `supportedRegions`, `callingRegion`, NANP sentinel — lockstep with `j10.py` / GitHub
+- [`lib/domain/value_objects/call_eligibility.dart`](../lib/domain/value_objects/call_eligibility.dart): sealed `CallEmpty` / `CallInvalid` / `CallUnavailable` / `CallNotAllowlisted` / `CallEligible`
+- [`lib/domain/constants/j10_region_gate.dart`](../lib/domain/constants/j10_region_gate.dart): `J10RegionGate.evaluate` (region gate + allowlist; no DNC/kill switch)
+- [`test/domain/value_objects/phone_number_test.dart`](../test/domain/value_objects/phone_number_test.dart): E.164 group
+- [`test/domain/constants/j10_region_gate_test.dart`](../test/domain/constants/j10_region_gate_test.dart): YE, SA, NANP+US, AE/EG/OM, empty, invalid, not allowlisted
+- Roadmap §2.2 `[x]`
+
+### Architecture / decisions
+YE → `CallUnavailable` (email rail in 2.3). NANP `+1` never inferred as `US`; `declaredRegion` must match `allowlistRegion` for +1. Allowlist passed as `Set<String>` argument (Stage 2.5 persists). Full GitHub `supportedRegions` set on device — not a 5-country subset.
+
+### Ops / verification
+`flutter test` phone_number + j10_region_gate — **64 passed**. `flutter analyze` on touched lib — clean. No Cloud Run deploy. No commit unless asked.
+
+### Status
+§2.2 done. Next: §2.3 aging split (`rail`). No commit unless asked.
+
+## 2026-09-03 — Stage 2.3 Aging split
+
+### Context
+Roadmap §2.3 / Appendix D: after FIFO rank, attach dual-rail `OutreachRail`, cap call set at 5 and email set at 20 (PDF Top 5). Device ranks; Gemini does not pick contact IDs.
+
+### Done
+- [`lib/domain/enums/outreach_rail.dart`](../lib/domain/enums/outreach_rail.dart): `call`, `email`, `both`, `callUnavailable`, `skipped`
+- [`lib/domain/constants/dual_rail_split.dart`](../lib/domain/constants/dual_rail_split.dart): `DualRailSplit.split` + `DualRailSplitResult` (`callSet`, `emailSet`, `pdfTop5`)
+- [`lib/domain/value_objects/collections_candidate.dart`](../lib/domain/value_objects/collections_candidate.dart): `doNotCall`, `rail`
+- [`lib/domain/constants/contact_email.dart`](../lib/domain/constants/contact_email.dart): `isPresentAndValid`
+- [`lib/domain/constants/j10_calle_regions.dart`](../lib/domain/constants/j10_calle_regions.dart): `declaredRegionFor`
+- [`lib/domain/constants/closing_agent_constants.dart`](../lib/domain/constants/closing_agent_constants.dart): `maxCallRecipients = 5`
+- [`lib/data/datasources/local/contact_local_ds.dart`](../lib/data/datasources/local/contact_local_ds.dart): `getContactsEligibleForCollectionsOutreach` (no email predicate; includes `do_not_call`)
+- [`lib/application/contact/get_collections_candidates_use_case.dart`](../lib/application/contact/get_collections_candidates_use_case.dart): overdue universe + rank + split; optional `allowlist` / `allowlistRegion` / `allowDial`
+- [`lib/domain/value_objects/closing_ritual_result.dart`](../lib/domain/value_objects/closing_ritual_result.dart): `emailRailShortlist`, `callSet`; `reminderSet` from email rail
+- [`test/domain/constants/dual_rail_split_test.dart`](../test/domain/constants/dual_rail_split_test.dart), updated candidates + ritual tests
+- Roadmap §2.3 `[x]`
+
+### Architecture / decisions
+Rank first (FIFO + age/balance sort), split second. YE / unsupported phone + valid email → `callUnavailable` on email rail. Call eligibility uses Stage 2.2 `J10RegionGate` + DNC + `allowDial` (default false). Heritage SMTP reminder query unchanged. `ProposeClosingPlanPayload` still steps-only — no contact ID picker.
+
+### Ops / verification
+`flutter test` dual_rail_split + closing_ritual_result + get_collections_candidates — **27 passed**. `flutter analyze` on touched lib — clean. `build_runner` for `core_providers`. No PSTN. No commit unless asked.
+
+### Status
+§2.3 done. Next: §2.4 demo seeder. No commit unless asked.
+
+## 2026-09-03 — Stage 2.4 Demo seeder
+
+### Context
+Roadmap §2.4: sample store seeds one call-eligible contact (Mohamed) from a gitignored US DID dart-define; remaining six overdue contacts use valid Yemen Mobile placeholders plus emails to prove J.10 → `callUnavailable` / email rail. No live numbers in `lib/` or committed `tool/`.
+
+### Done
+- [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart): `DAFTAR_SEED_US_DID` resolver (NANP only); `yemenPlaceholder(0…6)` with `+96777…` prefix
+- [`lib/core/utils/demo_store_seeder.dart`](../lib/core/utils/demo_store_seeder.dart): Mohamed phone from `DemoSeedUsDid.resolve` or YE fallback; optional `callEligibleE164` test param; indices 1–6 always YE
+- [`tool/demo_seed_emails.example.json`](../tool/demo_seed_emails.example.json): empty `DAFTAR_SEED_US_DID`
+- [`tool/demo_seed_emails.md`](../tool/demo_seed_emails.md), [`docs/qa/flutter_env.template.md`](../docs/qa/flutter_env.template.md): overlay docs (not Envied, not `CALLE_ALLOWLIST`)
+- Tests: [`test/core/utils/demo_seed_us_did_test.dart`](../test/core/utils/demo_seed_us_did_test.dart); extended [`dev_database_seeder_test.dart`](../test/core/utils/dev_database_seeder_test.dart) (YE E.164, US override, dual-rail `both` / `callUnavailable`); [`demo_seed_emails_test.dart`](../test/core/utils/demo_seed_emails_test.dart)
+- Roadmap §2.4 `[x]`
+
+### Architecture / decisions
+Mohamed (index 0) is the mid-day capture + call target. Empty/invalid DID → all seven on YE placeholders (CI/judge-safe). US DID via `--dart-define-from-file=tool/demo_seed_emails.local.json` only. Replaced invalid `+96770…` phones with `77`-prefix numbers so `PhoneNumber.isValid` and YE gate apply. No logging of DID. Stage 2 validation gate stays open (2.5).
+
+### Ops / verification
+`flutter test` demo_seed_us_did + demo_seed_emails + dev_database_seeder — **20 passed**. `flutter analyze` on touched lib/tests — clean. No PSTN. No commit unless asked.
+
+### Status
+§2.4 done. Next: §2.5 allowlist + DNC on device. No commit unless asked.
+
+## 2026-09-03 — Stage 2.5 Allowlist + DNC on device
+
+### Context
+Roadmap §2.5: device-side defense in depth — compile-time `CALLE_*` policy (lockstep with Cloud Run), `RunBatchRecipientGuard` as last gate before future `run-batch`, read-only Settings kill-switch stub, and `doNotCall` preserved on contact update. No HTTP, Envied, schema 27, or PSTN.
+
+### Done
+- [`lib/domain/constants/calle_device_policy.dart`](../lib/domain/constants/calle_device_policy.dart): `parse` / `fromCompiled()` — exact `"true"` for `allowDial`, comma allowlist, default region `US`
+- [`lib/domain/constants/run_batch_recipient_guard.dart`](../lib/domain/constants/run_batch_recipient_guard.dart): `RunBatchRecipientGuard.select` with omit reasons + cap 5
+- [`lib/domain/constants/j10_region_gate.dart`](../lib/domain/constants/j10_region_gate.dart): comment — DNC/kill switch live in dual-rail + guard
+- [`lib/application/agent/run_closing_ritual_use_case.dart`](../lib/application/agent/run_closing_ritual_use_case.dart): optional `devicePolicy` → candidates
+- [`lib/presentation/providers/core_providers.dart`](../lib/presentation/providers/core_providers.dart): `calleDevicePolicyProvider`
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): policy into candidates query
+- [`lib/domain/repositories/contact_repository.dart`](../lib/domain/repositories/contact_repository.dart), [`update_contact_use_case.dart`](../lib/application/contact/update_contact_use_case.dart), [`contact_repository_impl.dart`](../lib/data/repositories/contact_repository_impl.dart): preserve `doNotCall` on update
+- Settings stub: [`settings_screen.dart`](../lib/presentation/screens/settings/settings_screen.dart) + ARB `settingsCalleAllowDial*`
+- Overlay docs: [`tool/demo_seed_emails.example.json`](../tool/demo_seed_emails.example.json), [`tool/demo_seed_emails.md`](../tool/demo_seed_emails.md), [`docs/qa/flutter_env.template.md`](../docs/qa/flutter_env.template.md)
+- Tests: `calle_device_policy_test`, `run_batch_recipient_guard_test`, candidates DNC, ritual policy forward, `contact_do_not_call_test`, extended `demo_seed_emails_test`
+- Roadmap §2.5 `[x]`; Stage 2 validation gate unit tests / seeder / analyze `[x]` (Schema 26 device smoke still open)
+
+### Architecture / decisions
+Server remains authoritative; device filter is defense in depth. `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` stay independent. Kill-switch stub is read-only (`GlowPillToggle` disabled) until Stage 5.2 persistence. No contact-edit DNC UI this slice.
+
+### Ops / verification
+`flutter test` policy + guard + candidates + ritual + contact DNC + demo_seed_emails — **30 passed**. `build_runner` for `calleDevicePolicyProvider`. `flutter gen-l10n`. `flutter analyze` on touched lib — clean. No PSTN. No commit unless asked.
+
+### Status
+§2.5 done. Stage 2 gate: only **Schema 26 migrates on a debug install** remains unchecked. Next: Stage 3 Confirm & Call UI. No commit unless asked.
+
 

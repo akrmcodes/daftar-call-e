@@ -33,7 +33,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 
 void main() {
-  group('Contest schema v25', () {
+  group('Contest schema v26', () {
     late AppDatabase database;
     late DayJournalRepositoryImpl journalRepository;
     late AgentSessionRepositoryImpl sessionRepository;
@@ -65,9 +65,9 @@ void main() {
       await database.close();
     });
 
-    test('schemaVersion is 25 and session → turn → journal persist', () async {
+    test('schemaVersion is 26 and session → turn → journal persist', () async {
       expect(database.schemaVersion, DbConstants.schemaVersion);
-      expect(database.schemaVersion, 25);
+      expect(database.schemaVersion, 26);
 
       final settings = await database.select(database.appSettingsTable).getSingle();
       expect(settings.ttsMuted, isFalse);

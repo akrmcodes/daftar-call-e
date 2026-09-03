@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:daftar/core/utils/demo_seed_emails.dart';
+import 'package:daftar/core/utils/demo_seed_us_did.dart';
 import 'package:daftar/core/utils/demo_store_seeder.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
 import 'package:daftar/domain/constants/contact_email.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,10 +50,19 @@ void main() {
     expect(
       map.keys,
       unorderedEquals([
+        DemoSeedUsDid.dartDefineKey,
+        CalleDevicePolicy.allowDialKey,
+        CalleDevicePolicy.allowlistKey,
+        CalleDevicePolicy.allowlistRegionKey,
         for (final tag in DemoSeedEmails.tags) 'DAFTAR_SEED_EMAIL_$tag',
       ]),
     );
-    for (final value in map.values) {
+    expect(map[DemoSeedUsDid.dartDefineKey], '');
+    expect(map[CalleDevicePolicy.allowDialKey], '');
+    expect(map[CalleDevicePolicy.allowlistKey], '');
+    expect(map[CalleDevicePolicy.allowlistRegionKey], 'US');
+    for (final tag in DemoSeedEmails.tags) {
+      final value = map['DAFTAR_SEED_EMAIL_$tag'];
       expect(value, isA<String>());
       final email = value as String;
       expect(ContactEmail.isValid(email), isTrue);

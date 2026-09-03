@@ -2,6 +2,7 @@ import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
@@ -28,7 +29,7 @@ class ClosingRitualResult extends Equatable {
   /// Drive upload / queue outcome.
   final ClosingBackupStatus backupStatus;
 
-  /// Full ranked Collections shortlist (email ∩ overdue).
+  /// Full ranked overdue shortlist with dual-rail assignment.
   final List<CollectionsCandidate> shortlist;
 
   /// Merchant reminder choice. Defaults to none until prompted.
@@ -49,17 +50,34 @@ class ClosingRitualResult extends Equatable {
   /// Overdue line for the report (restored queues may have a truncated shortlist).
   int get overdueCount => overdueTotal ?? shortlist.length;
 
+  /// Email-rail rows in rank order (send set before merchant policy cap).
+  List<CollectionsCandidate> get emailRailShortlist => [
+        for (final row in shortlist)
+          if (row.rail == OutreachRail.email ||
+              row.rail == OutreachRail.both ||
+              row.rail == OutreachRail.callUnavailable)
+            row,
+      ];
+
+  /// CALL-E call set in rank order.
+  List<CollectionsCandidate> get callSet => [
+        for (final row in shortlist)
+          if (row.rail == OutreachRail.call || row.rail == OutreachRail.both)
+            row,
+      ];
+
   /// Contacts that will receive reminder drafts (4.2).
   List<CollectionsCandidate> get reminderSet {
+    final emailRows = emailRailShortlist;
     switch (reminderPolicy) {
       case ClosingReminderPolicy.none:
         return const [];
       case ClosingReminderPolicy.top5:
-        return shortlist
+        return emailRows
             .take(ClosingAgentConstants.statementSetSize)
             .toList(growable: false);
       case ClosingReminderPolicy.all:
-        return shortlist
+        return emailRows
             .take(ClosingAgentConstants.maxEmailRecipients)
             .toList(growable: false);
     }

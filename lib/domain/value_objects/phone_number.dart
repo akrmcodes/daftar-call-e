@@ -14,7 +14,8 @@ import 'package:equatable/equatable.dart';
 /// ## Usage
 /// ```dart
 /// final phone = PhoneNumber('+967 777 123 456');
-/// print(phone.normalized); // '967777123456'
+/// print(phone.normalized); // '967777123456' (digits only, WhatsApp)
+/// print(phone.e164); // '+967771234567' (CALL-E phones[] when valid)
 /// print(phone.whatsAppLink); // 'https://wa.me/967777123456'
 /// ```
 class PhoneNumber extends Equatable {
@@ -23,6 +24,9 @@ class PhoneNumber extends Equatable {
 
   /// Supported Yemeni mobile operator prefixes (without country code).
   static const Set<String> yemeniOperatorPrefixes = {'71', '73', '77', '78'};
+
+  /// ITU-T E.164 / CALL-E shape: `+` then 8–15 digits, first digit 1–9.
+  static final RegExp _ituE164Pattern = RegExp(r'^\+[1-9]\d{7,14}$');
 
   /// The raw phone number string as entered by the user.
   final String raw;
@@ -97,6 +101,17 @@ class PhoneNumber extends Equatable {
     }
 
     return true;
+  }
+
+  /// CALL-E `phones[]` form: `+` plus [normalized] digits.
+  ///
+  /// Returns `null` when [isValid] is false or the value does not match the
+  /// ITU / CALL-E regex (`^\+[1-9]\d{7,14}$`). Use [normalized] for WhatsApp.
+  String? get e164 {
+    if (!isValid) return null;
+    final formatted = '+$normalized';
+    if (!_ituE164Pattern.hasMatch(formatted)) return null;
+    return formatted;
   }
 
   static String _collapseDuplicateCountryCode(String digits) {

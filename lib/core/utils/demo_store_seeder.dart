@@ -1,6 +1,7 @@
 import 'package:daftar/core/constants/db_constants.dart';
 import 'package:daftar/core/utils/demo_seed_emails.dart';
 import 'package:daftar/core/utils/demo_seed_report.dart';
+import 'package:daftar/core/utils/demo_seed_us_did.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/data/datasources/local/drift_database.dart';
 import 'package:daftar/data/models/audit_log_model.dart';
@@ -62,11 +63,15 @@ class DemoStoreSeeder {
   }
 
   /// Clears workspace data then seeds the sample store fixture.
+  ///
+  /// [callEligibleE164] overrides the compile-time `DAFTAR_SEED_US_DID` for
+  /// Mohamed (index 0). When unset/invalid, Mohamed uses a Yemen placeholder.
   static Future<DemoSeedReport> seedData(
     AppDatabase database, {
     DateTime? now,
     String? localeOverride,
     String? draftStoreName,
+    String? callEligibleE164,
   }) async {
     final seeder = DemoStoreSeeder(database);
     final clock = now ?? DateTime.now().toUtc();
@@ -74,12 +79,16 @@ class DemoStoreSeeder {
       localeOverride ?? await seeder._readLocale(),
     );
     final keptStoreName = await seeder._resolveStoreNameToKeep(draftStoreName);
+    final mohamedPhone =
+        DemoSeedUsDid.resolve(override: callEligibleE164) ??
+        DemoSeedUsDid.yemenPlaceholder(0);
 
     await seeder._clearWorkspace();
     await seeder._seedWorkspace(
       clock,
       locale: locale,
       keptStoreName: keptStoreName,
+      mohamedPhone: mohamedPhone,
     );
 
     return seeder._buildReport(
@@ -158,9 +167,15 @@ class DemoStoreSeeder {
     DateTime now, {
     required String locale,
     required String? keptStoreName,
+    required String mohamedPhone,
   }) async {
     final ledger = _buildLedger(now, locale);
-    final contacts = _buildContacts(ledger.id, now, locale);
+    final contacts = _buildContacts(
+      ledger.id,
+      now,
+      locale,
+      mohamedPhone: mohamedPhone,
+    );
     final transactions = _buildTransactions(contacts, now, locale);
 
     await _database.transaction(() async {
@@ -374,8 +389,9 @@ class DemoStoreSeeder {
   static List<ContactModel> _buildContacts(
     String ledgerId,
     DateTime now,
-    String locale,
-  ) {
+    String locale, {
+    required String mohamedPhone,
+  }) {
     const avatarColors = [
       '#5C6BC0',
       '#26A69A',
@@ -432,7 +448,7 @@ class DemoStoreSeeder {
           id: UuidUtil.generate(),
           ledgerId: ledgerId,
           name: names[i],
-          phone: '+96770000000${i + 1}',
+          phone: i == 0 ? mohamedPhone : DemoSeedUsDid.yemenPlaceholder(i),
           email: DemoSeedEmails.forIndex(i),
           notes: notes[i],
           creditLimit: null,

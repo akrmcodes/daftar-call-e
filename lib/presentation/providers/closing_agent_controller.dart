@@ -1155,9 +1155,14 @@ class ClosingAgentController extends _$ClosingAgentController {
       ritualBackupStatus: backupStatus,
     );
 
+    final callPolicy = ref.read(calleDevicePolicyProvider);
     final shortlistResult = await ref
         .read(getCollectionsCandidatesUseCaseProvider)
-        .execute();
+        .execute(
+          allowlist: callPolicy.allowlist,
+          allowlistRegion: callPolicy.allowlistRegion,
+          allowDial: callPolicy.allowDial,
+        );
     final shortlistFailure = shortlistResult.getLeft().toNullable();
     if (shortlistFailure != null) {
       state = state.copyWith(

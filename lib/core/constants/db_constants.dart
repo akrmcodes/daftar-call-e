@@ -7,7 +7,7 @@ abstract final class DbConstants {
   static const String databaseName = 'daftar.db';
 
   /// Current schema version. Increment for every migration step.
-  static const int schemaVersion = 25;
+  static const int schemaVersion = 26;
 
   /// Default page size for paginated queries.
   static const int defaultPageSize = 20;

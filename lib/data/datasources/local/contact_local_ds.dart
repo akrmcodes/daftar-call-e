@@ -1,6 +1,7 @@
 import 'package:daftar/core/extensions/string_extensions.dart';
 import 'package:daftar/data/datasources/local/drift_database.dart' as db;
 import 'package:daftar/data/mappers/contact_mapper.dart';
+import 'package:daftar/data/models/collections_outreach_contact_row.dart';
 import 'package:daftar/data/models/contact_model.dart';
 import 'package:daftar/data/models/contact_search_row.dart';
 import 'package:daftar/data/models/contact_summary_row.dart';
@@ -245,6 +246,7 @@ ORDER BY c.name COLLATE NOCASE
         c.updated_at AS updatedAt,
         c.is_deleted AS isDeleted,
         c.is_archived AS isArchived,
+        c.do_not_call AS doNotCall,
         c.sync_version AS syncVersion,
         l.name AS ledgerName,
         l.is_user_archived AS isLedgerUserArchived
@@ -280,6 +282,7 @@ ORDER BY c.name COLLATE NOCASE
               updatedAt: row.read<DateTime>('updatedAt'),
               isDeleted: row.read<bool>('isDeleted'),
               isArchived: row.read<bool>('isArchived'),
+              doNotCall: row.read<bool>('doNotCall'),
               syncVersion: row.read<int>('syncVersion'),
             ).toModel(),
             ledgerName: row.read<String>('ledgerName'),
@@ -353,6 +356,44 @@ ORDER BY c.name COLLATE NOCASE
             ledgerId: row.read<String>('ledgerId'),
             phone: row.read<String?>('phone'),
             email: row.read<String?>('email'),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  Future<List<CollectionsOutreachContactRow>>
+  getContactsEligibleForCollectionsOutreach() async {
+    final rows = await database
+        .customSelect(
+          '''
+      SELECT
+        c.id AS contactId,
+        c.name AS contactName,
+        c.ledger_id AS ledgerId,
+        c.phone AS phone,
+        c.email AS email,
+        c.do_not_call AS doNotCall
+      FROM contacts c
+      INNER JOIN ledgers l ON l.id = c.ledger_id
+      WHERE c.is_deleted = 0
+        AND c.is_archived = 0
+        AND l.is_deleted = 0
+        AND l.is_archived = 0
+        AND l.is_user_archived = 0
+      ORDER BY c.name COLLATE NOCASE
+      ''',
+        )
+        .get();
+
+    return rows
+        .map(
+          (row) => CollectionsOutreachContactRow(
+            contactId: row.read<String>('contactId'),
+            contactName: row.read<String>('contactName'),
+            ledgerId: row.read<String>('ledgerId'),
+            phone: row.read<String?>('phone'),
+            email: row.read<String?>('email'),
+            doNotCall: row.read<bool>('doNotCall'),
           ),
         )
         .toList(growable: false);

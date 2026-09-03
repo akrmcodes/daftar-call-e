@@ -171,6 +171,23 @@ void main() {
       });
     });
 
+    group('E.164 for CALL-E', () {
+      test('local Yemen and Saudi normalize to +E.164', () {
+        expect(const PhoneNumber('0771234567').e164, '+967771234567');
+        expect(const PhoneNumber('0501234567').e164, '+966501234567');
+      });
+
+      test('RFC 555 NANP fictional number', () {
+        expect(const PhoneNumber('+15555550100').e164, '+15555550100');
+      });
+
+      test('empty and invalid return null e164', () {
+        expect(const PhoneNumber('').e164, isNull);
+        expect(const PhoneNumber('invalid').e164, isNull);
+        expect(const PhoneNumber('123').e164, isNull);
+      });
+    });
+
     group('Deep links', () {
       test('generates WhatsApp and tel links for valid numbers', () {
         const phone = PhoneNumber('0771234567');

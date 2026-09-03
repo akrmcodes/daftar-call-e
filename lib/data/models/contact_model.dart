@@ -22,6 +22,7 @@ class ContactModel {
     this.email,
     this.isDeleted = false,
     this.isArchived = false,
+    this.doNotCall = false,
     this.syncVersion = 0,
   });
 
@@ -41,6 +42,7 @@ class ContactModel {
       updatedAt: contact.updatedAt,
       isDeleted: contact.isDeleted,
       isArchived: contact.isArchived,
+      doNotCall: contact.doNotCall,
       syncVersion: contact.syncVersion,
     );
   }
@@ -61,6 +63,7 @@ class ContactModel {
       updatedAt: contact.updatedAt,
       isDeleted: contact.isDeleted,
       isArchived: contact.isArchived,
+      doNotCall: contact.doNotCall,
       syncVersion: contact.syncVersion,
     );
   }
@@ -81,6 +84,7 @@ class ContactModel {
       updatedAt: _requiredValue(companion.updatedAt, 'updatedAt'),
       isDeleted: _optionalValue(companion.isDeleted, false),
       isArchived: _optionalValue(companion.isArchived, false),
+      doNotCall: _optionalValue(companion.doNotCall, false),
       syncVersion: _optionalValue(companion.syncVersion, 0),
     );
   }
@@ -124,6 +128,9 @@ class ContactModel {
   /// Archive-first import flag.
   final bool isArchived;
 
+  /// Omit from Confirm & Call when true.
+  final bool doNotCall;
+
   /// Sync conflict resolution version.
   final int syncVersion;
 
@@ -143,6 +150,7 @@ class ContactModel {
       updatedAt: updatedAt,
       isDeleted: isDeleted,
       isArchived: isArchived,
+      doNotCall: doNotCall,
       syncVersion: syncVersion,
     );
   }
@@ -163,6 +171,7 @@ class ContactModel {
       updatedAt: updatedAt,
       isDeleted: isDeleted,
       isArchived: isArchived,
+      doNotCall: doNotCall,
       syncVersion: syncVersion,
     );
   }

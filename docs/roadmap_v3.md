@@ -368,7 +368,7 @@ flowchart TB
 
 ### New Drift tables (Stage 2) — schema **25 → 26**
 
-Today: [`DbConstants.schemaVersion`](../lib/core/constants/db_constants.dart) **25**. Bump **`DbConstants` and `DriveBackupConstants.schemaVersion` together**. `onUpgrade from < 26`. Stage 8 sync tables **remain inert**. Names indicative — finalize in the migration PR.
+Today: [`DbConstants.schemaVersion`](../lib/core/constants/db_constants.dart) **26**. Bump **`DbConstants` and `DriveBackupConstants.schemaVersion` together**. `onUpgrade from < 26`. Stage 8 sync tables **remain inert**. Names indicative — finalize in the migration PR.
 
 | Table | Purpose |
 | --- | --- |
@@ -577,45 +577,45 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **2.1 Schema 26**
 
-- [ ] Tables `collection_call_batches`, `collection_call_runs`, `collection_promises` (+ `doNotCall`)
-- [ ] `DbConstants.schemaVersion` **26** and `DriveBackupConstants.schemaVersion` **together**
-- [ ] `onUpgrade from < 26`
-- [ ] Integer money columns only
-- [ ] BACKUP_SPEC example versions bumped if required by existing hygiene
+- [x] Tables `collection_call_batches`, `collection_call_runs`, `collection_promises` (+ `doNotCall`)
+- [x] `DbConstants.schemaVersion` **26** and `DriveBackupConstants.schemaVersion` **together**
+- [x] `onUpgrade from < 26`
+- [x] Integer money columns only
+- [x] BACKUP_SPEC example versions bumped if required by existing hygiene
 
 **2.2 E.164 + region**
 
-- [ ] Helper: digits-only `PhoneNumber.normalized` → **`+` + digits** for CALL-E `phones[]`
-- [ ] J.10 lookup: ISO country from calling code; YE → `callUnavailable`
-- [ ] **NANP:** `+1` is US **and** CA (and others). Demo DID → `region: US` from **allowlist/config**, not inferred from `+1`
-- [ ] US/AE/SA/EG/OM (and other J.10 rows we actually use) → eligible **iff** allowlisted
-- [ ] Tests: YE, SA `+9665…`, US `+1…` with explicit `region: US`, empty, invalid
+- [x] Helper: digits-only `PhoneNumber.normalized` → **`+` + digits** for CALL-E `phones[]`
+- [x] J.10 lookup: ISO country from calling code; YE → `callUnavailable`
+- [x] **NANP:** `+1` is US **and** CA (and others). Demo DID → `region: US` from **allowlist/config**, not inferred from `+1`
+- [x] US/AE/SA/EG/OM (and other J.10 rows we actually use) → eligible **iff** allowlisted
+- [x] Tests: YE, SA `+9665…`, US `+1…` with explicit `region: US`, empty, invalid
 
 **2.3 Aging split**
 
-- [ ] After Appendix D rank: attach `rail` = `call` \| `email` \| `both` \| `callUnavailable` \| `skipped`
-- [ ] Call set = `min(call-eligible, 5)`
-- [ ] Email set = existing send-set rules (email present, cap 20, PDF Top 5)
-- [ ] Gemini does not receive a picker of IDs to choose from
+- [x] After Appendix D rank: attach `rail` = `call` \| `email` \| `both` \| `callUnavailable` \| `skipped`
+- [x] Call set = `min(call-eligible, 5)`
+- [x] Email set = existing send-set rules (email present, cap 20, PDF Top 5)
+- [x] Gemini does not receive a picker of IDs to choose from
 
 **2.4 Demo seeder**
 
-- [ ] One call-eligible contact whose phone comes from **gitignored env** (US DID)
-- [ ] Remaining overdue contacts: **YE phones + valid emails** (prove region gate → email)
-- [ ] No live numbers in `tool/` or `lib/`
+- [x] One call-eligible contact whose phone comes from **gitignored env** (US DID)
+- [x] Remaining overdue contacts: **YE phones + valid emails** (prove region gate → email)
+- [x] No live numbers in `tool/` or `lib/`
 
 **2.5 Allowlist + DNC on device**
 
-- [ ] Device refuses to put non-allowlisted E.164 in `run-batch`
-- [ ] `doNotCall` omits from call set
-- [ ] Settings stub for kill switch (wired Stage 5; env sufficient until then)
+- [x] Device refuses to put non-allowlisted E.164 in `run-batch`
+- [x] `doNotCall` omits from call set
+- [x] Settings stub for kill switch (wired Stage 5; env sufficient until then)
 
 #### Stage 2 Validation Gate
 
-- [ ] Schema 26 migrates on a debug install
-- [ ] Unit tests for E.164, YE gate, split, DNC — **no PSTN**
-- [ ] Seeder has no committed phone numbers
-- [ ] `flutter analyze` clean for touched files
+- [x] Schema 26 migrates on a debug install
+- [x] Unit tests for E.164, YE gate, split, DNC — **no PSTN**
+- [x] Seeder has no committed phone numbers
+- [x] `flutter analyze` clean for touched files
 
 ---
 

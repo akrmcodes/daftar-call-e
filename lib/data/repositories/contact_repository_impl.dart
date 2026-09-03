@@ -14,6 +14,7 @@ import 'package:daftar/data/repositories/contact_search_index_utils.dart';
 import 'package:daftar/data/repositories/repository_utils.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/repositories/contact_repository.dart';
+import 'package:daftar/domain/value_objects/collections_outreach_contact_entry.dart';
 import 'package:daftar/domain/value_objects/contact_search_hit.dart';
 import 'package:daftar/domain/value_objects/contact_with_summary.dart';
 import 'package:daftar/domain/value_objects/reminder_eligible_contact_entry.dart';
@@ -169,6 +170,31 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
+  Future<Either<Failure, List<CollectionsOutreachContactEntry>>>
+  getContactsEligibleForCollectionsOutreach() async {
+    try {
+      final rows = await _contactLocalDataSource
+          .getContactsEligibleForCollectionsOutreach();
+      return Right(
+        rows
+            .map(
+              (row) => CollectionsOutreachContactEntry(
+                contactId: row.contactId,
+                contactName: row.contactName,
+                ledgerId: row.ledgerId,
+                phone: row.phone,
+                email: row.email,
+                doNotCall: row.doNotCall,
+              ),
+            )
+            .toList(growable: false),
+      );
+    } on Object catch (error) {
+      return Left(databaseFailure(error));
+    }
+  }
+
+  @override
   Future<Either<Failure, Contact>> create(CreateContactParams params) async {
     try {
       final now = DateTime.now().toUtc();
@@ -227,6 +253,8 @@ class ContactRepositoryImpl implements ContactRepository {
         createdAt: existing.createdAt,
         updatedAt: DateTime.now().toUtc(),
         isDeleted: existing.isDeleted,
+        isArchived: existing.isArchived,
+        doNotCall: params.doNotCall ?? existing.doNotCall,
         syncVersion: existing.syncVersion + 1,
       );
 

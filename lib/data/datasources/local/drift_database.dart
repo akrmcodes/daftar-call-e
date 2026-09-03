@@ -7,6 +7,9 @@ import 'package:daftar/data/datasources/local/tables/agent_turns_table.dart';
 import 'package:daftar/data/datasources/local/tables/app_settings_table.dart';
 import 'package:daftar/data/datasources/local/tables/audit_logs_table.dart';
 import 'package:daftar/data/datasources/local/tables/backup_metadatas_table.dart';
+import 'package:daftar/data/datasources/local/tables/collection_call_batches_table.dart';
+import 'package:daftar/data/datasources/local/tables/collection_call_runs_table.dart';
+import 'package:daftar/data/datasources/local/tables/collection_promises_table.dart';
 import 'package:daftar/data/datasources/local/tables/collections_send_queues_table.dart';
 import 'package:daftar/data/datasources/local/tables/contact_balances_table.dart';
 import 'package:daftar/data/datasources/local/tables/contacts_table.dart';
@@ -25,6 +28,10 @@ import 'package:daftar/domain/enums/agent_session_status.dart';
 import 'package:daftar/domain/enums/agent_turn_confirm_state.dart';
 import 'package:daftar/domain/enums/agent_turn_role.dart';
 import 'package:daftar/domain/enums/backup_type.dart';
+import 'package:daftar/domain/enums/call_batch_status.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
+import 'package:daftar/domain/enums/collection_promise_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/day_journal_kind.dart';
@@ -69,6 +76,9 @@ part 'drift_database.g.dart';
     AgentOutboxRows,
     CollectionsSendQueueHeaders,
     CollectionsSendQueueItemRows,
+    CollectionCallBatches,
+    CollectionCallRuns,
+    CollectionPromises,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -295,6 +305,13 @@ class AppDatabase extends _$AppDatabase {
           appSettingsTable,
           appSettingsTable.demoArchitectureHud,
         );
+      }
+      // v26: Confirm & Call collection tables + per-contact DNC.
+      if (from < 26) {
+        await m.createTable(collectionCallBatches);
+        await m.createTable(collectionCallRuns);
+        await m.createTable(collectionPromises);
+        await m.addColumn(contacts, contacts.doNotCall);
       }
     },
     beforeOpen: (details) async {

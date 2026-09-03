@@ -123,6 +123,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'For demos: model, tools, HITL path, and round-trip time. Not a product tour.';
 
   @override
+  String get settingsCalleAllowDial => 'Allow CALL-E outbound';
+
+  @override
+  String get settingsCalleAllowDialSubtitle =>
+      'Compiled kill switch for Confirm & Call. Server still enforces the same flag.';
+
+  @override
+  String get settingsCalleAllowDialStubHint =>
+      'Outbound calls are configured at build time until Stage 5. Rebuild with dart-define to change.';
+
+  @override
   String architectureHudSemantics(String step) {
     return 'Agent architecture instrument, step $step';
   }

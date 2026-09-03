@@ -1,5 +1,6 @@
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/entities/contact.dart';
+import 'package:daftar/domain/value_objects/collections_outreach_contact_entry.dart';
 import 'package:daftar/domain/value_objects/contact_search_hit.dart';
 import 'package:daftar/domain/value_objects/contact_with_summary.dart';
 import 'package:daftar/domain/value_objects/reminder_eligible_contact_entry.dart';
@@ -61,6 +62,10 @@ abstract class ContactRepository {
 
   Future<Either<Failure, List<ReminderEligibleContactEntry>>>
   getContactsEligibleForAutomatedReminders();
+
+  /// Live-ledger contacts for dual-rail collections (no email required).
+  Future<Either<Failure, List<CollectionsOutreachContactEntry>>>
+  getContactsEligibleForCollectionsOutreach();
 
   /// Creates a new contact. Returns the created entity on success.
   ///
@@ -138,6 +143,7 @@ class UpdateContactParams {
     this.notes,
     this.creditLimit,
     this.creditCurrency,
+    this.doNotCall,
   });
   final String id;
   final String? name;
@@ -147,4 +153,7 @@ class UpdateContactParams {
   final String? notes;
   final int? creditLimit;
   final String? creditCurrency;
+
+  /// When null, the existing `doNotCall` flag is preserved.
+  final bool? doNotCall;
 }

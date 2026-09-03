@@ -122,6 +122,17 @@ class AppLocalizationsAr extends AppLocalizations {
       'للتجربة: النموذج والأدوات ومسار التأكيد البشري وزمن الاستجابة. ليس جولة في المنتج.';
 
   @override
+  String get settingsCalleAllowDial => 'السماح بالاتصال عبر CALL-E';
+
+  @override
+  String get settingsCalleAllowDialSubtitle =>
+      'مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.';
+
+  @override
+  String get settingsCalleAllowDialStubHint =>
+      'المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.';
+
+  @override
   String architectureHudSemantics(String step) {
     return 'أداة هيكل الوكيل، المرحلة $step';
   }

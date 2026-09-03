@@ -65,6 +65,10 @@ class Contacts extends Table {
   BoolColumn get isArchived =>
       boolean().withDefault(const Constant(false))();
 
+  /// When true, omit from Confirm & Call set (server also enforces DNC).
+  BoolColumn get doNotCall =>
+      boolean().withDefault(const Constant(false))();
+
   /// Version counter for sync conflict resolution.
   IntColumn get syncVersion =>
       integer().withDefault(const Constant(0))();
