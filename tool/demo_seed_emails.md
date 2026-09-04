@@ -11,7 +11,7 @@ Compile-time overlay for [`DemoStoreSeeder`](../lib/core/utils/demo_store_seeder
 | [`demo_seed_emails.example.json`](demo_seed_emails.example.json) | committed | owner plus-aliases (`akrm.codes+demo1` … `qubati.akrm+demo7`); empty `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` |
 | `demo_seed_emails.local.json` | **gitignored** | owner overlay: emails + US DID + device allowlist |
 
-Copy the example to the local path, then fill `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` from `$HOME/.daftar-owner-ops/test-did` (same E.164, `+` + digits). Leave `CALLE_ALLOW_DIAL` empty until Stage 4. Do **not** commit the local file. Never add a live DID to the example JSON.
+Copy the example to the local path, then fill `DAFTAR_SEED_US_DID` and `CALLE_ALLOWLIST` from `$HOME/.daftar-owner-ops/test-did` (same E.164, `+` + digits). For the live Confirm & Call window, set `CALLE_ALLOW_DIAL` to exact `true` in the **local** overlay only; revert after the demo. Do **not** commit the local file. Never add a live DID to the example JSON.
 
 ## Keys
 
@@ -32,7 +32,7 @@ Compile-time device defense in depth. Desk call-set uses allowlist + J.10 + DNC.
 
 | Key | Purpose |
 | --- | --- |
-| `CALLE_ALLOW_DIAL` | Exact lowercase `true` enables PSTN on device; anything else is off. Keep empty for Stage 3.1 |
+| `CALLE_ALLOW_DIAL` | Exact lowercase `true` enables PSTN on device; anything else is off. Live Confirm & Call on device uses `true` |
 | `CALLE_ALLOWLIST` | Comma-separated E.164. Spaced/dashed input is normalized. Empty = nobody on the call rail |
 | `CALLE_ALLOWLIST_REGION` | NANP declared ISO (default `US`) |
 
@@ -70,6 +70,6 @@ Dart-defines are **compile-time**. Hot reload / hot restart does **not** pick up
 flutter run -d <device> --debug --dart-define-from-file=tool/demo_seed_emails.local.json
 ```
 
-Linphone will **not** ring in Stage 3.1 — Confirm & Call is local HITL only (`planned` progress). Live PSTN is Stage 4 with `CALLE_ALLOW_DIAL=true`.
+Linphone rings on **Confirm & Call** when Cloud Run `daftar-call-e` has the kill switch on and this overlay sets `CALLE_ALLOW_DIAL` to exact `true`. Re-seed after changing the overlay.
 
 Resolver: [`lib/core/utils/demo_seed_emails.dart`](../lib/core/utils/demo_seed_emails.dart) and [`lib/core/utils/demo_seed_us_did.dart`](../lib/core/utils/demo_seed_us_did.dart). Invalid dart-define values fall back to compiled defaults. Addresses and DIDs are never logged.

@@ -16,7 +16,6 @@ import 'package:daftar/domain/constants/built_in_currencies.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/ledger.dart';
-import 'package:daftar/domain/enums/closing_task_id.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
@@ -522,38 +521,10 @@ class _AgentBody extends ConsumerWidget {
 
     if (agentState.phase == ClosingAgentPhase.ritualDesk) {
       final notifier = ref.read(closingAgentControllerProvider.notifier);
-      // SMTP lead: leftover Hybrid E chrome stays off (flag defaults false).
+      // Dedicated Collections Desk after aging — not compact taskmaster chrome.
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              AppDimensions.pagePaddingH,
-              AppDimensions.spacingSm,
-              AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd,
-            ),
-            child: ClosingAgentTaskmaster(
-              mode: ClosingAgentTaskmasterMode.compact,
-              localDay:
-                  agentState.ritualTaskSummary?.localDay ??
-                  agentState.ritualResult?.summary.localDay ??
-                  ClosingAgentConstants.merchantLocalDay(),
-              tasksDone: agentState.ritualTasksDone,
-              tasksSkipped: agentState.ritualTasksSkipped,
-              taskCurrent:
-                  agentState.ritualTaskCurrent ??
-                  ClosingTaskId.openCollectionsDesk,
-              summary:
-                  agentState.ritualTaskSummary ??
-                  agentState.ritualResult?.summary,
-              overdueCount: agentState.ritualOverdueCount,
-              backupStatus:
-                  agentState.ritualBackupStatus ??
-                  agentState.ritualResult?.backupStatus,
-              backupFailed: agentState.ritualBackupFailed,
-            ),
-          ),
           Expanded(
             child: CollectionsDeskPanel(
               paddingBottom: paddingBottom,

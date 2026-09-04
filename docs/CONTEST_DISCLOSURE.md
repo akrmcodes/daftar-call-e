@@ -3,7 +3,7 @@
 **Project:** Daftar Closing Agent / وكيل إغلاق الدفتر — **Confirm & Call**  
 **Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · individual · prize aim **Most Practical Use Case**  
 **Repository:** `daftar-call-e` (`https://github.com/akrmcodes/daftar-call-e.git`)  
-**Binding contract:** [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.2**  
+**Binding contract:** [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.3**  
 **Submission Period:** 23 Jul 2026 21:30 SGT – 14 Sep 2026 23:45 SGT  
 **Devpost project start:** 1 Sep 2026  
 **Date:** 2026-09-01

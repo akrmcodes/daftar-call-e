@@ -57,6 +57,18 @@ void main() {
       expect(ar.message, l10nAr.errorAgentOpenIdGrantRequired);
     });
 
+    test('calle_kill_switch uses paused-calls copy', () {
+      const failure = AuthFailure(
+        'CALL-E kill switch',
+        code: 'calle_kill_switch',
+      );
+
+      final en = ErrorTranslator.translate(l10nEn, failure);
+      expect(en.title, l10nEn.errorCalleKillSwitchTitle);
+      expect(en.message, l10nEn.errorCalleKillSwitch);
+      expect(en.title, isNot(l10nEn.errorAuthTitle));
+    });
+
     test('smtp_needs_human uses email title, not sign-in required', () {
       const failure = AuthFailure(
         'SMTP needs a human (App Password rejected).',

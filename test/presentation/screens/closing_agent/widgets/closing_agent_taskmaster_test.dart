@@ -50,19 +50,20 @@ void main() {
     expect(find.text("Today's closing plan"), findsOneWidget);
     expect(find.text('Reconcile ledger'), findsOneWidget);
     expect(find.text('Present the day seal'), findsOneWidget);
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
-    expect(find.text('Confirm without sending'), findsOneWidget);
+    expect(find.text('Start close'), findsOneWidget);
+    expect(find.text('Start close without outreach'), findsOneWidget);
+    expect(find.text('Confirm & Send Statements'), findsNothing);
     expect(find.text('Approve plan'), findsNothing);
     expect(find.text(ClosingTaskOrder.ordered.length.toString()), findsNothing);
 
-    await tester.ensureVisible(find.text('Confirm & Send Statements'));
-    await tester.tap(find.text('Confirm & Send Statements'));
+    await tester.ensureVisible(find.text('Start close'));
+    await tester.tap(find.text('Start close'));
     await tester.pump();
     expect(sent, isTrue);
     expect(withoutSending, isFalse);
 
-    await tester.ensureVisible(find.text('Confirm without sending'));
-    await tester.tap(find.text('Confirm without sending'));
+    await tester.ensureVisible(find.text('Start close without outreach'));
+    await tester.tap(find.text('Start close without outreach'));
     await tester.pump();
     expect(withoutSending, isTrue);
   });
@@ -152,5 +153,21 @@ void main() {
     await tester.pump();
 
     expect(find.text('13 tasks sealed'), findsOneWidget);
+  });
+
+  testWidgets('compact desk task is Open collections desk', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const ClosingAgentTaskmaster(
+          mode: ClosingAgentTaskmasterMode.compact,
+          localDay: '2026-08-24',
+          taskCurrent: ClosingTaskId.openCollectionsDesk,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Open collections desk'), findsOneWidget);
+    expect(find.text('Dispatch collection emails'), findsNothing);
   });
 }

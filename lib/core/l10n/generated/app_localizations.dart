@@ -6125,7 +6125,7 @@ abstract class AppLocalizations {
   /// No description provided for @closingAgentPlanOutreachConsent.
   ///
   /// In ar, this message translates to:
-  /// **'الشاشة التالية هي التحصيل. تأكيد والاتصال وتأكيد وإرسال الكشوفات منفصلان. تأكيد دون إرسال يفتح المكتب أيضاً إن وُجد متأخرون.'**
+  /// **'هذان الزران يبدآن الإقفال. بعد النسخ ومسح التقادم، مكتب التحصيل هو موضع تأكيد الاتصال والبريد.'**
   String get closingAgentPlanOutreachConsent;
 
   /// No description provided for @closingAgentTaskmasterTitle.
@@ -6139,6 +6139,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اعتماد الخطة'**
   String get closingAgentApprovePlan;
+
+  /// No description provided for @closingAgentStartClose.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ الإقفال'**
+  String get closingAgentStartClose;
+
+  /// No description provided for @closingAgentStartCloseWithoutOutreach.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ الإقفال دون تواصل'**
+  String get closingAgentStartCloseWithoutOutreach;
 
   /// No description provided for @closingAgentConfirmAndSend.
   ///
@@ -6221,7 +6233,7 @@ abstract class AppLocalizations {
   /// No description provided for @closingTaskOpenDesk.
   ///
   /// In ar, this message translates to:
-  /// **'إرسال مطالبات التحصيل'**
+  /// **'فتح مكتب التحصيل'**
   String get closingTaskOpenDesk;
 
   /// No description provided for @closingTaskComposeReport.
@@ -6989,6 +7001,30 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.'**
   String get errorSmtpSenderMisconfigured;
+
+  /// No description provided for @errorCalleKillSwitchTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمات متوقفة'**
+  String get errorCalleKillSwitchTitle;
+
+  /// No description provided for @errorCalleKillSwitch.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.'**
+  String get errorCalleKillSwitch;
+
+  /// No description provided for @errorCalleNeedsHuman.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.'**
+  String get errorCalleNeedsHuman;
+
+  /// No description provided for @errorCallePollTimeout.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تكتمل المكالمة في الوقت المحدد. دفترك لم يتغيّر. لا تضغط تأكيد والاتصال مرة أخرى.'**
+  String get errorCallePollTimeout;
 
   /// No description provided for @errorCollectionsEmailCap.
   ///

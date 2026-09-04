@@ -17,10 +17,14 @@ import 'package:daftar/core/utils/native_contact_picker_service.dart';
 import 'package:daftar/core/utils/tts_sanitize.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
+import 'package:daftar/domain/constants/collections_call_task_composer.dart';
+import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
 import 'package:daftar/domain/constants/run_batch_recipient_guard.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/ledger.dart';
+import 'package:daftar/domain/enums/call_batch_status.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
@@ -36,7 +40,10 @@ import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
 import 'package:daftar/domain/value_objects/agent_proposal.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
+import 'package:daftar/domain/value_objects/call_plan_batch.dart';
+import 'package:daftar/domain/value_objects/call_run_batch.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
@@ -49,6 +56,7 @@ import 'package:daftar/presentation/providers/connectivity_providers.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'closing_agent_controller.g.dart';
@@ -62,6 +70,35 @@ const NetworkFailure _whatsAppOpenFailed = NetworkFailure(
   'WhatsApp could not be opened.',
   code: 'whatsapp_open_failed',
 );
+
+const AuthFailure _calleKillSwitch = AuthFailure(
+  'CALL-E kill switch',
+  code: 'calle_kill_switch',
+);
+
+const AuthFailure _calleNeedsHuman = AuthFailure(
+  'CALL-E needs a human',
+  code: 'calle_needs_human',
+);
+
+const AuthFailure _callePollTimeout = AuthFailure(
+  'CALL-E poll timeout',
+  code: 'calle_poll_timeout',
+);
+
+class _QueuedCallRow {
+  const _QueuedCallRow({
+    required this.contactId,
+    required this.runId,
+    required this.region,
+    required this.locale,
+  });
+
+  final String contactId;
+  final String runId;
+  final String region;
+  final String locale;
+}
 
 /// Riverpod notifier for Closing Agent turns. Calls use cases only.
 @Riverpod(keepAlive: true)
@@ -80,6 +117,18 @@ class ClosingAgentController extends _$ClosingAgentController {
   /// Stagger between honest summary/shortlist reveals.
   @visibleForTesting
   static Duration ritualStaggerDelay = const Duration(milliseconds: 140);
+
+  /// First GET after `run-batch` (~60s). Tests set this to zero.
+  @visibleForTesting
+  static Duration callPollInitialDelay = const Duration(seconds: 60);
+
+  /// Poll interval after the first wait (5–10s).
+  @visibleForTesting
+  static Duration callPollInterval = const Duration(seconds: 7);
+
+  /// Stop polling and mark `failed` / `needsHuman`. Never `run-batch` again.
+  @visibleForTesting
+  static Duration callPollTimeout = const Duration(minutes: 10);
 
   @override
   ClosingAgentState build() {
@@ -931,7 +980,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     );
   }
 
-  /// Merchant consents to CALL-E outbound (local guard only — no HTTP in 3.1).
+  /// Merchant consents to CALL-E outbound: plan-batch then run-batch then poll.
   Future<void> confirmAndCall() async {
     if (state.phase != ClosingAgentPhase.ritualDesk || state.callConsented) {
       return;
@@ -947,28 +996,327 @@ class ClosingAgentController extends _$ClosingAgentController {
       policy: policy,
     );
 
-    // Seed the desk rail from guard recipients. When the kill switch / empty
-    // allowlist drops everyone, still show planned rows for the visible call set
-    // (3.1 HITL; Stage 3.4 uses the guard for HTTP).
-    final progressIds = [
-      for (final recipient in guard.recipients) recipient.contactId,
-    ];
-    final seedIds = progressIds.isNotEmpty
-        ? progressIds
-        : [for (final candidate in ritual.callSet) candidate.contactId];
+    if (guard.recipients.isEmpty) {
+      final killSwitch = guard.omitted.any(
+        (row) => row.reason == RunBatchOmitReason.killSwitch,
+      );
+      state = state.copyWith(
+        callProgress: CollectionsCallProgress(
+          results: [
+            for (final candidate in ritual.callSet)
+              CollectionsCallProgressRow(
+                contactId: candidate.contactId,
+                status: CollectionsCallRowStatus.failed,
+              ),
+          ],
+        ),
+        actionFailure: killSwitch ? _calleKillSwitch : _calleNeedsHuman,
+      );
+      return;
+    }
+
+    final tokenResult = await ref
+        .read(hydrateAgentIdTokenUseCaseProvider)
+        .execute();
+    final tokenFailure = tokenResult.getLeft().toNullable();
+    if (tokenFailure != null) {
+      state = state.copyWith(actionFailure: tokenFailure);
+      return;
+    }
+
+    final locale = CollectionsReminderDraftComposer.normalizeLocale(
+      state.deskLocale,
+    );
+    final batchId = UuidUtil.generate();
+    final correlationId =
+        state.turnResult?.correlationId.trim().isNotEmpty == true
+        ? state.turnResult!.correlationId
+        : UuidUtil.generate();
 
     state = state.copyWith(
       callConsented: true,
+      collectionsBatchId: batchId,
       callProgress: CollectionsCallProgress(
         results: [
-          for (final id in seedIds)
+          for (final recipient in guard.recipients)
             CollectionsCallProgressRow(
-              contactId: id,
+              contactId: recipient.contactId,
               status: CollectionsCallRowStatus.planned,
             ),
         ],
       ),
       actionFailure: null,
+    );
+
+    final planRequest = CallPlanBatchRequest(
+      batchId: batchId,
+      correlationId: correlationId,
+      trigger: CallBatchTrigger.closeDay,
+      dryRun: false,
+      locale: locale,
+      recipients: [
+        for (final recipient in guard.recipients)
+          _planRecipient(
+            guard: recipient,
+            locale: locale,
+            storeName: state.deskStoreName,
+          ),
+      ],
+    );
+
+    final ran = await _planThenRun(planRequest: planRequest);
+    final runFailure = ran.getLeft().toNullable();
+    if (runFailure != null) {
+      _failCallProgress(runFailure);
+      return;
+    }
+    final runResponse = ran.getRight().toNullable()!;
+    if (runResponse.needsHuman &&
+        runResponse.results.every((row) => row.runId == null)) {
+      _failCallProgress(
+        runResponse.results.any(
+              (row) => row.reason == CallRejectReason.killSwitch,
+            )
+            ? _calleKillSwitch
+            : _calleNeedsHuman,
+      );
+      return;
+    }
+
+    final queued = <_QueuedCallRow>[];
+    for (final row in runResponse.results) {
+      final runId = row.runId?.trim() ?? '';
+      if (runId.isEmpty) {
+        _setCallRowStatus(row.contactId, CollectionsCallRowStatus.failed);
+        continue;
+      }
+      final region = guard.recipients
+          .where((item) => item.contactId == row.contactId)
+          .map((item) => item.region)
+          .firstWhere((_) => true, orElse: () => '');
+      queued.add(
+        _QueuedCallRow(
+          contactId: row.contactId,
+          runId: runId,
+          region: region,
+          locale: locale,
+        ),
+      );
+      _setCallRowStatus(row.contactId, CollectionsCallRowStatus.ringing);
+    }
+
+    if (queued.isEmpty) {
+      _failCallProgress(_calleNeedsHuman);
+      return;
+    }
+
+    await ref.read(persistCollectionCallOutcomeUseCaseProvider).persistQueued(
+      CollectionCallBatchSeed(
+        batchId: batchId,
+        correlationId: correlationId,
+        trigger: CallBatchTrigger.closeDay,
+        status: CallBatchStatus.running,
+        runs: [
+          for (final item in queued)
+            CollectionCallRunSeed(
+              contactId: item.contactId,
+              region: item.region,
+              locale: item.locale,
+              runId: item.runId,
+            ),
+        ],
+      ),
+    );
+
+    await _pollQueuedCalls(queued);
+  }
+
+  CallPlanRecipient _planRecipient({
+    required RunBatchRecipient guard,
+    required String locale,
+    required String storeName,
+  }) {
+    CollectionsDeskRow? desk;
+    for (final row in state.deskRows) {
+      if (row.candidate.contactId == guard.contactId) {
+        desk = row;
+        break;
+      }
+    }
+    final composed = CollectionsCallTaskComposer.compose(
+      locale: locale,
+      storeName: desk != null && desk.storeName.isNotEmpty
+          ? desk.storeName
+          : storeName,
+      contactName: desk != null && desk.customerName.isNotEmpty
+          ? desk.customerName
+          : (desk?.candidate.name ?? ''),
+      amountMinor: desk?.candidate.owedMinor ?? 0,
+      currencyCode: desk?.candidate.currencyCode ?? '',
+    );
+    final task = desk != null && desk.callTask.isNotEmpty
+        ? desk.callTask
+        : composed.task;
+    return CallPlanRecipient(
+      contactId: guard.contactId,
+      phoneE164: guard.phoneE164,
+      region: guard.region,
+      locale: locale,
+      task: task,
+      customerName: desk != null && desk.customerName.isNotEmpty
+          ? desk.customerName
+          : composed.customerName,
+      storeName: desk != null && desk.storeName.isNotEmpty
+          ? desk.storeName
+          : composed.storeName,
+      amountLine: desk != null && desk.amountLine.isNotEmpty
+          ? desk.amountLine
+          : composed.amountLine,
+      doNotCall: desk?.candidate.doNotCall ?? false,
+    );
+  }
+
+  Future<Either<Failure, CallRunBatchResponse>> _planThenRun({
+    required CallPlanBatchRequest planRequest,
+    bool isRetry = false,
+  }) async {
+    final planned = await ref
+        .read(planCallBatchUseCaseProvider)
+        .execute(planRequest);
+    final planFailure = planned.getLeft().toNullable();
+    if (planFailure != null) {
+      return Left(planFailure);
+    }
+    final planResponse = planned.getRight().toNullable()!;
+    if (planResponse.results.any(
+      (row) => row.reason == CallRejectReason.killSwitch,
+    )) {
+      return const Left(_calleKillSwitch);
+    }
+    final handles = [
+      for (final row in planResponse.results)
+        if ((row.confirmHandle ?? '').isNotEmpty)
+          CallRunRecipient(
+            contactId: row.contactId,
+            confirmHandle: row.confirmHandle!,
+          ),
+    ];
+    if (handles.isEmpty) {
+      return const Left(_calleNeedsHuman);
+    }
+
+    final ran = await ref.read(runCallBatchUseCaseProvider).execute(
+      CallRunBatchRequest(
+        batchId: planRequest.batchId,
+        correlationId: planRequest.correlationId,
+        recipients: handles,
+      ),
+    );
+    final runFailure = ran.getLeft().toNullable();
+    if (runFailure != null) {
+      return Left(runFailure);
+    }
+    final runResponse = ran.getRight().toNullable()!;
+    final invalidHandle = runResponse.results.any(
+      (row) => row.reason == CallRejectReason.invalidHandle,
+    );
+    if (invalidHandle && !isRetry) {
+      return _planThenRun(planRequest: planRequest, isRetry: true);
+    }
+    return Right(runResponse);
+  }
+
+  Future<void> _pollQueuedCalls(List<_QueuedCallRow> queued) async {
+    await Future<void>.delayed(callPollInitialDelay);
+    final stopwatch = Stopwatch()..start();
+    final pending = {for (final item in queued) item.contactId};
+    while (pending.isNotEmpty) {
+      for (final item in queued) {
+        if (!pending.contains(item.contactId)) {
+          continue;
+        }
+        final got = await ref
+            .read(getCallRunUseCaseProvider)
+            .execute(item.runId);
+        final getFailure = got.getLeft().toNullable();
+        if (getFailure != null) {
+          continue;
+        }
+        final result = got.getRight().toNullable()!;
+        _setCallRowStatus(item.contactId, result.deskStatus);
+        if (!result.terminal && !result.needsHuman) {
+          continue;
+        }
+        pending.remove(item.contactId);
+        final structured = result.structuredResult;
+        await ref
+            .read(persistCollectionCallOutcomeUseCaseProvider)
+            .persistTerminal(
+              CollectionCallTerminalWrite(
+                runId: item.runId,
+                contactId: item.contactId,
+                rawStatus: result.status,
+                needsHuman: result.needsHuman ||
+                    (structured?.amountInvalid ?? false),
+                outcome: structured?.outcome,
+                promisedAmountMinor: structured?.promisedAmountMinor,
+                promisedCurrency: structured?.promisedCurrency,
+                promisedDate: structured?.promisedDate,
+                acknowledgedHold: structured?.acknowledgedHold,
+                evidenceQuote: structured?.evidenceQuote,
+                amountInvalid: structured?.amountInvalid ?? false,
+              ),
+            );
+        if (result.needsHuman || (structured?.amountInvalid ?? false)) {
+          state = state.copyWith(actionFailure: _calleNeedsHuman);
+        }
+      }
+      if (pending.isEmpty) {
+        return;
+      }
+      if (stopwatch.elapsed >= callPollTimeout) {
+        break;
+      }
+      await Future<void>.delayed(callPollInterval);
+    }
+    for (final contactId in pending) {
+      _setCallRowStatus(contactId, CollectionsCallRowStatus.failed);
+    }
+    state = state.copyWith(actionFailure: _callePollTimeout);
+  }
+
+  void _setCallRowStatus(String contactId, CollectionsCallRowStatus status) {
+    final progress = state.callProgress;
+    if (progress == null) {
+      return;
+    }
+    state = state.copyWith(
+      callProgress: progress.copyWith(
+        results: [
+          for (final row in progress.results)
+            if (row.contactId == contactId)
+              row.copyWith(status: status)
+            else
+              row,
+        ],
+      ),
+    );
+  }
+
+  void _failCallProgress(Failure failure) {
+    final progress = state.callProgress;
+    if (progress == null) {
+      state = state.copyWith(actionFailure: failure);
+      return;
+    }
+    state = state.copyWith(
+      actionFailure: failure,
+      callProgress: progress.copyWith(
+        results: [
+          for (final row in progress.results)
+            row.copyWith(status: CollectionsCallRowStatus.failed),
+        ],
+      ),
     );
   }
 

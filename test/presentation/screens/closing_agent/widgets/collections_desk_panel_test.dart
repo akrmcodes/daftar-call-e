@@ -105,6 +105,8 @@ void main() {
     expect(find.byType(CollectionsDeskRowCard), findsNWidgets(5));
     expect(find.text('Confirm & Send Statements'), findsOneWidget);
     expect(find.text('Confirm & Call'), findsOneWidget);
+    expect(find.text('Dispatch collection emails'), findsNothing);
+    expect(find.text('Open collections desk'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
     expect(find.text('Start sending'), findsNothing);
     expect(find.text('Pause'), findsNothing);

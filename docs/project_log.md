@@ -4566,3 +4566,28 @@ Confirm & Call remains local HITL (`planned` progress only) — no `plan-batch` 
 
 ### Status
 §3.1 desk HITL is reachable with the overlay + re-seed. Next: §3.2 B-trigger, §3.3 HUD, §3.4 device dry-run.
+
+## 2026-09-04 — Dedicated Collections Desk + live Confirm & Call (v3.3)
+
+### Context
+Plan review still started the close with heritage Send copy, and the Collections Desk was staged as compact taskmaster (“Dispatch collection emails”). Confirm & Call was local `planned` rows only. Cloud Run `daftar-call-e` had `CALLE_ALLOW_DIAL=false`, so device `run-batch` could not ring. Binding contract updated first, then desk UX, J.9 client, laptop smoke, and a demo-window deploy of **`daftar-call-e` only**.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.3**: plan confirm starts the ritual only; dual-rail consent is a **dedicated Collections Desk** after aging; device Confirm & Call = `plan-batch` → `run-batch` → poll GET. Kill switch `true` is a demo-window opt-in on `daftar-call-e` (default remains false). Live window min-instances **1**. No E.164 in the file.
+- Desk UX: compact taskmaster removed on `ritualDesk` ([`closing_agent_screen.dart`](../lib/presentation/screens/closing_agent/closing_agent_screen.dart)). ARB `closingTaskOpenDesk` = Open collections desk / فتح مكتب التحصيل. Plan pair = Start close / Start close without outreach.
+- Overlay lockstep (gitignored): last-4 + length agree across owner-ops `test-did`, `calle-allowlist`, and `tool/demo_seed_emails.local.json`. Device `CALLE_ALLOW_DIAL` exact `true` for this pass.
+- Flutter J.9: domain VOs + remote DS `POST /v1/calls/plan-batch`, `POST /v1/calls/run-batch`, `GET /v1/calls/{runId}`; use cases; `confirmAndCall` plan→run→poll; one `invalidHandle` retry; persist `collection_call_runs` + integer `collection_promises`; **no** `AddTransactionUseCase`. YE omitted from plan-batch. Kill switch 403 → `needsHuman`.
+- [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh): opt-in `DAFTAR_CALL_E_ALLOW_DIAL=true` and `DAFTAR_CALL_E_MIN_INSTANCES=0|1`. Post-verify expects the opted values (not hardcoded false).
+
+### Architecture / decisions
+Providers call use cases only. Same Google ID-token as SMTP. Never log confirm handles, API keys, or full E.164. Progress from GET, not a fake spinner. Wrapper default remains `CALLE_ALLOW_DIAL=false` / min 0. Frozen Agentic service is describe-only.
+
+### Ops / verification
+- Laptop smoke (`CALLE_ALLOW_DIAL=true` in-process only): dest last-4 `7244`, region `US`, `status=completed`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`, ~4s. Persisted idempotency key reused — treat remaining credits as **199 / 200** unless the dashboard shows otherwise. Did **not** mutate Cloud Run.
+- Deploy **`daftar-call-e`** revision `daftar-call-e-00006-6vc`: `CALLE_ALLOW_DIAL=true`, min **1** / max **2**, SA `call-e-runner`. Frozen `daftar-closing-agent-00055-pbm` unchanged (`tool/check_agentic_freeze.sh` Freeze OK).
+- Targeted tests (GET coerce, remote DS, persist, controller plan/run/GET/YE/403/retry/timeout, desk “Dispatch collection emails” absent) — **102 passed**. `dart analyze` on touched files — no errors.
+- Device `R5CT10G3LXH` debug install with overlay is the remaining HITL: re-seed → Start close → aging → full desk → Confirm & Call. Gate 4 film still owner. 3.2 / 3.3 out of scope.
+
+### Status
+Roadmap §3.1 live progress, §3.4, §4.1, §4.2 write (except contact-card polish), §4.3 email independence ticked. Gate 3 device live checkbox and Gate 4 film remain open. **Revert Cloud Run** (`DAFTAR_CALL_E_ALLOW_DIAL` unset, min 0) after the device ring — do not leave kill switch true as the new default.
+

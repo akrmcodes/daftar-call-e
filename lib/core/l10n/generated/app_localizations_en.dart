@@ -3438,13 +3438,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closingAgentPlanOutreachConsent =>
-      'The next screen is Collections. Confirm & Call and Confirm & Send Statements are separate. Confirm without sending still opens the desk when anyone is overdue.';
+      'These buttons start the close. After backup and aging, the Collections Desk is where you confirm calls and emails.';
 
   @override
   String get closingAgentTaskmasterTitle => 'Today\'s closing plan';
 
   @override
   String get closingAgentApprovePlan => 'Approve plan';
+
+  @override
+  String get closingAgentStartClose => 'Start close';
+
+  @override
+  String get closingAgentStartCloseWithoutOutreach =>
+      'Start close without outreach';
 
   @override
   String get closingAgentConfirmAndSend => 'Confirm & Send Statements';
@@ -3488,7 +3495,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closingTaskBuildSendSet => 'Compile outreach list';
 
   @override
-  String get closingTaskOpenDesk => 'Dispatch collection emails';
+  String get closingTaskOpenDesk => 'Open collections desk';
 
   @override
   String get closingTaskComposeReport => 'Compose day report';
@@ -3971,6 +3978,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorSmtpSenderMisconfigured =>
       'Email sender is not configured on Cloud Run. Google Drive sign-in is unrelated. Your books are unchanged.';
+
+  @override
+  String get errorCalleKillSwitchTitle => 'Calls are paused';
+
+  @override
+  String get errorCalleKillSwitch =>
+      'Phone calls are turned off. Email still works. Your books are unchanged.';
+
+  @override
+  String get errorCalleNeedsHuman =>
+      'The call needs a person to review. Your books are unchanged.';
+
+  @override
+  String get errorCallePollTimeout =>
+      'The call did not finish in time. Your books are unchanged. Do not tap Confirm & Call again.';
 
   @override
   String get errorCollectionsEmailCap =>

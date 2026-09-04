@@ -7,6 +7,9 @@ import 'package:daftar/data/mappers/adk_event_proposal_mapper.dart';
 import 'package:daftar/domain/repositories/closing_agent_runtime_repository.dart';
 import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
+import 'package:daftar/domain/value_objects/call_get_result.dart';
+import 'package:daftar/domain/value_objects/call_plan_batch.dart';
+import 'package:daftar/domain/value_objects/call_run_batch.dart';
 import 'package:daftar/domain/value_objects/device_agent_request.dart';
 import 'package:daftar/domain/value_objects/email_send_batch.dart';
 import 'package:fpdart/fpdart.dart';
@@ -80,6 +83,37 @@ class ClosingAgentRuntimeRepositoryImpl
     }
   }
 
+  @override
+  Future<Either<Failure, CallPlanBatchResponse>> planCallBatch(
+    CallPlanBatchRequest request,
+  ) async {
+    try {
+      return Right(await _remoteDataSource.planCallBatch(request));
+    } on Object catch (error) {
+      return Left(_toFailure(error));
+    }
+  }
+
+  @override
+  Future<Either<Failure, CallRunBatchResponse>> runCallBatch(
+    CallRunBatchRequest request,
+  ) async {
+    try {
+      return Right(await _remoteDataSource.runCallBatch(request));
+    } on Object catch (error) {
+      return Left(_toFailure(error));
+    }
+  }
+
+  @override
+  Future<Either<Failure, CallGetResult>> getCallRun(String runId) async {
+    try {
+      return Right(await _remoteDataSource.getCallRun(runId));
+    } on Object catch (error) {
+      return Left(_toFailure(error));
+    }
+  }
+
   Failure _toFailure(Object error) {
     if (error is AuthException) {
       return AuthFailure(error.message, code: 'agent_id_token_missing');
@@ -89,6 +123,9 @@ class ClosingAgentRuntimeRepositoryImpl
     }
     if (error is ServerException) {
       final code = error.errorCode ?? edgeCodeForStatus(error.statusCode);
+      if (code == 'calle_kill_switch') {
+        return AuthFailure(error.message, code: 'calle_kill_switch');
+      }
       if (code == EdgeErrorCodes.unauthorized) {
         return AuthFailure(
           error.message,

@@ -237,6 +237,17 @@ if [[ ! -f "${ALLOWLIST_FILE}" || ! -f "${REGION_FILE}" ]]; then
   exit 1
 fi
 # YAML env file so comma-separated E.164 is not split by --update-env-vars.
+# Kill switch / min-instances: demo-window opt-in only. Default remains off / 0.
+_allow_dial="false"
+if [[ "${DAFTAR_CALL_E_ALLOW_DIAL:-}" == "true" ]]; then
+  _allow_dial="true"
+fi
+_min_instances="${DAFTAR_CALL_E_MIN_INSTANCES:-0}"
+if [[ "${_min_instances}" != "0" && "${_min_instances}" != "1" ]]; then
+  echo "deploy_daftar_call_e.sh: DAFTAR_CALL_E_MIN_INSTANCES must be 0 or 1" >&2
+  exit 1
+fi
+echo "deploy_daftar_call_e: allow_dial=${_allow_dial} min_instances=${_min_instances}" >&2
 _env_file="$(mktemp "${OPS}/daftar-call-e-env.XXXXXX")"
 chmod 600 "${_env_file}"
 trap 'rm -f "${_env_file:-}"' EXIT
@@ -265,7 +276,7 @@ for item in entries:
 region = Path(region_path).read_text(encoding="utf-8").strip()
 if not re.fullmatch(r"[A-Z]{2}", region):
     raise SystemExit("allowlist region must be a 2-letter ISO code")
-# Kill switch stays off on Cloud Run for this slice.
+allow_dial = "true" if os.environ.get("DAFTAR_CALL_E_ALLOW_DIAL", "").strip() == "true" else "false"
 pairs = {
     "GOOGLE_GENAI_USE_VERTEXAI": "TRUE",
     "GOOGLE_CLOUD_PROJECT": project,
@@ -274,13 +285,16 @@ pairs = {
     "GMAIL_SMTP_PORT": "587",
     "GMAIL_SMTP_USER": gmail_user,
     "GMAIL_SMTP_FROM": gmail_from,
-    "CALLE_ALLOW_DIAL": "false",
+    "CALLE_ALLOW_DIAL": allow_dial,
     "CALLE_ALLOWLIST": ",".join(entries),
     "CALLE_ALLOWLIST_REGION": region,
 }
 lines = [f"{key}: {json.dumps(value)}" for key, value in pairs.items()]
 Path(out_path).write_text("\n".join(lines) + "\n", encoding="utf-8")
-print(f"deploy_daftar_call_e: allowlist_region={region} entries={len(entries)}", file=sys.stderr)
+print(
+    f"deploy_daftar_call_e: allowlist_region={region} entries={len(entries)} allow_dial={allow_dial}",
+    file=sys.stderr,
+)
 PY
 
 # Two Secret Manager files cannot share one mount directory on Cloud Run.
@@ -294,8 +308,8 @@ gcloud run deploy daftar-call-e \
   --region="${REGION}" \
   --quiet \
   --no-allow-unauthenticated \
-  --min=0 --max=2 \
-  --min-instances=0 --max-instances=2 \
+  --min="${_min_instances}" --max=2 \
+  --min-instances="${_min_instances}" --max-instances=2 \
   --port=8000 \
   --timeout="${CR_TIMEOUT}" \
   --memory="${CR_MEMORY}" \
@@ -384,7 +398,7 @@ daftar_iam_add gcloud run services add-iam-policy-binding daftar-call-e \
   --quiet
 
 echo "deploy_daftar_call_e: post-verify (filtered)" >&2
-python3 - "${PROJECT}" "${REGION}" "${LEGAL_SERVICE}" "${FROZEN_SERVICE}" "${SNAPSHOT}" "${RUNNER_SA}" <<'PY'
+python3 - "${PROJECT}" "${REGION}" "${LEGAL_SERVICE}" "${FROZEN_SERVICE}" "${SNAPSHOT}" "${RUNNER_SA}" "${_allow_dial}" "${_min_instances}" <<'PY'
 from __future__ import annotations
 
 import json
@@ -392,7 +406,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-project, region, legal, frozen, snapshot, runner_sa = sys.argv[1:7]
+project, region, legal, frozen, snapshot, runner_sa, expect_dial, expect_min = sys.argv[1:9]
 pub = "all" + "Users"
 
 
@@ -507,12 +521,24 @@ svc_min, svc_max, rev_min, rev_max = scaling(legal_res)
 if svc_max != "2" or rev_max != "2":
     print(f"cost lock fail: svc_max={svc_max} rev_max={rev_max}", file=sys.stderr)
     raise SystemExit(1)
+if expect_min not in ("0", "1"):
+    print("expected min must be 0 or 1", file=sys.stderr)
+    raise SystemExit(1)
+if svc_min != expect_min or rev_min != expect_min:
+    print(
+        f"min-instances mismatch: service={svc_min} revision={rev_min} want={expect_min}",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
 envs = env_map(legal_res)
+if expect_dial not in ("true", "false"):
+    print("expected CALLE_ALLOW_DIAL must be true or false", file=sys.stderr)
+    raise SystemExit(1)
 vertex_ok = (
     envs.get("GOOGLE_GENAI_USE_VERTEXAI") == "TRUE"
     and envs.get("GOOGLE_CLOUD_LOCATION") == "global"
     and envs.get("GOOGLE_CLOUD_PROJECT") == project
-    and envs.get("CALLE_ALLOW_DIAL") == "false"
+    and envs.get("CALLE_ALLOW_DIAL") == expect_dial
 )
 if not vertex_ok:
     print("Vertex/kill-switch env mismatch", file=sys.stderr)
@@ -552,7 +578,7 @@ print(f"new_sa=call-e-runner")
 print(f"scale service={svc_min}/{svc_max} revision={rev_min}/{rev_max}")
 print(f"audiences={n_aud}")
 print("secrets=gmail+calle")
-print("vertex=ok calle_allow_dial=false")
+print(f"vertex=ok calle_allow_dial={expect_dial}")
 print(f"allowlist_region={allowlist_region}")
 print("allowlist=present")
 print("invoker=authenticated-users+owner")

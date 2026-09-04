@@ -1,10 +1,10 @@
 # Daftar Closing Agent — Architecture Plan
 
-> **Version:** 3.2 · **Date:** 2026-09-01 · **Submit:** 14 Sep 2026 23:45 SGT (owner buffer ≤ 18:00 AST)
+> **Version:** 3.3 · **Date:** 2026-09-04 · **Submit:** 14 Sep 2026 23:45 SGT (owner buffer ≤ 18:00 AST)
 >
 > **Orientation only** — not a judging artifact and not a second checklist.
 > **Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · prize aim **Most Practical**.
-> **Execution:** [`docs/roadmap_v3.md`](../roadmap_v3.md) **v3.2 only**. [`docs/roadmap_v2.md`](../roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its gates.
+> **Execution:** [`docs/roadmap_v3.md`](../roadmap_v3.md) **v3.3 only**. [`docs/roadmap_v2.md`](../roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its gates.
 > **Supersedes:** this file’s v3.0 Agentic orientation (26 Aug 2026) and the May 2026 product plan (v2.0) for **active** work.
 > Judges still start at [`README.md`](../../README.md) and [`docs/README.md`](../README.md). Those files still describe Agentic until Stage 6.
 
@@ -129,17 +129,17 @@ Honest three-way split (see [`CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md))
 
 Product Phase 2 Stages 8–19 (multi-device sync as product, Delight, viral, RevenueCat, enterprise) stay **deferred**. Stub: [`docs/product/roadmap.md`](../product/roadmap.md). Archive: [`docs/archive/`](../archive/).
 
-Also **out of scope** (roadmap v3.2): inbound merchant hotline; Gemini Multimodal Live as the call plane; WhatsApp / WABA climax; mutating the frozen Agentic Cloud Run service/URL; public CALL-E webhook / `allUsers` on `/run`; dialing **YE / +967**; treating `task_completed` or SMTP `250` as **paid**; LLM chooses who is called; creating a txn from a structured promise; App Password or `CALLE_API_KEY` in Flutter / git / chat; Twilio / Bland as dialer; auto-dial on credit-limit save.
+Also **out of scope** (roadmap v3.3): inbound merchant hotline; Gemini Multimodal Live as the call plane; WhatsApp / WABA climax; mutating the frozen Agentic Cloud Run service/URL; public CALL-E webhook / `allUsers` on `/run`; dialing **YE / +967**; treating `task_completed` or SMTP `250` as **paid**; LLM chooses who is called; creating a txn from a structured promise; App Password or `CALLE_API_KEY` in Flutter / git / chat; Twilio / Bland as dialer; auto-dial on credit-limit save.
 
 ---
 
 ## 7. Execution
 
-**Sole checklist owner:** [`docs/roadmap_v3.md`](../roadmap_v3.md) v3.2 Stages 0–7 (feature freeze 11 Sep; video lock 13 Sep; submit 14 Sep).
+**Sole checklist owner:** [`docs/roadmap_v3.md`](../roadmap_v3.md) v3.3 Stages 0–7 (feature freeze 11 Sep; video lock 13 Sep; submit 14 Sep).
 
 CALL-E Gate 0 lives **in that file** (account, KYC, US DID, `create_and_wait` laptop smoke). [`GATE0_OWNER_CHECKLIST.md`](GATE0_OWNER_CHECKLIST.md) is **complete Agentic heritage**.
 
-[`README.md`](README.md) in this folder still points at v2.8 until Stage 0/6 — **this file’s execution pointer is v3.2**. Root README / architecture PNG / `contest_demo.md` remain Agentic until Stage 6.
+[`README.md`](README.md) in this folder still points at v2.8 until Stage 0/6 — **this file’s execution pointer is v3.3**. Root README / architecture PNG / `contest_demo.md` remain Agentic until Stage 6.
 
 Minimum filmable product, winning map, C.3 task, and J.9 schemas: **roadmap only**.
 

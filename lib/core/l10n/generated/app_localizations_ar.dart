@@ -3408,13 +3408,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get closingAgentPlanOutreachConsent =>
-      'الشاشة التالية هي التحصيل. تأكيد والاتصال وتأكيد وإرسال الكشوفات منفصلان. تأكيد دون إرسال يفتح المكتب أيضاً إن وُجد متأخرون.';
+      'هذان الزران يبدآن الإقفال. بعد النسخ ومسح التقادم، مكتب التحصيل هو موضع تأكيد الاتصال والبريد.';
 
   @override
   String get closingAgentTaskmasterTitle => 'خطة إقفال اليوم';
 
   @override
   String get closingAgentApprovePlan => 'اعتماد الخطة';
+
+  @override
+  String get closingAgentStartClose => 'ابدأ الإقفال';
+
+  @override
+  String get closingAgentStartCloseWithoutOutreach => 'ابدأ الإقفال دون تواصل';
 
   @override
   String get closingAgentConfirmAndSend => 'تأكيد وإرسال الكشوفات';
@@ -3458,7 +3464,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get closingTaskBuildSendSet => 'تجهيز قائمة المدينين المستهدفين';
 
   @override
-  String get closingTaskOpenDesk => 'إرسال مطالبات التحصيل';
+  String get closingTaskOpenDesk => 'فتح مكتب التحصيل';
 
   @override
   String get closingTaskComposeReport => 'تأليف تقرير اليوم';
@@ -3939,6 +3945,21 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get errorSmtpSenderMisconfigured =>
       'مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCalleKillSwitchTitle => 'المكالمات متوقفة';
+
+  @override
+  String get errorCalleKillSwitch =>
+      'المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCalleNeedsHuman =>
+      'تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCallePollTimeout =>
+      'لم تكتمل المكالمة في الوقت المحدد. دفترك لم يتغيّر. لا تضغط تأكيد والاتصال مرة أخرى.';
 
   @override
   String get errorCollectionsEmailCap =>
