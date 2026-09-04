@@ -3987,8 +3987,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Phone calls are turned off. Email still works. Your books are unchanged.';
 
   @override
+  String get errorCalleNeedsHumanTitle => 'Call needs a look';
+
+  @override
   String get errorCalleNeedsHuman =>
       'The call needs a person to review. Your books are unchanged.';
+
+  @override
+  String get errorCallePollTimeoutTitle => 'Call timed out';
 
   @override
   String get errorCallePollTimeout =>

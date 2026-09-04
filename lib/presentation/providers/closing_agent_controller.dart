@@ -1249,6 +1249,9 @@ class ClosingAgentController extends _$ClosingAgentController {
         }
         pending.remove(item.contactId);
         final structured = result.structuredResult;
+        final amountInvalid = structured?.amountInvalid ?? false;
+        final review = amountInvalid ||
+            (result.needsHuman && result.status != 'completed');
         await ref
             .read(persistCollectionCallOutcomeUseCaseProvider)
             .persistTerminal(
@@ -1256,18 +1259,17 @@ class ClosingAgentController extends _$ClosingAgentController {
                 runId: item.runId,
                 contactId: item.contactId,
                 rawStatus: result.status,
-                needsHuman: result.needsHuman ||
-                    (structured?.amountInvalid ?? false),
+                needsHuman: review,
                 outcome: structured?.outcome,
                 promisedAmountMinor: structured?.promisedAmountMinor,
                 promisedCurrency: structured?.promisedCurrency,
                 promisedDate: structured?.promisedDate,
                 acknowledgedHold: structured?.acknowledgedHold,
                 evidenceQuote: structured?.evidenceQuote,
-                amountInvalid: structured?.amountInvalid ?? false,
+                amountInvalid: amountInvalid,
               ),
             );
-        if (result.needsHuman || (structured?.amountInvalid ?? false)) {
+        if (review) {
           state = state.copyWith(actionFailure: _calleNeedsHuman);
         }
       }

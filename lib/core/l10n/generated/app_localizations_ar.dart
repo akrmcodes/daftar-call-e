@@ -3954,8 +3954,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.';
 
   @override
+  String get errorCalleNeedsHumanTitle => 'المكالمة تحتاج نظرة';
+
+  @override
   String get errorCalleNeedsHuman =>
       'تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCallePollTimeoutTitle => 'انتهى وقت المكالمة';
 
   @override
   String get errorCallePollTimeout =>

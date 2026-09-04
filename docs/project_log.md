@@ -4612,4 +4612,29 @@ Do not run Stage 1.4 `smoke_calls_plan_run.py` while the demo window is on (it a
 ### Status
 Cloud J.9 PSTN path proven on `daftar-call-e`. Flutter HITL and kill-switch revert still open.
 
+## 2026-09-04 — Completed-call banner fix + demo window revert
+
+### Context
+Owner confirmed the device Confirm & Call **did ring** (HITL succeeded despite earlier `assembleDebug` abort). GET was `status=completed` with `taskCompleted` and **no** collections `outcome`. Two stacked bugs showed an error sheet titled “Calls are paused” / “The call needs a person to review.” Ledger stayed unchanged (correct — no invented `promised_amount_minor`). Plan: treat that GET as success, split copy, then close the `daftar-call-e` demo window.
+
+### Done
+- [`lib/domain/value_objects/call_get_result.dart`](../lib/domain/value_objects/call_get_result.dart): do not coerce `needsHuman` from completed + missing outcome; ignore wire `needsHuman` on clean `completed` unless `amountInvalid`. `deskStatus` = **completed** even without outcome; `amountInvalid` / `failed` / `canceled` → failed. Never `delivered` / `paid`.
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart) `_pollQueuedCalls`: persist terminal as before (no `AddTransactionUseCase`; no promise upsert without valid int + `outcome=promised`). `_calleNeedsHuman` only for `amountInvalid` or non-completed terminal / true review. Completed without structured promise: row **completed**, **no** `actionFailure`.
+- ARB EN+AR + gen-l10n: `errorCalleNeedsHumanTitle` (“Call needs a look” / “المكالمة تحتاج نظرة”), `errorCallePollTimeoutTitle` (“Call timed out” / “انتهى وقت المكالمة”). [`error_translator.dart`](../lib/core/utils/error_translator.dart): kill-switch title only for `calle_kill_switch`.
+- [`agent/calls/get_map.py`](../agent/calls/get_map.py): `status == completed` without outcome → `needsHuman=false` (do not invent amount). `schema_invalid` still `needsHuman`. `failed`/`canceled` without outcome still `needsHuman`.
+- Tests: [`call_get_result_test.dart`](../test/domain/value_objects/call_get_result_test.dart), controller completed-without-outcome (no error sheet), ErrorTranslator titles, [`agent/tests/test_calls_get.py`](../agent/tests/test_calls_get.py) `test_completed_without_outcome_is_not_needs_human`.
+- [`docs/roadmap_v3.md`](roadmap_v3.md): Gate 3 “Device Confirm & Call hits J.9” **ticked**. §4.2: persist run, no invented amount, no paused copy. Gate 4 film **unchecked**.
+
+### Architecture / decisions
+Completed connectivity task without collections schema is a successful ring, not a review failure. Integer money unchanged. Wrapper default stays `CALLE_ALLOW_DIAL=false` / min 0. Never `gcloud run deploy daftar-closing-agent`. After revert, device Confirm & Call **403** until a future demo window.
+
+### Ops / verification
+- Flutter tests (GET VO, remote DS, ErrorTranslator, controller) — **81 passed**. `agent/.venv` pytest `test_calls_get.py` — **12 passed**. `dart analyze` on touched files — no issues.
+- Deploy **`daftar-call-e` only** (`DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL` unset, min default **0**): revision **`daftar-call-e-00008-nbv`**. Post-verify: `CALLE_ALLOW_DIAL=false`, scale **0/2**, SA `call-e-runner`. Ships `get_map.py` and closes the window in one revision.
+- `bash tool/check_agentic_freeze.sh` — **Freeze OK** `daftar-closing-agent-00055-pbm`.
+- Credits **198 / 200**. Cloud Run live `call_zQn3UWw0E9hTHp1rN2R75g` already counted; this pass did not dial. Dest last-4 from prior live test: `7244`. No DID in this log.
+
+### Status
+Banner root cause fixed. Demo window closed. Gate 3 device J.9 green. Next: Stage 3.2 B-trigger / 3.3 HUD / Gate 4 film when the owner opens a new demo window.
+
 

@@ -666,7 +666,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 #### Stage 3 Validation Gate
 
 - [x] Widget/provider tests for four desk buttons, YE badge, dedicated desk (no “Dispatch collection emails” pause)
-- [ ] Device Confirm & Call hits J.9 (dry-run or live per kill switch) — client wired; live HITL on device still owner
+- [x] Device Confirm & Call hits J.9 (dry-run or live per kill switch)
 - [x] RTL/Khazna intact on the desk card
 - [x] B-trigger **no auto-dial** and HUD chip remain **3.2 / 3.3** (unchecked this pass)
 
@@ -697,7 +697,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Upsert `collection_call_runs` + `collection_promises` when `outcome=promised` and amount/date present
 - [x] **No** `AddTransactionUseCase`
 - [ ] Contact card shows pending promise (date + formatted int money) — write is correct; card polish thin
-- [x] `task_completed` without schema → `needsHuman`, do not invent amount
+- [x] `task_completed` without a collections `outcome` → persist the run, **do not invent amount**, do **not** show kill-switch “paused” copy
 
 **4.3 Email remainder**
 

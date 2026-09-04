@@ -69,6 +69,30 @@ void main() {
       expect(en.title, isNot(l10nEn.errorAuthTitle));
     });
 
+    test('calle_needs_human does not use paused title', () {
+      const failure = AuthFailure(
+        'CALL-E needs a human',
+        code: 'calle_needs_human',
+      );
+
+      final en = ErrorTranslator.translate(l10nEn, failure);
+      expect(en.title, l10nEn.errorCalleNeedsHumanTitle);
+      expect(en.message, l10nEn.errorCalleNeedsHuman);
+      expect(en.title, isNot(l10nEn.errorCalleKillSwitchTitle));
+    });
+
+    test('calle_poll_timeout does not use paused title', () {
+      const failure = AuthFailure(
+        'CALL-E poll timeout',
+        code: 'calle_poll_timeout',
+      );
+
+      final en = ErrorTranslator.translate(l10nEn, failure);
+      expect(en.title, l10nEn.errorCallePollTimeoutTitle);
+      expect(en.message, l10nEn.errorCallePollTimeout);
+      expect(en.title, isNot(l10nEn.errorCalleKillSwitchTitle));
+    });
+
     test('smtp_needs_human uses email title, not sign-in required', () {
       const failure = AuthFailure(
         'SMTP needs a human (App Password rejected).',

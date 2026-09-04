@@ -269,13 +269,13 @@ abstract final class ErrorTranslator {
     }
     if (failure.code == 'calle_poll_timeout') {
       return LocalizedErrorContent(
-        title: l10n.errorCalleKillSwitchTitle,
+        title: l10n.errorCallePollTimeoutTitle,
         message: l10n.errorCallePollTimeout,
       );
     }
     if (failure.code == 'calle_needs_human') {
       return LocalizedErrorContent(
-        title: l10n.errorCalleKillSwitchTitle,
+        title: l10n.errorCalleNeedsHumanTitle,
         message: l10n.errorCalleNeedsHuman,
       );
     }

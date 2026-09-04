@@ -181,6 +181,24 @@ def test_terminal_missing_outcome_needs_human() -> None:
     assert body["needsHuman"] is True
 
 
+def test_completed_without_outcome_is_not_needs_human() -> None:
+    payload = _queued_payload(
+        status="completed",
+        task_completed=True,
+        structured_result={"completed_count": 1},
+        recipients=[{"phones": [TEST_PHONE]}],
+    )
+    body = _app(_settings(), FakeGetter(payload=payload))[0].get(
+        f"/v1/calls/{FAKE_RUN_ID}"
+    ).json()
+    assert body["terminal"] is True
+    assert body["taskCompleted"] is True
+    assert body["needsHuman"] is False
+    assert body.get("structuredResult") is None or body["structuredResult"].get(
+        "outcome"
+    ) is None
+
+
 def test_full_e164_masked_in_response_and_logs(
     capsys: pytest.CaptureFixture[str],
 ) -> None:

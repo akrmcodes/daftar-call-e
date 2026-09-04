@@ -88,17 +88,17 @@ class CallGetResult extends Equatable {
     final taskCompleted = json['taskCompleted'] as bool? ??
         json['task_completed'] as bool?;
     final terminal = json['terminal'] == true;
-    final schemaMissing = structured == null || structured.outcome == null;
+    final status = json['status'] as String? ?? 'unknown';
+    final completedOk = status == 'completed';
     final schemaInvalid = structured?.amountInvalid ?? false;
     final wireNeedsHuman =
         json['needsHuman'] == true || json['needs_human'] == true;
-    final needsHuman = wireNeedsHuman ||
-        schemaInvalid ||
-        (terminal && schemaMissing) ||
-        (taskCompleted == true && (structured == null || schemaInvalid));
+    final failedTerminal = status == 'failed' || status == 'canceled';
+    final needsHuman = schemaInvalid ||
+        (!completedOk && (wireNeedsHuman || failedTerminal));
     return CallGetResult(
       runId: json['runId'] as String? ?? json['run_id'] as String? ?? '',
-      status: json['status'] as String? ?? 'unknown',
+      status: status,
       terminal: terminal,
       taskCompleted: taskCompleted,
       structuredResult: structured,
@@ -119,13 +119,16 @@ class CallGetResult extends Equatable {
 
   /// Desk rail status from this GET (never `delivered` / `paid`).
   CollectionsCallRowStatus get deskStatus {
-    if (needsHuman || status == 'failed' || status == 'canceled') {
+    if (structuredResult?.amountInvalid == true) {
+      return CollectionsCallRowStatus.failed;
+    }
+    if (status == 'failed' || status == 'canceled') {
       return CollectionsCallRowStatus.failed;
     }
     if (terminal && status == 'completed') {
       return CollectionsCallRowStatus.completed;
     }
-    if (terminal) {
+    if (needsHuman || terminal) {
       return CollectionsCallRowStatus.failed;
     }
     return CollectionsCallRowStatus.ringing;

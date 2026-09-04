@@ -25,19 +25,19 @@ void main() {
     expect(result.deskStatus, CollectionsCallRowStatus.completed);
   });
 
-  test('task_completed without schema is needsHuman', () {
+  test('completed without collections outcome is success', () {
     final result = CallGetResult.fromJson(const {
       'runId': 'run-2',
       'status': 'completed',
       'terminal': true,
       'task_completed': true,
       'phoneMasked': '+…0100',
-      'needsHuman': false,
+      'needsHuman': true,
     });
 
-    expect(result.needsHuman, isTrue);
+    expect(result.needsHuman, isFalse);
     expect(result.structuredResult, isNull);
-    expect(result.deskStatus, CollectionsCallRowStatus.failed);
+    expect(result.deskStatus, CollectionsCallRowStatus.completed);
   });
 
   test('float promised amount is needsHuman and not stored as int', () {
@@ -56,5 +56,6 @@ void main() {
     expect(result.needsHuman, isTrue);
     expect(result.structuredResult?.promisedAmountMinor, isNull);
     expect(result.structuredResult?.amountInvalid, isTrue);
+    expect(result.deskStatus, CollectionsCallRowStatus.failed);
   });
 }

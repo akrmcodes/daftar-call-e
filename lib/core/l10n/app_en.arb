@@ -1802,7 +1802,9 @@
   "errorSmtpSenderMisconfigured": "Email sender is not configured on Cloud Run. Google Drive sign-in is unrelated. Your books are unchanged.",
   "errorCalleKillSwitchTitle": "Calls are paused",
   "errorCalleKillSwitch": "Phone calls are turned off. Email still works. Your books are unchanged.",
+  "errorCalleNeedsHumanTitle": "Call needs a look",
   "errorCalleNeedsHuman": "The call needs a person to review. Your books are unchanged.",
+  "errorCallePollTimeoutTitle": "Call timed out",
   "errorCallePollTimeout": "The call did not finish in time. Your books are unchanged. Do not tap Confirm & Call again.",
   "errorCollectionsEmailCap": "You can send at most 20 reminders at once."
 }

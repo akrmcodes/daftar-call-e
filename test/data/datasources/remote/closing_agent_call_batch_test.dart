@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:daftar/core/errors/exceptions.dart';
 import 'package:daftar/data/datasources/remote/closing_agent_remote_ds.dart';
 import 'package:daftar/domain/enums/call_batch_trigger.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/value_objects/call_plan_batch.dart';
 import 'package:daftar/domain/value_objects/call_run_batch.dart';
 import 'package:dio/dio.dart';
@@ -127,7 +128,7 @@ void main() {
     expect(result.structuredResult?.promisedAmountMinor, 1500);
   });
 
-  test('GET task_completed without schema is needsHuman', () async {
+  test('GET completed without schema is not needsHuman', () async {
     final adapter = _JsonAdapter(
       status: 200,
       body: jsonEncode({
@@ -136,15 +137,16 @@ void main() {
         'terminal': true,
         'taskCompleted': true,
         'phoneMasked': '+…0100',
-        'needsHuman': false,
+        'needsHuman': true,
       }),
     );
     final ds = dsWith(adapter);
 
     final result = await ds.getCallRun('calle-2');
 
-    expect(result.needsHuman, isTrue);
+    expect(result.needsHuman, isFalse);
     expect(result.structuredResult, isNull);
+    expect(result.deskStatus, CollectionsCallRowStatus.completed);
   });
 }
 

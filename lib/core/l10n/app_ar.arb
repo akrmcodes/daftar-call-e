@@ -1778,7 +1778,9 @@
   "errorSmtpSenderMisconfigured": "مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.",
   "errorCalleKillSwitchTitle": "المكالمات متوقفة",
   "errorCalleKillSwitch": "المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.",
+  "errorCalleNeedsHumanTitle": "المكالمة تحتاج نظرة",
   "errorCalleNeedsHuman": "تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.",
+  "errorCallePollTimeoutTitle": "انتهى وقت المكالمة",
   "errorCallePollTimeout": "لم تكتمل المكالمة في الوقت المحدد. دفترك لم يتغيّر. لا تضغط تأكيد والاتصال مرة أخرى.",
   "errorCollectionsEmailCap": "يمكنك إرسال 20 تذكيراً كحد أقصى في المرة الواحدة."
 }

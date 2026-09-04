@@ -7014,11 +7014,23 @@ abstract class AppLocalizations {
   /// **'المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.'**
   String get errorCalleKillSwitch;
 
+  /// No description provided for @errorCalleNeedsHumanTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمة تحتاج نظرة'**
+  String get errorCalleNeedsHumanTitle;
+
   /// No description provided for @errorCalleNeedsHuman.
   ///
   /// In ar, this message translates to:
   /// **'تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.'**
   String get errorCalleNeedsHuman;
+
+  /// No description provided for @errorCallePollTimeoutTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهى وقت المكالمة'**
+  String get errorCallePollTimeoutTitle;
 
   /// No description provided for @errorCallePollTimeout.
   ///
