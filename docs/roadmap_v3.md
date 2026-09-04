@@ -12,7 +12,7 @@
 >
 > **v3.2 changelog:** Judging-criteria lock only. Winning map answers the four official Stage Two questions plus the Impact tie-break. Post-hackathon: Confirm & Call stays in the product. Skill one-liner, 3:00 beat sheet, four-paragraph Devpost About. Do not open the film on Gemini/ADK. Product, calendar, and J.9 unchanged from v3.1. **Credits:** extra-calls form **approved 2026-09-03** — **200** in pool (1 spent Gate 0); film inside **200**.
 >
-> **v3.3 changelog:** Close-the-day **plan confirm starts the ritual only**. Dual-rail consent is a **dedicated Collections Desk** after aging — not a paused “Dispatch collection emails” task and not four buttons on the plan. Device **Confirm & Call** = `plan-batch` then `run-batch` then poll `GET /v1/calls/{runId}`. Cloud Run kill switch `true` is a **demo-window opt-in** on service `daftar-call-e` only (default remains false). Handle store is process-local — live dial uses min-instances **1** for that window. Credits: laptop smoke + device live each burn the pool; stay inside **200**.
+> **v3.3 changelog:** Close-the-day **plan confirm starts the ritual only**. Dual-rail consent is a **dedicated Collections Desk** after aging — not a paused “Dispatch collection emails” task and not four buttons on the plan. Device **Confirm & Call** = `plan-batch` then `run-batch` then poll `GET /v1/calls/{runId}`. Cloud Run kill switch `true` is a **demo-window opt-in** on service `daftar-call-e` only (default remains false). Handle store is process-local — live dial uses min-instances **1** for that window. CALL-E `recipient_result_schema` uses optional scalar JSON types (no `["integer","null"]` unions). Credits: laptop smoke + device live each burn the pool; stay inside **200**.
 
 **Binding contract:** `docs/roadmap_v3.md` is the **sole implementation contract** for this CALL-E submission. [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its Gates. Product Phase 2 (`docs/product/roadmap.md` stub + `docs/archive/`) remains **deferred**.
 
@@ -1183,12 +1183,12 @@ Deterministic CALL-E client. **Not** a FunctionTool. **Not** Gemini. Auth **iden
       "type": "string",
       "enum": ["promised", "refused", "voicemail", "no_answer", "wrong_number", "callback_requested"]
     },
-    "promised_amount_minor": { "type": ["integer", "null"] },
-    "promised_currency": { "type": ["string", "null"] },
-    "promised_date": { "type": ["string", "null"], "description": "YYYY-MM-DD" },
+    "promised_amount_minor": { "type": "integer" },
+    "promised_currency": { "type": "string" },
+    "promised_date": { "type": "string", "description": "YYYY-MM-DD" },
     "language": { "type": "string", "enum": ["ar", "en"] },
-    "acknowledged_hold": { "type": ["boolean", "null"] },
-    "evidence_quote": { "type": ["string", "null"] }
+    "acknowledged_hold": { "type": "boolean" },
+    "evidence_quote": { "type": "string" }
   }
 }
 ```

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Annotated, Any
 from uuid import UUID
 
@@ -44,6 +45,7 @@ from calls.schemas import (
 from calls.settings import CallSettings
 
 router = APIRouter(tags=["calls"])
+_log = logging.getLogger("daftar.calls")
 
 _default_store = InMemoryConfirmHandleStore()
 _default_creator = StdlibCallCreator()
@@ -301,7 +303,12 @@ async def _run_row(
                 idempotency_key=idempotency_key,
             )
         )
-    except Exception:
+    except Exception as exc:
+        _log.warning(
+            "call_create_failed type=%s code=%s",
+            type(exc).__name__,
+            getattr(exc, "code", ""),
+        )
         return (
             RunBatchRowResult(
                 contactId=recipient.contactId,

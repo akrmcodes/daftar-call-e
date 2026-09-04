@@ -4591,3 +4591,25 @@ Providers call use cases only. Same Google ID-token as SMTP. Never log confirm h
 ### Status
 Roadmap §3.1 live progress, §3.4, §4.1, §4.2 write (except contact-card polish), §4.3 email independence ticked. Gate 3 device live checkbox and Gate 4 film remain open. **Revert Cloud Run** (`DAFTAR_CALL_E_ALLOW_DIAL` unset, min 0) after the device ring — do not leave kill switch true as the new default.
 
+## 2026-09-04 — Cloud Run J.9 live (schema fix) + freeze intact
+
+### Context
+Owner asked to confirm publish vs frozen Agentic, then live-test **Cloud Run** J.9 (dry-run, then one dial), then the Flutter app. First `run-batch` on `00006` returned `failed` / `needsHuman` with no `runId` in ~2s.
+
+### Done
+- Read-only: frozen **`daftar-closing-agent-00055-pbm`** / SA `agent-runner`. CALL-E service **`daftar-call-e-00006-6vc`** then **`daftar-call-e-00007-vd6`**. Never mutated the frozen service.
+- Dry-run subset [`agent/scripts/smoke_calls_dry_run_window.py`](../agent/scripts/smoke_calls_dry_run_window.py): unauth 403, `dryRun`, YE `unsupportedRegion`, over-cap 400, GET fake 404 — **5/5**. Dest last-4 `7244`. No `run-batch`.
+- Root cause: CALL-E `recipient_result_schema` **400** `recipient_result_schema_invalid` — JSON Schema `type: ["integer","null"]` unsupported. Fixed [`agent/calls/schemas.py`](../agent/calls/schemas.py) to optional scalar types. [`docs/roadmap_v3.md`](roadmap_v3.md) J.9 snippet + v3.3 note. Create failures log `type`/`code` only ([`agent/calls/router.py`](../agent/calls/router.py)).
+- Redeploy **`daftar-call-e` only** (`00007-vd6`): kill switch still **true**, min **1**. Post-verify freeze OK.
+- Live J.9 [`agent/scripts/smoke_calls_live_j9.py`](../agent/scripts/smoke_calls_live_j9.py): plan 200 → run 200 → GET terminal. `runId=call_zQn3UWw0E9hTHp1rN2R75g`, `status=completed`, dest last-4 `7244`. Connectivity task → `taskCompleted` with no collections `outcome` → `needsHuman` (no invented amount). Evidence in owner-ops only.
+
+### Architecture / decisions
+Do not run Stage 1.4 `smoke_calls_plan_run.py` while the demo window is on (it asserts killSwitch). Laptop `calle-ai` create is not Cloud Run proof. Wrapper default remains false / min 0.
+
+### Ops / verification
+`agent/.venv` pytest plan/run/get/openapi — **51 passed**. Credits: this Cloud Run call is a **new** `call.id` → treat remaining as **198 / 200**. Device `flutter run` overlay **aborted** twice (`assembleDebug` exit 143). Demo window **left on** for Confirm & Call. Revert after the device ring.
+
+### Status
+Cloud J.9 PSTN path proven on `daftar-call-e`. Flutter HITL and kill-switch revert still open.
+
+

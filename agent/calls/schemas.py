@@ -63,12 +63,12 @@ RECIPIENT_RESULT_SCHEMA: dict[str, object] = {
                 "callback_requested",
             ],
         },
-        "promised_amount_minor": {"type": ["integer", "null"]},
-        "promised_currency": {"type": ["string", "null"]},
-        "promised_date": {"type": ["string", "null"]},
+        "promised_amount_minor": {"type": "integer"},
+        "promised_currency": {"type": "string"},
+        "promised_date": {"type": "string"},
         "language": {"type": "string", "enum": ["ar", "en"]},
-        "acknowledged_hold": {"type": ["boolean", "null"]},
-        "evidence_quote": {"type": ["string", "null"]},
+        "acknowledged_hold": {"type": "boolean"},
+        "evidence_quote": {"type": "string"},
     },
 }
 
