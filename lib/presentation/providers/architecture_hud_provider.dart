@@ -241,7 +241,7 @@ class ArchitectureHudSnapshot extends Equatable {
   /// Resolves the call chip from device call progress (last `runId` wins).
   ///
   /// When progress exists but `runId` is not yet assigned, still returns
-  /// [status] so `planned` can show before `run-batch` returns.
+  /// the latest status so `planned` can show before `run-batch` returns.
   static ({String? runId, CollectionsCallRowStatus? status}) resolveCallChip(
     CollectionsCallProgress? callProgress,
   ) {

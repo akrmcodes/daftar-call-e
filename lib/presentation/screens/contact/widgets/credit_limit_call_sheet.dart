@@ -53,7 +53,6 @@ class CreditLimitCallSheet extends StatelessWidget {
       context,
       title: AppLocalizations.of(context)!.creditLimitCallSheetTitle,
       maxHeightFactor: 0.88,
-      scrollable: true,
       child: CreditLimitCallSheet(
         contactName: contactName,
         outstandingMinor: outstandingMinor,
@@ -155,7 +154,6 @@ class CreditLimitCallSheet extends StatelessWidget {
         const Gap(AppDimensions.spacingLg),
         DaftarButton(
           label: l10n.creditLimitCallSheetPrepare,
-          variant: DaftarButtonVariant.primary,
           isExpanded: true,
           onPressed: () {
             unawaited(HapticService.medium());

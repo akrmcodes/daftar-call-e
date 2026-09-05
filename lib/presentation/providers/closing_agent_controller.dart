@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:daftar/application/agent/answer_ask_books_use_case.dart';
 import 'package:daftar/application/agent/ask_books_intent.dart';
-import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/application/agent/contact_name_match.dart';
 import 'package:daftar/application/agent/correct_spoken_amount_minor.dart';
 import 'package:daftar/application/agent/extract_statement_contact_hint.dart';
 import 'package:daftar/application/agent/group_capture_proposals.dart';
 import 'package:daftar/application/agent/map_closing_backup_status.dart';
 import 'package:daftar/application/agent/speech_locale.dart';
+import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/services/connectivity_service.dart';
@@ -1999,9 +1999,9 @@ class ClosingAgentController extends _$ClosingAgentController {
         sendConsented: false,
         callProgress: null,
         callBatchTrigger: trigger,
-        sendOutreachEnabled: trigger == CallBatchTrigger.creditLimit
-            ? true
-            : (state.sendOutreachEnabled || _sendOutreach),
+        sendOutreachEnabled: trigger == CallBatchTrigger.creditLimit ||
+            state.sendOutreachEnabled ||
+            _sendOutreach,
         actionFailure: null,
       );
     } finally {
