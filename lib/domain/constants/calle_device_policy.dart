@@ -1,7 +1,10 @@
+import 'package:daftar/domain/value_objects/phone_number.dart';
+
 /// Compile-time CALL-E device policy (kill switch + allowlist + NANP region).
 ///
-/// Parse rules mirror [`agent/calls/settings.py`](../../../agent/calls/settings.py).
-/// Not Envied — use `--dart-define-from-file` for local overlays. Never log E.164.
+/// Parse rules mirror [`agent/calls/settings.py`](../../../agent/calls/settings.py)
+/// except allowlist entries are normalized to E.164 via [PhoneNumber] so spaced
+/// or dashed owner input still matches stored phones. Never log E.164.
 class CalleDevicePolicy {
   /// Creates a device policy.
   const CalleDevicePolicy({
@@ -61,8 +64,12 @@ class CalleDevicePolicy {
     final entries = <String>{};
     for (final part in raw.split(',')) {
       final item = part.trim();
-      if (item.isNotEmpty) {
-        entries.add(item);
+      if (item.isEmpty) {
+        continue;
+      }
+      final e164 = PhoneNumber(item).e164;
+      if (e164 != null) {
+        entries.add(e164);
       }
     }
     return entries;

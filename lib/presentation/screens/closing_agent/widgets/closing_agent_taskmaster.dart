@@ -411,7 +411,9 @@ class _ClosingAgentTaskmasterState extends State<ClosingAgentTaskmaster>
         if (widget.showActions) ...[
           const Gap(AppDimensions.spacingMd),
           DaftarButton(
-            label: l10n.closingAgentConfirmAndSend,
+            label: isPlanReview
+                ? l10n.closingAgentStartClose
+                : l10n.closingAgentConfirmAndSend,
             variant: widget.approveIsPrimary
                 ? DaftarButtonVariant.primary
                 : DaftarButtonVariant.secondary,
@@ -421,7 +423,9 @@ class _ClosingAgentTaskmasterState extends State<ClosingAgentTaskmaster>
           ),
           const Gap(AppDimensions.spacingSm),
           DaftarButton(
-            label: l10n.closingAgentConfirmWithoutSending,
+            label: isPlanReview
+                ? l10n.closingAgentStartCloseWithoutOutreach
+                : l10n.closingAgentConfirmWithoutSending,
             variant: DaftarButtonVariant.secondary,
             isExpanded: true,
             onPressed: widget.isConfirming

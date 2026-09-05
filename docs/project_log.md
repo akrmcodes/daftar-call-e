@@ -4460,4 +4460,224 @@ Server remains authoritative; device filter is defense in depth. `DAFTAR_SEED_US
 ### Status
 §2.5 done. Stage 2 gate: only **Schema 26 migrates on a debug install** remains unchecked. Next: Stage 3 Confirm & Call UI. No commit unless asked.
 
+## 2026-09-03 — Stage 3.1 Collections Desk (HITL, no HTTP)
+
+### Context
+Roadmap §3.1 / Chapter 3 steps 7–8 / Appendix C.3: Khazna HITL Collections Desk with one consent card (Confirm & Call · Confirm & Send), dual-rail badges, C.3 task preview matching wire `task`, promise≠payment copy, and call progress from per-row results only. No `plan-batch` HTTP, no PSTN, no auto-dispatch.
+
+### Done
+- [`lib/domain/constants/collections_call_task_composer.dart`](../lib/domain/constants/collections_call_task_composer.dart): C.3 EN lockstep + AR equivalent; `amount_line` from int via C.2 formatter; credit-limit extra sentence
+- [`lib/domain/value_objects/collections_call_task.dart`](../lib/domain/value_objects/collections_call_task.dart), [`collections_call_progress.dart`](../lib/domain/value_objects/collections_call_progress.dart), [`collections_call_row_status.dart`](../lib/domain/enums/collections_call_row_status.dart)
+- [`lib/domain/value_objects/collections_desk_row.dart`](../lib/domain/value_objects/collections_desk_row.dart): optional `callTask`
+- [`lib/application/agent/build_collections_desk_use_case.dart`](../lib/application/agent/build_collections_desk_use_case.dart): full shortlist rows; C.3 on call/both; C.2 on email rails
+- Presentation: [`collections_desk_consent_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart), [`outreach_rail_badge.dart`](../lib/presentation/screens/closing_agent/widgets/outreach_rail_badge.dart), [`collections_call_progress_bar.dart`](../lib/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart); panel/row/screen wiring
+- [`lib/presentation/providers/closing_agent_state.dart`](../lib/presentation/providers/closing_agent_state.dart): `callConsented`, `sendConsented`, `callProgress`, desk counts
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): `confirmAndCall` (guard + planned progress, no Dio); `confirmWithoutCalling`; `_autoDispatchOutreach` default false; desk opens when shortlist non-empty; email dispatch filters email-rail rows only
+- ARB `collectionsDesk*` + `flutter gen-l10n`
+- Tests: composer, progress, build desk dual-rail, consent card, panel SMTP HITL, controller Confirm & Call / without calling
+- Roadmap §3.1 `[x]` (3.2–3.4 and Stage 3 gate unchanged)
+
+### Architecture / decisions
+C.3 bodies live in domain constants (preview == wire). One lapis fill per desk (promise banner). Primary glow: Confirm & Call when `callSet` non-empty, else Confirm & Send. Progress `callingIndex` = count of non-`planned` rows — no timer. Heritage Hybrid E leftover behind `showHybridELeftover` (default false).
+
+### Ops / verification
+`flutter test` collections_desk_consent + panel + build_collections_desk + collections_call_task_composer + collections_call_progress — **26 passed**. Controller Confirm & Call / without-calling tests passed. `flutter analyze` — no errors (info lints in test helpers only). No HTTP. No PSTN. No commit unless asked.
+
+### Status
+§3.1 done. Next: §3.2 B-trigger sheet. Stage 3.4 device dry-run vs Cloud Run gate still open.
+
+## 2026-09-03 — CALL-E credits: +200 approved
+
+### Context
+Owner received **+200** extra CALL-E calls (form approved). Docs still referenced the original **20**-call free pool and “until extras land” language.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md): Credits row, slip protocol, §0.1 checkbox note, Appendix E budget hygiene, Appendix F risk register — **200** in pool (1 spent Gate 0)
+- [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md): §0.1 credits table + Gate 0 smoke credit line
+- [`docs/contest/README.md`](contest/README.md): index blurb **200**-call budget
+
+### Architecture / decisions
+Historical project-log entries (e.g. **19 / 20** after Gate 0) left unchanged — accurate at time of write. Email send-set cap **≤20** and unrelated “20” values untouched.
+
+### Ops / verification
+**199 / 200** remaining after Gate 0 smoke. Product recipient cap **5** now that credits are confirmed.
+
+### Status
+Credits docs current. No code changes.
+
+## 2026-09-03 — Stage 3.1 review + analyze fixes
+
+### Context
+Owner asked for a full review of the Stage 3.1 Collections Desk slice (many files) and a clean `flutter analyze`.
+
+### Done
+- Progress bar: track/fill now `StackFit.expand` + `SizedBox.expand` so `Calling i of N` actually paints (was 0×0)
+- `confirm()` `autoDispatch` default **false** — production Confirm & Send on the plan no longer silent-SMTP; desk Confirm & Send is the fire
+- `confirmAndCall` still runs the guard; kill switch / empty allowlist still seeds planned progress from the visible call set
+- SMTP success skips leftover pending call-only rows before the report
+- Lapis Law: Retry / SMTP Sending chrome is **secondary** while the consent card is on screen
+- Consent card: one primary glow; tertiary uses `DaftarButton` haptics only
+- Rail badge 32dp; C.3/C.2 gap; unused import; import order
+- Tests: kill-switch progress seed; desk shows full shortlist (email cap 20); Approve path explicit `approveAndSend()`
+- `flutter analyze` — **No issues found**
+
+### Ops / verification
+`flutter test` composer + progress + build desk + consent + panel + row + closing_agent_controller — **77 passed**. No HTTP. No PSTN. No commit unless asked.
+
+### Status
+§3.1 still ticked. 3.2–3.4 unchecked.
+
+## 2026-09-04 — CALL-E credits doc sweep (200 pool)
+
+### Context
+Owner confirmed **+200** extra CALL-E calls approved. Remaining forward-looking docs still had “submitted / not guaranteed” wording from the pre-approval **20**-call era.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md): v3.2 changelog credits note; §0.1 extra-calls checkbox; Stage 0 validation gate — **approved 2026-09-03**, **200** in pool
+
+### Architecture / decisions
+Historical `project_log` entries (e.g. **19 / 20** after Gate 0) unchanged. SMTP send-set cap **≤20**, Drift schema **20**, Egypt **+20**, and other unrelated “20” values untouched.
+
+### Ops / verification
+**199 / 200** remaining after Gate 0. Product recipient cap **5**.
+
+### Status
+Credits language current across active CALL-E docs.
+
+## 2026-09-04 — Stage 3.1 desk gating + dual-rail demo seed
+
+### Context
+Owner debug-ran without `--dart-define-from-file`, so Try with Demo Store seeded seven Yemeni phones. Close-the-day showed only plan-review Send / without sending. Confirm & Call never appeared. Dual rail (YE → email, US DID → call) was already specified; the desk call set was emptied by kill switch + empty allowlist.
+
+### Done
+- [`lib/domain/constants/dual_rail_split.dart`](../lib/domain/constants/dual_rail_split.dart): call-set membership is region + allowlist + DNC + cap 5 — **not** `CALLE_ALLOW_DIAL`. Kill switch stays on [`RunBatchRecipientGuard`](../lib/domain/constants/run_batch_recipient_guard.dart)
+- [`lib/domain/constants/calle_device_policy.dart`](../lib/domain/constants/calle_device_policy.dart): allowlist entries normalized via `PhoneNumber.e164`
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): non-empty shortlist always opens the desk (including Confirm without sending). SMTP ID-token preflight no longer blocks the desk when a call set exists
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): hide Confirm & Call / without calling when `callCount == 0`
+- ARB plan copy: next screen is Collections (EN+AR)
+- Overlay docs: [`tool/demo_seed_emails.md`](../tool/demo_seed_emails.md), [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md), [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md), root README
+- Gitignored `tool/demo_seed_emails.local.json` written from owner-ops `test-did` (DID + allowlist, `CALLE_ALLOW_DIAL` empty). Not in git
+
+### Architecture / decisions
+Confirm & Call remains local HITL (`planned` progress only) — no `plan-batch` / `run-batch` / PSTN. Live ring is Stage 4. No E.164 in committed markdown. Cloud Run allowlist is a separate owner-ops copy.
+
+### Ops / verification
+`flutter analyze` on touched files — clean. Targeted tests — **132 passed**. Overlay `git check-ignore` confirmed. Linphone not used this pass.
+
+### Status
+§3.1 desk HITL is reachable with the overlay + re-seed. Next: §3.2 B-trigger, §3.3 HUD, §3.4 device dry-run.
+
+## 2026-09-04 — Dedicated Collections Desk + live Confirm & Call (v3.3)
+
+### Context
+Plan review still started the close with heritage Send copy, and the Collections Desk was staged as compact taskmaster (“Dispatch collection emails”). Confirm & Call was local `planned` rows only. Cloud Run `daftar-call-e` had `CALLE_ALLOW_DIAL=false`, so device `run-batch` could not ring. Binding contract updated first, then desk UX, J.9 client, laptop smoke, and a demo-window deploy of **`daftar-call-e` only**.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.3**: plan confirm starts the ritual only; dual-rail consent is a **dedicated Collections Desk** after aging; device Confirm & Call = `plan-batch` → `run-batch` → poll GET. Kill switch `true` is a demo-window opt-in on `daftar-call-e` (default remains false). Live window min-instances **1**. No E.164 in the file.
+- Desk UX: compact taskmaster removed on `ritualDesk` ([`closing_agent_screen.dart`](../lib/presentation/screens/closing_agent/closing_agent_screen.dart)). ARB `closingTaskOpenDesk` = Open collections desk / فتح مكتب التحصيل. Plan pair = Start close / Start close without outreach.
+- Overlay lockstep (gitignored): last-4 + length agree across owner-ops `test-did`, `calle-allowlist`, and `tool/demo_seed_emails.local.json`. Device `CALLE_ALLOW_DIAL` exact `true` for this pass.
+- Flutter J.9: domain VOs + remote DS `POST /v1/calls/plan-batch`, `POST /v1/calls/run-batch`, `GET /v1/calls/{runId}`; use cases; `confirmAndCall` plan→run→poll; one `invalidHandle` retry; persist `collection_call_runs` + integer `collection_promises`; **no** `AddTransactionUseCase`. YE omitted from plan-batch. Kill switch 403 → `needsHuman`.
+- [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh): opt-in `DAFTAR_CALL_E_ALLOW_DIAL=true` and `DAFTAR_CALL_E_MIN_INSTANCES=0|1`. Post-verify expects the opted values (not hardcoded false).
+
+### Architecture / decisions
+Providers call use cases only. Same Google ID-token as SMTP. Never log confirm handles, API keys, or full E.164. Progress from GET, not a fake spinner. Wrapper default remains `CALLE_ALLOW_DIAL=false` / min 0. Frozen Agentic service is describe-only.
+
+### Ops / verification
+- Laptop smoke (`CALLE_ALLOW_DIAL=true` in-process only): dest last-4 `7244`, region `US`, `status=completed`, `call.id=call_GfN-BQcGMORm2NkgSfxdIw`, ~4s. Persisted idempotency key reused — treat remaining credits as **199 / 200** unless the dashboard shows otherwise. Did **not** mutate Cloud Run.
+- Deploy **`daftar-call-e`** revision `daftar-call-e-00006-6vc`: `CALLE_ALLOW_DIAL=true`, min **1** / max **2**, SA `call-e-runner`. Frozen `daftar-closing-agent-00055-pbm` unchanged (`tool/check_agentic_freeze.sh` Freeze OK).
+- Targeted tests (GET coerce, remote DS, persist, controller plan/run/GET/YE/403/retry/timeout, desk “Dispatch collection emails” absent) — **102 passed**. `dart analyze` on touched files — no errors.
+- Device `R5CT10G3LXH` debug install with overlay is the remaining HITL: re-seed → Start close → aging → full desk → Confirm & Call. Gate 4 film still owner. 3.2 / 3.3 out of scope.
+
+### Status
+Roadmap §3.1 live progress, §3.4, §4.1, §4.2 write (except contact-card polish), §4.3 email independence ticked. Gate 3 device live checkbox and Gate 4 film remain open. **Revert Cloud Run** (`DAFTAR_CALL_E_ALLOW_DIAL` unset, min 0) after the device ring — do not leave kill switch true as the new default.
+
+## 2026-09-04 — Cloud Run J.9 live (schema fix) + freeze intact
+
+### Context
+Owner asked to confirm publish vs frozen Agentic, then live-test **Cloud Run** J.9 (dry-run, then one dial), then the Flutter app. First `run-batch` on `00006` returned `failed` / `needsHuman` with no `runId` in ~2s.
+
+### Done
+- Read-only: frozen **`daftar-closing-agent-00055-pbm`** / SA `agent-runner`. CALL-E service **`daftar-call-e-00006-6vc`** then **`daftar-call-e-00007-vd6`**. Never mutated the frozen service.
+- Dry-run subset [`agent/scripts/smoke_calls_dry_run_window.py`](../agent/scripts/smoke_calls_dry_run_window.py): unauth 403, `dryRun`, YE `unsupportedRegion`, over-cap 400, GET fake 404 — **5/5**. Dest last-4 `7244`. No `run-batch`.
+- Root cause: CALL-E `recipient_result_schema` **400** `recipient_result_schema_invalid` — JSON Schema `type: ["integer","null"]` unsupported. Fixed [`agent/calls/schemas.py`](../agent/calls/schemas.py) to optional scalar types. [`docs/roadmap_v3.md`](roadmap_v3.md) J.9 snippet + v3.3 note. Create failures log `type`/`code` only ([`agent/calls/router.py`](../agent/calls/router.py)).
+- Redeploy **`daftar-call-e` only** (`00007-vd6`): kill switch still **true**, min **1**. Post-verify freeze OK.
+- Live J.9 [`agent/scripts/smoke_calls_live_j9.py`](../agent/scripts/smoke_calls_live_j9.py): plan 200 → run 200 → GET terminal. `runId=call_zQn3UWw0E9hTHp1rN2R75g`, `status=completed`, dest last-4 `7244`. Connectivity task → `taskCompleted` with no collections `outcome` → `needsHuman` (no invented amount). Evidence in owner-ops only.
+
+### Architecture / decisions
+Do not run Stage 1.4 `smoke_calls_plan_run.py` while the demo window is on (it asserts killSwitch). Laptop `calle-ai` create is not Cloud Run proof. Wrapper default remains false / min 0.
+
+### Ops / verification
+`agent/.venv` pytest plan/run/get/openapi — **51 passed**. Credits: this Cloud Run call is a **new** `call.id` → treat remaining as **198 / 200**. Device `flutter run` overlay **aborted** twice (`assembleDebug` exit 143). Demo window **left on** for Confirm & Call. Revert after the device ring.
+
+### Status
+Cloud J.9 PSTN path proven on `daftar-call-e`. Flutter HITL and kill-switch revert still open.
+
+## 2026-09-04 — Completed-call banner fix + demo window revert
+
+### Context
+Owner confirmed the device Confirm & Call **did ring** (HITL succeeded despite earlier `assembleDebug` abort). GET was `status=completed` with `taskCompleted` and **no** collections `outcome`. Two stacked bugs showed an error sheet titled “Calls are paused” / “The call needs a person to review.” Ledger stayed unchanged (correct — no invented `promised_amount_minor`). Plan: treat that GET as success, split copy, then close the `daftar-call-e` demo window.
+
+### Done
+- [`lib/domain/value_objects/call_get_result.dart`](../lib/domain/value_objects/call_get_result.dart): do not coerce `needsHuman` from completed + missing outcome; ignore wire `needsHuman` on clean `completed` unless `amountInvalid`. `deskStatus` = **completed** even without outcome; `amountInvalid` / `failed` / `canceled` → failed. Never `delivered` / `paid`.
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart) `_pollQueuedCalls`: persist terminal as before (no `AddTransactionUseCase`; no promise upsert without valid int + `outcome=promised`). `_calleNeedsHuman` only for `amountInvalid` or non-completed terminal / true review. Completed without structured promise: row **completed**, **no** `actionFailure`.
+- ARB EN+AR + gen-l10n: `errorCalleNeedsHumanTitle` (“Call needs a look” / “المكالمة تحتاج نظرة”), `errorCallePollTimeoutTitle` (“Call timed out” / “انتهى وقت المكالمة”). [`error_translator.dart`](../lib/core/utils/error_translator.dart): kill-switch title only for `calle_kill_switch`.
+- [`agent/calls/get_map.py`](../agent/calls/get_map.py): `status == completed` without outcome → `needsHuman=false` (do not invent amount). `schema_invalid` still `needsHuman`. `failed`/`canceled` without outcome still `needsHuman`.
+- Tests: [`call_get_result_test.dart`](../test/domain/value_objects/call_get_result_test.dart), controller completed-without-outcome (no error sheet), ErrorTranslator titles, [`agent/tests/test_calls_get.py`](../agent/tests/test_calls_get.py) `test_completed_without_outcome_is_not_needs_human`.
+- [`docs/roadmap_v3.md`](roadmap_v3.md): Gate 3 “Device Confirm & Call hits J.9” **ticked**. §4.2: persist run, no invented amount, no paused copy. Gate 4 film **unchecked**.
+
+### Architecture / decisions
+Completed connectivity task without collections schema is a successful ring, not a review failure. Integer money unchanged. Wrapper default stays `CALLE_ALLOW_DIAL=false` / min 0. Never `gcloud run deploy daftar-closing-agent`. After revert, device Confirm & Call **403** until a future demo window.
+
+### Ops / verification
+- Flutter tests (GET VO, remote DS, ErrorTranslator, controller) — **81 passed**. `agent/.venv` pytest `test_calls_get.py` — **12 passed**. `dart analyze` on touched files — no issues.
+- Deploy **`daftar-call-e` only** (`DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL` unset, min default **0**): revision **`daftar-call-e-00008-nbv`**. Post-verify: `CALLE_ALLOW_DIAL=false`, scale **0/2**, SA `call-e-runner`. Ships `get_map.py` and closes the window in one revision.
+- `bash tool/check_agentic_freeze.sh` — **Freeze OK** `daftar-closing-agent-00055-pbm`.
+- Credits **198 / 200**. Cloud Run live `call_zQn3UWw0E9hTHp1rN2R75g` already counted; this pass did not dial. Dest last-4 from prior live test: `7244`. No DID in this log.
+
+### Status
+Banner root cause fixed. Demo window closed. Gate 3 device J.9 green. Next: Stage 3.2 B-trigger / 3.3 HUD / Gate 4 film when the owner opens a new demo window.
+
+## 2026-09-05 — Stage 3.2 credit-limit B-trigger (HITL)
+
+### Context
+Roadmap §3.2 / Chapter 5: after a debt save where `CreditWarningLevel.exceeded`, prompt the merchant to open outreach — never auto-dial. Yes uses the same Collections Desk and `plan-batch` / `run-batch` with `trigger=creditLimit`. No leaves the ledger as already committed (Model C). Not the filmed climax; kill switch stays false on `daftar-call-e`.
+
+### Done
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](../lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart): Khazna confirmation sheet (Prepare the call / Not now), integer outstanding vs limit, promise ≠ payment banner. No `AlertDialog`.
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](../lib/presentation/screens/contact/credit_limit_b_trigger.dart): shared helper after debt save; navigates to Closing Agent when accepted.
+- Wired exceeded debt path: [`add_transaction_dialog.dart`](../lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart), [`quick_add_bottom_sheet.dart`](../lib/presentation/widgets/transactions/quick_add_bottom_sheet.dart), agent `confirm` / `confirmCaptureBundle` via `pendingCreditLimitPromptContactId` + [`closing_agent_screen.dart`](../lib/presentation/screens/closing_agent/closing_agent_screen.dart) listener.
+- [`ClosingAgentController.openCreditLimitDesk`](../lib/presentation/providers/closing_agent_controller.dart): one contact via [`GetCollectionsCandidatesUseCase`](../lib/application/contact/get_collections_candidates_use_case.dart) `contactId` filter + dual rail; no ritual backup; `sendOutreachEnabled: true`. `finishDesk` returns `idle` for credit-limit (no day seal report).
+- `callBatchTrigger` on [`ClosingAgentState`](../lib/presentation/providers/closing_agent_state.dart) threaded through desk compose, `confirmAndCall`, persist. C.3 hold sentence via [`CollectionsCallTaskComposer`](../lib/domain/constants/collections_call_task_composer.dart).
+- ARB EN+AR + `errorCreditLimitNoOutreach`. [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart) credit-limit subtitle.
+
+### Architecture / decisions
+Second HITL only — sheet does not HTTP. Confirm & Call remains sole PSTN consent. Skip prompt during close-day `ritualDesk` / `ritualRunning`. Payments never prompt. Providers → use cases unchanged.
+
+### Ops / verification
+Targeted tests: credit-limit sheet, candidates `contactId` filter, desk compose hold sentence, controller `openCreditLimitDesk` (no plan/run), `finishDesk` → idle, `confirmAndCall` sends `creditLimit`. `dart analyze` on touched files. No Cloud Run deploy. No DID.
+
+### Status
+Roadmap §3.2 ticked. Gate 3 B-trigger no auto-dial ticked. Next: §3.3 HUD call chip, Gate 4 film when demo window reopens.
+
+## 2026-09-05 — Stage 3.3 Architecture HUD call chip
+
+### Context
+Roadmap §3.3: extend the contest Architecture HUD with a CALL-E call chip (`Call ·` + `runId` last-8 + status). SMTP `Sent ·` chip unchanged. Never label completed as delivered or paid. Presentation-only — reads device `callProgress` updated by GET poll; no Cloud Run deploy.
+
+### Done
+- [`lib/domain/value_objects/collections_call_progress.dart`](../lib/domain/value_objects/collections_call_progress.dart): optional `runId` on progress rows (`call.id`).
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): persist `runId` when `run-batch` queues; poll updates status without clearing id.
+- [`lib/presentation/providers/architecture_hud_provider.dart`](../lib/presentation/providers/architecture_hud_provider.dart): `callRunId` + `callStatus` via `resolveCallChip`; passes `agent.callProgress`.
+- [`lib/presentation/shared/widgets/daftar_architecture_hud.dart`](../lib/presentation/shared/widgets/daftar_architecture_hud.dart): `_CallChipRow` + `_CallStatusPill` (planned / ringing lapis glow / completed ink / failed debt border); telemetry strip above SMTP row.
+- ARB EN+AR: `architectureHudCallId`, `architectureHudCallStatusOnly`, status labels (`planned` / `ringing` / `completed` / `failed`).
+- Tests: [`architecture_hud_provider_test.dart`](../test/presentation/providers/architecture_hud_provider_test.dart), [`daftar_architecture_hud_test.dart`](../test/presentation/shared/widgets/daftar_architecture_hud_test.dart), [`collections_call_progress_test.dart`](../test/domain/value_objects/collections_call_progress_test.dart).
+
+### Architecture / decisions
+HUD never HTTP-polls. Last progress row with `runId` wins (SMTP Message-ID pattern). `completed` is CALL-E terminal status — not payment, not delivery. Khazna: monochrome fill, lapis border/glow on ringing pill only, no payment green on completed.
+
+### Ops / verification
+`flutter test` on HUD provider + widget + progress tests — **41 passed**. `flutter gen-l10n`. `dart analyze` on touched files — no errors. No Cloud Run deploy.
+
+### Status
+Roadmap §3.3 all four items ticked. Gate 3 HUD call chip ticked. Next: Gate 4 film / §4.4 HUD updates from live poll when demo window reopens.
 

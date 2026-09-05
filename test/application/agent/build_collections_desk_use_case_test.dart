@@ -3,9 +3,11 @@ import 'package:daftar/application/agent/compose_collections_reminder_draft_use_
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/merchant_profile.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/repositories/merchant_profile_repository.dart';
 import 'package:daftar/domain/repositories/settings_repository.dart';
@@ -45,16 +47,21 @@ void main() {
     required int ageDays,
     required ReminderToneBand tone,
     int owedMinor = 1500,
+    OutreachRail rail = OutreachRail.email,
+    String? email = 'test@example.com',
+    String? phone,
   }) {
     return CollectionsCandidate(
       contactId: id,
       name: 'n$id',
-      phone: '+9677000000$id',
+      phone: phone ?? '+9677000000$id',
+      email: email,
       ledgerId: 'ledger',
       netBalance: -owedMinor,
       currencyCode: 'YER',
       ageDays: ageDays,
       toneBand: tone,
+      rail: rail,
     );
   }
 
@@ -75,10 +82,10 @@ void main() {
     ).withReminderPolicy(reminders).withPdfPolicy(pdfs);
   }
 
-  test('empty reminder set is Right empty without reading settings', () async {
+  test('empty shortlist is Right empty without reading settings', () async {
     final result = await useCase.execute(
       ritual(
-        shortlist: [candidate(id: 'a', ageDays: 3, tone: ReminderToneBand.friendly)],
+        shortlist: [],
         reminders: ClosingReminderPolicy.none,
         pdfs: ClosingPdfPolicy.none,
       ),
@@ -89,7 +96,7 @@ void main() {
     verifyNever(() => merchant.get());
   });
 
-  test('Top 5 yields 5 rows with integer amount in the body', () async {
+  test('full shortlist yields one row per candidate', () async {
     final shortlist = [
       for (var i = 0; i < 7; i++)
         candidate(
@@ -108,7 +115,7 @@ void main() {
     );
     final built = result.getRight().toNullable()!;
 
-    expect(built.rows, hasLength(5));
+    expect(built.rows, hasLength(7));
     expect(built.locale, 'en');
     expect(built.storeName, 'Daftar');
     expect(built.rows.first.body, contains('1500'));
@@ -212,5 +219,73 @@ void main() {
 
     expect(result.getRight().toNullable()?.locale, 'ar');
     expect(result.getRight().toNullable()?.rows, hasLength(1));
+  });
+
+  test('dual rail: US both has C.3, YE callUnavailable has C.2 only', () async {
+    const usPhone = '+15555550100';
+    final shortlist = [
+      candidate(
+        id: 'us',
+        ageDays: 40,
+        tone: ReminderToneBand.firm,
+        rail: OutreachRail.both,
+        email: 'us@example.com',
+        phone: usPhone,
+      ),
+      candidate(
+        id: 'ye',
+        ageDays: 20,
+        tone: ReminderToneBand.reminder,
+        rail: OutreachRail.callUnavailable,
+        email: 'ye@example.com',
+        phone: '0771234567',
+        owedMinor: 1000,
+      ),
+    ];
+
+    final result = await useCase.execute(
+      ritual(
+        shortlist: shortlist,
+        reminders: ClosingReminderPolicy.all,
+        pdfs: ClosingPdfPolicy.none,
+      ),
+    );
+    final rows = result.getRight().toNullable()!.rows;
+
+    expect(rows, hasLength(2));
+
+    final usRow = rows.firstWhere((row) => row.candidate.contactId == 'us');
+    final yeRow = rows.firstWhere((row) => row.candidate.contactId == 'ye');
+
+    expect(usRow.callTask, isNotEmpty);
+    expect(usRow.callTask, contains('Call nus on behalf of'));
+    expect(usRow.body, isNotEmpty);
+    expect(yeRow.callTask, isEmpty);
+    expect(yeRow.body, contains('nye'));
+  });
+
+  test('credit-limit trigger appends hold sentence to call task', () async {
+    final shortlist = [
+      candidate(
+        id: 'us',
+        ageDays: 40,
+        tone: ReminderToneBand.firm,
+        rail: OutreachRail.call,
+        phone: '+15555550100',
+      ),
+    ];
+
+    final result = await useCase.execute(
+      ritual(
+        shortlist: shortlist,
+        reminders: ClosingReminderPolicy.none,
+        pdfs: ClosingPdfPolicy.none,
+      ),
+      trigger: CallBatchTrigger.creditLimit,
+    );
+    final row = result.getRight().toNullable()!.rows.single;
+
+    expect(row.callTask, contains('new goods are on hold'));
+    expect(row.callTask, contains('acknowledged_hold'));
   });
 }

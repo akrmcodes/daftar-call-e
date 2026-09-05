@@ -1,7 +1,9 @@
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/presentation/providers/architecture_hud_provider.dart';
@@ -136,6 +138,95 @@ void main() {
     );
     expect(snapshot.smtpMessageId, isNull);
     expect(snapshot.deskSentCount, 0);
+  });
+
+  test('resolveCallChip uses last runId and latest status', () {
+    const progress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'a',
+          status: CollectionsCallRowStatus.planned,
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'b',
+          status: CollectionsCallRowStatus.ringing,
+          runId: '550e8400-e29b-41d4-a716-446655440000',
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'c',
+          status: CollectionsCallRowStatus.completed,
+          runId: '11111111-2222-3333-4444-555566667777',
+        ),
+      ],
+    );
+
+    final chip = ArchitectureHudSnapshot.resolveCallChip(progress);
+    expect(chip.runId, '11111111-2222-3333-4444-555566667777');
+    expect(chip.status, CollectionsCallRowStatus.completed);
+    expect(ArchitectureHudSnapshot.tail8(chip.runId), '66667777');
+  });
+
+  test('resolveCallChip returns planned without runId before run-batch', () {
+    const progress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'a',
+          status: CollectionsCallRowStatus.planned,
+        ),
+      ],
+    );
+
+    final chip = ArchitectureHudSnapshot.resolveCallChip(progress);
+    expect(chip.runId, isNull);
+    expect(chip.status, CollectionsCallRowStatus.planned);
+  });
+
+  test('fromAgent maps call progress to HUD fields', () {
+    final snapshot = ArchitectureHudSnapshot.fromAgent(
+      enabled: true,
+      turnResult: turn,
+      callProgress: const CollectionsCallProgress(
+        results: [
+          CollectionsCallProgressRow(
+            contactId: 'c1',
+            status: CollectionsCallRowStatus.completed,
+            runId: 'call_zQn3UWw0E9hTHp1rN2R75g',
+          ),
+        ],
+      ),
+    );
+
+    expect(snapshot.callRunId, 'call_zQn3UWw0E9hTHp1rN2R75g');
+    expect(snapshot.callStatus, CollectionsCallRowStatus.completed);
+    expect(ArchitectureHudSnapshot.tail8(snapshot.callRunId), '1rN2R75g');
+    expect(snapshot.smtpMessageId, isNull);
+  });
+
+  test('fromAgent keeps SMTP last-8 unchanged with call chip present', () {
+    final snapshot = ArchitectureHudSnapshot.fromAgent(
+      enabled: true,
+      turnResult: turn,
+      deskRows: [
+        row(
+          status: CollectionsDeskRowStatus.sent,
+          smtpMessageId: '<22222222ccccdddd@gmail.com>',
+          smtpCode: 250,
+        ),
+      ],
+      callProgress: const CollectionsCallProgress(
+        results: [
+          CollectionsCallProgressRow(
+            contactId: 'c1',
+            status: CollectionsCallRowStatus.ringing,
+            runId: '550e8400-e29b-41d4-a716-446655440000',
+          ),
+        ],
+      ),
+    );
+
+    expect(snapshot.smtpMessageId, '<22222222ccccdddd@gmail.com>');
+    expect(ArchitectureHudSnapshot.tail8(snapshot.smtpMessageId), 'ccccdddd');
+    expect(snapshot.callStatus, CollectionsCallRowStatus.ringing);
   });
 
   group('resolveHitlStep', () {

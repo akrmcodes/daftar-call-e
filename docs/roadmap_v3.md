@@ -1,6 +1,6 @@
 # Daftar Closing Agent — CALL-E Contest Execution Roadmap (v3)
 
-> **Version:** 3.2 · **Date:** 2026-09-01 · **Submission Period:** 23 Jul 2026 – 14 Sep 2026 11:45pm SGT
+> **Version:** 3.3 · **Date:** 2026-09-04 · **Submission Period:** 23 Jul 2026 – 14 Sep 2026 11:45pm SGT
 >
 > **Derived from:** Locked Confirm & Call catalog (brainstorm Aug–Sep 2026) · [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) [Official Rules](https://call-e.devpost.com/rules) · [CALL-E integrations](https://github.com/CALLE-AI/call-e-integrations) region table · Developer API `POST /v1/calls` + `GET /v1/calls/{id}` (`calle-ai` 0.7.0) · MCP/CLI `plan_call` / `run_call` / `get_call_run` is a **separate** surface (owner-ops only) · disclosed Daftar ledger + All Things Agentic Closing Agent already in this repository ([`roadmap_v2.md`](roadmap_v2.md) v2.8, **frozen heritage**)
 >
@@ -10,7 +10,9 @@
 >
 > **v3.1 changelog:** Production path = Developer API `create` / `get` (not MCP `plan_call` / `confirm_token`). `plan-batch` is **Daftar-local** (zero PSTN). `runId` := CALL-E `call.id`. Minimum filmable slice renamed **MFP** (MCP = Model Context Protocol only). Credits: 20 new / +200 existing / pause not auto-charge. Pin `calle-ai==0.7.0`. Gate 0 API 404 probe; Chat ≠ API. Awesome-list `skills/` template + dry-run. Envied URL must not default to the frozen Agentic hostname. NANP `+1` region from allowlist. Integer coercion of structured amounts. Winning-criteria map.
 >
-> **v3.2 changelog:** Judging-criteria lock only. Winning map answers the four official Stage Two questions plus the Impact tie-break. Post-hackathon: Confirm & Call stays in the product. Skill one-liner, 3:00 beat sheet, four-paragraph Devpost About. Do not open the film on Gemini/ADK. Product, calendar, and J.9 unchanged from v3.1.
+> **v3.2 changelog:** Judging-criteria lock only. Winning map answers the four official Stage Two questions plus the Impact tie-break. Post-hackathon: Confirm & Call stays in the product. Skill one-liner, 3:00 beat sheet, four-paragraph Devpost About. Do not open the film on Gemini/ADK. Product, calendar, and J.9 unchanged from v3.1. **Credits:** extra-calls form **approved 2026-09-03** — **200** in pool (1 spent Gate 0); film inside **200**.
+>
+> **v3.3 changelog:** Close-the-day **plan confirm starts the ritual only**. Dual-rail consent is a **dedicated Collections Desk** after aging — not a paused “Dispatch collection emails” task and not four buttons on the plan. Device **Confirm & Call** = `plan-batch` then `run-batch` then poll `GET /v1/calls/{runId}`. Cloud Run kill switch `true` is a **demo-window opt-in** on service `daftar-call-e` only (default remains false). Handle store is process-local — live dial uses min-instances **1** for that window. CALL-E `recipient_result_schema` uses optional scalar JSON types (no `["integer","null"]` unions). Credits: laptop smoke + device live each burn the pool; stay inside **200**.
 
 **Binding contract:** `docs/roadmap_v3.md` is the **sole implementation contract** for this CALL-E submission. [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its Gates. Product Phase 2 (`docs/product/roadmap.md` stub + `docs/archive/`) remains **deferred**.
 
@@ -31,13 +33,13 @@
 | **Must use at runtime** | CALL-E **Python SDK (`calle-ai==0.7.0`)**, `from calle import CalleClient` — **imported and actually called** via Developer API `POST /v1/calls`. MCP / CLI / SKILL satisfy Stage One if used at runtime; **this submission’s production path is the SDK**, not MCP |
 | **Must submit** | Devpost + **PR** to [CALLE-AI/awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents) (correct Contribution Area) + public **≤3 min** YouTube/Vimeo + CALL-E **account email** |
 | **Setup vs submit repos** | Setup: [call-e-integrations](https://github.com/CALLE-AI/call-e-integrations) (optional [installation guide](https://open.heycall-e.com/document/mcp-archive/CALL-E-installation-guide.md) for CLI/MCP owner-ops). Submit list: **awesome-phone-call-agents**. Do not mix. |
-| **Credits** | **New** account: **20** free. **Existing** account: request **+200** via [form](https://forms.gle/EPQttEZ1rkW8iq9q6) (1–5 business days, not guaranteed). Exhaustion **pauses** access — **no auto-charge**. `~$0.05` / call is **optional purchase**. Film inside 20 until extras land |
+| **Credits** | **200** free (**+200** extra-calls approved 2026-09-03; 1 spent Gate 0). Laptop smoke and device live each burn credits. Exhaustion **pauses** access — **no auto-charge**. `~$0.05` / call is **optional purchase**. Film inside **200** |
 | **Outbound** | CALL-E **KYC** required before dial. Inbound numbers are **not** this submission. |
 | **Existing project** | Allowed if **significantly updated** during the Submission Period and disclosed |
 | **GCP account** | Contest compute + billing on **`akrm.codes@gmail.com`** / project **`daftar-closing-agent`**; keep Drive OAuth clients on **product** GCP — do not mix |
 | **Gmail SMTP sender** | Unchanged from v2.8: dedicated mailbox, App Password in Secret Manager `gmail-smtp-app-password`. **Do not write a live From/To address in this roadmap.** |
 | **CALL-E secret** | Secret Manager **`calle-api-key`**. Env: `CALLE_API_KEY` / `CALLE_BASE_URL=https://api.heycall-e.com`. **Never** Flutter / git / chat |
-| **Cloud Run (this fork)** | **New** service **`daftar-call-e`**, region **`us-central1`**, min **0** / max **2**, ID-token only. **Do not redeploy** `https://daftar-closing-agent-1487285471.us-central1.run.app` (Agentic freeze) |
+| **Cloud Run (this fork)** | **New** service **`daftar-call-e`**, region **`us-central1`**, max **2**, ID-token only. Default min **0**; live Confirm & Call window uses min **1** so in-memory confirm handles survive plan→run. **Do not redeploy** `https://daftar-closing-agent-1487285471.us-central1.run.app` (Agentic freeze) |
 | **Package ID** | `com.akrmcodes.daftar` (dedicated demo device/profile) |
 
 > **Deadline math:** Hard cutover is **14 Sep 2026 23:45 SGT** = **14 Sep 2026 18:45 AST** (SGT = UTC+8; AST = UTC+3). The **14 Sep ≤ 18:00 AST** target is a ~45 min safety buffer before the hard deadline — do not treat the buffer as the official Devpost time.
@@ -137,14 +139,14 @@ Stage 0 (CALL-E account + KYC + US DID + disclosure + new Cloud Run)
 
 Must be **filmable by Gate 4 (~10 Sep)**. Everything beyond this is polish. **MFP** is this contest slice. **MCP** in this document means **Model Context Protocol** only.
 
-1. Merchant **Confirm & Call** on the closing plan (HITL)
+1. Merchant **Confirm & Call** on the **Collections Desk** after aging (HITL — not the plan-review pair)
 2. Cloud Run **`plan-batch` (Daftar-local) then `run-batch` (`calls.create`)** using `calle-ai` (not an ADK tool)
 3. **One** allowlisted **US** destination rings (owner DID)
 4. Structured outcome on device (`outcome` + integer promise fields) + HUD **`runId` last-8** (= CALL-E `call.id`)
 5. Cloud Logging **`daftar.agent.call`**
 6. A **YE-seeded** overdue row stays on **email** (region gate), never a failed CALL-E dial
 
-**Slip protocol:** If Gate 0 live ring fails, **do not** build Flutter UI on hope — fix PSTN/KYC/credits first. Collapse to one golden path (single recipient, English, `region: US`). If Arabic PSTN fails the week of filming, film US English and **narrate the region gate**. If extra-call credits lag, stay inside **20 free calls** (live cap **3** recipients). If SMTP owner-ops regress, film call rail only but **do not delete** J.7.
+**Slip protocol:** If Gate 0 live ring fails, **do not** build Flutter UI on hope — fix PSTN/KYC/credits first. Collapse to one golden path (single recipient, English, `region: US`). If Arabic PSTN fails the week of filming, film US English and **narrate the region gate**. Stay inside **200 free calls** (product cap **5** recipients). If SMTP owner-ops regress, film call rail only but **do not delete** J.7.
 
 **Demo utility framing:** Film a **specific phone-work problem** (close-the-day collections for shops that still keep paper books) — not “AI that makes phone calls.” **Why it matters:** they still make those calls themselves, or they forget; CALL-E returns a promise, not a payment; YE stays on email. **Worth building further:** Confirm & Call stays in the product after submit. Sequence: problem → one confirm → live CALL-E call → structured promise on device → HUD `runId`. Name **CALL-E SDK/API** out loud. **Do not open on Gemini / ADK / Cloud Run.** Judges may score from **video + repo + awesome-list PR**. Architecture HUD in-frame. English VO or EN subtitles. **≤3:00** (judges need not watch more). Beat sheet: §6.3.
 
@@ -199,17 +201,18 @@ Canonical sequence:
 
 1. Goal: “Close the day” / “سكر اليوم”
 2. Agent shows **plan** (`propose_closing_plan`)
-3. Merchant **confirms plan** (one plan-level confirm)
+3. Merchant **starts the close** (plan-level pair). This is **not** dual-rail outreach consent. Copy: start close vs close without outreach. Then ritual runs.
 4. **Day summary** from **Drift `localDay`**
 5. **Drive backup** (fail does **not** abort)
 6. Build overdue shortlist via Appendix D
 7. Split **call set** vs **email set** (dual rail)
-8. **One card, two explicit buttons** (no silent combo):
-   - **Confirm & Call** — outreach consent for the call set → Daftar-local `plan-batch` then `run-batch` (`POST /v1/calls`)
-   - **Confirm & Send Statements** — unchanged SMTP for the email set
+8. **Collections Desk** is a **dedicated phase** after aging — not a paused task named “Dispatch collection emails”, not compact taskmaster chrome over the confirm card.
+9. **One card, four explicit buttons** (no silent combo):
+   - **Confirm & Call** — call-set consent → Daftar-local `plan-batch` then `run-batch` (`POST /v1/calls`)
+   - **Confirm & Send Statements** — SMTP for the email set
    - **Confirm without calling** / **Confirm without sending** — first-class
-9. Poll `GET /v1/calls/{runId}` until terminal → persist structured result → promise card
-10. **Closing report:** call rows `planned` / `ringing` / `completed` / `failed` / `skipped` / `callUnavailable`; email rows as v2.8
+10. Poll `GET /v1/calls/{runId}` until terminal → persist structured result → promise card
+11. **Closing report:** call rows `planned` / `ringing` / `completed` / `failed` / `skipped` / `callUnavailable`; email rows as v2.8
 
 Empty close (0 overdue) is success: backup + “nothing to collect.”
 Missing phone **and** missing email → `skipped`.
@@ -247,9 +250,9 @@ Same `recipient_result_schema`. B-trigger may set `acknowledged_hold`.
 | --- | --- |
 | Each money write | Always (read-back) |
 | Create contact/ledger | Ask first |
-| Start close-the-day plan | Once |
-| Customer **call** | **Confirm & Call** on the plan (then live desk) **or** Confirm without calling |
-| Customer **email** | **Confirm & Send Statements** **or** Confirm without sending |
+| Start close-the-day plan | Once (starts ritual: summary → backup → aging). **Not** call/email consent |
+| Customer **call** | **Confirm & Call** on the **Collections Desk** **or** Confirm without calling |
+| Customer **email** | **Confirm & Send Statements** on the **Collections Desk** **or** Confirm without sending |
 | Credit-limit call | Extra HITL prompt, then the same call confirm |
 | Attach PDFs | SMTP only; ranked Top 5 (heritage) |
 | Structured promise | Display only. Payment is a later money confirm |
@@ -398,7 +401,7 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 | **Sat 12 – Sun 13 Sep** | 6 | Video ≤3 min · README · awesome-list PR · Devpost · **video lock 13** | Gate 6 |
 | **Mon 14 Sep** | 7 | Submit by **official 23:45 SGT** (owner buffer ≤ **18:00 AST**) | Gate 7 |
 
-> **As-of note (v3.2):** This repository is a duplicate of the Agentic submission. Stages 0–7 **above** are CALL-E work and start **unchecked**. Do **not** rewrite v2.8 calendar history. v3.1 locked the Developer API surface. v3.2 locks judge-facing claims only; product catalog unchanged.
+> **As-of note (v3.3):** This repository is a duplicate of the Agentic submission. Stages 0–7 **above** are CALL-E work. Do **not** rewrite v2.8 calendar history. v3.1 locked the Developer API surface. v3.2 locks judge-facing claims. v3.3 locks Collections Desk as the dual-rail confirm gate and device J.9 live path.
 
 ---
 
@@ -426,7 +429,7 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 **0.0 Contest hygiene (day 1 — eligibility)**
 
 - [x] Rewrite [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) for **this** hackathon: ledger **pre-Aug 2026** substrate; All Things Agentic Closing Agent (**Aug 2026**, disclosed prior work, overlapping CALL-E window but **not** claimed as CALL-E-new); CALL-E sibling + Confirm & Call = **this contest-new**
-- [x] Point [`docs/contest/README.md`](contest/README.md) execution contract at **this file (v3.2)** — still **Stage 0/6**, not this doc-pass
+- [x] Point [`docs/contest/README.md`](contest/README.md) execution contract at **this file (v3.3)** — still **Stage 0/6**, not this doc-pass
 - [x] Register on [CALL-E Devpost](https://call-e.devpost.com/)
 - [x] Set Devpost project start **1sep** inside the Submission Period; explain the **significant update**
 - [x] Stop product Phase 2 / Shipaton / Agentic-main pushes
@@ -440,8 +443,8 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Create CALL-E account at [heycall-e.com](https://www.heycall-e.com/) / [dashboard](https://dashboard.heycall-e.com/account/api-keys)
 - [x] Complete **outbound KYC** (proven 2026-09-02 by Developer API `create_and_wait` → `completed`)
 - [x] Create API key · store only in Secret Manager later (`calle-api-key`) · never chat/git
-- [x] Submit extra-calls form immediately: https://forms.gle/EPQttEZ1rkW8iq9q6 (**+200** if this is an existing account; 1–5 business days, not guaranteed)
-- [x] Note the **20**-call budget until extras land; exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
+- [x] Submit extra-calls form: https://forms.gle/EPQttEZ1rkW8iq9q6 — **approved 2026-09-03** (**+200** granted; **200** in pool)
+- [x] Note the **200**-call budget (extras approved 2026-09-03); exhaustion **pauses** (no auto-charge); do **not** burn calls on UI work
 
 **0.2 Test destination (US DID)**
 
@@ -479,7 +482,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 - [x] Disclosure drafted for CALL-E (substrate vs Agentic vs CALL-E-new)
 - [x] CALL-E account + KYC + API key in Secret Manager (not git) — key is in Secret Manager; outbound KYC proven by live `create`
-- [x] Extra-calls form submitted
+- [x] Extra-calls form **approved** (**+200**, 2026-09-03) — **200** in pool (1 spent Gate 0)
 - [x] Authenticated `GET /v1/calls/{nonexistent}` → `404` (API key works)
 - [x] US DID rings in provider app
 - [x] One consented **Developer API** `create_and_wait` succeeded (not Chat/MCP-only)
@@ -631,38 +634,41 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **3.1 Collections Desk**
 
-- [ ] One card, **two explicit buttons**: Confirm & Call · Confirm & Send Statements
-- [ ] Confirm without calling / without sending remain first-class
-- [ ] Badges: call · email · both · `callUnavailable` (YE) · skipped
-- [ ] Preview C.3 task string = what Cloud Run will send as `task` (store, `amount_line` from **int**, locale)
-- [ ] Copy: **promise ≠ payment** (ARB `ar` + `en`)
-- [ ] Live progress `Calling i of N` from **server per-row results**, not a fake spinner
+- [x] Dedicated desk phase after aging (not compact taskmaster as confirm chrome)
+- [x] One card, **four explicit buttons**: Confirm & Call · Confirm & Send Statements · without calling · without sending
+- [x] Badges: call · email · both · `callUnavailable` (YE) · skipped
+- [x] Preview C.3 task string = what Cloud Run will send as `task` (store, `amount_line` from **int**, locale)
+- [x] Copy: **promise ≠ payment** (ARB `ar` + `en`)
+- [x] Live progress `Calling i of N` from **server per-row results** (Stage 3.4 / 4.1 — not a fake spinner)
 
 **3.2 B-trigger**
 
-- [ ] After save when `CreditWarningLevel.exceeded`, prompt to call (HITL)
-- [ ] Yes → same desk / same plan-run routes with `trigger=creditLimit`
-- [ ] No → ledger unchanged (money already committed on the sale confirm)
-- [ ] **Never** auto-dial on save
-- [ ] Not the filmed climax
+- [x] After save when `CreditWarningLevel.exceeded`, prompt to call (HITL)
+- [x] Yes → same desk / same plan-run routes with `trigger=creditLimit`
+- [x] No → ledger unchanged (money already committed on the sale confirm)
+- [x] **Never** auto-dial on save
+- [x] Not the filmed climax
 
 **3.3 HUD**
 
-- [ ] Call chip: `Call ·` + `runId` last-8 (= CALL-E `call.id`) + status (`planned` / `ringing` / `completed` / `failed`)
-- [ ] SMTP `Sent ·` Message-ID last-8 **unchanged**
-- [ ] Do **not** label call completed as `delivered` or `paid`
-- [ ] Tests extended from `daftar_architecture_hud_test.dart`
+- [x] Call chip: `Call ·` + `runId` last-8 (= CALL-E `call.id`) + status (`planned` / `ringing` / `completed` / `failed`)
+- [x] SMTP `Sent ·` Message-ID last-8 **unchanged**
+- [x] Do **not** label call completed as `delivered` or `paid`
+- [x] Tests extended from `daftar_architecture_hud_test.dart`
 
-**3.4 Dry-run on device**
+**3.4 Device plan-batch / run-batch**
 
-- [ ] With `CALLE_ALLOW_DIAL=false`, Confirm & Call runs `plan-batch` dry-run only
-- [ ] Desk shows previews; no `runId` from a real dial
+- [x] Confirm & Call on the desk calls Cloud Run `plan-batch` then `run-batch` (same Google ID token as SMTP)
+- [x] `CALLE_ALLOW_DIAL=false` on Cloud Run → `run-batch` 403 / plan `killSwitch`; desk still shows C.3
+- [x] Live dial requires Cloud Run kill switch **true** (demo window on `daftar-call-e` only) plus device overlay `true`
+- [x] One `invalidHandle` retry (scale-to-zero miss); then `needsHuman`
 
 #### Stage 3 Validation Gate
 
-- [ ] Widget/provider tests for dual buttons, YE badge, B-trigger **no auto-dial**, HUD chip
-- [ ] Device dry-run against Cloud Run succeeds without PSTN
-- [ ] RTL/Khazna intact on the desk card
+- [x] Widget/provider tests for four desk buttons, YE badge, dedicated desk (no “Dispatch collection emails” pause)
+- [x] Device Confirm & Call hits J.9 (dry-run or live per kill switch)
+- [x] RTL/Khazna intact on the desk card
+- [x] B-trigger **no auto-dial** shipped (§3.2); HUD call chip shipped (§3.3)
 
 ---
 
@@ -678,23 +684,24 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **4.1 Device poll loop**
 
-- [ ] After `run-batch`, persist `runId` (= CALL-E `call.id`)
-- [ ] Wait ~60s, then poll `GET /v1/calls/{runId}` every 5–10s until terminal or timeout
-- [ ] Timeout → `failed` / `needsHuman`, **do not** `run-batch` again (do not `create` again to poll)
-- [ ] Airplane mode / Cloud Run down → ledger intact; show `ErrorTranslator` copy
+- [x] After `run-batch`, persist `runId` (= CALL-E `call.id`)
+- [x] Wait ~60s, then poll `GET /v1/calls/{runId}` every 5–10s until terminal or timeout
+- [x] Timeout → `failed` / `needsHuman`, **do not** `run-batch` again (do not `create` again to poll)
+- [x] Airplane mode / Cloud Run down → ledger intact; show `ErrorTranslator` copy
+- [x] Progress bar follows **GET** status (`planned` / `ringing` / `completed` / `failed`)
 
 **4.2 Write-back**
 
-- [ ] Validate `structured_result` (enums + **integer** amount)
-- [ ] Accept `promised_amount_minor` only if it is an **int** (or a whole number that converts with **no remainder**). JSON `number` / float → `needsHuman`. Never store `double` in Drift
-- [ ] Upsert `collection_call_runs` + `collection_promises` when `outcome=promised` and amount/date present
-- [ ] **No** `AddTransactionUseCase`
-- [ ] Contact card shows pending promise (date + formatted int money)
-- [ ] `task_completed` without schema → `needsHuman`, do not invent amount
+- [x] Validate `structured_result` (enums + **integer** amount)
+- [x] Accept `promised_amount_minor` only if it is an **int** (or a whole number that converts with **no remainder**). JSON `number` / float → `needsHuman`. Never store `double` in Drift
+- [x] Upsert `collection_call_runs` + `collection_promises` when `outcome=promised` and amount/date present
+- [x] **No** `AddTransactionUseCase`
+- [ ] Contact card shows pending promise (date + formatted int money) — write is correct; card polish thin
+- [x] `task_completed` without a collections `outcome` → persist the run, **do not invent amount**, do **not** show kill-switch “paused” copy
 
 **4.3 Email remainder**
 
-- [ ] YE / non-allowlisted / DNC still go through **Confirm & Send Statements** independently
+- [x] YE / non-allowlisted / DNC still go through **Confirm & Send Statements** independently
 - [ ] Gate 4 film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
 
 **4.4 Observability**
@@ -788,9 +795,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 **6.2 README / disclosure**
 
 - [ ] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E
-- [ ] Link v3.2 as **binding**; v2.8 as heritage
+- [ ] Link v3.3 as **binding**; v2.8 as heritage
 - [ ] [`docs/README.md`](README.md) judge order updated
-- [x] [`docs/contest/README.md`](contest/README.md) execution pointer flipped to v3.2 (if not done in Stage 0)
+- [x] [`docs/contest/README.md`](contest/README.md) execution pointer flipped to v3.3 (if not done in Stage 0)
 - [ ] Disclosure finalized (Stage 0 draft → final)
 
 **6.3 Video (Must)**
@@ -840,7 +847,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 #### Stage 6 Validation Gate
 
-- [ ] Diagram + README + disclosure match v3.2
+- [ ] Diagram + README + disclosure match v3.3
 - [ ] Video ≤3:00 public; on-device live ring; beat sheet followed
 - [ ] English Devpost About covers all four criteria
 - [ ] Awesome-list PR opened
@@ -1000,11 +1007,13 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 
 ## Appendix E — Cost & Budget Hygiene
 
-- Extra-calls form **day 1** (Gate 0): **+200** if existing account; 1–5 business days, not guaranteed
-- Do **not** burn the 20 free calls on Flutter UI — fixtures until Gate 4
+- Extra-calls form **approved 2026-09-03**: **+200** granted (**200** in pool; 1 spent Gate 0). 2026-09-04 laptop smoke reused the persisted idempotency key (~4s, same `call.id`) — treat remaining as **199** unless the dashboard shows otherwise
+- Laptop Gate 0 smoke **and** device Confirm & Call each burn credits — stay inside **200**
+- Do **not** burn the pool on Flutter UI work — fixtures until a consented live ring
 - Exhaustion **pauses** CALL-E access — **no auto-charge**. `~$0.05` is optional purchase after the free/hackathon pool
-- Live cap **3** recipients until credits confirm; hard product cap **5**
-- Cloud Run **`daftar-call-e`**: min instances = 0 · **max instances = 2** · ID-token only
+- Product cap **5** recipients (credits confirmed 2026-09-03)
+- Cloud Run **`daftar-call-e`**: default min **0** / max **2** · live Confirm & Call window min **1** · ID-token only
+- Kill switch on Cloud Run is **false** by default. Demo-window opt-in `DAFTAR_CALL_E_ALLOW_DIAL=true` on [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh) **only**. Revert after the test. **Never** the frozen Agentic service
 - **Do not** deploy a public webhook service
 - Keep `daftar-call-e` deployable through **13 Oct 2026** (judging end)
 - Cap max output tokens; prefer Flash; cache system instruction
@@ -1037,7 +1046,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | Public webhook IAM hole | Poll-first; J.8 stays retired |
 | Agentic URL drift | New service name; Gate 0/1 checks; Envied must not default to frozen hostname |
 | Collections/consent law | Allowlist; no real debtors; C.3 disclose assistant; DNC; Singapore residency note |
-| Credits lag / pause mid-film | Form day 1; stay within 20 until +200 lands; exhaustion pauses (no surprise bill) |
+| Credits lag / pause mid-film | Extras approved 2026-09-03 (**200** in pool); stay within budget; exhaustion pauses (no surprise bill) |
 | `credential_grant_unavailable` | Chat/MCP can ring while Developer API cannot. Gate 0 = API 404 probe + `create_and_wait`, not Chat |
 | NANP `+1` US vs CA | Demo DID `region: US` from allowlist config, never inferred from `+1` |
 | Arabic PSTN fail | Film US English; narrate J.10 |
@@ -1046,6 +1055,8 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | Video >3 min | Hard cut; judges need not watch more |
 | Cold start | Warm once before recording |
 | Daftar confirm handle in logs/DB | Memory-only; never `daftar.agent.call` payload |
+| Plan→run handle miss (min 0) | Live window min-instances **1**; device one `invalidHandle` retry |
+| `run-batch` 403 killSwitch | Cloud Run `CALLE_ALLOW_DIAL` still false — opt-in wrapper, not device overlay alone |
 | Stage 8 excision breaks Drive | Keep quarantine; do not drop tables |
 
 ---
@@ -1079,14 +1090,14 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 
 | Doc | Role |
 | --- | --- |
-| **`docs/roadmap_v3.md` v3.2** | **Binding** CALL-E implementation contract |
+| **`docs/roadmap_v3.md` v3.3** | **Binding** CALL-E implementation contract |
 | [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 | Frozen All Things Agentic heritage — **not** the live checklist |
 | [`docs/product/roadmap.md`](product/roadmap.md) | Phase 2 **deferred** after contest submit |
 | `docs/archive/product_roadmap_phase2_v3.6.md` | Archived full product plan (not binding) |
-| [`docs/contest/plan.md`](contest/plan.md) | Orientation only — **updated for v3.2** (not a second checklist) |
+| [`docs/contest/plan.md`](contest/plan.md) | Orientation only — **updated for v3.3** (not a second checklist) |
 | `docs/CONTEST_DISCLOSURE.md` | Eligibility — **rewritten Stage 0.0** (three-way split; CALL-E-new still Planned) |
 | `docs/contest_demo.md` | Heritage SMTP script — **replace in Stage 6** |
-| [`docs/contest/README.md`](contest/README.md) | Owner notes — execution **v3.2** (flipped Stage 0.0) |
+| [`docs/contest/README.md`](contest/README.md) | Owner notes — execution **v3.3** (flipped Stage 0.0) |
 | [`docs/contest/GATE0_OWNER_CHECKLIST.md`](contest/GATE0_OWNER_CHECKLIST.md) | Agentic Gate 0 (complete) — CALL-E Gate 0 lives **in this file** |
 | `docs/archive/ai_voice_feature_study.md` | Historical; not Gemini Live |
 
@@ -1172,12 +1183,12 @@ Deterministic CALL-E client. **Not** a FunctionTool. **Not** Gemini. Auth **iden
       "type": "string",
       "enum": ["promised", "refused", "voicemail", "no_answer", "wrong_number", "callback_requested"]
     },
-    "promised_amount_minor": { "type": ["integer", "null"] },
-    "promised_currency": { "type": ["string", "null"] },
-    "promised_date": { "type": ["string", "null"], "description": "YYYY-MM-DD" },
+    "promised_amount_minor": { "type": "integer" },
+    "promised_currency": { "type": "string" },
+    "promised_date": { "type": "string", "description": "YYYY-MM-DD" },
     "language": { "type": "string", "enum": ["ar", "en"] },
-    "acknowledged_hold": { "type": ["boolean", "null"] },
-    "evidence_quote": { "type": ["string", "null"] }
+    "acknowledged_hold": { "type": "boolean" },
+    "evidence_quote": { "type": "string" }
   }
 }
 ```
@@ -1278,4 +1289,4 @@ Snapshot used for planning (Sep 2026):
 
 ---
 
-*End of Contest Execution Roadmap v3.2 — implement top → bottom; check Validation Gates; do not mutate the Agentic Cloud Run URL; submit Stage 7.*
+*End of Contest Execution Roadmap v3.3 — implement top → bottom; check Validation Gates; do not mutate the Agentic Cloud Run URL; submit Stage 7.*

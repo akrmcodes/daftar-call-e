@@ -8,6 +8,7 @@ import 'package:daftar/application/agent/extract_statement_contact_hint.dart';
 import 'package:daftar/application/agent/group_capture_proposals.dart';
 import 'package:daftar/application/agent/map_closing_backup_status.dart';
 import 'package:daftar/application/agent/speech_locale.dart';
+import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/services/connectivity_service.dart';
@@ -17,23 +18,35 @@ import 'package:daftar/core/utils/native_contact_picker_service.dart';
 import 'package:daftar/core/utils/tts_sanitize.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
+import 'package:daftar/domain/constants/collections_call_task_composer.dart';
+import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
+import 'package:daftar/domain/constants/run_batch_recipient_guard.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/ledger.dart';
+import 'package:daftar/domain/enums/call_batch_status.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/confirm_proposal_status.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
 import 'package:daftar/domain/value_objects/agent_proposal.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
+import 'package:daftar/domain/value_objects/call_plan_batch.dart';
+import 'package:daftar/domain/value_objects/call_run_batch.dart';
+import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collection_call_persist.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/domain/value_objects/collections_send_queue.dart';
@@ -45,6 +58,7 @@ import 'package:daftar/presentation/providers/connectivity_providers.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'closing_agent_controller.g.dart';
@@ -59,12 +73,41 @@ const NetworkFailure _whatsAppOpenFailed = NetworkFailure(
   code: 'whatsapp_open_failed',
 );
 
+const AuthFailure _calleKillSwitch = AuthFailure(
+  'CALL-E kill switch',
+  code: 'calle_kill_switch',
+);
+
+const AuthFailure _calleNeedsHuman = AuthFailure(
+  'CALL-E needs a human',
+  code: 'calle_needs_human',
+);
+
+const AuthFailure _callePollTimeout = AuthFailure(
+  'CALL-E poll timeout',
+  code: 'calle_poll_timeout',
+);
+
+class _QueuedCallRow {
+  const _QueuedCallRow({
+    required this.contactId,
+    required this.runId,
+    required this.region,
+    required this.locale,
+  });
+
+  final String contactId;
+  final String runId;
+  final String region;
+  final String locale;
+}
+
 /// Riverpod notifier for Closing Agent turns. Calls use cases only.
 @Riverpod(keepAlive: true)
 class ClosingAgentController extends _$ClosingAgentController {
   bool _buildingDesk = false;
   bool _sendOutreach = false;
-  bool _autoDispatchOutreach = true;
+  bool _autoDispatchOutreach = false;
   Timer? _holdHintDismissTimer;
 
   static const Duration holdHintVisible = Duration(milliseconds: 2800);
@@ -76,6 +119,18 @@ class ClosingAgentController extends _$ClosingAgentController {
   /// Stagger between honest summary/shortlist reveals.
   @visibleForTesting
   static Duration ritualStaggerDelay = const Duration(milliseconds: 140);
+
+  /// First GET after `run-batch` (~60s). Tests set this to zero.
+  @visibleForTesting
+  static Duration callPollInitialDelay = const Duration(seconds: 60);
+
+  /// Poll interval after the first wait (5–10s).
+  @visibleForTesting
+  static Duration callPollInterval = const Duration(seconds: 7);
+
+  /// Stop polling and mark `failed` / `needsHuman`. Never `run-batch` again.
+  @visibleForTesting
+  static Duration callPollTimeout = const Duration(minutes: 10);
 
   @override
   ClosingAgentState build() {
@@ -315,16 +370,14 @@ class ClosingAgentController extends _$ClosingAgentController {
     state = state.copyWith(confirmingProposalId: null);
   }
 
-  /// Commits money, a contact, a ledger, a statement confirm-state, or a plan.
-  ///
-  /// [sendOutreach] is ignored for money tools. Closing-plan default is
-  /// **false** so a stray confirm cannot silent-send. Pass `true` only from
-  /// Confirm & send. [autoDispatch] is test-only; production always
-  /// auto-dispatches after the desk opens on the send path.
+  /// Confirm a proposal. [sendOutreach] is ignored for money tools. Closing-plan
+  /// default is **false** so a stray confirm cannot silent-send. Pass `true`
+  /// only from Confirm & send. [autoDispatch] is test-only leftover Hybrid E;
+  /// production desk Confirm & Send is the SMTP fire (default **false**).
   Future<void> confirm(
     AgentProposal proposal, {
     bool sendOutreach = false,
-    @visibleForTesting bool autoDispatch = true,
+    @visibleForTesting bool autoDispatch = false,
   }) async {
     if (state.confirmingProposalId != null &&
         state.confirmingProposalId != proposal.proposalId) {
@@ -384,6 +437,12 @@ class ClosingAgentController extends _$ClosingAgentController {
       confirmingProposalId: null,
       committedIds: {...state.committedIds, proposal.proposalId},
     );
+    if (proposal.tool == ProposalTool.proposeDebt) {
+      final contactId = _resolvedDebtContactId(proposal);
+      if (contactId != null && contactId.isNotEmpty) {
+        await _queueCreditLimitPromptIfNeeded(contactId);
+      }
+    }
     if (proposal.tool == ProposalTool.proposeClosingPlan) {
       _sendOutreach = sendOutreach;
       _autoDispatchOutreach = autoDispatch;
@@ -418,6 +477,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     String? threadedLedgerId;
     String? threadedContactId;
     var contactCreatedInBundle = false;
+    String? lastDebtContactId;
 
     for (final proposal in ordered) {
       if (state.committedIds.contains(proposal.proposalId)) {
@@ -523,9 +583,19 @@ class ClosingAgentController extends _$ClosingAgentController {
         ledgerIdByProposal: nextLedgerMap,
         contactIdByProposal: nextContactMap,
       );
+
+      if (proposal.tool == ProposalTool.proposeDebt) {
+        final contactId = _resolvedDebtContactId(proposal);
+        if (contactId != null && contactId.isNotEmpty) {
+          lastDebtContactId = contactId;
+        }
+      }
     }
 
     state = state.copyWith(confirmingProposalId: null);
+    if (lastDebtContactId != null) {
+      await _queueCreditLimitPromptIfNeeded(lastDebtContactId);
+    }
   }
 
   /// Skips every pending proposal in a capture bundle.
@@ -929,6 +999,385 @@ class ClosingAgentController extends _$ClosingAgentController {
     );
   }
 
+  /// Merchant consents to CALL-E outbound: plan-batch then run-batch then poll.
+  Future<void> confirmAndCall() async {
+    if (state.phase != ClosingAgentPhase.ritualDesk || state.callConsented) {
+      return;
+    }
+    final ritual = state.ritualResult;
+    if (ritual == null || ritual.callSet.isEmpty) {
+      return;
+    }
+
+    final policy = ref.read(calleDevicePolicyProvider);
+    final guard = RunBatchRecipientGuard.select(
+      candidates: ritual.callSet,
+      policy: policy,
+    );
+
+    if (guard.recipients.isEmpty) {
+      final killSwitch = guard.omitted.any(
+        (row) => row.reason == RunBatchOmitReason.killSwitch,
+      );
+      state = state.copyWith(
+        callProgress: CollectionsCallProgress(
+          results: [
+            for (final candidate in ritual.callSet)
+              CollectionsCallProgressRow(
+                contactId: candidate.contactId,
+                status: CollectionsCallRowStatus.failed,
+              ),
+          ],
+        ),
+        actionFailure: killSwitch ? _calleKillSwitch : _calleNeedsHuman,
+      );
+      return;
+    }
+
+    final tokenResult = await ref
+        .read(hydrateAgentIdTokenUseCaseProvider)
+        .execute();
+    final tokenFailure = tokenResult.getLeft().toNullable();
+    if (tokenFailure != null) {
+      state = state.copyWith(actionFailure: tokenFailure);
+      return;
+    }
+
+    final locale = CollectionsReminderDraftComposer.normalizeLocale(
+      state.deskLocale,
+    );
+    final batchId = UuidUtil.generate();
+    final correlationId =
+        state.turnResult?.correlationId.trim().isNotEmpty == true
+        ? state.turnResult!.correlationId
+        : UuidUtil.generate();
+
+    state = state.copyWith(
+      callConsented: true,
+      collectionsBatchId: batchId,
+      callProgress: CollectionsCallProgress(
+        results: [
+          for (final recipient in guard.recipients)
+            CollectionsCallProgressRow(
+              contactId: recipient.contactId,
+              status: CollectionsCallRowStatus.planned,
+            ),
+        ],
+      ),
+      actionFailure: null,
+    );
+
+    final planRequest = CallPlanBatchRequest(
+      batchId: batchId,
+      correlationId: correlationId,
+      trigger: state.callBatchTrigger,
+      dryRun: false,
+      locale: locale,
+      recipients: [
+        for (final recipient in guard.recipients)
+          _planRecipient(
+            guard: recipient,
+            locale: locale,
+            storeName: state.deskStoreName,
+          ),
+      ],
+    );
+
+    final ran = await _planThenRun(planRequest: planRequest);
+    final runFailure = ran.getLeft().toNullable();
+    if (runFailure != null) {
+      _failCallProgress(runFailure);
+      return;
+    }
+    final runResponse = ran.getRight().toNullable()!;
+    if (runResponse.needsHuman &&
+        runResponse.results.every((row) => row.runId == null)) {
+      _failCallProgress(
+        runResponse.results.any(
+              (row) => row.reason == CallRejectReason.killSwitch,
+            )
+            ? _calleKillSwitch
+            : _calleNeedsHuman,
+      );
+      return;
+    }
+
+    final queued = <_QueuedCallRow>[];
+    for (final row in runResponse.results) {
+      final runId = row.runId?.trim() ?? '';
+      if (runId.isEmpty) {
+        _setCallRowStatus(row.contactId, CollectionsCallRowStatus.failed);
+        continue;
+      }
+      final region = guard.recipients
+          .where((item) => item.contactId == row.contactId)
+          .map((item) => item.region)
+          .firstWhere((_) => true, orElse: () => '');
+      queued.add(
+        _QueuedCallRow(
+          contactId: row.contactId,
+          runId: runId,
+          region: region,
+          locale: locale,
+        ),
+      );
+      _setCallRowStatus(
+        row.contactId,
+        CollectionsCallRowStatus.ringing,
+        runId: runId,
+      );
+    }
+
+    if (queued.isEmpty) {
+      _failCallProgress(_calleNeedsHuman);
+      return;
+    }
+
+    await ref.read(persistCollectionCallOutcomeUseCaseProvider).persistQueued(
+      CollectionCallBatchSeed(
+        batchId: batchId,
+        correlationId: correlationId,
+        trigger: state.callBatchTrigger,
+        status: CallBatchStatus.running,
+        runs: [
+          for (final item in queued)
+            CollectionCallRunSeed(
+              contactId: item.contactId,
+              region: item.region,
+              locale: item.locale,
+              runId: item.runId,
+            ),
+        ],
+      ),
+    );
+
+    await _pollQueuedCalls(queued);
+  }
+
+  CallPlanRecipient _planRecipient({
+    required RunBatchRecipient guard,
+    required String locale,
+    required String storeName,
+  }) {
+    CollectionsDeskRow? desk;
+    for (final row in state.deskRows) {
+      if (row.candidate.contactId == guard.contactId) {
+        desk = row;
+        break;
+      }
+    }
+    final composed = CollectionsCallTaskComposer.compose(
+      locale: locale,
+      storeName: desk != null && desk.storeName.isNotEmpty
+          ? desk.storeName
+          : storeName,
+      contactName: desk != null && desk.customerName.isNotEmpty
+          ? desk.customerName
+          : (desk?.candidate.name ?? ''),
+      amountMinor: desk?.candidate.owedMinor ?? 0,
+      currencyCode: desk?.candidate.currencyCode ?? '',
+      trigger: state.callBatchTrigger,
+    );
+    final task = desk != null && desk.callTask.isNotEmpty
+        ? desk.callTask
+        : composed.task;
+    return CallPlanRecipient(
+      contactId: guard.contactId,
+      phoneE164: guard.phoneE164,
+      region: guard.region,
+      locale: locale,
+      task: task,
+      customerName: desk != null && desk.customerName.isNotEmpty
+          ? desk.customerName
+          : composed.customerName,
+      storeName: desk != null && desk.storeName.isNotEmpty
+          ? desk.storeName
+          : composed.storeName,
+      amountLine: desk != null && desk.amountLine.isNotEmpty
+          ? desk.amountLine
+          : composed.amountLine,
+      doNotCall: desk?.candidate.doNotCall ?? false,
+    );
+  }
+
+  Future<Either<Failure, CallRunBatchResponse>> _planThenRun({
+    required CallPlanBatchRequest planRequest,
+    bool isRetry = false,
+  }) async {
+    final planned = await ref
+        .read(planCallBatchUseCaseProvider)
+        .execute(planRequest);
+    final planFailure = planned.getLeft().toNullable();
+    if (planFailure != null) {
+      return Left(planFailure);
+    }
+    final planResponse = planned.getRight().toNullable()!;
+    if (planResponse.results.any(
+      (row) => row.reason == CallRejectReason.killSwitch,
+    )) {
+      return const Left(_calleKillSwitch);
+    }
+    final handles = [
+      for (final row in planResponse.results)
+        if ((row.confirmHandle ?? '').isNotEmpty)
+          CallRunRecipient(
+            contactId: row.contactId,
+            confirmHandle: row.confirmHandle!,
+          ),
+    ];
+    if (handles.isEmpty) {
+      return const Left(_calleNeedsHuman);
+    }
+
+    final ran = await ref.read(runCallBatchUseCaseProvider).execute(
+      CallRunBatchRequest(
+        batchId: planRequest.batchId,
+        correlationId: planRequest.correlationId,
+        recipients: handles,
+      ),
+    );
+    final runFailure = ran.getLeft().toNullable();
+    if (runFailure != null) {
+      return Left(runFailure);
+    }
+    final runResponse = ran.getRight().toNullable()!;
+    final invalidHandle = runResponse.results.any(
+      (row) => row.reason == CallRejectReason.invalidHandle,
+    );
+    if (invalidHandle && !isRetry) {
+      return _planThenRun(planRequest: planRequest, isRetry: true);
+    }
+    return Right(runResponse);
+  }
+
+  Future<void> _pollQueuedCalls(List<_QueuedCallRow> queued) async {
+    await Future<void>.delayed(callPollInitialDelay);
+    final stopwatch = Stopwatch()..start();
+    final pending = {for (final item in queued) item.contactId};
+    while (pending.isNotEmpty) {
+      for (final item in queued) {
+        if (!pending.contains(item.contactId)) {
+          continue;
+        }
+        final got = await ref
+            .read(getCallRunUseCaseProvider)
+            .execute(item.runId);
+        final getFailure = got.getLeft().toNullable();
+        if (getFailure != null) {
+          continue;
+        }
+        final result = got.getRight().toNullable()!;
+        _setCallRowStatus(item.contactId, result.deskStatus);
+        if (!result.terminal && !result.needsHuman) {
+          continue;
+        }
+        pending.remove(item.contactId);
+        final structured = result.structuredResult;
+        final amountInvalid = structured?.amountInvalid ?? false;
+        final review = amountInvalid ||
+            (result.needsHuman && result.status != 'completed');
+        await ref
+            .read(persistCollectionCallOutcomeUseCaseProvider)
+            .persistTerminal(
+              CollectionCallTerminalWrite(
+                runId: item.runId,
+                contactId: item.contactId,
+                rawStatus: result.status,
+                needsHuman: review,
+                outcome: structured?.outcome,
+                promisedAmountMinor: structured?.promisedAmountMinor,
+                promisedCurrency: structured?.promisedCurrency,
+                promisedDate: structured?.promisedDate,
+                acknowledgedHold: structured?.acknowledgedHold,
+                evidenceQuote: structured?.evidenceQuote,
+                amountInvalid: amountInvalid,
+              ),
+            );
+        if (review) {
+          state = state.copyWith(actionFailure: _calleNeedsHuman);
+        }
+      }
+      if (pending.isEmpty) {
+        return;
+      }
+      if (stopwatch.elapsed >= callPollTimeout) {
+        break;
+      }
+      await Future<void>.delayed(callPollInterval);
+    }
+    for (final contactId in pending) {
+      _setCallRowStatus(contactId, CollectionsCallRowStatus.failed);
+    }
+    state = state.copyWith(actionFailure: _callePollTimeout);
+  }
+
+  void _setCallRowStatus(
+    String contactId,
+    CollectionsCallRowStatus status, {
+    String? runId,
+  }) {
+    final progress = state.callProgress;
+    if (progress == null) {
+      return;
+    }
+    final trimmedRunId = runId?.trim();
+    state = state.copyWith(
+      callProgress: progress.copyWith(
+        results: [
+          for (final row in progress.results)
+            if (row.contactId == contactId)
+              _mergeCallProgressRow(row, status, trimmedRunId)
+            else
+              row,
+        ],
+      ),
+    );
+  }
+
+  CollectionsCallProgressRow _mergeCallProgressRow(
+    CollectionsCallProgressRow row,
+    CollectionsCallRowStatus status,
+    String? runId,
+  ) {
+    var updated = row.copyWith(status: status);
+    if (runId != null && runId.isNotEmpty) {
+      updated = updated.copyWith(runId: runId);
+    }
+    return updated;
+  }
+
+  void _failCallProgress(Failure failure) {
+    final progress = state.callProgress;
+    if (progress == null) {
+      state = state.copyWith(actionFailure: failure);
+      return;
+    }
+    state = state.copyWith(
+      actionFailure: failure,
+      callProgress: progress.copyWith(
+        results: [
+          for (final row in progress.results)
+            row.copyWith(status: CollectionsCallRowStatus.failed),
+        ],
+      ),
+    );
+  }
+
+  /// Skip the call rail; email outreach remains available.
+  Future<void> confirmWithoutCalling() async {
+    if (state.phase != ClosingAgentPhase.ritualDesk) {
+      return;
+    }
+    state = state.copyWith(callConsented: false, callProgress: null);
+  }
+
+  static bool _isEmailDispatchRow(CollectionsDeskRow row) {
+    final rail = row.candidate.rail;
+    return rail == OutreachRail.email ||
+        rail == OutreachRail.both ||
+        rail == OutreachRail.callUnavailable;
+  }
+
   /// Skip outreach: remaining pending → skipped. No SMTP.
   Future<void> skipOutreach() async {
     if (state.ritualDeskPreflightPending &&
@@ -945,7 +1394,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     await finishDesk();
   }
 
-  /// Approve & send the send set via Cloud Run send-batch. Never opens `wa.me`.
+  /// Approve & send the email-rail send set via Cloud Run send-batch.
   Future<void> approveAndSend() async {
     if (state.phase != ClosingAgentPhase.ritualDesk ||
         state.collectionsDispatching) {
@@ -953,7 +1402,9 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
     final pending = [
       for (final row in state.deskRows)
-        if (row.status == CollectionsDeskRowStatus.pending) row,
+        if (row.status == CollectionsDeskRowStatus.pending &&
+            _isEmailDispatchRow(row))
+          row,
     ];
     if (pending.isEmpty) {
       await finishDesk();
@@ -978,6 +1429,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     state = state.copyWith(
       collectionsDispatching: true,
       collectionsBatchId: batchId,
+      sendConsented: true,
       actionFailure: null,
       deskBusyContactId: null,
     );
@@ -1016,6 +1468,15 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
+    final closedRows = [
+      for (final row in latestRows)
+        if (row.status == CollectionsDeskRowStatus.pending)
+          row.copyWith(status: CollectionsDeskRowStatus.skipped)
+        else
+          row,
+    ];
+    state = state.copyWith(deskRows: closedRows);
+
     if (ritual != null) {
       _showRitualReport(
         ritual.withQueueMetrics(metrics),
@@ -1024,7 +1485,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (failure != null) {
       state = state.copyWith(actionFailure: failure);
     }
-    await _persistSmtpQueue(batchId: batchId, rows: latestRows);
+    await _persistSmtpQueue(batchId: batchId, rows: closedRows);
     await _completePersistedQueue();
   }
 
@@ -1093,6 +1554,23 @@ class ClosingAgentController extends _$ClosingAgentController {
           row,
     ];
     state = state.copyWith(deskRows: rows);
+    if (state.callBatchTrigger == CallBatchTrigger.creditLimit) {
+      state = state.copyWith(
+        phase: ClosingAgentPhase.idle,
+        ritualResult: null,
+        ritualPromptKind: null,
+        deskBusyContactId: null,
+        collectionsDispatching: false,
+        collectionsBatchId: null,
+        callConsented: false,
+        sendConsented: false,
+        callProgress: null,
+        callBatchTrigger: CallBatchTrigger.closeDay,
+        sendOutreachEnabled: false,
+        actionFailure: null,
+      );
+      return;
+    }
     final metrics = CollectionsQueueMetrics.fromRows(rows);
     _showRitualReport(result.withQueueMetrics(metrics));
     await _completePersistedQueue();
@@ -1104,6 +1582,96 @@ class ClosingAgentController extends _$ClosingAgentController {
       actionFailure: failure,
       deskBusyContactId: null,
     );
+  }
+
+  /// Opens the Collections Desk for one contact after credit-limit B-trigger.
+  ///
+  /// Never calls `plan-batch` / `run-batch` — Confirm & Call remains HITL.
+  Future<void> openCreditLimitDesk(String contactId) async {
+    final trimmed = contactId.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+
+    final callPolicy = ref.read(calleDevicePolicyProvider);
+    final shortlistResult = await ref
+        .read(getCollectionsCandidatesUseCaseProvider)
+        .execute(
+          allowlist: callPolicy.allowlist,
+          allowlistRegion: callPolicy.allowlistRegion,
+          contactId: trimmed,
+        );
+    final shortlistFailure = shortlistResult.getLeft().toNullable();
+    if (shortlistFailure != null) {
+      state = state.copyWith(actionFailure: shortlistFailure);
+      return;
+    }
+    final ranked = shortlistResult.getRight().toNullable() ?? const [];
+    final contactRows = [
+      for (final row in ranked)
+        if (row.contactId == trimmed) row,
+    ];
+    if (contactRows.isEmpty) {
+      state = state.copyWith(
+        actionFailure: const ValidationFailure(
+          'No outreach path for this account.',
+          code: 'credit_limit_no_outreach',
+        ),
+      );
+      return;
+    }
+
+    final day = ClosingAgentConstants.merchantLocalDay();
+    final ritual = ClosingRitualResult(
+      summary: ClosingDaySummary.empty(day),
+      backupStatus: ClosingBackupStatus.skippedUnsigned,
+      shortlist: contactRows,
+      reminderPolicy: ClosingReminderPolicy.all,
+      pdfPolicy: ClosingPdfPolicy.rankedTop5,
+    );
+
+    await _openCollectionsDesk(
+      ritual,
+      trigger: CallBatchTrigger.creditLimit,
+    );
+  }
+
+  /// Clears a pending B-trigger prompt after the sheet is handled.
+  void clearCreditLimitPrompt() {
+    if (state.pendingCreditLimitPromptContactId == null) {
+      return;
+    }
+    state = state.copyWith(pendingCreditLimitPromptContactId: null);
+  }
+
+  Future<void> _queueCreditLimitPromptIfNeeded(String contactId) async {
+    final trimmed = contactId.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+    if (state.phase == ClosingAgentPhase.ritualDesk ||
+        state.phase == ClosingAgentPhase.ritualRunning) {
+      return;
+    }
+    final result =
+        await ref.read(checkCreditLimitUseCaseProvider).execute(trimmed);
+    final level =
+        result.getRight().toNullable() ?? CreditWarningLevel.none;
+    if (level != CreditWarningLevel.exceeded) {
+      return;
+    }
+    state = state.copyWith(pendingCreditLimitPromptContactId: trimmed);
+  }
+
+  String? _resolvedDebtContactId(AgentProposal proposal) {
+    final override = state.contactIdByProposal[proposal.proposalId]?.trim();
+    if (override != null && override.isNotEmpty) {
+      return override;
+    }
+    return switch (proposal.payload) {
+      ProposeDebtPayload(:final contactId) => contactId?.trim(),
+      _ => null,
+    };
   }
 
   Future<void> _runClosingRitual() async {
@@ -1161,7 +1729,6 @@ class ClosingAgentController extends _$ClosingAgentController {
         .execute(
           allowlist: callPolicy.allowlist,
           allowlistRegion: callPolicy.allowlistRegion,
-          allowDial: callPolicy.allowDial,
         );
     final shortlistFailure = shortlistResult.getLeft().toNullable();
     if (shortlistFailure != null) {
@@ -1199,42 +1766,29 @@ class ClosingAgentController extends _$ClosingAgentController {
         .withReminderPolicy(ClosingReminderPolicy.all)
         .withPdfPolicy(ClosingPdfPolicy.rankedTop5);
 
-    if (!_sendOutreach) {
-      await _finishCloseWithoutOutreach(planned);
-      return;
-    }
-
     state = state.copyWith(
       ritualResult: planned,
       ritualTaskCurrent: ClosingTaskId.openCollectionsDesk,
+      sendOutreachEnabled: _sendOutreach,
     );
 
-    final sendPreflight = await _preflightCollectionsSend();
-    if (sendPreflight != null) {
-      state = state.copyWith(
-        ritualDeskPreflightPending: true,
-        actionFailure: sendPreflight,
-      );
-      return;
+    Failure? sendPreflight;
+    if (_sendOutreach && planned.emailRailShortlist.isNotEmpty) {
+      sendPreflight = await _preflightCollectionsSend();
+      if (sendPreflight != null && planned.callSet.isEmpty) {
+        state = state.copyWith(
+          ritualDeskPreflightPending: true,
+          actionFailure: sendPreflight,
+        );
+        return;
+      }
     }
 
     await _openCollectionsDesk(planned);
+    if (sendPreflight != null) {
+      state = state.copyWith(actionFailure: sendPreflight);
+    }
     await _maybeAutoDispatchOutreach();
-  }
-
-  Future<void> _finishCloseWithoutOutreach(ClosingRitualResult ritual) async {
-    final prepared = ritual.reminderSet.length;
-    await _skipRitualTask(ClosingTaskId.openCollectionsDesk);
-    await _completeReportTasks();
-    _showRitualReport(
-      ritual.withQueueMetrics(
-        CollectionsQueueMetrics(
-          prepared: prepared,
-          opened: 0,
-          skipped: prepared,
-        ),
-      ),
-    );
   }
 
   Future<void> _maybeAutoDispatchOutreach() async {
@@ -1384,11 +1938,23 @@ class ClosingAgentController extends _$ClosingAgentController {
     );
   }
 
-  Future<void> _openCollectionsDesk(ClosingRitualResult next) async {
+  Future<void> _openCollectionsDesk(
+    ClosingRitualResult next, {
+    CallBatchTrigger trigger = CallBatchTrigger.closeDay,
+  }) async {
     if (_buildingDesk) {
       return;
     }
-    if (next.reminderSet.isEmpty) {
+    if (next.shortlist.isEmpty) {
+      if (trigger == CallBatchTrigger.creditLimit) {
+        state = state.copyWith(
+          actionFailure: const ValidationFailure(
+            'No outreach path for this account.',
+            code: 'credit_limit_no_outreach',
+          ),
+        );
+        return;
+      }
       _showRitualReport(next);
       return;
     }
@@ -1396,7 +1962,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     try {
       final built = await ref
           .read(buildCollectionsDeskUseCaseProvider)
-          .execute(next);
+          .execute(next, trigger: trigger);
       final failure = built.getLeft().toNullable();
       if (failure != null) {
         state = state.copyWith(
@@ -1407,6 +1973,15 @@ class ClosingAgentController extends _$ClosingAgentController {
       }
       final snapshot = built.getRight().toNullable()!;
       if (snapshot.rows.isEmpty) {
+        if (trigger == CallBatchTrigger.creditLimit) {
+          state = state.copyWith(
+            actionFailure: const ValidationFailure(
+              'No outreach path for this account.',
+              code: 'credit_limit_no_outreach',
+            ),
+          );
+          return;
+        }
         _showRitualReport(next);
         return;
       }
@@ -1420,6 +1995,13 @@ class ClosingAgentController extends _$ClosingAgentController {
         deskBusyContactId: null,
         collectionsDispatching: false,
         collectionsBatchId: null,
+        callConsented: false,
+        sendConsented: false,
+        callProgress: null,
+        callBatchTrigger: trigger,
+        sendOutreachEnabled: trigger == CallBatchTrigger.creditLimit ||
+            state.sendOutreachEnabled ||
+            _sendOutreach,
         actionFailure: null,
       );
     } finally {

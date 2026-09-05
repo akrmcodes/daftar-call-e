@@ -6,27 +6,38 @@ import 'package:daftar/application/agent/build_collections_desk_use_case.dart';
 import 'package:daftar/application/agent/collections_send_queue_use_cases.dart';
 import 'package:daftar/application/agent/commit_agent_proposal_use_case.dart';
 import 'package:daftar/application/agent/dispatch_collections_email_use_case.dart';
+import 'package:daftar/application/agent/get_call_run_use_case.dart';
 import 'package:daftar/application/agent/get_closing_day_summary_use_case.dart';
 import 'package:daftar/application/agent/hydrate_agent_id_token_use_case.dart';
+import 'package:daftar/application/agent/persist_collection_call_outcome_use_case.dart';
+import 'package:daftar/application/agent/plan_call_batch_use_case.dart';
+import 'package:daftar/application/agent/run_call_batch_use_case.dart';
 import 'package:daftar/application/agent/run_closing_agent_turn_use_case.dart';
 import 'package:daftar/application/agent/synthesize_agent_speech_use_case.dart';
 import 'package:daftar/application/backup/upload_drive_backup_use_case.dart';
+import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/application/contact/get_collections_candidates_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/core/services/connectivity_service.dart';
 import 'package:daftar/core/utils/agent_speech.dart';
 import 'package:daftar/core/utils/device_tts.dart';
 import 'package:daftar/core/utils/native_contact_picker_service.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/backup_metadata.dart';
 import 'package:daftar/domain/enums/backup_type.dart';
+import 'package:daftar/domain/enums/call_batch_status.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/confirm_proposal_status.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
@@ -34,8 +45,12 @@ import 'package:daftar/domain/value_objects/agent_proposal.dart';
 import 'package:daftar/domain/value_objects/agent_speech_clip.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
+import 'package:daftar/domain/value_objects/call_get_result.dart';
+import 'package:daftar/domain/value_objects/call_plan_batch.dart';
+import 'package:daftar/domain/value_objects/call_run_batch.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
@@ -89,8 +104,20 @@ class MockCompleteCollectionsSendQueueUseCase extends Mock
 class MockDispatchCollectionsEmailUseCase extends Mock
     implements DispatchCollectionsEmailUseCase {}
 
+class MockPlanCallBatchUseCase extends Mock implements PlanCallBatchUseCase {}
+
+class MockRunCallBatchUseCase extends Mock implements RunCallBatchUseCase {}
+
+class MockGetCallRunUseCase extends Mock implements GetCallRunUseCase {}
+
+class MockPersistCollectionCallOutcomeUseCase extends Mock
+    implements PersistCollectionCallOutcomeUseCase {}
+
 class MockSynthesizeAgentSpeechUseCase extends Mock
     implements SynthesizeAgentSpeechUseCase {}
+
+class MockCheckCreditLimitUseCase extends Mock
+    implements CheckCreditLimitUseCase {}
 
 void _noopDispatch(List<CollectionsDeskRow> rows) {}
 
@@ -118,7 +145,60 @@ const _emptySummary = ClosingDaySummary(
   totals: [],
 );
 
-CollectionsCandidate _candidate(String id, {String? email}) {
+const _planCallFallback = CallPlanBatchRequest(
+  batchId: '11111111-1111-4111-8111-111111111111',
+  correlationId: '22222222-2222-4222-8222-222222222222',
+  trigger: CallBatchTrigger.closeDay,
+  dryRun: false,
+  locale: 'en',
+  recipients: [
+    CallPlanRecipient(
+      contactId: 'us',
+      phoneE164: '+15555550100',
+      region: 'US',
+      locale: 'en',
+      task: 'task',
+      customerName: 'us',
+      storeName: 'Daftar',
+      amountLine: '1.00 USD',
+    ),
+  ],
+);
+
+const _runCallFallback = CallRunBatchRequest(
+  batchId: '11111111-1111-4111-8111-111111111111',
+  correlationId: '22222222-2222-4222-8222-222222222222',
+  recipients: [
+    CallRunRecipient(
+      contactId: 'us',
+      confirmHandle: 'handle-us',
+    ),
+  ],
+);
+
+const _queuedCallSeedFallback = CollectionCallBatchSeed(
+  batchId: '11111111-1111-4111-8111-111111111111',
+  correlationId: '22222222-2222-4222-8222-222222222222',
+  trigger: CallBatchTrigger.closeDay,
+  status: CallBatchStatus.running,
+  runs: [
+    CollectionCallRunSeed(
+      contactId: 'us',
+      region: 'US',
+      locale: 'en',
+      runId: 'run-us',
+    ),
+  ],
+);
+
+const _terminalCallWriteFallback = CollectionCallTerminalWrite(
+  runId: 'run-us',
+  contactId: 'us',
+  rawStatus: 'completed',
+  needsHuman: false,
+);
+
+CollectionsCandidate _candidate(String id, {String? email, OutreachRail rail = OutreachRail.email}) {
   return CollectionsCandidate(
     contactId: id,
     name: id,
@@ -129,6 +209,7 @@ CollectionsCandidate _candidate(String id, {String? email}) {
     currencyCode: 'YER',
     ageDays: 12,
     toneBand: ReminderToneBand.reminder,
+    rail: rail,
   );
 }
 
@@ -148,7 +229,12 @@ void main() {
   late MockLoadInFlightCollectionsSendQueueUseCase loadQueue;
   late MockCompleteCollectionsSendQueueUseCase completeQueue;
   late MockDispatchCollectionsEmailUseCase dispatchEmail;
+  late MockPlanCallBatchUseCase planCall;
+  late MockRunCallBatchUseCase runCall;
+  late MockGetCallRunUseCase getCall;
+  late MockPersistCollectionCallOutcomeUseCase persistCall;
   late MockSynthesizeAgentSpeechUseCase synthesizeSpeech;
+  late MockCheckCreditLimitUseCase checkCreditLimit;
   late List<String> openedPhones;
 
   setUpAll(() {
@@ -181,6 +267,11 @@ void main() {
     );
     registerFallbackValue(<CollectionsDeskRow>[]);
     registerFallbackValue(_dispatchRowsFallback);
+    registerFallbackValue(_planCallFallback);
+    registerFallbackValue(_runCallFallback);
+    registerFallbackValue(CallBatchTrigger.closeDay);
+    registerFallbackValue(_queuedCallSeedFallback);
+    registerFallbackValue(_terminalCallWriteFallback);
     registerFallbackValue(
       AgentAudioClip(bytes: Uint8List.fromList(const [0])),
     );
@@ -191,6 +282,9 @@ void main() {
     ClosingAgentController.ritualStaggerDelay = const Duration(
       milliseconds: 140,
     );
+    ClosingAgentController.callPollInitialDelay = const Duration(seconds: 60);
+    ClosingAgentController.callPollInterval = const Duration(seconds: 7);
+    ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
     DeviceTts.debugSpeakOverride = null;
     DeviceTts.debugStopOverride = null;
     DeviceTts.debugReset();
@@ -200,6 +294,9 @@ void main() {
   setUp(() {
     ClosingAgentController.ritualPulseDelay = Duration.zero;
     ClosingAgentController.ritualStaggerDelay = Duration.zero;
+    ClosingAgentController.callPollInitialDelay = Duration.zero;
+    ClosingAgentController.callPollInterval = Duration.zero;
+    ClosingAgentController.callPollTimeout = Duration.zero;
     connectivity = MockConnectivityService();
     hydrate = MockHydrateAgentIdTokenUseCase();
     runTurn = MockRunClosingAgentTurnUseCase();
@@ -213,8 +310,16 @@ void main() {
     loadQueue = MockLoadInFlightCollectionsSendQueueUseCase();
     completeQueue = MockCompleteCollectionsSendQueueUseCase();
     dispatchEmail = MockDispatchCollectionsEmailUseCase();
+    planCall = MockPlanCallBatchUseCase();
+    runCall = MockRunCallBatchUseCase();
+    getCall = MockGetCallRunUseCase();
+    persistCall = MockPersistCollectionCallOutcomeUseCase();
     synthesizeSpeech = MockSynthesizeAgentSpeechUseCase();
+    checkCreditLimit = MockCheckCreditLimitUseCase();
     openedPhones = <String>[];
+    when(() => checkCreditLimit.execute(any())).thenAnswer(
+      (_) async => const Right(CreditWarningLevel.none),
+    );
     when(
       () => synthesizeSpeech.execute(
         text: any(named: 'text'),
@@ -228,6 +333,67 @@ void main() {
     when(
       () => hydrate.execute(),
     ).thenAnswer((_) async => const Right('id-token'));
+    when(() => planCall.execute(any())).thenAnswer((invocation) async {
+      final request =
+          invocation.positionalArguments.first as CallPlanBatchRequest;
+      return Right(
+        CallPlanBatchResponse(
+          batchId: request.batchId,
+          results: [
+            for (final recipient in request.recipients)
+              CallPlanRowResult(
+                contactId: recipient.contactId,
+                phoneMasked: '+…0000',
+                readyToRun: true,
+                status: CallPlanRowStatus.planned,
+                confirmHandle: 'handle-${recipient.contactId}',
+              ),
+          ],
+        ),
+      );
+    });
+    when(() => runCall.execute(any())).thenAnswer((invocation) async {
+      final request =
+          invocation.positionalArguments.first as CallRunBatchRequest;
+      return Right(
+        CallRunBatchResponse(
+          batchId: request.batchId,
+          needsHuman: false,
+          results: [
+            for (final recipient in request.recipients)
+              CallRunRowResult(
+                contactId: recipient.contactId,
+                status: CallRunRemoteStatus.queued,
+                runId: 'run-${recipient.contactId}',
+              ),
+          ],
+        ),
+      );
+    });
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.promised,
+            promisedAmountMinor: 100,
+            promisedCurrency: 'USD',
+            promisedDate: '2026-09-10',
+          ),
+        ),
+      );
+    });
+    when(() => persistCall.persistQueued(any())).thenAnswer(
+      (_) async => const Right(unit),
+    );
+    when(() => persistCall.persistTerminal(any())).thenAnswer(
+      (_) async => const Right(unit),
+    );
     when(() => saveQueue.execute(any())).thenAnswer(
       (_) async => const Right(unit),
     );
@@ -235,13 +401,18 @@ void main() {
     when(() => completeQueue.execute(any())).thenAnswer(
       (_) async => const Right(unit),
     );
-    when(() => buildDesk.execute(any())).thenAnswer((invocation) async {
+    when(
+      () => buildDesk.execute(
+        any(),
+        trigger: any(named: 'trigger'),
+      ),
+    ).thenAnswer((invocation) async {
       final ritualResult =
           invocation.positionalArguments.first as ClosingRitualResult;
       return Right(
         CollectionsDeskBuildResult(
           rows: [
-            for (final candidate in ritualResult.reminderSet)
+            for (final candidate in ritualResult.shortlist)
               CollectionsDeskRow(
                 candidate: candidate,
                 body: 'body-${candidate.contactId}',
@@ -283,6 +454,7 @@ void main() {
 
   ProviderContainer container({
     AppSettings settings = const AppSettings(),
+    CalleDevicePolicy? callePolicy,
   }) {
     return ProviderContainer(
       overrides: [
@@ -311,9 +483,16 @@ void main() {
         dispatchCollectionsEmailUseCaseProvider.overrideWith(
           (ref) => dispatchEmail,
         ),
+        planCallBatchUseCaseProvider.overrideWith((ref) => planCall),
+        runCallBatchUseCaseProvider.overrideWith((ref) => runCall),
+        getCallRunUseCaseProvider.overrideWith((ref) => getCall),
+        persistCollectionCallOutcomeUseCaseProvider.overrideWith(
+          (ref) => persistCall,
+        ),
         synthesizeAgentSpeechUseCaseProvider.overrideWith(
           (ref) => synthesizeSpeech,
         ),
+        checkCreditLimitUseCaseProvider.overrideWith((ref) => checkCreditLimit),
         collectionsWhatsAppOpenerProvider.overrideWith(
           (ref) => CollectionsWhatsAppLauncher(
             openImpl: ({required phone, message}) async {
@@ -323,6 +502,8 @@ void main() {
           ),
         ),
         appSettingsProvider.overrideWithValue(AsyncValue.data(settings)),
+        if (callePolicy != null)
+          calleDevicePolicyProvider.overrideWithValue(callePolicy),
       ],
     );
   }
@@ -490,7 +671,14 @@ void main() {
         ),
       };
     });
-    when(() => collectionsCandidates.execute()).thenAnswer(
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: any(named: 'contactId'),
+      ),
+    ).thenAnswer(
       (_) async => Right(result.shortlist),
     );
   }
@@ -520,7 +708,13 @@ void main() {
       ),
     ).called(1);
     verify(() => uploadBackup.call()).called(1);
-    verify(() => collectionsCandidates.execute()).called(1);
+    verify(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+      ),
+    ).called(1);
   });
 
   test('plan confirm completes ritual task graph on empty overdue', () async {
@@ -567,7 +761,7 @@ void main() {
     expect(state.ritualResult?.shortlist, isEmpty);
   });
 
-  test('Confirm without sending is skip-all report', () async {
+  test('Confirm without sending still opens the desk', () async {
     stubRitual(
       ClosingRitualResult(
         summary: _emptySummary,
@@ -582,12 +776,9 @@ void main() {
     await notifier.confirm(_planProposal);
 
     final state = c.read(closingAgentControllerProvider);
-    expect(state.phase, ClosingAgentPhase.ritualReport);
-    expect(state.ritualResult?.reminderPolicy, ClosingReminderPolicy.all);
-    expect(
-      state.ritualResult?.queueMetrics,
-      const CollectionsQueueMetrics(prepared: 2, opened: 0, skipped: 2),
-    );
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.sendOutreachEnabled, isFalse);
+    expect(state.deskRows, hasLength(2));
     verifyNever(
       () => dispatchEmail.execute(
         rows: any(named: 'rows'),
@@ -599,6 +790,47 @@ void main() {
         onRows: any(named: 'onRows'),
       ),
     );
+  });
+
+  test('Confirm without sending keeps call set on the desk', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: false,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(_planProposal);
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.sendOutreachEnabled, isFalse);
+    expect(state.deskCallCount, 1);
+    expect(state.callConsented, isFalse);
   });
 
   test('send set is min(shortlist, 20) with PDF on ranked Top 5', () async {
@@ -618,7 +850,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
 
     final state = c.read(closingAgentControllerProvider);
@@ -637,7 +868,7 @@ void main() {
     );
   });
 
-  test('send set caps desk rows at 20', () async {
+  test('desk shows full shortlist; email send set caps at 20', () async {
     stubRitual(
       ClosingRitualResult(
         summary: _emptySummary,
@@ -652,10 +883,10 @@ void main() {
     await c.read(closingAgentControllerProvider.notifier).confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     final state = c.read(closingAgentControllerProvider);
-    expect(state.deskRows, hasLength(20));
+    expect(state.deskRows, hasLength(25));
+    expect(state.ritualResult?.reminderSet, hasLength(20));
     expect(state.deskRows.take(5).every((row) => row.attachPdf), isTrue);
     expect(state.deskRows.skip(5).every((row) => !row.attachPdf), isTrue);
   });
@@ -675,7 +906,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
 
     final state = c.read(closingAgentControllerProvider);
@@ -699,7 +929,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.skipDeskRow('a');
     await notifier.skipDeskRow('b');
@@ -734,7 +963,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
 
@@ -763,7 +991,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     expect(openedPhones, isEmpty);
@@ -796,7 +1023,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     await notifier.pauseSendQueue();
@@ -867,7 +1093,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     await notifier.finishDesk();
@@ -896,7 +1121,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => false);
 
@@ -926,7 +1150,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
 
@@ -951,7 +1174,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
     await notifier.startSending(sharePdf: (_) async => true);
     await notifier.pauseSendQueue();
@@ -1017,6 +1239,7 @@ void main() {
       final notifier = c.read(closingAgentControllerProvider.notifier);
 
       await notifier.confirm(_planProposal, sendOutreach: true);
+      await notifier.approveAndSend();
 
       final state = c.read(closingAgentControllerProvider);
       expect(state.phase, ClosingAgentPhase.ritualReport);
@@ -1089,7 +1312,6 @@ void main() {
     await notifier.confirm(
       _planProposal,
       sendOutreach: true,
-      autoDispatch: false,
     );
 
     final desk = c.read(closingAgentControllerProvider);
@@ -1114,6 +1336,566 @@ void main() {
         sent: 8,
       ),
     );
+  });
+
+  test('Confirm and Call hits plan then run then GET', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callConsented, isTrue);
+    expect(state.callProgress?.total, 1);
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.completed,
+    );
+    verify(() => planCall.execute(any())).called(1);
+    verify(() => runCall.execute(any())).called(1);
+    verify(() => getCall.execute('run-us')).called(1);
+    verifyNever(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    );
+  });
+
+  test('Confirm and Call completed without outcome has no error sheet', () async {
+    const usPhone = '+15555550100';
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          taskCompleted: true,
+          phoneMasked: '+…0000',
+          needsHuman: true,
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.actionFailure, isNull);
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.completed,
+    );
+  });
+
+  test('Confirm and Call omits YE from plan-batch', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+          CollectionsCandidate(
+            contactId: 'ye',
+            name: 'ye',
+            email: 'ye@example.com',
+            phone: '+967771234567',
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'YER',
+            ageDays: 20,
+            toneBand: ReminderToneBand.firm,
+            rail: OutreachRail.callUnavailable,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final planCaptured = verify(() => planCall.execute(captureAny())).captured;
+    expect(planCaptured, hasLength(1));
+    final request = planCaptured.single as CallPlanBatchRequest;
+    expect(request.recipients, hasLength(1));
+    expect(request.recipients.single.contactId, 'us');
+  });
+
+  test('Confirm and Call kill switch 403 is needsHuman', () async {
+    const usPhone = '+15555550100';
+    when(() => runCall.execute(any())).thenAnswer(
+      (_) async => const Left(
+        AuthFailure('CALL-E kill switch', code: 'calle_kill_switch'),
+      ),
+    );
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callConsented, isTrue);
+    expect(state.actionFailure?.code, 'calle_kill_switch');
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.failed,
+    );
+    verify(() => planCall.execute(any())).called(1);
+    verify(() => runCall.execute(any())).called(1);
+    verifyNever(() => getCall.execute(any()));
+  });
+
+  test('Confirm and Call device kill switch does not HTTP', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: false,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callConsented, isFalse);
+    expect(state.actionFailure?.code, 'calle_kill_switch');
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.failed,
+    );
+    verifyNever(() => planCall.execute(any()));
+    verifyNever(() => runCall.execute(any()));
+  });
+
+  test('Confirm and Call retries once on invalidHandle', () async {
+    const usPhone = '+15555550100';
+    var runCalls = 0;
+    when(() => runCall.execute(any())).thenAnswer((invocation) async {
+      runCalls += 1;
+      final request =
+          invocation.positionalArguments.first as CallRunBatchRequest;
+      if (runCalls == 1) {
+        return Right(
+          CallRunBatchResponse(
+            batchId: request.batchId,
+            needsHuman: true,
+            results: [
+              for (final recipient in request.recipients)
+                CallRunRowResult(
+                  contactId: recipient.contactId,
+                  status: CallRunRemoteStatus.rejected,
+                  reason: CallRejectReason.invalidHandle,
+                ),
+            ],
+          ),
+        );
+      }
+      return Right(
+        CallRunBatchResponse(
+          batchId: request.batchId,
+          needsHuman: false,
+          results: [
+            for (final recipient in request.recipients)
+              CallRunRowResult(
+                contactId: recipient.contactId,
+                status: CallRunRemoteStatus.queued,
+                runId: 'run-${recipient.contactId}',
+              ),
+          ],
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callProgress?.results.single.status, CollectionsCallRowStatus.completed);
+    verify(() => planCall.execute(any())).called(2);
+    verify(() => runCall.execute(any())).called(2);
+    verify(() => getCall.execute('run-us')).called(1);
+  });
+
+  test('Confirm and Call poll timeout does not run-batch again', () async {
+    const usPhone = '+15555550100';
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'in_progress',
+          terminal: false,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.actionFailure?.code, 'calle_poll_timeout');
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.failed,
+    );
+    verify(() => runCall.execute(any())).called(1);
+  });
+
+  test('SMTP preflight failure still opens desk when call set exists', () async {
+    const usPhone = '+15555550100';
+    when(() => hydrate.execute()).thenAnswer(
+      (_) async => const Left(
+        AuthFailure('silent', code: 'silent_sign_in_failed'),
+      ),
+    );
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: false,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(closingAgentControllerProvider.notifier).confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.ritualDeskPreflightPending, isFalse);
+    expect(state.actionFailure, isA<AuthFailure>());
+    expect(state.deskCallCount, 1);
+  });
+
+  test('SMTP preflight failure blocks desk when call set is empty', () async {
+    when(() => hydrate.execute()).thenAnswer(
+      (_) async => const Left(
+        AuthFailure('silent', code: 'silent_sign_in_failed'),
+      ),
+    );
+    stubRitual(
+      ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [_candidate('a')],
+      ),
+    );
+    final c = container();
+    addTearDown(c.dispose);
+
+    await c.read(closingAgentControllerProvider.notifier).confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualRunning);
+    expect(state.ritualDeskPreflightPending, isTrue);
+    expect(state.actionFailure, isA<AuthFailure>());
+  });
+
+  test('Confirm without calling leaves SMTP available', () async {
+    when(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    ).thenAnswer((invocation) async {
+      final rows =
+          invocation.namedArguments[#rows]! as List<CollectionsDeskRow>;
+      final onRows =
+          invocation.namedArguments[#onRows]
+              as void Function(List<CollectionsDeskRow>)?;
+      final sent = [
+        for (final row in rows)
+          row.copyWith(
+            status: CollectionsDeskRowStatus.sent,
+            smtpCode: 250,
+          ),
+      ];
+      onRows?.call(sent);
+      return Right(
+        DispatchCollectionsEmailResult(
+          rows: sent,
+          metrics: CollectionsQueueMetrics.fromRows(sent),
+        ),
+      );
+    });
+    stubRitual(
+      ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [_candidate('a'), _candidate('b')],
+      ),
+    );
+    final c = container();
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmWithoutCalling();
+    await notifier.approveAndSend();
+
+    verify(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    ).called(1);
+    expect(c.read(closingAgentControllerProvider).callConsented, isFalse);
   });
 
   test(
@@ -1170,6 +1952,7 @@ void main() {
       final notifier = c.read(closingAgentControllerProvider.notifier);
 
       await notifier.confirm(_planProposal, sendOutreach: true);
+      await notifier.approveAndSend();
 
       final state = c.read(closingAgentControllerProvider);
       expect(openedPhones, isEmpty);
@@ -1215,6 +1998,7 @@ void main() {
       final notifier = c.read(closingAgentControllerProvider.notifier);
 
       await notifier.confirm(_planProposal, sendOutreach: true);
+      await notifier.approveAndSend();
 
       final state = c.read(closingAgentControllerProvider);
       expect(state.phase, ClosingAgentPhase.ritualDesk);
@@ -1999,5 +2783,154 @@ void main() {
       expect(ledgerOverrides[2], 'ledger-new');
       expect(ledgerOverrides, isNot(contains('stale-ledger-id')));
     });
+  });
+
+  test('openCreditLimitDesk does not call plan-batch', () async {
+    const usPhone = '+15555550100';
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(closingAgentControllerProvider.notifier).openCreditLimitDesk(
+      'us',
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.callBatchTrigger, CallBatchTrigger.creditLimit);
+    expect(state.sendOutreachEnabled, isTrue);
+    verifyNever(() => planCall.execute(any()));
+    verifyNever(() => runCall.execute(any()));
+  });
+
+  test('credit-limit finishDesk returns idle not ritual report', () async {
+    const usPhone = '+15555550100';
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.openCreditLimitDesk('us');
+    await notifier.finishDesk();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.idle);
+    expect(state.ritualResult, isNull);
+    expect(state.callBatchTrigger, CallBatchTrigger.closeDay);
+  });
+
+  test('credit-limit confirmAndCall sends creditLimit trigger', () async {
+    const usPhone = '+15555550100';
+    CallPlanBatchRequest? capturedPlan;
+    when(() => planCall.execute(any())).thenAnswer((invocation) async {
+      capturedPlan = invocation.positionalArguments.first as CallPlanBatchRequest;
+      return const Right(
+        CallPlanBatchResponse(
+          batchId: 'batch-1',
+          results: [
+            CallPlanRowResult(
+              contactId: 'us',
+              phoneMasked: '+…0100',
+              readyToRun: true,
+              status: CallPlanRowStatus.planned,
+              confirmHandle: 'handle-us',
+            ),
+          ],
+        ),
+      );
+    });
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.openCreditLimitDesk('us');
+    await notifier.confirmAndCall();
+
+    expect(capturedPlan?.trigger, CallBatchTrigger.creditLimit);
   });
 }

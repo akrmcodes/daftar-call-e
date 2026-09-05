@@ -4,7 +4,6 @@ import 'package:daftar/application/contact/compute_fifo_contact_aging.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/constants/dual_rail_split.dart';
 import 'package:daftar/domain/entities/contact_balance.dart';
-import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/repositories/balance_repository.dart';
 import 'package:daftar/domain/repositories/contact_repository.dart';
 import 'package:daftar/domain/repositories/transaction_repository.dart';
@@ -29,14 +28,16 @@ class GetCollectionsCandidatesUseCase {
   final TransactionRepository _transactionRepository;
   final ContactRepository _contactRepository;
 
-  /// Returns ranked candidates with [OutreachRail] attached.
+  /// Returns ranked candidates with OutreachRail attached.
   ///
-  /// [allowDial] defaults false (kill switch). Tests inject allowlist + true.
+  /// Kill switch is **not** applied here — desk call-set uses region +
+  /// allowlist + DNC. PSTN is gated later by RunBatchRecipientGuard.
+  /// When [contactId] is set, only that contact is considered (B-trigger).
   Future<Either<Failure, List<CollectionsCandidate>>> execute({
     DateTime? asOf,
     Set<String> allowlist = const {},
     String allowlistRegion = 'US',
-    bool allowDial = false,
+    String? contactId,
   }) async {
     final asOfTime = asOf ?? DateTime.now();
 
@@ -47,7 +48,12 @@ class GetCollectionsCandidatesUseCase {
     }
     final outreachContacts =
         outreachResult.getRight().toNullable() ?? const [];
-    if (outreachContacts.isEmpty) {
+    final filteredContacts = contactId == null || contactId.trim().isEmpty
+        ? outreachContacts
+        : outreachContacts
+            .where((entry) => entry.contactId == contactId.trim())
+            .toList(growable: false);
+    if (filteredContacts.isEmpty) {
       return const Right(<CollectionsCandidate>[]);
     }
 
@@ -60,7 +66,7 @@ class GetCollectionsCandidatesUseCase {
     }
 
     final candidates = <CollectionsCandidate>[];
-    for (final entry in outreachContacts) {
+    for (final entry in filteredContacts) {
       final rows = balancesByContact[entry.contactId] ?? const <ContactBalance>[];
       final overdue = [
         for (final row in rows)
@@ -138,7 +144,6 @@ class GetCollectionsCandidatesUseCase {
       ranked: candidates,
       allowlistRegion: allowlistRegion,
       allowlist: allowlist,
-      allowDial: allowDial,
     );
 
     return Right(split.ranked);

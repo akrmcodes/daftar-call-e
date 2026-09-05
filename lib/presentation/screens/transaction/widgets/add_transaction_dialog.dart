@@ -21,6 +21,7 @@ import 'package:daftar/domain/enums/transaction_type.dart';
 import 'package:daftar/domain/value_objects/currency_precision.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:daftar/presentation/providers/transaction_providers.dart';
+import 'package:daftar/presentation/screens/contact/credit_limit_b_trigger.dart';
 import 'package:daftar/presentation/shared/currency_creation_policy.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
 
@@ -305,13 +306,16 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
             icon: Icons.warning_amber_rounded,
             isDark: isDark,
           );
-        } else if (saveResult.warningLevel == CreditWarningLevel.exceeded) {
-          _showCreditLimitSnackBar(
-            messenger: messenger,
-            message: l10n.creditLimitExceeded,
-            accentColor: AppColors.error,
-            icon: Icons.error_rounded,
-            isDark: isDark,
+        } else if (saveResult.warningLevel == CreditWarningLevel.exceeded &&
+            _type == TransactionType.debt) {
+          unawaited(
+            CreditLimitBTrigger.offerAfterDebtSave(
+              context: context,
+              ref: ref,
+              contactId: widget.contactId,
+              type: _type,
+              warningLevel: saveResult.warningLevel,
+            ),
           );
         }
       },

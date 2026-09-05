@@ -207,6 +207,33 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String architectureHudCallChip(String id, String status) {
+    return 'اتصال · $id · $status';
+  }
+
+  @override
+  String architectureHudCallId(String id) {
+    return 'اتصال · $id';
+  }
+
+  @override
+  String architectureHudCallStatusOnly(String status) {
+    return 'اتصال · $status';
+  }
+
+  @override
+  String get architectureHudCallPlanned => 'مجدول';
+
+  @override
+  String get architectureHudCallRinging => 'يرن';
+
+  @override
+  String get architectureHudCallCompleted => 'اكتمل';
+
+  @override
+  String get architectureHudCallFailed => 'فشل';
+
+  @override
   String get contactDeleteConfirmTitle => 'هل أنت متأكد؟';
 
   @override
@@ -916,6 +943,39 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get creditLimitExceeded =>
       'تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!';
+
+  @override
+  String get creditLimitCallSheetTitle =>
+      'اتصال لإبلاغهم بأن البضائع الجديدة معلّقة حتى السداد؟';
+
+  @override
+  String creditLimitCallSheetBody(
+    String contactName,
+    String outstanding,
+    String limit,
+  ) {
+    return '$contactName مدين بـ $outstanding من حد ائتمان $limit.';
+  }
+
+  @override
+  String get creditLimitCallSheetPrepare => 'إعداد المكالمة';
+
+  @override
+  String get creditLimitCallSheetNotNow => 'ليس الآن';
+
+  @override
+  String get creditLimitCallSheetOutstanding => 'المستحق';
+
+  @override
+  String get creditLimitCallSheetLimit => 'حد الائتمان';
+
+  @override
+  String get collectionsDeskCreditLimitSubtitle =>
+      'تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.';
+
+  @override
+  String get errorCreditLimitNoOutreach =>
+      'لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.';
 
   @override
   String get notificationWarningTitle => 'تنبيه ائتماني';
@@ -3404,17 +3464,23 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get closingAgentPlanDeviceRuns =>
-      'بعد النسخ الاحتياطي والتقادم يُرسل بريد للمتأخرين الذين لديهم بريد صالح (حتى 20). النص ثابت؛ لن تعدّل كل رسالة. لا يختار جيميناي المعرّفات.';
+      'بعد النسخ الاحتياطي والتقادم يقسم مكتب التحصيل المتصلين المؤهلين عن البريد. اليمن والمناطق غير المدعومة تبقى على البريد. النص ثابت؛ لا يختار جيميناي المعرّفات.';
 
   @override
   String get closingAgentPlanOutreachConsent =>
-      'تأكيد وإرسال الكشوفات هو موافقة التواصل. تأكيد دون إرسال يقفل الدفاتر ودرايف بلا بريد.';
+      'هذان الزران يبدآن الإقفال. بعد النسخ ومسح التقادم، مكتب التحصيل هو موضع تأكيد الاتصال والبريد.';
 
   @override
   String get closingAgentTaskmasterTitle => 'خطة إقفال اليوم';
 
   @override
   String get closingAgentApprovePlan => 'اعتماد الخطة';
+
+  @override
+  String get closingAgentStartClose => 'ابدأ الإقفال';
+
+  @override
+  String get closingAgentStartCloseWithoutOutreach => 'ابدأ الإقفال دون تواصل';
 
   @override
   String get closingAgentConfirmAndSend => 'تأكيد وإرسال الكشوفات';
@@ -3458,7 +3524,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get closingTaskBuildSendSet => 'تجهيز قائمة المدينين المستهدفين';
 
   @override
-  String get closingTaskOpenDesk => 'إرسال مطالبات التحصيل';
+  String get closingTaskOpenDesk => 'فتح مكتب التحصيل';
 
   @override
   String get closingTaskComposeReport => 'تأليف تقرير اليوم';
@@ -3786,6 +3852,70 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskFailedStatus => 'فشل';
 
   @override
+  String get collectionsDeskConfirmAndCall => 'تأكيد والاتصال';
+
+  @override
+  String get collectionsDeskConfirmWithoutCalling => 'تأكيد دون اتصال';
+
+  @override
+  String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
+
+  @override
+  String get collectionsDeskPromiseNotPaymentSubtitle =>
+      'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.';
+
+  @override
+  String get collectionsDeskCallPreviewTitle => 'ما سيقوله CALL-E';
+
+  @override
+  String collectionsDeskCallingProgress(int index, int total) {
+    return 'جاري الاتصال $index من $total';
+  }
+
+  @override
+  String collectionsDeskCallCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مكالمة',
+      many: '$count مكالمة',
+      few: '$count مكالمات',
+      two: 'مكالمتان',
+      one: 'مكالمة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskEmailCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رسالة',
+      many: '$count رسالة',
+      few: '$count رسائل',
+      two: 'بريدان',
+      one: 'بريد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectionsDeskRailCall => 'اتصال';
+
+  @override
+  String get collectionsDeskRailEmail => 'بريد';
+
+  @override
+  String get collectionsDeskRailBoth => 'الاثنان';
+
+  @override
+  String get collectionsDeskRailCallUnavailable => 'لا يمكن الاتصال';
+
+  @override
+  String get collectionsDeskRailSkipped => 'متخطى';
+
+  @override
   String collectionsQueueSending(int index, int total) {
     return 'إرسال $index من $total';
   }
@@ -3875,6 +4005,27 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get errorSmtpSenderMisconfigured =>
       'مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCalleKillSwitchTitle => 'المكالمات متوقفة';
+
+  @override
+  String get errorCalleKillSwitch =>
+      'المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCalleNeedsHumanTitle => 'المكالمة تحتاج نظرة';
+
+  @override
+  String get errorCalleNeedsHuman =>
+      'تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.';
+
+  @override
+  String get errorCallePollTimeoutTitle => 'انتهى وقت المكالمة';
+
+  @override
+  String get errorCallePollTimeout =>
+      'لم تكتمل المكالمة في الوقت المحدد. دفترك لم يتغيّر. لا تضغط تأكيد والاتصال مرة أخرى.';
 
   @override
   String get errorCollectionsEmailCap =>

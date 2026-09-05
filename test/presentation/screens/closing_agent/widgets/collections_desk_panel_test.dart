@@ -29,7 +29,57 @@ void main() {
     );
   }
 
-  testWidgets('SMTP desk has live dispatch, no Approve, no Open WhatsApp', (
+  Widget panel({
+    required List<CollectionsDeskRow> rows,
+    required bool startSendingIsPrimary,
+    String? busyContactId,
+    bool isDispatching = false,
+    bool isQueueInFlight = false,
+    bool isQueuePaused = false,
+    int queueIndex = 0,
+    int queueTotal = 0,
+    String queueContactName = '',
+    VoidCallback? onQueuePause,
+    VoidCallback? onQueueResume,
+    VoidCallback? onQueueSkip,
+    bool showHybridELeftover = false,
+    bool showRetrySend = false,
+    bool sendOutreachEnabled = true,
+    VoidCallback? onApproveAndSend,
+  }) {
+    return CollectionsDeskPanel(
+      rows: rows,
+      callCount: 1,
+      emailCount: rows.length,
+      callConsented: false,
+      sendOutreachEnabled: sendOutreachEnabled,
+      startSendingIsPrimary: startSendingIsPrimary,
+      busyContactId: busyContactId,
+      isDispatching: isDispatching,
+      isQueueInFlight: isQueueInFlight,
+      isQueuePaused: isQueuePaused,
+      queueIndex: queueIndex,
+      queueTotal: queueTotal,
+      queueContactName: queueContactName,
+      onConfirmAndCall: () {},
+      onConfirmWithoutCalling: () {},
+      onSkip: (_) {},
+      onCopy: (_) {},
+      onOpen: (_) {},
+      onTone: (_, _) {},
+      onTogglePdf: (_) {},
+      onStartSending: () {},
+      onApproveAndSend: onApproveAndSend ?? () {},
+      onDone: () {},
+      onQueuePause: onQueuePause,
+      onQueueResume: onQueueResume,
+      onQueueSkip: onQueueSkip,
+      showHybridELeftover: showHybridELeftover,
+      showRetrySend: showRetrySend,
+    );
+  }
+
+  testWidgets('SMTP desk shows consent card Confirm and Send, no WhatsApp', (
     tester,
   ) async {
     tester.view
@@ -44,26 +94,19 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: CollectionsDeskPanel(
+          body: panel(
             rows: [for (var i = 0; i < 5; i++) row(i)],
             startSendingIsPrimary: true,
-            busyContactId: null,
-            onSkip: (_) {},
-            onCopy: (_) {},
-            onOpen: (_) {},
-            onTone: (_, _) {},
-            onTogglePdf: (_) {},
-            onStartSending: () {},
-            onApproveAndSend: () {},
-            onDone: () {},
           ),
         ),
       ),
     );
 
     expect(find.byType(CollectionsDeskRowCard), findsNWidgets(5));
-    expect(find.text('Confirm & Send Statements'), findsNothing);
-    expect(find.text('Skip outreach'), findsNothing);
+    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+    expect(find.text('Confirm & Call'), findsOneWidget);
+    expect(find.text('Dispatch collection emails'), findsNothing);
+    expect(find.text('Open collections desk'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
     expect(find.text('Start sending'), findsNothing);
     expect(find.text('Pause'), findsNothing);
@@ -82,19 +125,10 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: CollectionsDeskPanel(
+          body: panel(
             rows: [row(0)],
             startSendingIsPrimary: true,
-            busyContactId: null,
             showHybridELeftover: true,
-            onSkip: (_) {},
-            onCopy: (_) {},
-            onOpen: (_) {},
-            onTone: (_, _) {},
-            onTogglePdf: (_) {},
-            onStartSending: () {},
-            onApproveAndSend: () {},
-            onDone: () {},
           ),
         ),
       ),
@@ -119,23 +153,14 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: CollectionsDeskPanel(
+          body: panel(
             rows: [row(0), row(1)],
             startSendingIsPrimary: true,
-            busyContactId: null,
             showHybridELeftover: true,
             isQueueInFlight: true,
             queueIndex: 1,
             queueTotal: 2,
             queueContactName: 'n0',
-            onSkip: (_) {},
-            onCopy: (_) {},
-            onOpen: (_) {},
-            onTone: (_, _) {},
-            onTogglePdf: (_) {},
-            onStartSending: () {},
-            onApproveAndSend: () {},
-            onDone: () {},
             onQueuePause: () {},
             onQueueResume: () {},
             onQueueSkip: () {},
@@ -168,22 +193,13 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: CollectionsDeskPanel(
+          body: panel(
             rows: [row(0), row(1)],
             startSendingIsPrimary: true,
-            busyContactId: null,
             isQueueInFlight: true,
             queueIndex: 1,
             queueTotal: 2,
             queueContactName: 'n0',
-            onSkip: (_) {},
-            onCopy: (_) {},
-            onOpen: (_) {},
-            onTone: (_, _) {},
-            onTogglePdf: (_) {},
-            onStartSending: () {},
-            onApproveAndSend: () {},
-            onDone: () {},
             onQueuePause: () {},
             onQueueResume: () {},
             onQueueSkip: () {},
@@ -195,7 +211,7 @@ void main() {
     expect(find.text('Sending 1 of 2'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
     expect(find.text('Pause'), findsNothing);
-    expect(find.text('Confirm & Send Statements'), findsNothing);
+    expect(find.text('Confirm & Send Statements'), findsOneWidget);
     expect(find.text('Skip outreach'), findsNothing);
   });
 
@@ -214,21 +230,12 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: CollectionsDeskPanel(
+            body: panel(
               rows: [row(0), row(1)],
               startSendingIsPrimary: true,
-              busyContactId: null,
               isDispatching: true,
               queueIndex: 1,
               queueTotal: 2,
-              onSkip: (_) {},
-              onCopy: (_) {},
-              onOpen: (_) {},
-              onTone: (_, _) {},
-              onTogglePdf: (_) {},
-              onStartSending: () {},
-              onApproveAndSend: () {},
-              onDone: () {},
             ),
           ),
         ),
@@ -261,20 +268,11 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: CollectionsDeskPanel(
+            body: panel(
               rows: [row(0), row(1)],
               startSendingIsPrimary: true,
-              busyContactId: null,
               showHybridELeftover: true,
               isDispatching: true,
-              onSkip: (_) {},
-              onCopy: (_) {},
-              onOpen: (_) {},
-              onTone: (_, _) {},
-              onTogglePdf: (_) {},
-              onStartSending: () {},
-              onApproveAndSend: () {},
-              onDone: () {},
             ),
           ),
         ),
@@ -313,26 +311,18 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: CollectionsDeskPanel(
+          body: panel(
             rows: [row(0), row(1)],
             startSendingIsPrimary: true,
-            busyContactId: null,
             showRetrySend: true,
-            onSkip: (_) {},
-            onCopy: (_) {},
-            onOpen: (_) {},
-            onTone: (_, _) {},
-            onTogglePdf: (_) {},
-            onStartSending: () {},
             onApproveAndSend: () => retryCount++,
-            onDone: () {},
           ),
         ),
       ),
     );
 
     expect(find.text('Retry sending'), findsOneWidget);
-    expect(find.text('Confirm & Send Statements'), findsNothing);
+    expect(find.text('Confirm & Send Statements'), findsOneWidget);
     await tester.tap(find.text('Retry sending'));
     await tester.pump();
     expect(retryCount, 1);

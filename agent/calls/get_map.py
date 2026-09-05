@@ -150,10 +150,12 @@ def map_call_get_response(
     phone_masked = phone_masked_hint or _phone_from_call(call)
 
     needs_human = False
-    if terminal:
+    if schema_invalid:
+        needs_human = True
+    elif status == "completed":
+        needs_human = False
+    elif terminal:
         if structured is None or structured.outcome is None:
-            needs_human = True
-        if schema_invalid:
             needs_human = True
     elif task_completed is True and (structured is None or schema_invalid):
         needs_human = True

@@ -261,6 +261,30 @@ abstract final class ErrorTranslator {
             : l10n.errorSmtpNeedsHuman,
       );
     }
+    if (failure.code == 'credit_limit_no_outreach') {
+      return LocalizedErrorContent(
+        title: l10n.notificationWarningTitle,
+        message: l10n.errorCreditLimitNoOutreach,
+      );
+    }
+    if (failure.code == 'calle_kill_switch') {
+      return LocalizedErrorContent(
+        title: l10n.errorCalleKillSwitchTitle,
+        message: l10n.errorCalleKillSwitch,
+      );
+    }
+    if (failure.code == 'calle_poll_timeout') {
+      return LocalizedErrorContent(
+        title: l10n.errorCallePollTimeoutTitle,
+        message: l10n.errorCallePollTimeout,
+      );
+    }
+    if (failure.code == 'calle_needs_human') {
+      return LocalizedErrorContent(
+        title: l10n.errorCalleNeedsHumanTitle,
+        message: l10n.errorCalleNeedsHuman,
+      );
+    }
 
     final message = switch (failure.code) {
       'canceled' => l10n.errorAuthMessage,

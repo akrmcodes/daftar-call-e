@@ -1,6 +1,9 @@
 import 'package:daftar/application/agent/compose_collections_reminder_draft_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/constants/collections_call_task_composer.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/repositories/merchant_profile_repository.dart';
 import 'package:daftar/domain/repositories/settings_repository.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
@@ -10,7 +13,7 @@ import 'package:fpdart/fpdart.dart';
 
 /// Device-owned Collections Desk rows from a [ClosingRitualResult].
 ///
-/// Does not call Cloud Run. Empty [ClosingRitualResult.reminderSet] is
+/// Does not call Cloud Run. Empty [ClosingRitualResult.shortlist] is
 /// [Right] of an empty snapshot.
 class BuildCollectionsDeskUseCase {
   /// Creates the use case.
@@ -26,11 +29,14 @@ class BuildCollectionsDeskUseCase {
   final MerchantProfileRepository _merchantProfileRepository;
   final ComposeCollectionsReminderDraftUseCase _composeDraft;
 
-  /// Builds ranked desk rows. `attachPdf` follows [ClosingRitualResult.pdfContacts].
+  /// Builds ranked desk rows from the full dual-rail shortlist.
+  ///
+  /// `attachPdf` follows [ClosingRitualResult.pdfContacts] for email-rail rows.
   Future<Either<Failure, CollectionsDeskBuildResult>> execute(
-    ClosingRitualResult ritual,
-  ) async {
-    if (ritual.reminderSet.isEmpty) {
+    ClosingRitualResult ritual, {
+    CallBatchTrigger trigger = CallBatchTrigger.closeDay,
+  }) async {
+    if (ritual.shortlist.isEmpty) {
       return const Right(
         CollectionsDeskBuildResult(
           rows: [],
@@ -58,12 +64,15 @@ class BuildCollectionsDeskUseCase {
     };
 
     final rows = [
-      for (final candidate in ritual.reminderSet)
+      for (final candidate in ritual.shortlist)
         _rowFor(
           candidate: candidate,
           locale: locale,
           storeName: storeName,
-          attachPdf: pdfIds.contains(candidate.contactId),
+          attachPdf: pdfIds.contains(candidate.contactId) &&
+              _hasEmailRail(candidate.rail),
+          includeEmailDraft: _hasEmailRail(candidate.rail),
+          trigger: trigger,
         ),
     ];
 
@@ -76,27 +85,74 @@ class BuildCollectionsDeskUseCase {
     );
   }
 
+  static bool _hasEmailRail(OutreachRail rail) {
+    return rail == OutreachRail.email ||
+        rail == OutreachRail.both ||
+        rail == OutreachRail.callUnavailable;
+  }
+
+  static bool _hasCallRail(OutreachRail rail) {
+    return rail == OutreachRail.call || rail == OutreachRail.both;
+  }
+
   CollectionsDeskRow _rowFor({
     required CollectionsCandidate candidate,
     required String locale,
     required String storeName,
     required bool attachPdf,
+    required bool includeEmailDraft,
+    CallBatchTrigger trigger = CallBatchTrigger.closeDay,
   }) {
-    final draft = _composeDraft.execute(
-      candidate: candidate,
-      tone: candidate.toneBand,
-      locale: locale,
-      storeName: storeName,
-    );
+    var subject = '';
+    var body = '';
+    var customerName = '';
+    var amountLine = '';
+    var ctaLine = '';
+    var note = '';
+
+    final resolvedStore =
+        CollectionsReminderDraftComposer.resolveStoreName(storeName);
+
+    if (includeEmailDraft) {
+      final draft = _composeDraft.execute(
+        candidate: candidate,
+        tone: candidate.toneBand,
+        locale: locale,
+        storeName: resolvedStore,
+      );
+      subject = draft.subject;
+      body = draft.body;
+      customerName = draft.customerName;
+      amountLine = draft.amountLine;
+      ctaLine = draft.ctaLine;
+      note = draft.note;
+    }
+
+    var callTask = '';
+    if (_hasCallRail(candidate.rail)) {
+      final task = CollectionsCallTaskComposer.compose(
+        locale: locale,
+        storeName: resolvedStore,
+        contactName: candidate.name,
+        amountMinor: candidate.owedMinor,
+        currencyCode: candidate.currencyCode,
+        trigger: trigger,
+      );
+      callTask = task.task;
+      customerName = customerName.isEmpty ? task.customerName : customerName;
+      amountLine = amountLine.isEmpty ? task.amountLine : amountLine;
+    }
+
     return CollectionsDeskRow(
       candidate: candidate,
-      subject: draft.subject,
-      body: draft.body,
-      customerName: draft.customerName,
-      storeName: draft.storeName,
-      amountLine: draft.amountLine,
-      ctaLine: draft.ctaLine,
-      note: draft.note,
+      subject: subject,
+      body: body,
+      customerName: customerName,
+      storeName: resolvedStore,
+      amountLine: amountLine,
+      ctaLine: ctaLine,
+      note: note,
+      callTask: callTask,
       toneBand: candidate.toneBand,
       attachPdf: attachPdf,
     );
@@ -112,7 +168,7 @@ class CollectionsDeskBuildResult {
     required this.storeName,
   });
 
-  /// Ranked reminder rows (send-set cap already applied on the ritual).
+  /// Ranked desk rows (full dual-rail shortlist).
   final List<CollectionsDeskRow> rows;
 
   /// Normalized `ar` or `en`.

@@ -11,6 +11,9 @@ import 'package:daftar/domain/value_objects/agent_audio_clip.dart';
 import 'package:daftar/domain/value_objects/agent_proposal.dart';
 import 'package:daftar/domain/value_objects/agent_speech_clip.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
+import 'package:daftar/domain/value_objects/call_get_result.dart';
+import 'package:daftar/domain/value_objects/call_plan_batch.dart';
+import 'package:daftar/domain/value_objects/call_run_batch.dart';
 import 'package:daftar/domain/value_objects/device_agent_request.dart';
 import 'package:daftar/domain/value_objects/email_send_batch.dart';
 import 'package:dio/dio.dart';
@@ -232,6 +235,80 @@ class ClosingAgentRemoteDs {
     }
   }
 
+  Options get _callJsonOptions => Options(
+    headers: const {'Content-Type': 'application/json'},
+    responseType: ResponseType.json,
+    sendTimeout: ClosingAgentConstants.sendTimeout,
+    receiveTimeout: ClosingAgentConstants.callBatchReceiveTimeout,
+  );
+
+  /// `POST /v1/calls/plan-batch`. Never logs confirm handles or E.164.
+  Future<CallPlanBatchResponse> planCallBatch(
+    CallPlanBatchRequest request,
+  ) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        '$_baseUrl/v1/calls/plan-batch',
+        data: request.toJson(),
+        options: _callJsonOptions,
+      );
+      final data = response.data;
+      if (data is! Map) {
+        throw const ServerException(
+          'plan-batch response was not a JSON object.',
+          errorCode: EdgeErrorCodes.invalidRequest,
+        );
+      }
+      return CallPlanBatchResponse.fromJson(Map<String, Object?>.from(data));
+    } on DioException catch (error) {
+      throw _mapCallDio(error, 'Closing Agent plan-batch failed.');
+    }
+  }
+
+  /// `POST /v1/calls/run-batch`. Never logs confirm handles or E.164.
+  Future<CallRunBatchResponse> runCallBatch(
+    CallRunBatchRequest request,
+  ) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        '$_baseUrl/v1/calls/run-batch',
+        data: request.toJson(),
+        options: _callJsonOptions,
+      );
+      final data = response.data;
+      if (data is! Map) {
+        throw const ServerException(
+          'run-batch response was not a JSON object.',
+          errorCode: EdgeErrorCodes.invalidRequest,
+        );
+      }
+      return CallRunBatchResponse.fromJson(Map<String, Object?>.from(data));
+    } on DioException catch (error) {
+      throw _mapCallDio(error, 'Closing Agent run-batch failed.');
+    }
+  }
+
+  /// `GET /v1/calls/{runId}`. [runId] is CALL-E `call.id`.
+  Future<CallGetResult> getCallRun(String runId) async {
+    final encoded = Uri.encodeComponent(runId.trim());
+    try {
+      final response = await _dio.get<dynamic>(
+        '$_baseUrl/v1/calls/$encoded',
+        options: _callJsonOptions,
+      );
+      final data = response.data;
+      if (data is! Map) {
+        throw const ServerException(
+          'GET call response was not a JSON object.',
+          errorCode: EdgeErrorCodes.invalidRequest,
+        );
+      }
+      return CallGetResult.fromJson(Map<String, Object?>.from(data));
+    } on DioException catch (error) {
+      throw _mapCallDio(error, 'Closing Agent GET call failed.');
+    }
+  }
+
   /// `POST /v1/tts` — Chirp 3 HD MP3. Never logs [text] or audioBase64.
   Future<AgentSpeechClip> synthesizeSpeech({
     required String text,
@@ -424,6 +501,21 @@ class ClosingAgentRemoteDs {
       'ADK /run response was not an event list.',
       errorCode: EdgeErrorCodes.invalidRequest,
     );
+  }
+
+  Exception _mapCallDio(DioException error, String fallbackMessage) {
+    if (error.type == DioExceptionType.badResponse &&
+        error.response?.statusCode == 403) {
+      final data = error.response?.data;
+      if (data is Map && data['detail'] == 'killSwitch') {
+        return const ServerException(
+          'CALL-E kill switch',
+          statusCode: 403,
+          errorCode: 'calle_kill_switch',
+        );
+      }
+    }
+    return _mapDio(error, fallbackMessage);
   }
 
   Exception _mapDio(DioException error, String fallbackMessage) {

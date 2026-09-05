@@ -166,7 +166,6 @@ void main() {
         asOf: any(named: 'asOf'),
         allowlist: policy.allowlist,
         allowlistRegion: policy.allowlistRegion,
-        allowDial: policy.allowDial,
       ),
     ).thenAnswer((_) async => const Right([]));
 
@@ -180,7 +179,6 @@ void main() {
         asOf: any(named: 'asOf'),
         allowlist: policy.allowlist,
         allowlistRegion: policy.allowlistRegion,
-        allowDial: policy.allowDial,
       ),
     ).called(1);
   });

@@ -109,6 +109,29 @@
       "id": { "type": "String", "example": "9f3e12ab" }
     }
   },
+  "architectureHudCallChip": "اتصال · {id} · {status}",
+  "@architectureHudCallChip": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" },
+      "status": { "type": "String", "example": "ringing" }
+    }
+  },
+  "architectureHudCallId": "اتصال · {id}",
+  "@architectureHudCallId": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" }
+    }
+  },
+  "architectureHudCallStatusOnly": "اتصال · {status}",
+  "@architectureHudCallStatusOnly": {
+    "placeholders": {
+      "status": { "type": "String", "example": "planned" }
+    }
+  },
+  "architectureHudCallPlanned": "مجدول",
+  "architectureHudCallRinging": "يرن",
+  "architectureHudCallCompleted": "اكتمل",
+  "architectureHudCallFailed": "فشل",
   "contactDeleteConfirmTitle": "هل أنت متأكد؟",
   "contactDeleteConfirmBody": "سيؤدي هذا إلى إزالة الحساب وجميع المعاملات المرتبطة به من دفترك.",
   "contactDeleteConfirmAction": "حذف الحساب",
@@ -375,6 +398,21 @@
   "transactionSaved": "تم حفظ العملية بنجاح",
   "creditLimitWarning": "تنبيه: لقد اقترب الحساب من الحد الائتماني",
   "creditLimitExceeded": "تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!",
+  "creditLimitCallSheetTitle": "اتصال لإبلاغهم بأن البضائع الجديدة معلّقة حتى السداد؟",
+  "creditLimitCallSheetBody": "{contactName} مدين بـ {outstanding} من حد ائتمان {limit}.",
+  "@creditLimitCallSheetBody": {
+    "placeholders": {
+      "contactName": { "type": "String", "example": "أحمد" },
+      "outstanding": { "type": "String", "example": "1,500 ﷼" },
+      "limit": { "type": "String", "example": "1,000 ﷼" }
+    }
+  },
+  "creditLimitCallSheetPrepare": "إعداد المكالمة",
+  "creditLimitCallSheetNotNow": "ليس الآن",
+  "creditLimitCallSheetOutstanding": "المستحق",
+  "creditLimitCallSheetLimit": "حد الائتمان",
+  "collectionsDeskCreditLimitSubtitle": "تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.",
+  "errorCreditLimitNoOutreach": "لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.",
   "notificationWarningTitle": "تنبيه ائتماني",
   "notificationWarningBody": "لقد تجاوز حساب {contactName} نسبة 80% من الحد الائتماني.",
   "@notificationWarningBody": {
@@ -1501,10 +1539,12 @@
   "closingAgentCurrencyRequiredHelper": "اختر عملة قبل إنشاء هذا الحساب.",
   "closingAgentPlanTitle": "خطة الإقفال",
   "closingAgentPlanSendSplit": "أعلى خمسة حسابات ثقلاً تحصل على كشف حساب مرفق. بقية مجموعة الإرسال تحصل على تذكير بالبريد. الترتيب من التقادم؛ لا يختار جيميناي المعرّفات.",
-  "closingAgentPlanDeviceRuns": "بعد النسخ الاحتياطي والتقادم يُرسل بريد للمتأخرين الذين لديهم بريد صالح (حتى 20). النص ثابت؛ لن تعدّل كل رسالة. لا يختار جيميناي المعرّفات.",
-  "closingAgentPlanOutreachConsent": "تأكيد وإرسال الكشوفات هو موافقة التواصل. تأكيد دون إرسال يقفل الدفاتر ودرايف بلا بريد.",
+  "closingAgentPlanDeviceRuns": "بعد النسخ الاحتياطي والتقادم يقسم مكتب التحصيل المتصلين المؤهلين عن البريد. اليمن والمناطق غير المدعومة تبقى على البريد. النص ثابت؛ لا يختار جيميناي المعرّفات.",
+  "closingAgentPlanOutreachConsent": "هذان الزران يبدآن الإقفال. بعد النسخ ومسح التقادم، مكتب التحصيل هو موضع تأكيد الاتصال والبريد.",
   "closingAgentTaskmasterTitle": "خطة إقفال اليوم",
   "closingAgentApprovePlan": "اعتماد الخطة",
+  "closingAgentStartClose": "ابدأ الإقفال",
+  "closingAgentStartCloseWithoutOutreach": "ابدأ الإقفال دون تواصل",
   "closingAgentConfirmAndSend": "تأكيد وإرسال الكشوفات",
   "closingAgentConfirmWithoutSending": "تأكيد دون إرسال",
   "closingTaskmasterSealed": "أُنجزت {count} مهمة",
@@ -1523,7 +1563,7 @@
   "closingTaskScanAging": "مسح أرصدة التقادم",
   "closingTaskRankUrgency": "ترتيب حسب الإلحاح",
   "closingTaskBuildSendSet": "تجهيز قائمة المدينين المستهدفين",
-  "closingTaskOpenDesk": "إرسال مطالبات التحصيل",
+  "closingTaskOpenDesk": "فتح مكتب التحصيل",
   "closingTaskComposeReport": "تأليف تقرير اليوم",
   "closingTaskPresentSeal": "عرض ختم اليوم",
   "closingTaskCaptionDebts": "{count} ديون اليوم",
@@ -1685,6 +1725,35 @@
   "collectionsDeskSkippedStatus": "مُتخطى",
   "collectionsDeskSentStatus": "أُرسل",
   "collectionsDeskFailedStatus": "فشل",
+  "collectionsDeskConfirmAndCall": "تأكيد والاتصال",
+  "collectionsDeskConfirmWithoutCalling": "تأكيد دون اتصال",
+  "collectionsDeskPromiseNotPayment": "الوعد ليس دفعة",
+  "collectionsDeskPromiseNotPaymentSubtitle": "يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.",
+  "collectionsDeskCallPreviewTitle": "ما سيقوله CALL-E",
+  "collectionsDeskCallingProgress": "جاري الاتصال {index} من {total}",
+  "@collectionsDeskCallingProgress": {
+    "placeholders": {
+      "index": { "type": "int", "example": "1" },
+      "total": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskCallCount": "{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}",
+  "@collectionsDeskCallCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskEmailCount": "{count, plural, =1{بريد واحد} =2{بريدان} few{{count} رسائل} many{{count} رسالة} other{{count} رسالة}}",
+  "@collectionsDeskEmailCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskRailCall": "اتصال",
+  "collectionsDeskRailEmail": "بريد",
+  "collectionsDeskRailBoth": "الاثنان",
+  "collectionsDeskRailCallUnavailable": "لا يمكن الاتصال",
+  "collectionsDeskRailSkipped": "متخطى",
   "collectionsQueueSending": "إرسال {index} من {total}",
   "@collectionsQueueSending": {
     "placeholders": {
@@ -1745,5 +1814,11 @@
   "errorSmtpTitle": "لم يُرسل البريد",
   "errorSmtpNeedsHuman": "رفضت Gmail على Cloud Run كلمة مرور التطبيق. تسجيل الدخول إلى التطبيق مجدداً لن يفيد. دفترك لم يتغيّر.",
   "errorSmtpSenderMisconfigured": "مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.",
+  "errorCalleKillSwitchTitle": "المكالمات متوقفة",
+  "errorCalleKillSwitch": "المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.",
+  "errorCalleNeedsHumanTitle": "المكالمة تحتاج نظرة",
+  "errorCalleNeedsHuman": "تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.",
+  "errorCallePollTimeoutTitle": "انتهى وقت المكالمة",
+  "errorCallePollTimeout": "لم تكتمل المكالمة في الوقت المحدد. دفترك لم يتغيّر. لا تضغط تأكيد والاتصال مرة أخرى.",
   "errorCollectionsEmailCap": "يمكنك إرسال 20 تذكيراً كحد أقصى في المرة الواحدة."
 }

@@ -82,6 +82,7 @@ import 'package:daftar/data/datasources/local/audit_log_local_ds.dart';
 import 'package:daftar/data/datasources/local/backup_local_ds.dart';
 import 'package:daftar/data/datasources/local/backup_queue_local_ds.dart';
 import 'package:daftar/data/datasources/local/balance_local_ds.dart';
+import 'package:daftar/data/datasources/local/collection_call_local_ds.dart';
 import 'package:daftar/data/datasources/local/collections_send_queue_local_ds.dart';
 import 'package:daftar/data/datasources/local/contact_local_ds.dart';
 import 'package:daftar/data/datasources/local/day_journal_local_ds.dart';
@@ -108,6 +109,7 @@ import 'package:daftar/data/repositories/balance_repository_impl.dart';
 import 'package:daftar/data/repositories/bulk_write_repository_impl.dart';
 import 'package:daftar/data/repositories/bulk_write_service.dart';
 import 'package:daftar/data/repositories/closing_agent_runtime_repository_impl.dart';
+import 'package:daftar/data/repositories/collection_call_repository_impl.dart';
 import 'package:daftar/data/repositories/collections_send_queue_repository_impl.dart';
 import 'package:daftar/data/repositories/contact_repository_impl.dart';
 import 'package:daftar/data/repositories/day_journal_repository_impl.dart';
@@ -132,6 +134,7 @@ import 'package:daftar/domain/repositories/auth_repository.dart';
 import 'package:daftar/domain/repositories/balance_repository.dart';
 import 'package:daftar/domain/repositories/bulk_write_repository.dart';
 import 'package:daftar/domain/repositories/closing_agent_runtime_repository.dart';
+import 'package:daftar/domain/repositories/collection_call_repository.dart';
 import 'package:daftar/domain/repositories/collections_send_queue_repository.dart';
 import 'package:daftar/domain/repositories/contact_repository.dart';
 import 'package:daftar/domain/repositories/day_journal_repository.dart';
@@ -1031,6 +1034,20 @@ CollectionsSendQueueRepository collectionsSendQueueRepository(Ref ref) {
     collectionsSendQueueLocalDataSource: ref.watch(
       collectionsSendQueueLocalDataSourceProvider,
     ),
+  );
+}
+
+/// Confirm & Call Drift local data source.
+@Riverpod(keepAlive: true)
+CollectionCallLocalDataSource collectionCallLocalDataSource(Ref ref) {
+  return CollectionCallLocalDataSource(ref.watch(appDatabaseProvider));
+}
+
+/// Confirm & Call Drift repository.
+@Riverpod(keepAlive: true)
+CollectionCallRepository collectionCallRepository(Ref ref) {
+  return CollectionCallRepositoryImpl(
+    localDataSource: ref.watch(collectionCallLocalDataSourceProvider),
   );
 }
 

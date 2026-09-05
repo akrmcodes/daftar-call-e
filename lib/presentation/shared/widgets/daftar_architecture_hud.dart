@@ -1,11 +1,12 @@
 import 'dart:math' as math;
-import 'dart:ui' show PathMetric;
+import 'dart:ui' as ui show PathMetric, TextDirection;
 
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_glows.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/presentation/providers/architecture_hud_provider.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,8 @@ class DaftarArchitectureHud extends ConsumerWidget {
 
     final model = snapshot.modelId?.trim() ?? '';
     final emailTail = ArchitectureHudSnapshot.tail8(snapshot.smtpMessageId);
+    final callTail = ArchitectureHudSnapshot.tail8(snapshot.callRunId);
+    final callStatus = snapshot.callStatus;
 
     final clampedScaler = MediaQuery.textScalerOf(context).clamp(
       minScaleFactor: 1,
@@ -125,6 +128,17 @@ class DaftarArchitectureHud extends ConsumerWidget {
                                     null) ...[
                                   const SizedBox(height: AppDimensions.spacingXs),
                                   _proposalLine(l10n, snapshot, inkMuted)!,
+                                ],
+                                if (callStatus != null) ...[
+                                  const SizedBox(height: AppDimensions.spacingXxs),
+                                  _CallChipRow(
+                                    l10n: l10n,
+                                    runIdTail: callTail,
+                                    status: callStatus,
+                                    ink: inkSecondary,
+                                    isDark: isDark,
+                                    reduceMotion: reduceMotion,
+                                  ),
                                 ],
                                 if (emailTail != null) ...[
                                   const SizedBox(height: AppDimensions.spacingXxs),
@@ -272,6 +286,7 @@ class _HudText extends StatelessWidget {
     this.maxLines,
     this.overflow,
     this.textAlign,
+    this.textDirection,
   });
 
   final String data;
@@ -279,6 +294,7 @@ class _HudText extends StatelessWidget {
   final int? maxLines;
   final TextOverflow? overflow;
   final TextAlign? textAlign;
+  final ui.TextDirection? textDirection;
 
   static const TextHeightBehavior _heightBehavior = TextHeightBehavior(
     applyHeightToFirstAscent: false,
@@ -292,6 +308,7 @@ class _HudText extends StatelessWidget {
       maxLines: maxLines,
       overflow: overflow,
       textAlign: textAlign,
+      textDirection: textDirection,
       textHeightBehavior: _heightBehavior,
       style: style,
     );
@@ -396,7 +413,7 @@ class _HudSpecularRimPainter extends CustomPainter {
 
   void _paintSegmentRim(
     Canvas canvas,
-    PathMetric metric,
+    ui.PathMetric metric,
     Offset lightDirection,
   ) {
     const step = 2.0;
@@ -874,6 +891,156 @@ class _HitlTracePainter extends CustomPainter {
     return oldDelegate.currentIndex != currentIndex ||
         oldDelegate.stepCount != stepCount ||
         oldDelegate.isDark != isDark;
+  }
+}
+
+class _CallChipRow extends StatelessWidget {
+  const _CallChipRow({
+    required this.l10n,
+    required this.runIdTail,
+    required this.status,
+    required this.ink,
+    required this.isDark,
+    required this.reduceMotion,
+  });
+
+  final AppLocalizations l10n;
+  final String? runIdTail;
+  final CollectionsCallRowStatus status;
+  final Color ink;
+  final bool isDark;
+  final bool reduceMotion;
+
+  @override
+  Widget build(BuildContext context) {
+    final statusLabel = _statusLabel(l10n, status);
+    final iconColor = status == CollectionsCallRowStatus.failed
+        ? (isDark ? AppColors.debt : AppColors.debtLight)
+        : ink.withValues(alpha: AppColors.alphaStrong);
+
+    final Widget labelWidget;
+    if (runIdTail != null) {
+      labelWidget = _HudText(
+        data: l10n.architectureHudCallId(runIdTail!),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: _HudType.latinMicro(ink),
+        textDirection: ui.TextDirection.ltr,
+      );
+    } else {
+      labelWidget = _HudText(
+        data: l10n.architectureHudCallStatusOnly(statusLabel),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: _HudType.latinMicro(ink),
+      );
+    }
+
+    return Row(
+      children: [
+        Icon(
+          Icons.call_made_rounded,
+          size: 12,
+          color: iconColor,
+        ),
+        const SizedBox(width: AppDimensions.spacingXxs),
+        Expanded(child: labelWidget),
+        if (runIdTail != null) ...[
+          const SizedBox(width: AppDimensions.spacingXxs),
+          _CallStatusPill(
+            label: statusLabel,
+            status: status,
+            isDark: isDark,
+            reduceMotion: reduceMotion,
+          ),
+        ],
+      ],
+    );
+  }
+
+  static String _statusLabel(
+    AppLocalizations l10n,
+    CollectionsCallRowStatus status,
+  ) {
+    return switch (status) {
+      CollectionsCallRowStatus.planned => l10n.architectureHudCallPlanned,
+      CollectionsCallRowStatus.ringing => l10n.architectureHudCallRinging,
+      CollectionsCallRowStatus.completed => l10n.architectureHudCallCompleted,
+      CollectionsCallRowStatus.failed => l10n.architectureHudCallFailed,
+    };
+  }
+}
+
+class _CallStatusPill extends StatelessWidget {
+  const _CallStatusPill({
+    required this.label,
+    required this.status,
+    required this.isDark,
+    required this.reduceMotion,
+  });
+
+  final String label;
+  final CollectionsCallRowStatus status;
+  final bool isDark;
+  final bool reduceMotion;
+
+  @override
+  Widget build(BuildContext context) {
+    final fill = isDark ? AppColors.surface4 : AppColors.surface2Light;
+    final mutedBorder =
+        isDark ? AppColors.glassBorder : AppColors.glassBorderLight;
+    final inkMuted = isDark ? AppColors.inkMuted : AppColors.inkMutedLight;
+    final inkSecondary =
+        isDark ? AppColors.inkSecondary : AppColors.inkSecondaryLight;
+
+    Color borderColor;
+    double borderWidth;
+    List<BoxShadow>? glow;
+    Color textColor;
+
+    switch (status) {
+      case CollectionsCallRowStatus.planned:
+        borderColor = mutedBorder;
+        borderWidth = 0.5;
+        glow = null;
+        textColor = inkMuted;
+      case CollectionsCallRowStatus.ringing:
+        borderColor = AppColors.lapis400;
+        borderWidth = 0.5;
+        glow = reduceMotion ? null : AppGlows.haloXs;
+        textColor = inkSecondary;
+      case CollectionsCallRowStatus.completed:
+        borderColor = mutedBorder;
+        borderWidth = AppDimensions.dividerThickness;
+        glow = null;
+        textColor = inkSecondary;
+      case CollectionsCallRowStatus.failed:
+        borderColor = isDark ? AppColors.debt : AppColors.debtLight;
+        borderWidth = 0.5;
+        glow = null;
+        textColor = isDark ? AppColors.debt : AppColors.debtLight;
+    }
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXs),
+        border: Border.all(color: borderColor, width: borderWidth),
+        boxShadow: glow,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDimensions.spacingXxs,
+          vertical: 2,
+        ),
+        child: _HudText(
+          data: label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: _HudType.latinMicro(textColor, weight: FontWeight.w600),
+        ),
+      ),
+    );
   }
 }
 

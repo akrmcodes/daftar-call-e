@@ -35,8 +35,8 @@ Not in `.env` — use `--dart-define-from-file=tool/demo_seed_emails.local.json`
 | --- | --- | --- |
 | `DAFTAR_SEED_EMAIL_demo1` … `demo7` | SMTP To: for the seven overdue contacts | Committed defaults are owner plus-aliases |
 | `DAFTAR_SEED_US_DID` | Mohamed's phone (call-eligible US DID) | **Not Envied.** Gitignored local JSON only. Empty = Yemen placeholder for Mohamed |
-| `CALLE_ALLOW_DIAL` | Device kill switch for Confirm & Call | Exact `true` only. **Not Envied.** Same parse as Cloud Run |
-| `CALLE_ALLOWLIST` | Device E.164 allowlist (comma-separated) | **Not Envied.** Independent of `DAFTAR_SEED_US_DID` |
+| `CALLE_ALLOW_DIAL` | Device kill switch for PSTN | Exact `true` only. Keep empty through Stage 3.1. **Not Envied.** |
+| `CALLE_ALLOWLIST` | Device E.164 allowlist (comma-separated) | **Not Envied.** Must include the seed DID or Mohamed stays email-only |
 | `CALLE_ALLOWLIST_REGION` | NANP declared ISO for `+1` numbers | Default `US` when empty |
 
 Do **not** run live **Confirm & Send Statements** or **Confirm & Call** unless you own the To: addresses and DID. `CALLE_API_KEY` is **never** a Flutter dart-define.

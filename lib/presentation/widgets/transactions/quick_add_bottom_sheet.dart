@@ -3,6 +3,7 @@ import 'dart:async' show unawaited;
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
+import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/application/transaction/quick_add_state.dart';
 import 'package:daftar/core/extensions/context_extensions.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
@@ -15,12 +16,14 @@ import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/currency.dart';
 import 'package:daftar/domain/entities/ledger.dart';
+import 'package:daftar/domain/enums/transaction_type.dart';
 import 'package:daftar/domain/value_objects/currency_precision.dart';
 import 'package:daftar/presentation/providers/contact_providers.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:daftar/presentation/providers/ledger_providers.dart';
 import 'package:daftar/presentation/providers/quick_add_controller.dart';
 import 'package:daftar/presentation/providers/transaction_providers.dart';
+import 'package:daftar/presentation/screens/contact/credit_limit_b_trigger.dart';
 import 'package:daftar/presentation/shared/currency_creation_policy.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
 import 'package:daftar/presentation/shared/widgets/currency_selector.dart';
@@ -297,10 +300,21 @@ class _QuickAddBottomSheetBodyState
       (failure) async {
         await DaftarErrorSheet.showForError(context, error: failure);
       },
-      (_) async {
+      (saveResult) async {
         unawaited(HapticService.transactionSaved());
         if (context.mounted) {
           Navigator.of(context).pop(true);
+        }
+        if (saveResult.warningLevel == CreditWarningLevel.exceeded &&
+            state.transactionType == TransactionType.debt &&
+            context.mounted) {
+          await CreditLimitBTrigger.offerAfterDebtSave(
+            context: context,
+            ref: ref,
+            contactId: contactId,
+            type: state.transactionType,
+            warningLevel: saveResult.warningLevel,
+          );
         }
       },
     );

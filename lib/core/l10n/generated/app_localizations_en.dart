@@ -208,6 +208,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String architectureHudCallChip(String id, String status) {
+    return 'Call · $id · $status';
+  }
+
+  @override
+  String architectureHudCallId(String id) {
+    return 'Call · $id';
+  }
+
+  @override
+  String architectureHudCallStatusOnly(String status) {
+    return 'Call · $status';
+  }
+
+  @override
+  String get architectureHudCallPlanned => 'planned';
+
+  @override
+  String get architectureHudCallRinging => 'ringing';
+
+  @override
+  String get architectureHudCallCompleted => 'completed';
+
+  @override
+  String get architectureHudCallFailed => 'failed';
+
+  @override
   String get contactDeleteConfirmTitle => 'Are you sure?';
 
   @override
@@ -928,6 +955,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get creditLimitExceeded =>
       'Alert: Account has exceeded its credit limit!';
+
+  @override
+  String get creditLimitCallSheetTitle =>
+      'Call to say no new goods until a payment?';
+
+  @override
+  String creditLimitCallSheetBody(
+    String contactName,
+    String outstanding,
+    String limit,
+  ) {
+    return '$contactName owes $outstanding against a $limit credit limit.';
+  }
+
+  @override
+  String get creditLimitCallSheetPrepare => 'Prepare the call';
+
+  @override
+  String get creditLimitCallSheetNotNow => 'Not now';
+
+  @override
+  String get creditLimitCallSheetOutstanding => 'Outstanding';
+
+  @override
+  String get creditLimitCallSheetLimit => 'Credit limit';
+
+  @override
+  String get collectionsDeskCreditLimitSubtitle =>
+      'Credit limit reached — confirm outreach for this account.';
+
+  @override
+  String get errorCreditLimitNoOutreach =>
+      'This account has no phone or email we can use for outreach.';
 
   @override
   String get notificationWarningTitle => 'Credit Alert';
@@ -3434,17 +3494,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closingAgentPlanDeviceRuns =>
-      'After backup and aging, overdue contacts with a valid email are emailed (up to 20). Copy is fixed; you will not edit each message. Gemini does not pick who.';
+      'After backup and aging, the Collections Desk splits call-eligible contacts from email. Yemen and other unsupported regions stay on email. Copy is fixed; Gemini does not pick who.';
 
   @override
   String get closingAgentPlanOutreachConsent =>
-      'Confirm & Send Statements is outreach consent. Confirm without sending closes the books and Drive with no email.';
+      'These buttons start the close. After backup and aging, the Collections Desk is where you confirm calls and emails.';
 
   @override
   String get closingAgentTaskmasterTitle => 'Today\'s closing plan';
 
   @override
   String get closingAgentApprovePlan => 'Approve plan';
+
+  @override
+  String get closingAgentStartClose => 'Start close';
+
+  @override
+  String get closingAgentStartCloseWithoutOutreach =>
+      'Start close without outreach';
 
   @override
   String get closingAgentConfirmAndSend => 'Confirm & Send Statements';
@@ -3488,7 +3555,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closingTaskBuildSendSet => 'Compile outreach list';
 
   @override
-  String get closingTaskOpenDesk => 'Dispatch collection emails';
+  String get closingTaskOpenDesk => 'Open collections desk';
 
   @override
   String get closingTaskComposeReport => 'Compose day report';
@@ -3820,6 +3887,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskFailedStatus => 'Failed';
 
   @override
+  String get collectionsDeskConfirmAndCall => 'Confirm & Call';
+
+  @override
+  String get collectionsDeskConfirmWithoutCalling => 'Confirm without calling';
+
+  @override
+  String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
+
+  @override
+  String get collectionsDeskPromiseNotPaymentSubtitle =>
+      'CALL-E records what the customer said they will pay. It does not write money to your ledger.';
+
+  @override
+  String get collectionsDeskCallPreviewTitle => 'What CALL-E will say';
+
+  @override
+  String collectionsDeskCallingProgress(int index, int total) {
+    return 'Calling $index of $total';
+  }
+
+  @override
+  String collectionsDeskCallCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calls',
+      one: '1 call',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskEmailCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count emails',
+      one: '1 email',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectionsDeskRailCall => 'Call';
+
+  @override
+  String get collectionsDeskRailEmail => 'Email';
+
+  @override
+  String get collectionsDeskRailBoth => 'Both';
+
+  @override
+  String get collectionsDeskRailCallUnavailable => 'Can\'t call';
+
+  @override
+  String get collectionsDeskRailSkipped => 'Skipped';
+
+  @override
   String collectionsQueueSending(int index, int total) {
     return 'Sending $index of $total';
   }
@@ -3913,6 +4038,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorSmtpSenderMisconfigured =>
       'Email sender is not configured on Cloud Run. Google Drive sign-in is unrelated. Your books are unchanged.';
+
+  @override
+  String get errorCalleKillSwitchTitle => 'Calls are paused';
+
+  @override
+  String get errorCalleKillSwitch =>
+      'Phone calls are turned off. Email still works. Your books are unchanged.';
+
+  @override
+  String get errorCalleNeedsHumanTitle => 'Call needs a look';
+
+  @override
+  String get errorCalleNeedsHuman =>
+      'The call needs a person to review. Your books are unchanged.';
+
+  @override
+  String get errorCallePollTimeoutTitle => 'Call timed out';
+
+  @override
+  String get errorCallePollTimeout =>
+      'The call did not finish in time. Your books are unchanged. Do not tap Confirm & Call again.';
 
   @override
   String get errorCollectionsEmailCap =>

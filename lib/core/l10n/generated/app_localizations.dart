@@ -440,6 +440,48 @@ abstract class AppLocalizations {
   /// **'أُرسل · {id}'**
   String architectureHudEmailSent(String id);
 
+  /// No description provided for @architectureHudCallChip.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال · {id} · {status}'**
+  String architectureHudCallChip(String id, String status);
+
+  /// No description provided for @architectureHudCallId.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال · {id}'**
+  String architectureHudCallId(String id);
+
+  /// No description provided for @architectureHudCallStatusOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال · {status}'**
+  String architectureHudCallStatusOnly(String status);
+
+  /// No description provided for @architectureHudCallPlanned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجدول'**
+  String get architectureHudCallPlanned;
+
+  /// No description provided for @architectureHudCallRinging.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرن'**
+  String get architectureHudCallRinging;
+
+  /// No description provided for @architectureHudCallCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتمل'**
+  String get architectureHudCallCompleted;
+
+  /// No description provided for @architectureHudCallFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشل'**
+  String get architectureHudCallFailed;
+
   /// No description provided for @contactDeleteConfirmTitle.
   ///
   /// In ar, this message translates to:
@@ -1753,6 +1795,58 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!'**
   String get creditLimitExceeded;
+
+  /// No description provided for @creditLimitCallSheetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال لإبلاغهم بأن البضائع الجديدة معلّقة حتى السداد؟'**
+  String get creditLimitCallSheetTitle;
+
+  /// No description provided for @creditLimitCallSheetBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{contactName} مدين بـ {outstanding} من حد ائتمان {limit}.'**
+  String creditLimitCallSheetBody(
+    String contactName,
+    String outstanding,
+    String limit,
+  );
+
+  /// No description provided for @creditLimitCallSheetPrepare.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعداد المكالمة'**
+  String get creditLimitCallSheetPrepare;
+
+  /// No description provided for @creditLimitCallSheetNotNow.
+  ///
+  /// In ar, this message translates to:
+  /// **'ليس الآن'**
+  String get creditLimitCallSheetNotNow;
+
+  /// No description provided for @creditLimitCallSheetOutstanding.
+  ///
+  /// In ar, this message translates to:
+  /// **'المستحق'**
+  String get creditLimitCallSheetOutstanding;
+
+  /// No description provided for @creditLimitCallSheetLimit.
+  ///
+  /// In ar, this message translates to:
+  /// **'حد الائتمان'**
+  String get creditLimitCallSheetLimit;
+
+  /// No description provided for @collectionsDeskCreditLimitSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.'**
+  String get collectionsDeskCreditLimitSubtitle;
+
+  /// No description provided for @errorCreditLimitNoOutreach.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.'**
+  String get errorCreditLimitNoOutreach;
 
   /// No description provided for @notificationWarningTitle.
   ///
@@ -6119,13 +6213,13 @@ abstract class AppLocalizations {
   /// No description provided for @closingAgentPlanDeviceRuns.
   ///
   /// In ar, this message translates to:
-  /// **'بعد النسخ الاحتياطي والتقادم يُرسل بريد للمتأخرين الذين لديهم بريد صالح (حتى 20). النص ثابت؛ لن تعدّل كل رسالة. لا يختار جيميناي المعرّفات.'**
+  /// **'بعد النسخ الاحتياطي والتقادم يقسم مكتب التحصيل المتصلين المؤهلين عن البريد. اليمن والمناطق غير المدعومة تبقى على البريد. النص ثابت؛ لا يختار جيميناي المعرّفات.'**
   String get closingAgentPlanDeviceRuns;
 
   /// No description provided for @closingAgentPlanOutreachConsent.
   ///
   /// In ar, this message translates to:
-  /// **'تأكيد وإرسال الكشوفات هو موافقة التواصل. تأكيد دون إرسال يقفل الدفاتر ودرايف بلا بريد.'**
+  /// **'هذان الزران يبدآن الإقفال. بعد النسخ ومسح التقادم، مكتب التحصيل هو موضع تأكيد الاتصال والبريد.'**
   String get closingAgentPlanOutreachConsent;
 
   /// No description provided for @closingAgentTaskmasterTitle.
@@ -6139,6 +6233,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اعتماد الخطة'**
   String get closingAgentApprovePlan;
+
+  /// No description provided for @closingAgentStartClose.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ الإقفال'**
+  String get closingAgentStartClose;
+
+  /// No description provided for @closingAgentStartCloseWithoutOutreach.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ الإقفال دون تواصل'**
+  String get closingAgentStartCloseWithoutOutreach;
 
   /// No description provided for @closingAgentConfirmAndSend.
   ///
@@ -6221,7 +6327,7 @@ abstract class AppLocalizations {
   /// No description provided for @closingTaskOpenDesk.
   ///
   /// In ar, this message translates to:
-  /// **'إرسال مطالبات التحصيل'**
+  /// **'فتح مكتب التحصيل'**
   String get closingTaskOpenDesk;
 
   /// No description provided for @closingTaskComposeReport.
@@ -6774,6 +6880,84 @@ abstract class AppLocalizations {
   /// **'فشل'**
   String get collectionsDeskFailedStatus;
 
+  /// No description provided for @collectionsDeskConfirmAndCall.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد والاتصال'**
+  String get collectionsDeskConfirmAndCall;
+
+  /// No description provided for @collectionsDeskConfirmWithoutCalling.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد دون اتصال'**
+  String get collectionsDeskConfirmWithoutCalling;
+
+  /// No description provided for @collectionsDeskPromiseNotPayment.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوعد ليس دفعة'**
+  String get collectionsDeskPromiseNotPayment;
+
+  /// No description provided for @collectionsDeskPromiseNotPaymentSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.'**
+  String get collectionsDeskPromiseNotPaymentSubtitle;
+
+  /// No description provided for @collectionsDeskCallPreviewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما سيقوله CALL-E'**
+  String get collectionsDeskCallPreviewTitle;
+
+  /// No description provided for @collectionsDeskCallingProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'جاري الاتصال {index} من {total}'**
+  String collectionsDeskCallingProgress(int index, int total);
+
+  /// No description provided for @collectionsDeskCallCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}'**
+  String collectionsDeskCallCount(int count);
+
+  /// No description provided for @collectionsDeskEmailCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{بريد واحد} =2{بريدان} few{{count} رسائل} many{{count} رسالة} other{{count} رسالة}}'**
+  String collectionsDeskEmailCount(int count);
+
+  /// No description provided for @collectionsDeskRailCall.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال'**
+  String get collectionsDeskRailCall;
+
+  /// No description provided for @collectionsDeskRailEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'بريد'**
+  String get collectionsDeskRailEmail;
+
+  /// No description provided for @collectionsDeskRailBoth.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاثنان'**
+  String get collectionsDeskRailBoth;
+
+  /// No description provided for @collectionsDeskRailCallUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن الاتصال'**
+  String get collectionsDeskRailCallUnavailable;
+
+  /// No description provided for @collectionsDeskRailSkipped.
+  ///
+  /// In ar, this message translates to:
+  /// **'متخطى'**
+  String get collectionsDeskRailSkipped;
+
   /// No description provided for @collectionsQueueSending.
   ///
   /// In ar, this message translates to:
@@ -6911,6 +7095,42 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'مرسل البريد غير مُعدّ على Cloud Run. تسجيل الدخول إلى Drive غير مرتبط. دفترك لم يتغيّر.'**
   String get errorSmtpSenderMisconfigured;
+
+  /// No description provided for @errorCalleKillSwitchTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمات متوقفة'**
+  String get errorCalleKillSwitchTitle;
+
+  /// No description provided for @errorCalleKillSwitch.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمات الهاتفية مغلقة. البريد ما زال يعمل. دفترك لم يتغيّر.'**
+  String get errorCalleKillSwitch;
+
+  /// No description provided for @errorCalleNeedsHumanTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمة تحتاج نظرة'**
+  String get errorCalleNeedsHumanTitle;
+
+  /// No description provided for @errorCalleNeedsHuman.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحتاج المكالمة مراجعة شخص. دفترك لم يتغيّر.'**
+  String get errorCalleNeedsHuman;
+
+  /// No description provided for @errorCallePollTimeoutTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهى وقت المكالمة'**
+  String get errorCallePollTimeoutTitle;
+
+  /// No description provided for @errorCallePollTimeout.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تكتمل المكالمة في الوقت المحدد. دفترك لم يتغيّر. لا تضغط تأكيد والاتصال مرة أخرى.'**
+  String get errorCallePollTimeout;
 
   /// No description provided for @errorCollectionsEmailCap.
   ///

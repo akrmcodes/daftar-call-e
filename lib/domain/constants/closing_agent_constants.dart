@@ -27,6 +27,9 @@ abstract final class ClosingAgentConstants {
   /// J.9 call-set cap (must match `agent/calls/schemas.py` `MAX_RECIPIENTS`).
   static const int maxCallRecipients = 5;
 
+  /// Receive timeout for `plan-batch` / `run-batch` / GET (cold start + create).
+  static const Duration callBatchReceiveTimeout = Duration(seconds: 90);
+
   /// Send timeout for multipart send-batch (up to five PDFs near the cap).
   static const Duration emailSendBatchSendTimeout = Duration(seconds: 180);
 

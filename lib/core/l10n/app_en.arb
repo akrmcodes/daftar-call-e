@@ -109,6 +109,29 @@
       "id": { "type": "String", "example": "9f3e12ab" }
     }
   },
+  "architectureHudCallChip": "Call · {id} · {status}",
+  "@architectureHudCallChip": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" },
+      "status": { "type": "String", "example": "ringing" }
+    }
+  },
+  "architectureHudCallId": "Call · {id}",
+  "@architectureHudCallId": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" }
+    }
+  },
+  "architectureHudCallStatusOnly": "Call · {status}",
+  "@architectureHudCallStatusOnly": {
+    "placeholders": {
+      "status": { "type": "String", "example": "planned" }
+    }
+  },
+  "architectureHudCallPlanned": "planned",
+  "architectureHudCallRinging": "ringing",
+  "architectureHudCallCompleted": "completed",
+  "architectureHudCallFailed": "failed",
   "contactDeleteConfirmTitle": "Are you sure?",
   "contactDeleteConfirmBody": "This will permanently remove this contact and all associated transactions from your ledger.",
   "contactDeleteConfirmAction": "Delete contact",
@@ -383,6 +406,21 @@
   "transactionSaved": "Transaction saved successfully",
   "creditLimitWarning": "Warning: Account is approaching its credit limit.",
   "creditLimitExceeded": "Alert: Account has exceeded its credit limit!",
+  "creditLimitCallSheetTitle": "Call to say no new goods until a payment?",
+  "creditLimitCallSheetBody": "{contactName} owes {outstanding} against a {limit} credit limit.",
+  "@creditLimitCallSheetBody": {
+    "placeholders": {
+      "contactName": { "type": "String", "example": "Ahmed" },
+      "outstanding": { "type": "String", "example": "1,500 ﷼" },
+      "limit": { "type": "String", "example": "1,000 ﷼" }
+    }
+  },
+  "creditLimitCallSheetPrepare": "Prepare the call",
+  "creditLimitCallSheetNotNow": "Not now",
+  "creditLimitCallSheetOutstanding": "Outstanding",
+  "creditLimitCallSheetLimit": "Credit limit",
+  "collectionsDeskCreditLimitSubtitle": "Credit limit reached — confirm outreach for this account.",
+  "errorCreditLimitNoOutreach": "This account has no phone or email we can use for outreach.",
   "notificationWarningTitle": "Credit Alert",
   "notificationWarningBody": "Account {contactName} has exceeded 80% of its credit limit.",
   "@notificationWarningBody": {
@@ -1525,10 +1563,12 @@
   "closingAgentCurrencyRequiredHelper": "Choose a currency before creating this account.",
   "closingAgentPlanTitle": "Closing plan",
   "closingAgentPlanSendSplit": "The five heaviest overdue accounts get a statement PDF. The rest of the send set get a reminder email. Aging ranks; Gemini does not pick who.",
-  "closingAgentPlanDeviceRuns": "After backup and aging, overdue contacts with a valid email are emailed (up to 20). Copy is fixed; you will not edit each message. Gemini does not pick who.",
-  "closingAgentPlanOutreachConsent": "Confirm & Send Statements is outreach consent. Confirm without sending closes the books and Drive with no email.",
+  "closingAgentPlanDeviceRuns": "After backup and aging, the Collections Desk splits call-eligible contacts from email. Yemen and other unsupported regions stay on email. Copy is fixed; Gemini does not pick who.",
+  "closingAgentPlanOutreachConsent": "These buttons start the close. After backup and aging, the Collections Desk is where you confirm calls and emails.",
   "closingAgentTaskmasterTitle": "Today's closing plan",
   "closingAgentApprovePlan": "Approve plan",
+  "closingAgentStartClose": "Start close",
+  "closingAgentStartCloseWithoutOutreach": "Start close without outreach",
   "closingAgentConfirmAndSend": "Confirm & Send Statements",
   "closingAgentConfirmWithoutSending": "Confirm without sending",
   "closingTaskmasterSealed": "{count} tasks sealed",
@@ -1547,7 +1587,7 @@
   "closingTaskScanAging": "Scan aging balances",
   "closingTaskRankUrgency": "Rank by urgency",
   "closingTaskBuildSendSet": "Compile outreach list",
-  "closingTaskOpenDesk": "Dispatch collection emails",
+  "closingTaskOpenDesk": "Open collections desk",
   "closingTaskComposeReport": "Compose day report",
   "closingTaskPresentSeal": "Present the day seal",
   "closingTaskCaptionDebts": "{count} debts today",
@@ -1709,6 +1749,35 @@
   "collectionsDeskSkippedStatus": "Skipped",
   "collectionsDeskSentStatus": "Sent",
   "collectionsDeskFailedStatus": "Failed",
+  "collectionsDeskConfirmAndCall": "Confirm & Call",
+  "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
+  "collectionsDeskPromiseNotPayment": "A promise is not a payment",
+  "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
+  "collectionsDeskCallPreviewTitle": "What CALL-E will say",
+  "collectionsDeskCallingProgress": "Calling {index} of {total}",
+  "@collectionsDeskCallingProgress": {
+    "placeholders": {
+      "index": { "type": "int", "example": "1" },
+      "total": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskCallCount": "{count, plural, =1{1 call} other{{count} calls}}",
+  "@collectionsDeskCallCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskEmailCount": "{count, plural, =1{1 email} other{{count} emails}}",
+  "@collectionsDeskEmailCount": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskRailCall": "Call",
+  "collectionsDeskRailEmail": "Email",
+  "collectionsDeskRailBoth": "Both",
+  "collectionsDeskRailCallUnavailable": "Can't call",
+  "collectionsDeskRailSkipped": "Skipped",
   "collectionsQueueSending": "Sending {index} of {total}",
   "@collectionsQueueSending": {
     "placeholders": {
@@ -1769,5 +1838,11 @@
   "errorSmtpTitle": "Email was not sent",
   "errorSmtpNeedsHuman": "Gmail on Cloud Run rejected the App Password. Signing into the app again will not help. Your books are unchanged.",
   "errorSmtpSenderMisconfigured": "Email sender is not configured on Cloud Run. Google Drive sign-in is unrelated. Your books are unchanged.",
+  "errorCalleKillSwitchTitle": "Calls are paused",
+  "errorCalleKillSwitch": "Phone calls are turned off. Email still works. Your books are unchanged.",
+  "errorCalleNeedsHumanTitle": "Call needs a look",
+  "errorCalleNeedsHuman": "The call needs a person to review. Your books are unchanged.",
+  "errorCallePollTimeoutTitle": "Call timed out",
+  "errorCallePollTimeout": "The call did not finish in time. Your books are unchanged. Do not tap Confirm & Call again.",
   "errorCollectionsEmailCap": "You can send at most 20 reminders at once."
 }

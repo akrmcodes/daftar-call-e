@@ -331,6 +331,13 @@ def test_create_failure_sets_needs_human() -> None:
     assert body["needsHuman"] is True
 
 
+def test_recipient_result_schema_uses_scalar_json_types() -> None:
+    from calls.schemas import RECIPIENT_RESULT_SCHEMA
+
+    for name, prop in RECIPIENT_RESULT_SCHEMA["properties"].items():
+        assert isinstance(prop.get("type"), str), name
+
+
 def test_source_bans_wait_and_isolates_sdk_import() -> None:
     wait_hits: list[str] = []
     sdk_hits: list[str] = []

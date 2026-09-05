@@ -2,6 +2,10 @@ import 'package:daftar/application/agent/build_collections_desk_use_case.dart';
 import 'package:daftar/application/agent/collections_send_queue_use_cases.dart';
 import 'package:daftar/application/agent/compose_collections_reminder_draft_use_case.dart';
 import 'package:daftar/application/agent/dispatch_collections_email_use_case.dart';
+import 'package:daftar/application/agent/get_call_run_use_case.dart';
+import 'package:daftar/application/agent/persist_collection_call_outcome_use_case.dart';
+import 'package:daftar/application/agent/plan_call_batch_use_case.dart';
+import 'package:daftar/application/agent/run_call_batch_use_case.dart';
 import 'package:daftar/application/agent/run_closing_ritual_use_case.dart';
 import 'package:daftar/core/utils/whatsapp_util.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
@@ -49,6 +53,40 @@ DispatchCollectionsEmailUseCase dispatchCollectionsEmailUseCase(Ref ref) {
     ),
     runtimeRepository: ref.watch(closingAgentRuntimeRepositoryProvider),
     composeDraft: ref.watch(composeCollectionsReminderDraftUseCaseProvider),
+  );
+}
+
+/// J.9 `plan-batch`.
+@Riverpod(keepAlive: true)
+PlanCallBatchUseCase planCallBatchUseCase(Ref ref) {
+  return PlanCallBatchUseCase(
+    runtimeRepository: ref.watch(closingAgentRuntimeRepositoryProvider),
+  );
+}
+
+/// J.9 `run-batch`.
+@Riverpod(keepAlive: true)
+RunCallBatchUseCase runCallBatchUseCase(Ref ref) {
+  return RunCallBatchUseCase(
+    runtimeRepository: ref.watch(closingAgentRuntimeRepositoryProvider),
+  );
+}
+
+/// J.9 GET poll.
+@Riverpod(keepAlive: true)
+GetCallRunUseCase getCallRunUseCase(Ref ref) {
+  return GetCallRunUseCase(
+    runtimeRepository: ref.watch(closingAgentRuntimeRepositoryProvider),
+  );
+}
+
+/// Persist `runId` and integer promises.
+@Riverpod(keepAlive: true)
+PersistCollectionCallOutcomeUseCase persistCollectionCallOutcomeUseCase(
+  Ref ref,
+) {
+  return PersistCollectionCallOutcomeUseCase(
+    collectionCallRepository: ref.watch(collectionCallRepositoryProvider),
   );
 }
 

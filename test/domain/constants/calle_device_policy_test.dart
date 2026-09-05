@@ -39,6 +39,29 @@ void main() {
       expect(policy.allowlistRegion, 'US');
     });
 
+    test('normalizes spaced and dashed NANP to E.164', () {
+      final policy = CalleDevicePolicy.parse(
+        allowDialRaw: '',
+        allowlistRaw: '+1 555-555-0100, +1 (555) 555-0101',
+        allowlistRegionRaw: 'US',
+      );
+
+      expect(
+        policy.allowlist,
+        {'+15555550100', '+15555550101'},
+      );
+    });
+
+    test('drops invalid allowlist entries', () {
+      final policy = CalleDevicePolicy.parse(
+        allowDialRaw: '',
+        allowlistRaw: 'not-a-phone, +15555550100',
+        allowlistRegionRaw: 'US',
+      );
+
+      expect(policy.allowlist, {'+15555550100'});
+    });
+
     test('empty allowlist region defaults to US', () {
       final policy = CalleDevicePolicy.parse(
         allowDialRaw: '',

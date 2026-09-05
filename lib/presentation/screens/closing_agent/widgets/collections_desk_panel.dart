@@ -4,14 +4,16 @@ import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
+import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_row.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_send_queue_bar.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-/// Khazna Collections Desk: ranked C.2 drafts and live SMTP dispatch.
+/// Khazna Collections Desk: dual-rail HITL consent + ranked drafts.
 class CollectionsDeskPanel extends StatelessWidget {
   /// Creates the desk panel.
   const CollectionsDeskPanel({
@@ -26,6 +28,12 @@ class CollectionsDeskPanel extends StatelessWidget {
     required this.onStartSending,
     required this.onApproveAndSend,
     required this.onDone,
+    required this.callCount,
+    required this.emailCount,
+    required this.callConsented,
+    required this.sendOutreachEnabled,
+    required this.onConfirmAndCall,
+    required this.onConfirmWithoutCalling,
     this.isDispatching = false,
     this.isQueueInFlight = false,
     this.isQueuePaused = false,
@@ -37,18 +45,41 @@ class CollectionsDeskPanel extends StatelessWidget {
     this.onQueueSkip,
     this.showHybridELeftover = false,
     this.showRetrySend = false,
+    this.callProgress,
     this.paddingBottom = 0,
+    this.deskSubtitle,
     super.key,
   });
 
-  /// Ranked reminder rows.
+  /// Ranked desk rows (full dual-rail shortlist).
   final List<CollectionsDeskRow> rows;
 
-  /// When true, Start sending owns the lapis glow.
+  /// When true, Start sending owns the lapis glow (Hybrid E only).
   final bool startSendingIsPrimary;
 
   /// Contact currently opening WhatsApp or a PDF share sheet.
   final String? busyContactId;
+
+  /// CALL-E call-set size.
+  final int callCount;
+
+  /// Email-rail size.
+  final int emailCount;
+
+  /// Merchant consented to outbound calls.
+  final bool callConsented;
+
+  /// Plan chose Confirm & Send (SMTP path available).
+  final bool sendOutreachEnabled;
+
+  /// Local call consent.
+  final VoidCallback onConfirmAndCall;
+
+  /// Skip call rail.
+  final VoidCallback onConfirmWithoutCalling;
+
+  /// Seeded call progress after Confirm & Call.
+  final CollectionsCallProgress? callProgress;
 
   /// Skip a pending row.
   final ValueChanged<String> onSkip;
@@ -56,7 +87,7 @@ class CollectionsDeskPanel extends StatelessWidget {
   /// Copy a row body.
   final ValueChanged<String> onCopy;
 
-  /// Leftover Hybrid E Open. Not the filmed climax or missing-email fallback.
+  /// Leftover Hybrid E Open.
   final ValueChanged<String> onOpen;
 
   /// Change tone for a pending row.
@@ -65,19 +96,19 @@ class CollectionsDeskPanel extends StatelessWidget {
   /// Toggle attach-PDF for a pending row.
   final ValueChanged<String> onTogglePdf;
 
-  /// Leftover Hybrid E Start sending. Not the filmed climax.
+  /// Leftover Hybrid E Start sending.
   final VoidCallback onStartSending;
 
   /// SMTP Approve & send (whole send set).
   final VoidCallback onApproveAndSend;
 
-  /// Skip outreach (remaining pending treated as skipped).
+  /// Confirm without sending / skip outreach.
   final VoidCallback onDone;
 
   /// True while send-batch PDFs / SMTP are in flight.
   final bool isDispatching;
 
-  /// Leftover Hybrid E sticky bar. Must stay false on the SMTP path.
+  /// Leftover Hybrid E sticky bar.
   final bool isQueueInFlight;
 
   /// True when resume-advance is paused.
@@ -101,17 +132,17 @@ class CollectionsDeskPanel extends StatelessWidget {
   /// Skip the first pending row from the sticky bar.
   final VoidCallback? onQueueSkip;
 
-  /// Leftover Hybrid E chrome on rows + sticky `wa.me` bar.
-  ///
-  /// Default **false** on the SMTP desk. Disabled Open WhatsApp is still
-  /// visible — hide, do not only set `leftoverActionsEnabled: false`.
+  /// Leftover Hybrid E chrome.
   final bool showHybridELeftover;
 
-  /// SMTP lead: show Retry sending after a failed auto-dispatch (not a new consent).
+  /// SMTP lead: show Retry sending after a failed dispatch.
   final bool showRetrySend;
 
   /// Extra bottom inset so the last row clears the floating composer dock.
   final double paddingBottom;
+
+  /// Optional subtitle (B-trigger credit-limit desk).
+  final String? deskSubtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +184,33 @@ class CollectionsDeskPanel extends StatelessWidget {
                 l10n.collectionsDeskCount(rows.length),
                 style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
               ),
+              if (deskSubtitle != null && deskSubtitle!.trim().isNotEmpty) ...[
+                const Gap(AppDimensions.spacingXxs),
+                Text(
+                  deskSubtitle!,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: inkSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
+        if (!showHybridELeftover)
+          CollectionsDeskConsentCard(
+            callCount: callCount,
+            emailCount: emailCount,
+            callConsented: callConsented,
+            sendOutreachEnabled: sendOutreachEnabled,
+            busy: busy,
+            isDispatching: isDispatching,
+            callProgress: callProgress,
+            onConfirmAndCall: onConfirmAndCall,
+            onConfirmAndSend: onApproveAndSend,
+            onConfirmWithoutCalling: onConfirmWithoutCalling,
+            onConfirmWithoutSending: onDone,
+          ),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsetsDirectional.fromSTEB(
@@ -187,80 +242,83 @@ class CollectionsDeskPanel extends StatelessWidget {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            AppDimensions.pagePaddingH,
-            0,
-            AppDimensions.pagePaddingH,
-            AppDimensions.spacingMd,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (showHybridELeftover && isQueueInFlight)
-                CollectionsSendQueueBar(
-                  index: queueIndex,
-                  total: queueTotal,
-                  contactName: queueContactName,
-                  isPaused: isQueuePaused,
-                  openIsPrimary: startSendingIsPrimary,
-                  isBusy: busy,
-                  onOpen: onStartSending,
-                  onSkip: onQueueSkip ?? onDone,
-                  onPause: onQueuePause ?? _collectionsDeskQueueNoop,
-                  onResume: onQueueResume ?? _collectionsDeskQueueNoop,
-                )
-              else if (showHybridELeftover && isDispatching)
-                DaftarButton(
-                  label: queueTotal > 0
-                      ? l10n.collectionsQueueSending(
-                          queueIndex < 1 ? 1 : queueIndex,
-                          queueTotal,
-                        )
-                      : l10n.collectionsDeskSending,
-                  isExpanded: true,
-                  isLoading: true,
-                  onPressed: null,
-                )
-              else if (showHybridELeftover)
-                DaftarButton(
-                  label: l10n.collectionsDeskApproveSend,
-                  variant: startSendingIsPrimary
-                      ? DaftarButtonVariant.primary
-                      : DaftarButtonVariant.secondary,
-                  isExpanded: true,
-                  onPressed: hasPending && !busy ? onApproveAndSend : null,
-                )
-              else if (isDispatching)
-                DaftarButton(
-                  label: queueTotal > 0
-                      ? l10n.collectionsQueueSending(
-                          queueIndex < 1 ? 1 : queueIndex,
-                          queueTotal,
-                        )
-                      : l10n.collectionsDeskSending,
-                  isExpanded: true,
-                  isLoading: true,
-                  onPressed: null,
-                )
-              else if (showRetrySend)
-                DaftarButton(
-                  label: l10n.collectionsDeskRetrySend,
-                  isExpanded: true,
-                  onPressed: hasPending && !busy ? onApproveAndSend : null,
-                ),
-              if (showHybridELeftover) ...[
-                const Gap(AppDimensions.spacingSm),
-                DaftarButton(
-                  label: l10n.collectionsDeskSkipOutreach,
-                  variant: DaftarButtonVariant.tertiary,
-                  isExpanded: true,
-                  onPressed: busy || isDispatching ? null : onDone,
-                ),
+        if (showHybridELeftover || isDispatching || showRetrySend)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppDimensions.pagePaddingH,
+              0,
+              AppDimensions.pagePaddingH,
+              AppDimensions.spacingMd,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (showHybridELeftover && isQueueInFlight)
+                  CollectionsSendQueueBar(
+                    index: queueIndex,
+                    total: queueTotal,
+                    contactName: queueContactName,
+                    isPaused: isQueuePaused,
+                    openIsPrimary: startSendingIsPrimary,
+                    isBusy: busy,
+                    onOpen: onStartSending,
+                    onSkip: onQueueSkip ?? onDone,
+                    onPause: onQueuePause ?? _collectionsDeskQueueNoop,
+                    onResume: onQueueResume ?? _collectionsDeskQueueNoop,
+                  )
+                else if (showHybridELeftover && isDispatching)
+                  DaftarButton(
+                    label: queueTotal > 0
+                        ? l10n.collectionsQueueSending(
+                            queueIndex < 1 ? 1 : queueIndex,
+                            queueTotal,
+                          )
+                        : l10n.collectionsDeskSending,
+                    isExpanded: true,
+                    isLoading: true,
+                    onPressed: null,
+                  )
+                else if (showHybridELeftover)
+                  DaftarButton(
+                    label: l10n.collectionsDeskApproveSend,
+                    variant: startSendingIsPrimary
+                        ? DaftarButtonVariant.primary
+                        : DaftarButtonVariant.secondary,
+                    isExpanded: true,
+                    onPressed: hasPending && !busy ? onApproveAndSend : null,
+                  )
+                else if (isDispatching)
+                  DaftarButton(
+                    label: queueTotal > 0
+                        ? l10n.collectionsQueueSending(
+                            queueIndex < 1 ? 1 : queueIndex,
+                            queueTotal,
+                          )
+                        : l10n.collectionsDeskSending,
+                    variant: DaftarButtonVariant.secondary,
+                    isExpanded: true,
+                    isLoading: true,
+                    onPressed: null,
+                  )
+                else if (showRetrySend)
+                  DaftarButton(
+                    label: l10n.collectionsDeskRetrySend,
+                    variant: DaftarButtonVariant.secondary,
+                    isExpanded: true,
+                    onPressed: hasPending && !busy ? onApproveAndSend : null,
+                  ),
+                if (showHybridELeftover) ...[
+                  const Gap(AppDimensions.spacingSm),
+                  DaftarButton(
+                    label: l10n.collectionsDeskSkipOutreach,
+                    variant: DaftarButtonVariant.tertiary,
+                    isExpanded: true,
+                    onPressed: busy || isDispatching ? null : onDone,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
       ],
     );
   }
