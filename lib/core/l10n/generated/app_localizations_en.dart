@@ -930,6 +930,39 @@ class AppLocalizationsEn extends AppLocalizations {
       'Alert: Account has exceeded its credit limit!';
 
   @override
+  String get creditLimitCallSheetTitle =>
+      'Call to say no new goods until a payment?';
+
+  @override
+  String creditLimitCallSheetBody(
+    String contactName,
+    String outstanding,
+    String limit,
+  ) {
+    return '$contactName owes $outstanding against a $limit credit limit.';
+  }
+
+  @override
+  String get creditLimitCallSheetPrepare => 'Prepare the call';
+
+  @override
+  String get creditLimitCallSheetNotNow => 'Not now';
+
+  @override
+  String get creditLimitCallSheetOutstanding => 'Outstanding';
+
+  @override
+  String get creditLimitCallSheetLimit => 'Credit limit';
+
+  @override
+  String get collectionsDeskCreditLimitSubtitle =>
+      'Credit limit reached — confirm outreach for this account.';
+
+  @override
+  String get errorCreditLimitNoOutreach =>
+      'This account has no phone or email we can use for outreach.';
+
+  @override
   String get notificationWarningTitle => 'Credit Alert';
 
   @override

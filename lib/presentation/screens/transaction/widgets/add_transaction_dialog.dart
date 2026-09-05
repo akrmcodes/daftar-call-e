@@ -5,6 +5,8 @@ import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
+import 'package:daftar/domain/enums/transaction_type.dart';
+import 'package:daftar/presentation/screens/contact/credit_limit_b_trigger.dart';
 import 'package:daftar/core/constants/app_constants.dart';
 import 'package:daftar/core/constants/db_constants.dart';
 import 'package:daftar/core/extensions/context_extensions.dart';
@@ -17,7 +19,6 @@ import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/currency.dart';
 import 'package:daftar/domain/entities/item_suggestion.dart';
 import 'package:daftar/domain/entities/transaction.dart';
-import 'package:daftar/domain/enums/transaction_type.dart';
 import 'package:daftar/domain/value_objects/currency_precision.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:daftar/presentation/providers/transaction_providers.dart';
@@ -305,13 +306,16 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
             icon: Icons.warning_amber_rounded,
             isDark: isDark,
           );
-        } else if (saveResult.warningLevel == CreditWarningLevel.exceeded) {
-          _showCreditLimitSnackBar(
-            messenger: messenger,
-            message: l10n.creditLimitExceeded,
-            accentColor: AppColors.error,
-            icon: Icons.error_rounded,
-            isDark: isDark,
+        } else if (saveResult.warningLevel == CreditWarningLevel.exceeded &&
+            _type == TransactionType.debt) {
+          unawaited(
+            CreditLimitBTrigger.offerAfterDebtSave(
+              context: context,
+              ref: ref,
+              contactId: widget.contactId,
+              type: _type,
+              warningLevel: saveResult.warningLevel,
+            ),
           );
         }
       },

@@ -261,6 +261,12 @@ abstract final class ErrorTranslator {
             : l10n.errorSmtpNeedsHuman,
       );
     }
+    if (failure.code == 'credit_limit_no_outreach') {
+      return LocalizedErrorContent(
+        title: l10n.notificationWarningTitle,
+        message: l10n.errorCreditLimitNoOutreach,
+      );
+    }
     if (failure.code == 'calle_kill_switch') {
       return LocalizedErrorContent(
         title: l10n.errorCalleKillSwitchTitle,

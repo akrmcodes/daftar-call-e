@@ -16,6 +16,7 @@ import 'package:daftar/domain/constants/built_in_currencies.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/ledger.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
@@ -39,6 +40,7 @@ import 'package:daftar/presentation/screens/closing_agent/widgets/closing_agent_
 import 'package:daftar/presentation/screens/closing_agent/widgets/closing_agent_working_studio.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/closing_ritual_panel.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_panel.dart';
+import 'package:daftar/presentation/screens/contact/credit_limit_b_trigger.dart';
 import 'package:daftar/presentation/shared/animations/fade_slide_transition.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
@@ -167,6 +169,30 @@ class _ClosingAgentScreenState extends ConsumerState<ClosingAgentScreen>
         : AppColors.inkPrimaryLight;
     final surface = isDark ? AppColors.surface0 : AppColors.surface0Light;
     final agentState = ref.watch(closingAgentControllerProvider);
+    ref.listen<ClosingAgentState>(closingAgentControllerProvider, (
+      previous,
+      next,
+    ) {
+      final pending = next.pendingCreditLimitPromptContactId;
+      if (pending == null || pending.trim().isEmpty) {
+        return;
+      }
+      if (previous?.pendingCreditLimitPromptContactId == pending) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        unawaited(
+          CreditLimitBTrigger.presentPendingPrompt(
+            context: context,
+            ref: ref,
+            contactId: pending,
+          ),
+        );
+      });
+    });
     final ledgersAsync = ref.watch(ledgersProvider);
     final ledgers = ledgersAsync.asData?.value ?? const <Ledger>[];
     final ledgersReady = ledgersAsync.hasValue;
@@ -531,6 +557,11 @@ class _AgentBody extends ConsumerWidget {
               rows: agentState.deskRows,
               callCount: agentState.deskCallCount,
               emailCount: agentState.deskEmailCount,
+              deskSubtitle: agentState.callBatchTrigger ==
+                      CallBatchTrigger.creditLimit
+                  ? AppLocalizations.of(context)!
+                      .collectionsDeskCreditLimitSubtitle
+                  : null,
               callConsented: agentState.callConsented,
               sendOutreachEnabled: agentState.sendOutreachEnabled,
               callProgress: agentState.callProgress,

@@ -4637,4 +4637,26 @@ Completed connectivity task without collections schema is a successful ring, not
 ### Status
 Banner root cause fixed. Demo window closed. Gate 3 device J.9 green. Next: Stage 3.2 B-trigger / 3.3 HUD / Gate 4 film when the owner opens a new demo window.
 
+## 2026-09-05 — Stage 3.2 credit-limit B-trigger (HITL)
+
+### Context
+Roadmap §3.2 / Chapter 5: after a debt save where `CreditWarningLevel.exceeded`, prompt the merchant to open outreach — never auto-dial. Yes uses the same Collections Desk and `plan-batch` / `run-batch` with `trigger=creditLimit`. No leaves the ledger as already committed (Model C). Not the filmed climax; kill switch stays false on `daftar-call-e`.
+
+### Done
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](../lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart): Khazna confirmation sheet (Prepare the call / Not now), integer outstanding vs limit, promise ≠ payment banner. No `AlertDialog`.
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](../lib/presentation/screens/contact/credit_limit_b_trigger.dart): shared helper after debt save; navigates to Closing Agent when accepted.
+- Wired exceeded debt path: [`add_transaction_dialog.dart`](../lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart), [`quick_add_bottom_sheet.dart`](../lib/presentation/widgets/transactions/quick_add_bottom_sheet.dart), agent `confirm` / `confirmCaptureBundle` via `pendingCreditLimitPromptContactId` + [`closing_agent_screen.dart`](../lib/presentation/screens/closing_agent/closing_agent_screen.dart) listener.
+- [`ClosingAgentController.openCreditLimitDesk`](../lib/presentation/providers/closing_agent_controller.dart): one contact via [`GetCollectionsCandidatesUseCase`](../lib/application/contact/get_collections_candidates_use_case.dart) `contactId` filter + dual rail; no ritual backup; `sendOutreachEnabled: true`. `finishDesk` returns `idle` for credit-limit (no day seal report).
+- `callBatchTrigger` on [`ClosingAgentState`](../lib/presentation/providers/closing_agent_state.dart) threaded through desk compose, `confirmAndCall`, persist. C.3 hold sentence via [`CollectionsCallTaskComposer`](../lib/domain/constants/collections_call_task_composer.dart).
+- ARB EN+AR + `errorCreditLimitNoOutreach`. [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart) credit-limit subtitle.
+
+### Architecture / decisions
+Second HITL only — sheet does not HTTP. Confirm & Call remains sole PSTN consent. Skip prompt during close-day `ritualDesk` / `ritualRunning`. Payments never prompt. Providers → use cases unchanged.
+
+### Ops / verification
+Targeted tests: credit-limit sheet, candidates `contactId` filter, desk compose hold sentence, controller `openCreditLimitDesk` (no plan/run), `finishDesk` → idle, `confirmAndCall` sends `creditLimit`. `dart analyze` on touched files. No Cloud Run deploy. No DID.
+
+### Status
+Roadmap §3.2 ticked. Gate 3 B-trigger no auto-dial ticked. Next: §3.3 HUD call chip, Gate 4 film when demo window reopens.
+
 

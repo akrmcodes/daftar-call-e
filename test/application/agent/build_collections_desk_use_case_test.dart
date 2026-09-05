@@ -3,6 +3,7 @@ import 'package:daftar/application/agent/compose_collections_reminder_draft_use_
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/merchant_profile.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
@@ -261,5 +262,30 @@ void main() {
     expect(usRow.body, isNotEmpty);
     expect(yeRow.callTask, isEmpty);
     expect(yeRow.body, contains('nye'));
+  });
+
+  test('credit-limit trigger appends hold sentence to call task', () async {
+    final shortlist = [
+      candidate(
+        id: 'us',
+        ageDays: 40,
+        tone: ReminderToneBand.firm,
+        rail: OutreachRail.call,
+        phone: '+15555550100',
+      ),
+    ];
+
+    final result = await useCase.execute(
+      ritual(
+        shortlist: shortlist,
+        reminders: ClosingReminderPolicy.none,
+        pdfs: ClosingPdfPolicy.none,
+      ),
+      trigger: CallBatchTrigger.creditLimit,
+    );
+    final row = result.getRight().toNullable()!.rows.single;
+
+    expect(row.callTask, contains('new goods are on hold'));
+    expect(row.callTask, contains('acknowledged_hold'));
   });
 }

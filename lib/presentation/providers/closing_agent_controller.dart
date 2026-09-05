@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:daftar/application/agent/answer_ask_books_use_case.dart';
 import 'package:daftar/application/agent/ask_books_intent.dart';
+import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/application/agent/contact_name_match.dart';
 import 'package:daftar/application/agent/correct_spoken_amount_minor.dart';
 import 'package:daftar/application/agent/extract_statement_contact_hint.dart';
@@ -42,6 +43,7 @@ import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
 import 'package:daftar/domain/value_objects/call_plan_batch.dart';
 import 'package:daftar/domain/value_objects/call_run_batch.dart';
+import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
@@ -435,6 +437,12 @@ class ClosingAgentController extends _$ClosingAgentController {
       confirmingProposalId: null,
       committedIds: {...state.committedIds, proposal.proposalId},
     );
+    if (proposal.tool == ProposalTool.proposeDebt) {
+      final contactId = _resolvedDebtContactId(proposal);
+      if (contactId != null && contactId.isNotEmpty) {
+        await _queueCreditLimitPromptIfNeeded(contactId);
+      }
+    }
     if (proposal.tool == ProposalTool.proposeClosingPlan) {
       _sendOutreach = sendOutreach;
       _autoDispatchOutreach = autoDispatch;
@@ -469,6 +477,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     String? threadedLedgerId;
     String? threadedContactId;
     var contactCreatedInBundle = false;
+    String? lastDebtContactId;
 
     for (final proposal in ordered) {
       if (state.committedIds.contains(proposal.proposalId)) {
@@ -574,9 +583,19 @@ class ClosingAgentController extends _$ClosingAgentController {
         ledgerIdByProposal: nextLedgerMap,
         contactIdByProposal: nextContactMap,
       );
+
+      if (proposal.tool == ProposalTool.proposeDebt) {
+        final contactId = _resolvedDebtContactId(proposal);
+        if (contactId != null && contactId.isNotEmpty) {
+          lastDebtContactId = contactId;
+        }
+      }
     }
 
     state = state.copyWith(confirmingProposalId: null);
+    if (lastDebtContactId != null) {
+      await _queueCreditLimitPromptIfNeeded(lastDebtContactId);
+    }
   }
 
   /// Skips every pending proposal in a capture bundle.
@@ -1051,7 +1070,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     final planRequest = CallPlanBatchRequest(
       batchId: batchId,
       correlationId: correlationId,
-      trigger: CallBatchTrigger.closeDay,
+      trigger: state.callBatchTrigger,
       dryRun: false,
       locale: locale,
       recipients: [
@@ -1114,7 +1133,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       CollectionCallBatchSeed(
         batchId: batchId,
         correlationId: correlationId,
-        trigger: CallBatchTrigger.closeDay,
+        trigger: state.callBatchTrigger,
         status: CallBatchStatus.running,
         runs: [
           for (final item in queued)
@@ -1153,6 +1172,7 @@ class ClosingAgentController extends _$ClosingAgentController {
           : (desk?.candidate.name ?? ''),
       amountMinor: desk?.candidate.owedMinor ?? 0,
       currencyCode: desk?.candidate.currencyCode ?? '',
+      trigger: state.callBatchTrigger,
     );
     final task = desk != null && desk.callTask.isNotEmpty
         ? desk.callTask
@@ -1513,6 +1533,23 @@ class ClosingAgentController extends _$ClosingAgentController {
           row,
     ];
     state = state.copyWith(deskRows: rows);
+    if (state.callBatchTrigger == CallBatchTrigger.creditLimit) {
+      state = state.copyWith(
+        phase: ClosingAgentPhase.idle,
+        ritualResult: null,
+        ritualPromptKind: null,
+        deskBusyContactId: null,
+        collectionsDispatching: false,
+        collectionsBatchId: null,
+        callConsented: false,
+        sendConsented: false,
+        callProgress: null,
+        callBatchTrigger: CallBatchTrigger.closeDay,
+        sendOutreachEnabled: false,
+        actionFailure: null,
+      );
+      return;
+    }
     final metrics = CollectionsQueueMetrics.fromRows(rows);
     _showRitualReport(result.withQueueMetrics(metrics));
     await _completePersistedQueue();
@@ -1524,6 +1561,96 @@ class ClosingAgentController extends _$ClosingAgentController {
       actionFailure: failure,
       deskBusyContactId: null,
     );
+  }
+
+  /// Opens the Collections Desk for one contact after credit-limit B-trigger.
+  ///
+  /// Never calls `plan-batch` / `run-batch` — Confirm & Call remains HITL.
+  Future<void> openCreditLimitDesk(String contactId) async {
+    final trimmed = contactId.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+
+    final callPolicy = ref.read(calleDevicePolicyProvider);
+    final shortlistResult = await ref
+        .read(getCollectionsCandidatesUseCaseProvider)
+        .execute(
+          allowlist: callPolicy.allowlist,
+          allowlistRegion: callPolicy.allowlistRegion,
+          contactId: trimmed,
+        );
+    final shortlistFailure = shortlistResult.getLeft().toNullable();
+    if (shortlistFailure != null) {
+      state = state.copyWith(actionFailure: shortlistFailure);
+      return;
+    }
+    final ranked = shortlistResult.getRight().toNullable() ?? const [];
+    final contactRows = [
+      for (final row in ranked)
+        if (row.contactId == trimmed) row,
+    ];
+    if (contactRows.isEmpty) {
+      state = state.copyWith(
+        actionFailure: const ValidationFailure(
+          'No outreach path for this account.',
+          code: 'credit_limit_no_outreach',
+        ),
+      );
+      return;
+    }
+
+    final day = ClosingAgentConstants.merchantLocalDay();
+    final ritual = ClosingRitualResult(
+      summary: ClosingDaySummary.empty(day),
+      backupStatus: ClosingBackupStatus.skippedUnsigned,
+      shortlist: contactRows,
+      reminderPolicy: ClosingReminderPolicy.all,
+      pdfPolicy: ClosingPdfPolicy.rankedTop5,
+    );
+
+    await _openCollectionsDesk(
+      ritual,
+      trigger: CallBatchTrigger.creditLimit,
+    );
+  }
+
+  /// Clears a pending B-trigger prompt after the sheet is handled.
+  void clearCreditLimitPrompt() {
+    if (state.pendingCreditLimitPromptContactId == null) {
+      return;
+    }
+    state = state.copyWith(pendingCreditLimitPromptContactId: null);
+  }
+
+  Future<void> _queueCreditLimitPromptIfNeeded(String contactId) async {
+    final trimmed = contactId.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+    if (state.phase == ClosingAgentPhase.ritualDesk ||
+        state.phase == ClosingAgentPhase.ritualRunning) {
+      return;
+    }
+    final result =
+        await ref.read(checkCreditLimitUseCaseProvider).execute(trimmed);
+    final level =
+        result.getRight().toNullable() ?? CreditWarningLevel.none;
+    if (level != CreditWarningLevel.exceeded) {
+      return;
+    }
+    state = state.copyWith(pendingCreditLimitPromptContactId: trimmed);
+  }
+
+  String? _resolvedDebtContactId(AgentProposal proposal) {
+    final override = state.contactIdByProposal[proposal.proposalId]?.trim();
+    if (override != null && override.isNotEmpty) {
+      return override;
+    }
+    return switch (proposal.payload) {
+      ProposeDebtPayload(:final contactId) => contactId?.trim(),
+      _ => null,
+    };
   }
 
   Future<void> _runClosingRitual() async {
@@ -1790,11 +1917,23 @@ class ClosingAgentController extends _$ClosingAgentController {
     );
   }
 
-  Future<void> _openCollectionsDesk(ClosingRitualResult next) async {
+  Future<void> _openCollectionsDesk(
+    ClosingRitualResult next, {
+    CallBatchTrigger trigger = CallBatchTrigger.closeDay,
+  }) async {
     if (_buildingDesk) {
       return;
     }
     if (next.shortlist.isEmpty) {
+      if (trigger == CallBatchTrigger.creditLimit) {
+        state = state.copyWith(
+          actionFailure: const ValidationFailure(
+            'No outreach path for this account.',
+            code: 'credit_limit_no_outreach',
+          ),
+        );
+        return;
+      }
       _showRitualReport(next);
       return;
     }
@@ -1802,7 +1941,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     try {
       final built = await ref
           .read(buildCollectionsDeskUseCaseProvider)
-          .execute(next);
+          .execute(next, trigger: trigger);
       final failure = built.getLeft().toNullable();
       if (failure != null) {
         state = state.copyWith(
@@ -1813,6 +1952,15 @@ class ClosingAgentController extends _$ClosingAgentController {
       }
       final snapshot = built.getRight().toNullable()!;
       if (snapshot.rows.isEmpty) {
+        if (trigger == CallBatchTrigger.creditLimit) {
+          state = state.copyWith(
+            actionFailure: const ValidationFailure(
+              'No outreach path for this account.',
+              code: 'credit_limit_no_outreach',
+            ),
+          );
+          return;
+        }
         _showRitualReport(next);
         return;
       }
@@ -1829,7 +1977,10 @@ class ClosingAgentController extends _$ClosingAgentController {
         callConsented: false,
         sendConsented: false,
         callProgress: null,
-        sendOutreachEnabled: state.sendOutreachEnabled || _sendOutreach,
+        callBatchTrigger: trigger,
+        sendOutreachEnabled: trigger == CallBatchTrigger.creditLimit
+            ? true
+            : (state.sendOutreachEnabled || _sendOutreach),
         actionFailure: null,
       );
     } finally {

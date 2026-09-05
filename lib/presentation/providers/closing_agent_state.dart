@@ -1,6 +1,7 @@
 import 'package:daftar/application/agent/ask_books_intent.dart';
 import 'package:daftar/application/agent/speech_locale.dart';
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
@@ -120,6 +121,8 @@ abstract class ClosingAgentState with _$ClosingAgentState {
     @Default(false) bool sendOutreachEnabled,
     CollectionsCallProgress? callProgress,
     String? speechLocaleOverride,
+    @Default(CallBatchTrigger.closeDay) CallBatchTrigger callBatchTrigger,
+    String? pendingCreditLimitPromptContactId,
   }) = _ClosingAgentState;
 
   const ClosingAgentState._();

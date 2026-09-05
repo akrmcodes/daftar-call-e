@@ -375,6 +375,21 @@
   "transactionSaved": "تم حفظ العملية بنجاح",
   "creditLimitWarning": "تنبيه: لقد اقترب الحساب من الحد الائتماني",
   "creditLimitExceeded": "تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!",
+  "creditLimitCallSheetTitle": "اتصال لإبلاغهم بأن البضائع الجديدة معلّقة حتى السداد؟",
+  "creditLimitCallSheetBody": "{contactName} مدين بـ {outstanding} من حد ائتمان {limit}.",
+  "@creditLimitCallSheetBody": {
+    "placeholders": {
+      "contactName": { "type": "String", "example": "أحمد" },
+      "outstanding": { "type": "String", "example": "1,500 ﷼" },
+      "limit": { "type": "String", "example": "1,000 ﷼" }
+    }
+  },
+  "creditLimitCallSheetPrepare": "إعداد المكالمة",
+  "creditLimitCallSheetNotNow": "ليس الآن",
+  "creditLimitCallSheetOutstanding": "المستحق",
+  "creditLimitCallSheetLimit": "حد الائتمان",
+  "collectionsDeskCreditLimitSubtitle": "تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.",
+  "errorCreditLimitNoOutreach": "لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.",
   "notificationWarningTitle": "تنبيه ائتماني",
   "notificationWarningBody": "لقد تجاوز حساب {contactName} نسبة 80% من الحد الائتماني.",
   "@notificationWarningBody": {

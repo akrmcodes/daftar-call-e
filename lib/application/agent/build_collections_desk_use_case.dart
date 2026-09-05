@@ -2,6 +2,7 @@ import 'package:daftar/application/agent/compose_collections_reminder_draft_use_
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
+import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/repositories/merchant_profile_repository.dart';
 import 'package:daftar/domain/repositories/settings_repository.dart';
@@ -32,8 +33,9 @@ class BuildCollectionsDeskUseCase {
   ///
   /// `attachPdf` follows [ClosingRitualResult.pdfContacts] for email-rail rows.
   Future<Either<Failure, CollectionsDeskBuildResult>> execute(
-    ClosingRitualResult ritual,
-  ) async {
+    ClosingRitualResult ritual, {
+    CallBatchTrigger trigger = CallBatchTrigger.closeDay,
+  }) async {
     if (ritual.shortlist.isEmpty) {
       return const Right(
         CollectionsDeskBuildResult(
@@ -70,6 +72,7 @@ class BuildCollectionsDeskUseCase {
           attachPdf: pdfIds.contains(candidate.contactId) &&
               _hasEmailRail(candidate.rail),
           includeEmailDraft: _hasEmailRail(candidate.rail),
+          trigger: trigger,
         ),
     ];
 
@@ -98,6 +101,7 @@ class BuildCollectionsDeskUseCase {
     required String storeName,
     required bool attachPdf,
     required bool includeEmailDraft,
+    CallBatchTrigger trigger = CallBatchTrigger.closeDay,
   }) {
     var subject = '';
     var body = '';
@@ -132,6 +136,7 @@ class BuildCollectionsDeskUseCase {
         contactName: candidate.name,
         amountMinor: candidate.owedMinor,
         currencyCode: candidate.currencyCode,
+        trigger: trigger,
       );
       callTask = task.task;
       customerName = customerName.isEmpty ? task.customerName : customerName;

@@ -918,6 +918,39 @@ class AppLocalizationsAr extends AppLocalizations {
       'تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!';
 
   @override
+  String get creditLimitCallSheetTitle =>
+      'اتصال لإبلاغهم بأن البضائع الجديدة معلّقة حتى السداد؟';
+
+  @override
+  String creditLimitCallSheetBody(
+    String contactName,
+    String outstanding,
+    String limit,
+  ) {
+    return '$contactName مدين بـ $outstanding من حد ائتمان $limit.';
+  }
+
+  @override
+  String get creditLimitCallSheetPrepare => 'إعداد المكالمة';
+
+  @override
+  String get creditLimitCallSheetNotNow => 'ليس الآن';
+
+  @override
+  String get creditLimitCallSheetOutstanding => 'المستحق';
+
+  @override
+  String get creditLimitCallSheetLimit => 'حد الائتمان';
+
+  @override
+  String get collectionsDeskCreditLimitSubtitle =>
+      'تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.';
+
+  @override
+  String get errorCreditLimitNoOutreach =>
+      'لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.';
+
+  @override
   String get notificationWarningTitle => 'تنبيه ائتماني';
 
   @override

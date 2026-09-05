@@ -643,11 +643,11 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **3.2 B-trigger**
 
-- [ ] After save when `CreditWarningLevel.exceeded`, prompt to call (HITL)
-- [ ] Yes → same desk / same plan-run routes with `trigger=creditLimit`
-- [ ] No → ledger unchanged (money already committed on the sale confirm)
-- [ ] **Never** auto-dial on save
-- [ ] Not the filmed climax
+- [x] After save when `CreditWarningLevel.exceeded`, prompt to call (HITL)
+- [x] Yes → same desk / same plan-run routes with `trigger=creditLimit`
+- [x] No → ledger unchanged (money already committed on the sale confirm)
+- [x] **Never** auto-dial on save
+- [x] Not the filmed climax
 
 **3.3 HUD**
 
@@ -668,7 +668,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Widget/provider tests for four desk buttons, YE badge, dedicated desk (no “Dispatch collection emails” pause)
 - [x] Device Confirm & Call hits J.9 (dry-run or live per kill switch)
 - [x] RTL/Khazna intact on the desk card
-- [x] B-trigger **no auto-dial** and HUD chip remain **3.2 / 3.3** (unchecked this pass)
+- [x] B-trigger **no auto-dial** shipped (§3.2); HUD chip remains **3.3**
 
 ---
 

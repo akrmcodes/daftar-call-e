@@ -1754,6 +1754,58 @@ abstract class AppLocalizations {
   /// **'تحذير: لقد تجاوز الحساب الحد الائتماني المسموح به!'**
   String get creditLimitExceeded;
 
+  /// No description provided for @creditLimitCallSheetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال لإبلاغهم بأن البضائع الجديدة معلّقة حتى السداد؟'**
+  String get creditLimitCallSheetTitle;
+
+  /// No description provided for @creditLimitCallSheetBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{contactName} مدين بـ {outstanding} من حد ائتمان {limit}.'**
+  String creditLimitCallSheetBody(
+    String contactName,
+    String outstanding,
+    String limit,
+  );
+
+  /// No description provided for @creditLimitCallSheetPrepare.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعداد المكالمة'**
+  String get creditLimitCallSheetPrepare;
+
+  /// No description provided for @creditLimitCallSheetNotNow.
+  ///
+  /// In ar, this message translates to:
+  /// **'ليس الآن'**
+  String get creditLimitCallSheetNotNow;
+
+  /// No description provided for @creditLimitCallSheetOutstanding.
+  ///
+  /// In ar, this message translates to:
+  /// **'المستحق'**
+  String get creditLimitCallSheetOutstanding;
+
+  /// No description provided for @creditLimitCallSheetLimit.
+  ///
+  /// In ar, this message translates to:
+  /// **'حد الائتمان'**
+  String get creditLimitCallSheetLimit;
+
+  /// No description provided for @collectionsDeskCreditLimitSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.'**
+  String get collectionsDeskCreditLimitSubtitle;
+
+  /// No description provided for @errorCreditLimitNoOutreach.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.'**
+  String get errorCreditLimitNoOutreach;
+
   /// No description provided for @notificationWarningTitle.
   ///
   /// In ar, this message translates to:

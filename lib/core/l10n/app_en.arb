@@ -383,6 +383,21 @@
   "transactionSaved": "Transaction saved successfully",
   "creditLimitWarning": "Warning: Account is approaching its credit limit.",
   "creditLimitExceeded": "Alert: Account has exceeded its credit limit!",
+  "creditLimitCallSheetTitle": "Call to say no new goods until a payment?",
+  "creditLimitCallSheetBody": "{contactName} owes {outstanding} against a {limit} credit limit.",
+  "@creditLimitCallSheetBody": {
+    "placeholders": {
+      "contactName": { "type": "String", "example": "Ahmed" },
+      "outstanding": { "type": "String", "example": "1,500 ﷼" },
+      "limit": { "type": "String", "example": "1,000 ﷼" }
+    }
+  },
+  "creditLimitCallSheetPrepare": "Prepare the call",
+  "creditLimitCallSheetNotNow": "Not now",
+  "creditLimitCallSheetOutstanding": "Outstanding",
+  "creditLimitCallSheetLimit": "Credit limit",
+  "collectionsDeskCreditLimitSubtitle": "Credit limit reached — confirm outreach for this account.",
+  "errorCreditLimitNoOutreach": "This account has no phone or email we can use for outreach.",
   "notificationWarningTitle": "Credit Alert",
   "notificationWarningBody": "Account {contactName} has exceeded 80% of its credit limit.",
   "@notificationWarningBody": {

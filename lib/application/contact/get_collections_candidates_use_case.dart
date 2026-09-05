@@ -32,10 +32,12 @@ class GetCollectionsCandidatesUseCase {
   ///
   /// Kill switch is **not** applied here — desk call-set uses region +
   /// allowlist + DNC. PSTN is gated later by RunBatchRecipientGuard.
+  /// When [contactId] is set, only that contact is considered (B-trigger).
   Future<Either<Failure, List<CollectionsCandidate>>> execute({
     DateTime? asOf,
     Set<String> allowlist = const {},
     String allowlistRegion = 'US',
+    String? contactId,
   }) async {
     final asOfTime = asOf ?? DateTime.now();
 
@@ -46,7 +48,12 @@ class GetCollectionsCandidatesUseCase {
     }
     final outreachContacts =
         outreachResult.getRight().toNullable() ?? const [];
-    if (outreachContacts.isEmpty) {
+    final filteredContacts = contactId == null || contactId.trim().isEmpty
+        ? outreachContacts
+        : outreachContacts
+            .where((entry) => entry.contactId == contactId.trim())
+            .toList(growable: false);
+    if (filteredContacts.isEmpty) {
       return const Right(<CollectionsCandidate>[]);
     }
 
@@ -59,7 +66,7 @@ class GetCollectionsCandidatesUseCase {
     }
 
     final candidates = <CollectionsCandidate>[];
-    for (final entry in outreachContacts) {
+    for (final entry in filteredContacts) {
       final rows = balancesByContact[entry.contactId] ?? const <ContactBalance>[];
       final overdue = [
         for (final row in rows)

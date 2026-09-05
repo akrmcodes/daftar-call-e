@@ -15,6 +15,7 @@ import 'package:daftar/application/agent/run_call_batch_use_case.dart';
 import 'package:daftar/application/agent/run_closing_agent_turn_use_case.dart';
 import 'package:daftar/application/agent/synthesize_agent_speech_use_case.dart';
 import 'package:daftar/application/backup/upload_drive_backup_use_case.dart';
+import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/application/contact/get_collections_candidates_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/core/services/connectivity_service.dart';
@@ -114,6 +115,9 @@ class MockPersistCollectionCallOutcomeUseCase extends Mock
 
 class MockSynthesizeAgentSpeechUseCase extends Mock
     implements SynthesizeAgentSpeechUseCase {}
+
+class MockCheckCreditLimitUseCase extends Mock
+    implements CheckCreditLimitUseCase {}
 
 void _noopDispatch(List<CollectionsDeskRow> rows) {}
 
@@ -230,6 +234,7 @@ void main() {
   late MockGetCallRunUseCase getCall;
   late MockPersistCollectionCallOutcomeUseCase persistCall;
   late MockSynthesizeAgentSpeechUseCase synthesizeSpeech;
+  late MockCheckCreditLimitUseCase checkCreditLimit;
   late List<String> openedPhones;
 
   setUpAll(() {
@@ -264,6 +269,7 @@ void main() {
     registerFallbackValue(_dispatchRowsFallback);
     registerFallbackValue(_planCallFallback);
     registerFallbackValue(_runCallFallback);
+    registerFallbackValue(CallBatchTrigger.closeDay);
     registerFallbackValue(_queuedCallSeedFallback);
     registerFallbackValue(_terminalCallWriteFallback);
     registerFallbackValue(
@@ -309,7 +315,11 @@ void main() {
     getCall = MockGetCallRunUseCase();
     persistCall = MockPersistCollectionCallOutcomeUseCase();
     synthesizeSpeech = MockSynthesizeAgentSpeechUseCase();
+    checkCreditLimit = MockCheckCreditLimitUseCase();
     openedPhones = <String>[];
+    when(() => checkCreditLimit.execute(any())).thenAnswer(
+      (_) async => const Right(CreditWarningLevel.none),
+    );
     when(
       () => synthesizeSpeech.execute(
         text: any(named: 'text'),
@@ -391,7 +401,12 @@ void main() {
     when(() => completeQueue.execute(any())).thenAnswer(
       (_) async => const Right(unit),
     );
-    when(() => buildDesk.execute(any())).thenAnswer((invocation) async {
+    when(
+      () => buildDesk.execute(
+        any(),
+        trigger: any(named: 'trigger'),
+      ),
+    ).thenAnswer((invocation) async {
       final ritualResult =
           invocation.positionalArguments.first as ClosingRitualResult;
       return Right(
@@ -477,6 +492,7 @@ void main() {
         synthesizeAgentSpeechUseCaseProvider.overrideWith(
           (ref) => synthesizeSpeech,
         ),
+        checkCreditLimitUseCaseProvider.overrideWith((ref) => checkCreditLimit),
         collectionsWhatsAppOpenerProvider.overrideWith(
           (ref) => CollectionsWhatsAppLauncher(
             openImpl: ({required phone, message}) async {
@@ -660,6 +676,7 @@ void main() {
         asOf: any(named: 'asOf'),
         allowlist: any(named: 'allowlist'),
         allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: any(named: 'contactId'),
       ),
     ).thenAnswer(
       (_) async => Right(result.shortlist),
@@ -2766,5 +2783,154 @@ void main() {
       expect(ledgerOverrides[2], 'ledger-new');
       expect(ledgerOverrides, isNot(contains('stale-ledger-id')));
     });
+  });
+
+  test('openCreditLimitDesk does not call plan-batch', () async {
+    const usPhone = '+15555550100';
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(closingAgentControllerProvider.notifier).openCreditLimitDesk(
+      'us',
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.callBatchTrigger, CallBatchTrigger.creditLimit);
+    expect(state.sendOutreachEnabled, isTrue);
+    verifyNever(() => planCall.execute(any()));
+    verifyNever(() => runCall.execute(any()));
+  });
+
+  test('credit-limit finishDesk returns idle not ritual report', () async {
+    const usPhone = '+15555550100';
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.openCreditLimitDesk('us');
+    await notifier.finishDesk();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.idle);
+    expect(state.ritualResult, isNull);
+    expect(state.callBatchTrigger, CallBatchTrigger.closeDay);
+  });
+
+  test('credit-limit confirmAndCall sends creditLimit trigger', () async {
+    const usPhone = '+15555550100';
+    CallPlanBatchRequest? capturedPlan;
+    when(() => planCall.execute(any())).thenAnswer((invocation) async {
+      capturedPlan = invocation.positionalArguments.first as CallPlanBatchRequest;
+      return const Right(
+        CallPlanBatchResponse(
+          batchId: 'batch-1',
+          results: [
+            CallPlanRowResult(
+              contactId: 'us',
+              phoneMasked: '+…0100',
+              readyToRun: true,
+              status: CallPlanRowStatus.planned,
+              confirmHandle: 'handle-us',
+            ),
+          ],
+        ),
+      );
+    });
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.openCreditLimitDesk('us');
+    await notifier.confirmAndCall();
+
+    expect(capturedPlan?.trigger, CallBatchTrigger.creditLimit);
   });
 }

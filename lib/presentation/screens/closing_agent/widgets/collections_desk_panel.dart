@@ -47,6 +47,7 @@ class CollectionsDeskPanel extends StatelessWidget {
     this.showRetrySend = false,
     this.callProgress,
     this.paddingBottom = 0,
+    this.deskSubtitle,
     super.key,
   });
 
@@ -140,6 +141,9 @@ class CollectionsDeskPanel extends StatelessWidget {
   /// Extra bottom inset so the last row clears the floating composer dock.
   final double paddingBottom;
 
+  /// Optional subtitle (B-trigger credit-limit desk).
+  final String? deskSubtitle;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -180,6 +184,16 @@ class CollectionsDeskPanel extends StatelessWidget {
                 l10n.collectionsDeskCount(rows.length),
                 style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
               ),
+              if (deskSubtitle != null && deskSubtitle!.trim().isNotEmpty) ...[
+                const Gap(AppDimensions.spacingXxs),
+                Text(
+                  deskSubtitle!,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: inkSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
