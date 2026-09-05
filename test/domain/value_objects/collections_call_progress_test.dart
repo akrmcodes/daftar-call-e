@@ -37,4 +37,16 @@ void main() {
 
     expect(progress.callingIndex, 0);
   });
+
+  test('copyWith preserves runId when only status changes', () {
+    const row = CollectionsCallProgressRow(
+      contactId: 'a',
+      status: CollectionsCallRowStatus.planned,
+      runId: 'run-abc-123',
+    );
+
+    final updated = row.copyWith(status: CollectionsCallRowStatus.ringing);
+    expect(updated.runId, 'run-abc-123');
+    expect(updated.status, CollectionsCallRowStatus.ringing);
+  });
 }

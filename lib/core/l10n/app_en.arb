@@ -109,6 +109,29 @@
       "id": { "type": "String", "example": "9f3e12ab" }
     }
   },
+  "architectureHudCallChip": "Call · {id} · {status}",
+  "@architectureHudCallChip": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" },
+      "status": { "type": "String", "example": "ringing" }
+    }
+  },
+  "architectureHudCallId": "Call · {id}",
+  "@architectureHudCallId": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" }
+    }
+  },
+  "architectureHudCallStatusOnly": "Call · {status}",
+  "@architectureHudCallStatusOnly": {
+    "placeholders": {
+      "status": { "type": "String", "example": "planned" }
+    }
+  },
+  "architectureHudCallPlanned": "planned",
+  "architectureHudCallRinging": "ringing",
+  "architectureHudCallCompleted": "completed",
+  "architectureHudCallFailed": "failed",
   "contactDeleteConfirmTitle": "Are you sure?",
   "contactDeleteConfirmBody": "This will permanently remove this contact and all associated transactions from your ledger.",
   "contactDeleteConfirmAction": "Delete contact",

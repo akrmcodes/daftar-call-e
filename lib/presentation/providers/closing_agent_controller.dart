@@ -1121,7 +1121,11 @@ class ClosingAgentController extends _$ClosingAgentController {
           locale: locale,
         ),
       );
-      _setCallRowStatus(row.contactId, CollectionsCallRowStatus.ringing);
+      _setCallRowStatus(
+        row.contactId,
+        CollectionsCallRowStatus.ringing,
+        runId: runId,
+      );
     }
 
     if (queued.isEmpty) {
@@ -1307,22 +1311,39 @@ class ClosingAgentController extends _$ClosingAgentController {
     state = state.copyWith(actionFailure: _callePollTimeout);
   }
 
-  void _setCallRowStatus(String contactId, CollectionsCallRowStatus status) {
+  void _setCallRowStatus(
+    String contactId,
+    CollectionsCallRowStatus status, {
+    String? runId,
+  }) {
     final progress = state.callProgress;
     if (progress == null) {
       return;
     }
+    final trimmedRunId = runId?.trim();
     state = state.copyWith(
       callProgress: progress.copyWith(
         results: [
           for (final row in progress.results)
             if (row.contactId == contactId)
-              row.copyWith(status: status)
+              _mergeCallProgressRow(row, status, trimmedRunId)
             else
               row,
         ],
       ),
     );
+  }
+
+  CollectionsCallProgressRow _mergeCallProgressRow(
+    CollectionsCallProgressRow row,
+    CollectionsCallRowStatus status,
+    String? runId,
+  ) {
+    var updated = row.copyWith(status: status);
+    if (runId != null && runId.isNotEmpty) {
+      updated = updated.copyWith(runId: runId);
+    }
+    return updated;
   }
 
   void _failCallProgress(Failure failure) {

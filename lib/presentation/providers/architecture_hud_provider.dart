@@ -1,8 +1,10 @@
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
 import 'package:daftar/domain/value_objects/agent_turn_result.dart';
 import 'package:daftar/domain/value_objects/ask_books_answer.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/presentation/providers/closing_agent_controller.dart';
 import 'package:daftar/presentation/providers/closing_agent_state.dart';
@@ -61,6 +63,8 @@ class ArchitectureHudSnapshot extends Equatable {
     this.deskPendingCount = 0,
     this.deskSentCount = 0,
     this.smtpMessageId,
+    this.callRunId,
+    this.callStatus,
   });
 
   /// Maps settings + Closing Agent state. Does not read Cloud Logging.
@@ -75,6 +79,7 @@ class ArchitectureHudSnapshot extends Equatable {
     bool hasPendingClosingPlan = false,
     bool collectionsDispatching = false,
     List<CollectionsDeskRow> deskRows = const [],
+    CollectionsCallProgress? callProgress,
   }) {
     if (!enabled) {
       return const ArchitectureHudSnapshot(enabled: false);
@@ -92,6 +97,8 @@ class ArchitectureHudSnapshot extends Equatable {
         smtpMessageId = row.smtpMessageId;
       }
     }
+
+    final callChip = resolveCallChip(callProgress);
 
     return ArchitectureHudSnapshot(
       enabled: true,
@@ -116,6 +123,8 @@ class ArchitectureHudSnapshot extends Equatable {
       deskPendingCount: deskPendingCount,
       deskSentCount: deskSentCount,
       smtpMessageId: smtpMessageId,
+      callRunId: callChip.runId,
+      callStatus: callChip.status,
     );
   }
 
@@ -163,6 +172,12 @@ class ArchitectureHudSnapshot extends Equatable {
 
   /// Last accepted send-batch Message-ID (SMTP 250). Never a delivery id.
   final String? smtpMessageId;
+
+  /// CALL-E `call.id` for the HUD chip (last row with a run id wins).
+  final String? callRunId;
+
+  /// HUD call status (`planned` / `ringing` / `completed` / `failed`).
+  final CollectionsCallRowStatus? callStatus;
 
   /// Whether the instrument should render (enabled only — not chip-empty).
   bool get visible => enabled;
@@ -223,6 +238,29 @@ class ArchitectureHudSnapshot extends Equatable {
     return ArchitectureHudToolScope.none;
   }
 
+  /// Resolves the call chip from device call progress (last `runId` wins).
+  ///
+  /// When progress exists but `runId` is not yet assigned, still returns
+  /// [status] so `planned` can show before `run-batch` returns.
+  static ({String? runId, CollectionsCallRowStatus? status}) resolveCallChip(
+    CollectionsCallProgress? callProgress,
+  ) {
+    if (callProgress == null || callProgress.results.isEmpty) {
+      return (runId: null, status: null);
+    }
+
+    String? runId;
+    CollectionsCallRowStatus? status;
+    for (final row in callProgress.results) {
+      status = row.status;
+      final trimmed = row.runId?.trim() ?? '';
+      if (trimmed.isNotEmpty) {
+        runId = trimmed;
+      }
+    }
+    return (runId: runId, status: status);
+  }
+
   /// Last 8 characters of [raw] for HUD chips.
   ///
   /// Trims, strips wrapping `<>`, uses the local-part when `@` is present,
@@ -265,6 +303,8 @@ class ArchitectureHudSnapshot extends Equatable {
     deskPendingCount,
     deskSentCount,
     smtpMessageId,
+    callRunId,
+    callStatus,
   ];
 }
 
@@ -289,5 +329,6 @@ ArchitectureHudSnapshot architectureHudSnapshot(Ref ref) {
     hasPendingClosingPlan: agent.pendingClosingPlan != null,
     collectionsDispatching: agent.collectionsDispatching,
     deskRows: agent.deskRows,
+    callProgress: agent.callProgress,
   );
 }

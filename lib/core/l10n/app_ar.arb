@@ -109,6 +109,29 @@
       "id": { "type": "String", "example": "9f3e12ab" }
     }
   },
+  "architectureHudCallChip": "اتصال · {id} · {status}",
+  "@architectureHudCallChip": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" },
+      "status": { "type": "String", "example": "ringing" }
+    }
+  },
+  "architectureHudCallId": "اتصال · {id}",
+  "@architectureHudCallId": {
+    "placeholders": {
+      "id": { "type": "String", "example": "55440000" }
+    }
+  },
+  "architectureHudCallStatusOnly": "اتصال · {status}",
+  "@architectureHudCallStatusOnly": {
+    "placeholders": {
+      "status": { "type": "String", "example": "planned" }
+    }
+  },
+  "architectureHudCallPlanned": "مجدول",
+  "architectureHudCallRinging": "يرن",
+  "architectureHudCallCompleted": "اكتمل",
+  "architectureHudCallFailed": "فشل",
   "contactDeleteConfirmTitle": "هل أنت متأكد؟",
   "contactDeleteConfirmBody": "سيؤدي هذا إلى إزالة الحساب وجميع المعاملات المرتبطة به من دفترك.",
   "contactDeleteConfirmAction": "حذف الحساب",

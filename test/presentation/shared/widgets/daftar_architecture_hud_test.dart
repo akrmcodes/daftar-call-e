@@ -1,5 +1,6 @@
 import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/presentation/providers/architecture_hud_provider.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_architecture_hud.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,31 @@ const _emailSnapshot = ArchitectureHudSnapshot(
   hitlStep: ArchitectureHudHitlStep.rank,
   committedCount: 2,
   smtpMessageId: '<19c8a4f0d2abcdef@gmail.com>',
+);
+
+const _callSnapshot = ArchitectureHudSnapshot(
+  enabled: true,
+  modelId: 'gemini-3.5-flash',
+  hitlStep: ArchitectureHudHitlStep.rank,
+  callRunId: '550e8400-e29b-41d4-a716-446655440000',
+  callStatus: CollectionsCallRowStatus.ringing,
+);
+
+const _dualTelemetrySnapshot = ArchitectureHudSnapshot(
+  enabled: true,
+  modelId: 'gemini-3.5-flash',
+  hitlStep: ArchitectureHudHitlStep.rank,
+  smtpMessageId: '<19c8a4f0d2abcdef@gmail.com>',
+  callRunId: '550e8400-e29b-41d4-a716-446655440000',
+  callStatus: CollectionsCallRowStatus.ringing,
+);
+
+const _completedCallSnapshot = ArchitectureHudSnapshot(
+  enabled: true,
+  modelId: 'gemini-3.5-flash',
+  hitlStep: ArchitectureHudHitlStep.commit,
+  callRunId: 'call_zQn3UWw0E9hTHp1rN2R75g',
+  callStatus: CollectionsCallRowStatus.completed,
 );
 
 const _idleSnapshot = ArchitectureHudSnapshot(
@@ -150,6 +176,55 @@ void main() {
     expect(find.text('Sent · d2abcdef'), findsOneWidget);
     expect(find.textContaining('delivered', findRichText: true), findsNothing);
     expect(find.textContaining('Delivered', findRichText: true), findsNothing);
+  });
+
+  testWidgets('call chip shows Call id last-8 and ringing status', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_harness(snapshot: _callSnapshot));
+    await tester.pump();
+
+    expect(find.text('Call · 55440000'), findsOneWidget);
+    expect(find.text('ringing'), findsOneWidget);
+    expect(find.textContaining('delivered', findRichText: true), findsNothing);
+    expect(find.textContaining('paid', findRichText: true), findsNothing);
+  });
+
+  testWidgets('dual telemetry shows call and sent chips together', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_harness(snapshot: _dualTelemetrySnapshot));
+    await tester.pump();
+
+    expect(find.text('Call · 55440000'), findsOneWidget);
+    expect(find.text('ringing'), findsOneWidget);
+    expect(find.text('Sent · d2abcdef'), findsOneWidget);
+  });
+
+  testWidgets('completed call chip never says delivered or paid', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_harness(snapshot: _completedCallSnapshot));
+    await tester.pump();
+
+    expect(find.text('completed'), findsOneWidget);
+    expect(find.textContaining('delivered', findRichText: true), findsNothing);
+    expect(find.textContaining('Delivered', findRichText: true), findsNothing);
+    expect(find.textContaining('paid', findRichText: true), findsNothing);
+    expect(find.textContaining('Paid', findRichText: true), findsNothing);
+  });
+
+  testWidgets('Arabic call status renders', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        snapshot: _callSnapshot,
+        locale: const Locale('ar'),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('يرن'), findsOneWidget);
+    expect(find.textContaining('اتصال'), findsOneWidget);
   });
 
   testWidgets('running shows pending latency ellipsis', (tester) async {
@@ -283,7 +358,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          architectureHudSnapshotProvider.overrideWith((ref) => _turnSnapshot),
+          architectureHudSnapshotProvider.overrideWith(
+            (ref) => _dualTelemetrySnapshot,
+          ),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -326,6 +403,8 @@ extension on ArchitectureHudSnapshot {
     int? committedCount,
     int? skippedCount,
     String? smtpMessageId,
+    String? callRunId,
+    CollectionsCallRowStatus? callStatus,
   }) {
     return ArchitectureHudSnapshot(
       enabled: enabled ?? this.enabled,
@@ -340,6 +419,8 @@ extension on ArchitectureHudSnapshot {
       committedCount: committedCount ?? this.committedCount,
       skippedCount: skippedCount ?? this.skippedCount,
       smtpMessageId: smtpMessageId ?? this.smtpMessageId,
+      callRunId: callRunId ?? this.callRunId,
+      callStatus: callStatus ?? this.callStatus,
     );
   }
 }

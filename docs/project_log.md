@@ -4659,4 +4659,25 @@ Targeted tests: credit-limit sheet, candidates `contactId` filter, desk compose 
 ### Status
 Roadmap §3.2 ticked. Gate 3 B-trigger no auto-dial ticked. Next: §3.3 HUD call chip, Gate 4 film when demo window reopens.
 
+## 2026-09-05 — Stage 3.3 Architecture HUD call chip
+
+### Context
+Roadmap §3.3: extend the contest Architecture HUD with a CALL-E call chip (`Call ·` + `runId` last-8 + status). SMTP `Sent ·` chip unchanged. Never label completed as delivered or paid. Presentation-only — reads device `callProgress` updated by GET poll; no Cloud Run deploy.
+
+### Done
+- [`lib/domain/value_objects/collections_call_progress.dart`](../lib/domain/value_objects/collections_call_progress.dart): optional `runId` on progress rows (`call.id`).
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): persist `runId` when `run-batch` queues; poll updates status without clearing id.
+- [`lib/presentation/providers/architecture_hud_provider.dart`](../lib/presentation/providers/architecture_hud_provider.dart): `callRunId` + `callStatus` via `resolveCallChip`; passes `agent.callProgress`.
+- [`lib/presentation/shared/widgets/daftar_architecture_hud.dart`](../lib/presentation/shared/widgets/daftar_architecture_hud.dart): `_CallChipRow` + `_CallStatusPill` (planned / ringing lapis glow / completed ink / failed debt border); telemetry strip above SMTP row.
+- ARB EN+AR: `architectureHudCallId`, `architectureHudCallStatusOnly`, status labels (`planned` / `ringing` / `completed` / `failed`).
+- Tests: [`architecture_hud_provider_test.dart`](../test/presentation/providers/architecture_hud_provider_test.dart), [`daftar_architecture_hud_test.dart`](../test/presentation/shared/widgets/daftar_architecture_hud_test.dart), [`collections_call_progress_test.dart`](../test/domain/value_objects/collections_call_progress_test.dart).
+
+### Architecture / decisions
+HUD never HTTP-polls. Last progress row with `runId` wins (SMTP Message-ID pattern). `completed` is CALL-E terminal status — not payment, not delivery. Khazna: monochrome fill, lapis border/glow on ringing pill only, no payment green on completed.
+
+### Ops / verification
+`flutter test` on HUD provider + widget + progress tests — **41 passed**. `flutter gen-l10n`. `dart analyze` on touched files — no errors. No Cloud Run deploy.
+
+### Status
+Roadmap §3.3 all four items ticked. Gate 3 HUD call chip ticked. Next: Gate 4 film / §4.4 HUD updates from live poll when demo window reopens.
 

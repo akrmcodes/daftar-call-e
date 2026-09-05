@@ -7,6 +7,7 @@ class CollectionsCallProgressRow extends Equatable {
   const CollectionsCallProgressRow({
     required this.contactId,
     required this.status,
+    this.runId,
   });
 
   /// Drift contact id.
@@ -15,17 +16,22 @@ class CollectionsCallProgressRow extends Equatable {
   /// Current CALL-E row status.
   final CollectionsCallRowStatus status;
 
+  /// CALL-E `call.id` after `run-batch`. HUD shows last-8.
+  final String? runId;
+
   CollectionsCallProgressRow copyWith({
     CollectionsCallRowStatus? status,
+    String? runId,
   }) {
     return CollectionsCallProgressRow(
       contactId: contactId,
       status: status ?? this.status,
+      runId: runId ?? this.runId,
     );
   }
 
   @override
-  List<Object?> get props => [contactId, status];
+  List<Object?> get props => [contactId, status, runId];
 }
 
 /// Device-side call progress from server per-row results (no fake spinner).

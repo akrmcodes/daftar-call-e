@@ -207,6 +207,33 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String architectureHudCallChip(String id, String status) {
+    return 'اتصال · $id · $status';
+  }
+
+  @override
+  String architectureHudCallId(String id) {
+    return 'اتصال · $id';
+  }
+
+  @override
+  String architectureHudCallStatusOnly(String status) {
+    return 'اتصال · $status';
+  }
+
+  @override
+  String get architectureHudCallPlanned => 'مجدول';
+
+  @override
+  String get architectureHudCallRinging => 'يرن';
+
+  @override
+  String get architectureHudCallCompleted => 'اكتمل';
+
+  @override
+  String get architectureHudCallFailed => 'فشل';
+
+  @override
   String get contactDeleteConfirmTitle => 'هل أنت متأكد؟';
 
   @override

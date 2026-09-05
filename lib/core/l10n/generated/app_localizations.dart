@@ -440,6 +440,48 @@ abstract class AppLocalizations {
   /// **'أُرسل · {id}'**
   String architectureHudEmailSent(String id);
 
+  /// No description provided for @architectureHudCallChip.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال · {id} · {status}'**
+  String architectureHudCallChip(String id, String status);
+
+  /// No description provided for @architectureHudCallId.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال · {id}'**
+  String architectureHudCallId(String id);
+
+  /// No description provided for @architectureHudCallStatusOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال · {status}'**
+  String architectureHudCallStatusOnly(String status);
+
+  /// No description provided for @architectureHudCallPlanned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجدول'**
+  String get architectureHudCallPlanned;
+
+  /// No description provided for @architectureHudCallRinging.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرن'**
+  String get architectureHudCallRinging;
+
+  /// No description provided for @architectureHudCallCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتمل'**
+  String get architectureHudCallCompleted;
+
+  /// No description provided for @architectureHudCallFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشل'**
+  String get architectureHudCallFailed;
+
   /// No description provided for @contactDeleteConfirmTitle.
   ///
   /// In ar, this message translates to:

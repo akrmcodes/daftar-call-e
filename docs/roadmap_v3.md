@@ -651,10 +651,10 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **3.3 HUD**
 
-- [ ] Call chip: `Call ·` + `runId` last-8 (= CALL-E `call.id`) + status (`planned` / `ringing` / `completed` / `failed`)
-- [ ] SMTP `Sent ·` Message-ID last-8 **unchanged**
-- [ ] Do **not** label call completed as `delivered` or `paid`
-- [ ] Tests extended from `daftar_architecture_hud_test.dart`
+- [x] Call chip: `Call ·` + `runId` last-8 (= CALL-E `call.id`) + status (`planned` / `ringing` / `completed` / `failed`)
+- [x] SMTP `Sent ·` Message-ID last-8 **unchanged**
+- [x] Do **not** label call completed as `delivered` or `paid`
+- [x] Tests extended from `daftar_architecture_hud_test.dart`
 
 **3.4 Device plan-batch / run-batch**
 
@@ -668,7 +668,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Widget/provider tests for four desk buttons, YE badge, dedicated desk (no “Dispatch collection emails” pause)
 - [x] Device Confirm & Call hits J.9 (dry-run or live per kill switch)
 - [x] RTL/Khazna intact on the desk card
-- [x] B-trigger **no auto-dial** shipped (§3.2); HUD chip remains **3.3**
+- [x] B-trigger **no auto-dial** shipped (§3.2); HUD call chip shipped (§3.3)
 
 ---
 

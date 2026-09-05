@@ -208,6 +208,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String architectureHudCallChip(String id, String status) {
+    return 'Call · $id · $status';
+  }
+
+  @override
+  String architectureHudCallId(String id) {
+    return 'Call · $id';
+  }
+
+  @override
+  String architectureHudCallStatusOnly(String status) {
+    return 'Call · $status';
+  }
+
+  @override
+  String get architectureHudCallPlanned => 'planned';
+
+  @override
+  String get architectureHudCallRinging => 'ringing';
+
+  @override
+  String get architectureHudCallCompleted => 'completed';
+
+  @override
+  String get architectureHudCallFailed => 'failed';
+
+  @override
   String get contactDeleteConfirmTitle => 'Are you sure?';
 
   @override
