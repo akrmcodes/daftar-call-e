@@ -109,6 +109,7 @@ class ClosingAgentController extends _$ClosingAgentController {
   bool _sendOutreach = false;
   bool _autoDispatchOutreach = false;
   Timer? _holdHintDismissTimer;
+  int _callPollEpoch = 0;
 
   static const Duration holdHintVisible = Duration(milliseconds: 2800);
 
@@ -1123,7 +1124,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       );
       _setCallRowStatus(
         row.contactId,
-        CollectionsCallRowStatus.ringing,
+        CollectionsCallRowStatus.planned,
         runId: runId,
       );
     }
@@ -1133,23 +1134,29 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
-    await ref.read(persistCollectionCallOutcomeUseCaseProvider).persistQueued(
-      CollectionCallBatchSeed(
-        batchId: batchId,
-        correlationId: correlationId,
-        trigger: state.callBatchTrigger,
-        status: CallBatchStatus.running,
-        runs: [
-          for (final item in queued)
-            CollectionCallRunSeed(
-              contactId: item.contactId,
-              region: item.region,
-              locale: item.locale,
-              runId: item.runId,
-            ),
-        ],
-      ),
-    );
+    final queuedPersist = await ref
+        .read(persistCollectionCallOutcomeUseCaseProvider)
+        .persistQueued(
+          CollectionCallBatchSeed(
+            batchId: batchId,
+            correlationId: correlationId,
+            trigger: state.callBatchTrigger,
+            status: CallBatchStatus.running,
+            runs: [
+              for (final item in queued)
+                CollectionCallRunSeed(
+                  contactId: item.contactId,
+                  region: item.region,
+                  locale: item.locale,
+                  runId: item.runId,
+                ),
+            ],
+          ),
+        );
+    final queuedPersistFailure = queuedPersist.getLeft().toNullable();
+    if (queuedPersistFailure != null) {
+      state = state.copyWith(actionFailure: queuedPersistFailure);
+    }
 
     await _pollQueuedCalls(queued);
   }
@@ -1251,7 +1258,11 @@ class ClosingAgentController extends _$ClosingAgentController {
   }
 
   Future<void> _pollQueuedCalls(List<_QueuedCallRow> queued) async {
+    final pollEpoch = ++_callPollEpoch;
     await Future<void>.delayed(callPollInitialDelay);
+    if (!_pollEpochMatches(pollEpoch)) {
+      return;
+    }
     final stopwatch = Stopwatch()..start();
     final pending = {for (final item in queued) item.contactId};
     while (pending.isNotEmpty) {
@@ -1264,10 +1275,20 @@ class ClosingAgentController extends _$ClosingAgentController {
             .execute(item.runId);
         final getFailure = got.getLeft().toNullable();
         if (getFailure != null) {
+          if (_pollEpochMatches(pollEpoch)) {
+            state = state.copyWith(actionFailure: getFailure);
+          }
           continue;
         }
+        if (_pollEpochMatches(pollEpoch)) {
+          _clearPollNetworkFailureIfNeeded();
+        }
         final result = got.getRight().toNullable()!;
-        _setCallRowStatus(item.contactId, result.deskStatus);
+        _setCallRowStatus(
+          item.contactId,
+          result.deskStatus,
+          pollEpoch: pollEpoch,
+        );
         if (!result.terminal && !result.needsHuman) {
           continue;
         }
@@ -1293,7 +1314,7 @@ class ClosingAgentController extends _$ClosingAgentController {
                 amountInvalid: amountInvalid,
               ),
             );
-        if (review) {
+        if (review && _pollEpochMatches(pollEpoch)) {
           state = state.copyWith(actionFailure: _calleNeedsHuman);
         }
       }
@@ -1306,16 +1327,49 @@ class ClosingAgentController extends _$ClosingAgentController {
       await Future<void>.delayed(callPollInterval);
     }
     for (final contactId in pending) {
-      _setCallRowStatus(contactId, CollectionsCallRowStatus.failed);
+      final item = queued.firstWhere((row) => row.contactId == contactId);
+      await ref
+          .read(persistCollectionCallOutcomeUseCaseProvider)
+          .persistTerminal(
+            CollectionCallTerminalWrite(
+              runId: item.runId,
+              contactId: item.contactId,
+              rawStatus: 'timeout',
+              needsHuman: true,
+            ),
+          );
+      _setCallRowStatus(
+        contactId,
+        CollectionsCallRowStatus.failed,
+        pollEpoch: pollEpoch,
+      );
     }
-    state = state.copyWith(actionFailure: _callePollTimeout);
+    if (_pollEpochMatches(pollEpoch)) {
+      state = state.copyWith(actionFailure: _callePollTimeout);
+    }
+  }
+
+  bool _pollEpochMatches(int pollEpoch) => pollEpoch == _callPollEpoch;
+
+  void _clearPollNetworkFailureIfNeeded() {
+    if (state.actionFailure is NetworkFailure) {
+      state = state.copyWith(actionFailure: null);
+    }
+  }
+
+  void _invalidateCallPoll() {
+    _callPollEpoch += 1;
   }
 
   void _setCallRowStatus(
     String contactId,
     CollectionsCallRowStatus status, {
     String? runId,
+    int? pollEpoch,
   }) {
+    if (pollEpoch != null && !_pollEpochMatches(pollEpoch)) {
+      return;
+    }
     final progress = state.callProgress;
     if (progress == null) {
       return;
@@ -1368,6 +1422,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (state.phase != ClosingAgentPhase.ritualDesk) {
       return;
     }
+    _invalidateCallPoll();
     state = state.copyWith(callConsented: false, callProgress: null);
   }
 
@@ -1542,6 +1597,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (state.phase != ClosingAgentPhase.ritualDesk) {
       return;
     }
+    _invalidateCallPoll();
     final result = state.ritualResult;
     if (result == null) {
       return;

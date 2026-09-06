@@ -131,7 +131,12 @@ class CallGetResult extends Equatable {
     if (needsHuman || terminal) {
       return CollectionsCallRowStatus.failed;
     }
-    return CollectionsCallRowStatus.ringing;
+    return switch (status) {
+      'planned' || 'queued' || 'preparing' || 'unknown' =>
+        CollectionsCallRowStatus.planned,
+      'ringing' || 'in_progress' => CollectionsCallRowStatus.ringing,
+      _ => CollectionsCallRowStatus.ringing,
+    };
   }
 
   @override

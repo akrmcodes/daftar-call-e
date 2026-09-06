@@ -1757,6 +1757,223 @@ void main() {
       CollectionsCallRowStatus.failed,
     );
     verify(() => runCall.execute(any())).called(1);
+    verify(
+      () => persistCall.persistTerminal(
+        any(
+          that: predicate<CollectionCallTerminalWrite>(
+            (write) => write.rawStatus == 'timeout' && write.needsHuman,
+          ),
+        ),
+      ),
+    ).called(1);
+  });
+
+  test('Confirm and Call GET network failure clears after terminal GET', () async {
+    const usPhone = '+15555550100';
+    var getCalls = 0;
+    ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      getCalls += 1;
+      final runId = invocation.positionalArguments.first as String;
+      if (getCalls == 1) {
+        return const Left(
+          NetworkFailure('offline', code: 'closing_agent_request_failed'),
+        );
+      }
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.promised,
+            promisedAmountMinor: 100,
+            promisedCurrency: 'USD',
+            promisedDate: '2026-09-10',
+          ),
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.actionFailure, isNull);
+    expect(getCalls, greaterThan(1));
+    verify(() => runCall.execute(any())).called(1);
+    verify(() => persistCall.persistQueued(any())).called(1);
+  });
+
+  test('Confirm and Call keeps planned until first GET', () async {
+    const usPhone = '+15555550100';
+    var getCalls = 0;
+    ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      getCalls += 1;
+      final runId = invocation.positionalArguments.first as String;
+      if (getCalls == 1) {
+        return Right(
+          CallGetResult(
+            runId: runId,
+            status: 'planned',
+            terminal: false,
+            phoneMasked: '+…0000',
+            needsHuman: false,
+          ),
+        );
+      }
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.promised,
+            promisedAmountMinor: 100,
+            promisedCurrency: 'USD',
+            promisedDate: '2026-09-10',
+          ),
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.completed,
+    );
+    expect(getCalls, greaterThan(1));
+  });
+
+  test('finishDesk invalidates stale poll timeout', () async {
+    const usPhone = '+15555550100';
+    ClosingAgentController.callPollInterval = const Duration(milliseconds: 20);
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'in_progress',
+          terminal: false,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    unawaited(notifier.confirmAndCall());
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+    await notifier.finishDesk();
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.actionFailure?.code, isNot('calle_poll_timeout'));
+    expect(state.phase, ClosingAgentPhase.ritualReport);
   });
 
   test('SMTP preflight failure still opens desk when call set exists', () async {

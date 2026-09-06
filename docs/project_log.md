@@ -4681,3 +4681,24 @@ HUD never HTTP-polls. Last progress row with `runId` wins (SMTP Message-ID patte
 ### Status
 Roadmap §3.3 all four items ticked. Gate 3 HUD call chip ticked. Next: Gate 4 film / §4.4 HUD updates from live poll when demo window reopens.
 
+## 2026-09-06 — Stage 4.1 Device poll loop hardening
+
+### Context
+Review of roadmap §4.1 found the happy path (persist `runId`, ~60s then 5–10s GET, timeout without re-create) was already correct but airplane-mode during poll, GET-driven progress, Drift on timeout, and `finishDesk` races needed hardening.
+
+### Done
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): GET `Left` surfaces `ErrorTranslator` copy and keeps polling; successful GET clears transient `NetworkFailure` only; `persistQueued` `Left` surfaced; rows stay `planned` until GET; timeout `persistTerminal` (`rawStatus: timeout`, `needsHuman: true`); `_callPollEpoch` invalidates stale UI on `finishDesk` / `confirmWithoutCalling` (Drift terminal writes still run).
+- [`lib/domain/value_objects/call_get_result.dart`](../lib/domain/value_objects/call_get_result.dart): `planned` / `queued` / `preparing` / `unknown` → `planned`; `ringing` / `in_progress` → `ringing`; `canceled` → `failed`.
+- [`lib/domain/value_objects/collections_call_progress.dart`](../lib/domain/value_objects/collections_call_progress.dart): `latestRowStatus` for desk status word.
+- [`lib/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart`](../lib/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart): HUD ARB status word for latest row (no `delivered` / `paid`).
+- Tests: [`call_get_result_test.dart`](../test/domain/value_objects/call_get_result_test.dart), [`collections_call_progress_test.dart`](../test/domain/value_objects/collections_call_progress_test.dart), [`collections_call_progress_bar_test.dart`](../test/presentation/screens/closing_agent/widgets/collections_call_progress_bar_test.dart), extended [`closing_agent_controller_test.dart`](../test/presentation/providers/closing_agent_controller_test.dart) (network GET, timeout Drift, epoch race, planned-until-GET).
+
+### Architecture / decisions
+Never `run-batch` again to poll. Poll epoch guards UI only — terminal Drift must not lose `runId`. Reused HUD status ARB keys on desk bar (Lapis 2dp stripe unchanged). §4.1 boxes remain ticked; §4.4 / Gate 4 film out of scope.
+
+### Ops / verification
+`flutter test` on touched test files — all passed. `flutter analyze` — no issues. No Cloud Run deploy.
+
+### Status
+Roadmap §4.1 hardened and remains ticked. Next: §4.2 contact-card polish or §4.4 HUD poll observability when owner prioritizes.
+

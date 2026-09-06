@@ -58,4 +58,39 @@ void main() {
     expect(result.structuredResult?.amountInvalid, isTrue);
     expect(result.deskStatus, CollectionsCallRowStatus.failed);
   });
+
+  test('queued and planned map to planned desk status', () {
+    for (final status in ['queued', 'planned', 'preparing', 'unknown']) {
+      final result = CallGetResult.fromJson({
+        'runId': 'run-planned',
+        'status': status,
+        'terminal': false,
+        'phoneMasked': '+…0100',
+        'needsHuman': false,
+      });
+      expect(result.deskStatus, CollectionsCallRowStatus.planned);
+    }
+  });
+
+  test('in_progress maps to ringing', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-ring',
+      'status': 'in_progress',
+      'terminal': false,
+      'phoneMasked': '+…0100',
+      'needsHuman': false,
+    });
+    expect(result.deskStatus, CollectionsCallRowStatus.ringing);
+  });
+
+  test('canceled maps to failed', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-cancel',
+      'status': 'canceled',
+      'terminal': true,
+      'phoneMasked': '+…0100',
+      'needsHuman': false,
+    });
+    expect(result.deskStatus, CollectionsCallRowStatus.failed);
+  });
 }

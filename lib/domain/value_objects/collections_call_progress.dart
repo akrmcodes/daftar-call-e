@@ -47,6 +47,10 @@ class CollectionsCallProgress extends Equatable {
   /// Total recipients in this batch.
   int get total => results.length;
 
+  /// Status of the last row in the batch (drives the desk status word).
+  CollectionsCallRowStatus? get latestRowStatus =>
+      results.isEmpty ? null : results.last.status;
+
   /// Count of rows no longer `planned` — drives "Calling i of N".
   int get callingIndex {
     var started = 0;
