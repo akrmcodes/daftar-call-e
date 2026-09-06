@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
+import 'package:daftar/domain/entities/collection_promise.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/ledger.dart';
 import 'package:daftar/domain/value_objects/contact_search_hit.dart';
@@ -189,4 +190,15 @@ Map<String, ContactWithSummary> contactSummariesMap(
 @riverpod
 Future<Either<Failure, Contact>> contactById(Ref ref, String contactId) {
   return ref.watch(getContactByIdUseCaseProvider).execute(contactId);
+}
+
+/// Streams pending CALL-E promises for a contact (display-only).
+@riverpod
+Stream<List<CollectionPromise>> pendingCollectionPromises(
+  Ref ref,
+  String contactId,
+) {
+  return ref
+      .watch(watchPendingCollectionPromisesUseCaseProvider)
+      .execute(contactId);
 }

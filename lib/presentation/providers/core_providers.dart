@@ -41,6 +41,7 @@ import 'package:daftar/application/contact/restore_contact_use_case.dart';
 import 'package:daftar/application/contact/search_contacts_use_case.dart';
 import 'package:daftar/application/contact/update_contact_use_case.dart';
 import 'package:daftar/application/contact/watch_contact_count_use_case.dart';
+import 'package:daftar/application/contact/watch_pending_collection_promises_use_case.dart';
 import 'package:daftar/application/import/import_csv_use_case.dart';
 import 'package:daftar/application/ledger/archive_ledger_use_case.dart';
 import 'package:daftar/application/ledger/create_ledger_use_case.dart';
@@ -1048,6 +1049,16 @@ CollectionCallLocalDataSource collectionCallLocalDataSource(Ref ref) {
 CollectionCallRepository collectionCallRepository(Ref ref) {
   return CollectionCallRepositoryImpl(
     localDataSource: ref.watch(collectionCallLocalDataSourceProvider),
+  );
+}
+
+/// Streams pending display-only CALL-E promises for a contact card.
+@Riverpod(keepAlive: true)
+WatchPendingCollectionPromisesUseCase watchPendingCollectionPromisesUseCase(
+  Ref ref,
+) {
+  return WatchPendingCollectionPromisesUseCase(
+    collectionCallRepository: ref.watch(collectionCallRepositoryProvider),
   );
 }
 

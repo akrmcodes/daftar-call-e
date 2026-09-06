@@ -1839,6 +1839,55 @@ void main() {
     verify(() => persistCall.persistQueued(any())).called(1);
   });
 
+  test('Confirm and Call persistTerminal Left surfaces database failure', () async {
+    const usPhone = '+15555550100';
+    when(() => persistCall.persistTerminal(any())).thenAnswer(
+      (_) async => const Left(
+        DatabaseFailure('write failed', code: 'database_failure'),
+      ),
+    );
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.actionFailure, isA<DatabaseFailure>());
+    verify(() => runCall.execute(any())).called(1);
+    verify(() => persistCall.persistTerminal(any())).called(1);
+  });
+
   test('Confirm and Call keeps planned until first GET', () async {
     const usPhone = '+15555550100';
     var getCalls = 0;

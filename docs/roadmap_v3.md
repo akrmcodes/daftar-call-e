@@ -696,13 +696,12 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Accept `promised_amount_minor` only if it is an **int** (or a whole number that converts with **no remainder**). JSON `number` / float → `needsHuman`. Never store `double` in Drift
 - [x] Upsert `collection_call_runs` + `collection_promises` when `outcome=promised` and amount/date present
 - [x] **No** `AddTransactionUseCase`
-- [ ] Contact card shows pending promise (date + formatted int money) — write is correct; card polish thin
+- [x] Contact card shows pending promise (date + formatted int money) — write is correct; card polish thin
 - [x] `task_completed` without a collections `outcome` → persist the run, **do not invent amount**, do **not** show kill-switch “paused” copy
 
 **4.3 Email remainder**
 
 - [x] YE / non-allowlisted / DNC still go through **Confirm & Send Statements** independently
-- [ ] Gate 4 film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
 
 **4.4 Observability**
 
@@ -807,6 +806,8 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [ ] Name CALL-E SDK/API on camera (`calle-ai` / `POST /v1/calls`)
 - [ ] **Do not** open on Gemini / ADK / Cloud Run. **Do not** climax on mid-day capture, Drive, SMTP inbox, WhatsApp, Live API, inbound, “we invented collections promises,” or All Things Agentic 4:00 pacing
 - [ ] SMTP YE row: one `callUnavailable` badge + one line, or narrate
+- [ ] film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
+
 - [ ] **Beat sheet (lock):**
 
 | Time | Beat | Criterion |

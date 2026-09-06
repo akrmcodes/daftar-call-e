@@ -6904,6 +6904,12 @@ abstract class AppLocalizations {
   /// **'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.'**
   String get collectionsDeskPromiseNotPaymentSubtitle;
 
+  /// No description provided for @contactPendingPromiseBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'وعد بـ {amount} في {date}'**
+  String contactPendingPromiseBody(String amount, String date);
+
   /// No description provided for @collectionsDeskCallPreviewTitle.
   ///
   /// In ar, this message translates to:

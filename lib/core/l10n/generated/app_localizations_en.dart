@@ -3900,6 +3900,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'CALL-E records what the customer said they will pay. It does not write money to your ledger.';
 
   @override
+  String contactPendingPromiseBody(String amount, String date) {
+    return 'Promised $amount on $date';
+  }
+
+  @override
   String get collectionsDeskCallPreviewTitle => 'What CALL-E will say';
 
   @override

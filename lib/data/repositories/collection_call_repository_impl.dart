@@ -1,6 +1,8 @@
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/data/datasources/local/collection_call_local_ds.dart';
+import 'package:daftar/data/mappers/collection_promise_mapper.dart';
 import 'package:daftar/data/repositories/repository_utils.dart';
+import 'package:daftar/domain/entities/collection_promise.dart';
 import 'package:daftar/domain/repositories/collection_call_repository.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:fpdart/fpdart.dart';
@@ -36,5 +38,15 @@ class CollectionCallRepositoryImpl implements CollectionCallRepository {
     } on Object catch (error) {
       return Left(databaseFailure(error));
     }
+  }
+
+  @override
+  Stream<List<CollectionPromise>> watchPendingByContact(String contactId) {
+    return _local
+        .watchPendingPromisesByContact(contactId)
+        .map(
+          (rows) =>
+              rows.map((row) => row.toDomain()).toList(growable: false),
+        );
   }
 }

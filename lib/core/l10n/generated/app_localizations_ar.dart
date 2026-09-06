@@ -3865,6 +3865,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.';
 
   @override
+  String contactPendingPromiseBody(String amount, String date) {
+    return 'وعد بـ $amount في $date';
+  }
+
+  @override
   String get collectionsDeskCallPreviewTitle => 'ما سيقوله CALL-E';
 
   @override

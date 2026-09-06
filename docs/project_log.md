@@ -4702,3 +4702,26 @@ Never `run-batch` again to poll. Poll epoch guards UI only — terminal Drift mu
 ### Status
 Roadmap §4.1 hardened and remains ticked. Next: §4.2 contact-card polish or §4.4 HUD poll observability when owner prioritizes.
 
+## 2026-09-06 — Stage 4.2 Write-back hardening
+
+### Context
+Review of roadmap §4.2 found integer write-back, Drift upsert, and no-ledger-txn rules were already correct, but `promised_date` was not validated on device, `persistTerminal` `Left` was dropped, and the contact card never read `collection_promises`.
+
+### Done
+- [`lib/domain/constants/promised_calendar_day.dart`](../lib/domain/constants/promised_calendar_day.dart): `YYYY-MM-DD` calendar validation (matches Cloud Run `get_map.py`).
+- [`lib/domain/value_objects/call_get_result.dart`](../lib/domain/value_objects/call_get_result.dart): `dateInvalid` → `needsHuman`; invalid dates omitted from structured outcome.
+- [`lib/domain/value_objects/collection_call_persist.dart`](../lib/domain/value_objects/collection_call_persist.dart): `dateInvalid` on terminal write; `shouldUpsertPromise` requires valid calendar day + currency.
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): `_surfacePersistTerminal` surfaces Drift `Left`; never invents amount.
+- [`lib/data/datasources/local/collection_call_local_ds.dart`](../lib/data/datasources/local/collection_call_local_ds.dart): batch header finalized only when all runs have `rawStatus`; `watchPendingPromisesByContact`.
+- Contact card: [`CollectionPromise`](../lib/domain/entities/collection_promise.dart), [`WatchPendingCollectionPromisesUseCase`](../lib/application/contact/watch_pending_collection_promises_use_case.dart), [`ContactPendingPromiseBanner`](../lib/presentation/screens/contact/widgets/contact_pending_promise_banner.dart) on [`contact_detail_screen.dart`](../lib/presentation/screens/contact/contact_detail_screen.dart) (Khazna info banner, int money + date, promise ≠ payment).
+- ARB `contactPendingPromiseBody` EN+AR. Tests across domain, local DS, controller, widget.
+
+### Architecture / decisions
+Promise remains display-only — no `AddTransactionUseCase`. Currency still required for promise upsert (cannot format int money without it). Completed without collections `outcome` unchanged (§4.2 / live lesson). §4.4 / Gate 4 film out of scope.
+
+### Ops / verification
+`flutter test` on touched files — all passed. `flutter analyze` — clean. `build_runner` + `gen-l10n`. No Cloud Run deploy.
+
+### Status
+Roadmap §4.2 all items ticked. Next: §4.3 YE film row or §4.4 HUD poll observability.
+

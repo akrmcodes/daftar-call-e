@@ -93,4 +93,41 @@ void main() {
     });
     expect(result.deskStatus, CollectionsCallRowStatus.failed);
   });
+
+  test('invalid promised date is needsHuman and omitted', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-date',
+      'status': 'completed',
+      'terminal': true,
+      'phoneMasked': '+…0100',
+      'needsHuman': false,
+      'structuredResult': {
+        'outcome': 'promised',
+        'promised_amount_minor': 1500,
+        'promised_currency': 'USD',
+        'promised_date': 'next Friday',
+      },
+    });
+
+    expect(result.needsHuman, isTrue);
+    expect(result.structuredResult?.dateInvalid, isTrue);
+    expect(result.structuredResult?.promisedDate, isNull);
+    expect(result.deskStatus, CollectionsCallRowStatus.failed);
+  });
+
+  test('string promised amount stays invalid', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-str',
+      'status': 'completed',
+      'terminal': true,
+      'phoneMasked': '+…0100',
+      'structuredResult': {
+        'outcome': 'promised',
+        'promised_amount_minor': '1500',
+      },
+    });
+
+    expect(result.structuredResult?.amountInvalid, isTrue);
+    expect(result.needsHuman, isTrue);
+  });
 }

@@ -33,6 +33,7 @@ import 'package:daftar/presentation/providers/storage_providers.dart';
 import 'package:daftar/presentation/providers/transaction_providers.dart';
 import 'package:daftar/presentation/screens/contact/widgets/archived_ledger_read_only_banner.dart';
 import 'package:daftar/presentation/screens/contact/widgets/balance_summary.dart';
+import 'package:daftar/presentation/screens/contact/widgets/contact_pending_promise_banner.dart';
 import 'package:daftar/presentation/screens/contact/widgets/credit_limit_banner.dart';
 import 'package:daftar/presentation/screens/contact/widgets/export_progress_overlay.dart';
 import 'package:daftar/presentation/screens/contact/widgets/show_edit_contact_sheet.dart';
@@ -444,6 +445,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
             contact: displayContact,
             balances: balances,
           ),
+          ContactPendingPromiseBanner(contactId: contactId),
           if (balances.isNotEmpty) ...[
             const SliverToBoxAdapter(
               child: SizedBox(height: AppDimensions.spacingXl),

@@ -1295,25 +1295,31 @@ class ClosingAgentController extends _$ClosingAgentController {
         pending.remove(item.contactId);
         final structured = result.structuredResult;
         final amountInvalid = structured?.amountInvalid ?? false;
+        final dateInvalid = structured?.dateInvalid ?? false;
         final review = amountInvalid ||
+            dateInvalid ||
             (result.needsHuman && result.status != 'completed');
-        await ref
-            .read(persistCollectionCallOutcomeUseCaseProvider)
-            .persistTerminal(
-              CollectionCallTerminalWrite(
-                runId: item.runId,
-                contactId: item.contactId,
-                rawStatus: result.status,
-                needsHuman: review,
-                outcome: structured?.outcome,
-                promisedAmountMinor: structured?.promisedAmountMinor,
-                promisedCurrency: structured?.promisedCurrency,
-                promisedDate: structured?.promisedDate,
-                acknowledgedHold: structured?.acknowledgedHold,
-                evidenceQuote: structured?.evidenceQuote,
-                amountInvalid: amountInvalid,
+        await _surfacePersistTerminal(
+          await ref
+              .read(persistCollectionCallOutcomeUseCaseProvider)
+              .persistTerminal(
+                CollectionCallTerminalWrite(
+                  runId: item.runId,
+                  contactId: item.contactId,
+                  rawStatus: result.status,
+                  needsHuman: review,
+                  outcome: structured?.outcome,
+                  promisedAmountMinor: structured?.promisedAmountMinor,
+                  promisedCurrency: structured?.promisedCurrency,
+                  promisedDate: structured?.promisedDate,
+                  acknowledgedHold: structured?.acknowledgedHold,
+                  evidenceQuote: structured?.evidenceQuote,
+                  amountInvalid: amountInvalid,
+                  dateInvalid: dateInvalid,
+                ),
               ),
-            );
+          pollEpoch: pollEpoch,
+        );
         if (review && _pollEpochMatches(pollEpoch)) {
           state = state.copyWith(actionFailure: _calleNeedsHuman);
         }
@@ -1328,16 +1334,19 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
     for (final contactId in pending) {
       final item = queued.firstWhere((row) => row.contactId == contactId);
-      await ref
-          .read(persistCollectionCallOutcomeUseCaseProvider)
-          .persistTerminal(
-            CollectionCallTerminalWrite(
-              runId: item.runId,
-              contactId: item.contactId,
-              rawStatus: 'timeout',
-              needsHuman: true,
+      await _surfacePersistTerminal(
+        await ref
+            .read(persistCollectionCallOutcomeUseCaseProvider)
+            .persistTerminal(
+              CollectionCallTerminalWrite(
+                runId: item.runId,
+                contactId: item.contactId,
+                rawStatus: 'timeout',
+                needsHuman: true,
+              ),
             ),
-          );
+        pollEpoch: pollEpoch,
+      );
       _setCallRowStatus(
         contactId,
         CollectionsCallRowStatus.failed,
@@ -1359,6 +1368,16 @@ class ClosingAgentController extends _$ClosingAgentController {
 
   void _invalidateCallPoll() {
     _callPollEpoch += 1;
+  }
+
+  Future<void> _surfacePersistTerminal(
+    Either<Failure, Unit> result, {
+    required int pollEpoch,
+  }) async {
+    final failure = result.getLeft().toNullable();
+    if (failure != null && _pollEpochMatches(pollEpoch)) {
+      state = state.copyWith(actionFailure: failure);
+    }
   }
 
   void _setCallRowStatus(

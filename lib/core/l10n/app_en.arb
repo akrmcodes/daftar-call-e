@@ -1753,6 +1753,13 @@
   "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
   "collectionsDeskPromiseNotPayment": "A promise is not a payment",
   "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
+  "contactPendingPromiseBody": "Promised {amount} on {date}",
+  "@contactPendingPromiseBody": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "$15.00" },
+      "date": { "type": "String", "example": "Sep 10, 2026" }
+    }
+  },
   "collectionsDeskCallPreviewTitle": "What CALL-E will say",
   "collectionsDeskCallingProgress": "Calling {index} of {total}",
   "@collectionsDeskCallingProgress": {
