@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
@@ -302,14 +303,16 @@ class _QuickAddBottomSheetBodyState
       },
       (saveResult) async {
         unawaited(HapticService.transactionSaved());
+        final overlayContext =
+            rootNavigatorKey.currentContext ??
+            Navigator.of(context, rootNavigator: true).context;
         if (context.mounted) {
           Navigator.of(context).pop(true);
         }
         if (saveResult.warningLevel == CreditWarningLevel.exceeded &&
-            state.transactionType == TransactionType.debt &&
-            context.mounted) {
+            state.transactionType == TransactionType.debt) {
           await CreditLimitBTrigger.offerAfterDebtSave(
-            context: context,
+            context: overlayContext,
             ref: ref,
             contactId: contactId,
             type: state.transactionType,

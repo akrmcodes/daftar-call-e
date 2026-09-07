@@ -4792,3 +4792,45 @@ Merchants saw a confusing “A promise is not a payment” banner after credit-l
 ### Status
 UX slice complete. Stage 5 / §6.3 / live dial unchanged. Owner can QA credit-limit flow on device with existing dial-off policy.
 
+## 2026-09-08 — Fix Prepare the call no-op
+
+### Context
+Tapping **Prepare the call** dismissed the HITL sheet and then did nothing. Add-debt callers pop their dialog/sheet first, so `offerAfterDebtSave` saw `context.mounted == false` and skipped `startCreditLimitCallSession` / navigation.
+
+### Done
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): after Prepare, start the session without requiring the caller widget; show the sheet and push Closing Agent via `rootNavigatorKey` / captured `GoRouter`
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart) + [`app_bottom_sheet.dart`](lib/presentation/shared/widgets/app_bottom_sheet.dart): `useRootNavigator: true`
+- Callers pass a surviving overlay context before pop: [`add_transaction_dialog.dart`](lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart), [`quick_add_bottom_sheet.dart`](lib/presentation/widgets/transactions/quick_add_bottom_sheet.dart)
+- Widget test [`test/presentation/screens/contact/credit_limit_b_trigger_test.dart`](test/presentation/screens/contact/credit_limit_b_trigger_test.dart): pop host → Prepare → session + `/closing-agent`
+
+### Architecture / decisions
+Kill switch / empty allowlist still refuse `run-batch` honestly. No Cloud Run or dial-on change.
+
+### Ops / verification
+- `dart analyze` on touched files — clean
+- `flutter test` trigger + sheet tests — pass
+- Phone: **hot restart** the existing `flutter run` session (hot reload is not enough)
+
+### Status
+Ready for device QA. Stage 5 / §6.3 / live dial unchanged.
+
+## 2026-09-08 — Fix Prepare the call disposed WidgetRef crash
+
+### Context
+Phone Crashlytics: `Using "ref" when a widget is about to or has been unmounted` at `CreditLimitBTrigger.offerAfterDebtSave` line 69. The add-debt dialog’s `WidgetRef` was still used after Prepare; the merchant never reached the call session.
+
+### Done
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): capture `ProviderScope.containerOf` from the root overlay at entry; all reads (`skip`, contact, balances, `startCreditLimitCallSession`) go through that container — never `ref.read` after an await
+- [`test/presentation/screens/contact/credit_limit_b_trigger_test.dart`](test/presentation/screens/contact/credit_limit_b_trigger_test.dart): Prepare uses a **dialog `Consumer` `WidgetRef`** that is popped before the tap
+
+### Architecture / decisions
+App `ProviderContainer` outlives the add-debt route. Kill switch / empty allowlist still honest. No Cloud Run / dial-on.
+
+### Ops / verification
+- `dart analyze` on trigger + test — clean
+- `flutter test test/presentation/screens/contact/credit_limit_b_trigger_test.dart` — pass
+- Phone: **hot restart** (`R`) the running `flutter run` session
+
+### Status
+Ready for device QA. Stage 5 / §6.3 / live dial unchanged.
+

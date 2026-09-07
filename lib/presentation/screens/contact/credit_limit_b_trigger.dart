@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/router/route_names.dart';
 import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
 import 'package:daftar/domain/entities/contact.dart';
@@ -20,6 +21,9 @@ abstract final class CreditLimitBTrigger {
   ///
   /// On accept, starts the credit-limit call session (one HITL) and navigates
   /// to the Closing Agent when not already there. Never auto-dials on dismiss.
+  ///
+  /// Uses the app [ProviderContainer] from the root overlay — never [ref]
+  /// after an await. Add-debt callers pop their route before Prepare.
   static Future<void> offerAfterDebtSave({
     required BuildContext context,
     required WidgetRef ref,
@@ -33,42 +37,45 @@ abstract final class CreditLimitBTrigger {
     if (type != TransactionType.debt) {
       return;
     }
-    if (_shouldSkipPrompt(ref)) {
+
+    final overlay = _overlayContext() ?? (context.mounted ? context : null);
+    if (overlay == null || !overlay.mounted) {
+      return;
+    }
+    final container = ProviderScope.containerOf(overlay, listen: false);
+    final router = GoRouter.maybeOf(overlay);
+
+    if (_shouldSkipPrompt(container)) {
       return;
     }
 
-    final contact = await _loadContact(ref, contactId);
-    if (contact == null || !context.mounted) {
+    final contact = await _loadContact(container, contactId);
+    final sheetHost = _overlayContext();
+    if (contact == null || sheetHost == null || !sheetHost.mounted) {
       return;
     }
 
-    final metrics = await _loadDebtMetrics(ref, contact);
-    if (metrics == null || !context.mounted) {
+    final metrics = await _loadDebtMetrics(container, contact);
+    final sheetOverlay = _overlayContext();
+    if (metrics == null || sheetOverlay == null || !sheetOverlay.mounted) {
       return;
     }
 
     final accepted = await CreditLimitCallSheet.show(
-      context,
+      sheetOverlay,
       contactName: contact.name,
       outstandingMinor: metrics.outstandingMinor,
       creditLimitMinor: metrics.creditLimitMinor,
       currencyCode: metrics.currencyCode,
     );
-    if (!accepted || !context.mounted) {
+    if (!accepted) {
       return;
     }
 
-    await ref
+    await container
         .read(closingAgentControllerProvider.notifier)
         .startCreditLimitCallSession(contactId);
-    if (!context.mounted) {
-      return;
-    }
-
-    final location = GoRouterState.of(context).uri.path;
-    if (location != RouteNames.closingAgentPath) {
-      unawaited(context.pushNamed(RouteNames.closingAgent));
-    }
+    _openClosingAgent(router);
   }
 
   /// Presents the sheet for a pending agent prompt (same contact on screen).
@@ -77,72 +84,105 @@ abstract final class CreditLimitBTrigger {
     required WidgetRef ref,
     required String contactId,
   }) async {
-    if (_shouldSkipPrompt(ref)) {
-      ref
+    final overlay = _overlayContext() ?? (context.mounted ? context : null);
+    if (overlay == null || !overlay.mounted) {
+      return;
+    }
+    final container = ProviderScope.containerOf(overlay, listen: false);
+
+    if (_shouldSkipPrompt(container)) {
+      container
           .read(closingAgentControllerProvider.notifier)
           .clearCreditLimitPrompt();
       return;
     }
 
-    final contact = await _loadContact(ref, contactId);
+    final contact = await _loadContact(container, contactId);
     if (contact == null) {
-      ref
+      container
           .read(closingAgentControllerProvider.notifier)
           .clearCreditLimitPrompt();
       return;
     }
 
-    final metrics = await _loadDebtMetrics(ref, contact);
+    final metrics = await _loadDebtMetrics(container, contact);
     if (metrics == null) {
-      ref
+      container
           .read(closingAgentControllerProvider.notifier)
           .clearCreditLimitPrompt();
       return;
     }
 
-    if (!context.mounted) {
+    final sheetOverlay = _overlayContext();
+    if (sheetOverlay == null || !sheetOverlay.mounted) {
       return;
     }
 
     final accepted = await CreditLimitCallSheet.show(
-      context,
+      sheetOverlay,
       contactName: contact.name,
       outstandingMinor: metrics.outstandingMinor,
       creditLimitMinor: metrics.creditLimitMinor,
       currencyCode: metrics.currencyCode,
     );
 
-    ref.read(closingAgentControllerProvider.notifier).clearCreditLimitPrompt();
+    container
+        .read(closingAgentControllerProvider.notifier)
+        .clearCreditLimitPrompt();
 
-    if (!accepted || !context.mounted) {
+    if (!accepted) {
       return;
     }
 
-    await ref
+    await container
         .read(closingAgentControllerProvider.notifier)
         .startCreditLimitCallSession(contactId);
   }
 
-  static bool _shouldSkipPrompt(WidgetRef ref) {
-    final phase = ref.read(closingAgentControllerProvider).phase;
+  static BuildContext? _overlayContext() {
+    final root = rootNavigatorKey.currentContext;
+    if (root != null && root.mounted) {
+      return root;
+    }
+    return null;
+  }
+
+  static void _openClosingAgent(GoRouter? router) {
+    final nav = rootNavigatorKey.currentContext;
+    final goRouter = router ??
+        (nav != null && nav.mounted ? GoRouter.maybeOf(nav) : null);
+    if (goRouter == null) {
+      return;
+    }
+    final location = goRouter.state.uri.path;
+    if (location != RouteNames.closingAgentPath) {
+      unawaited(goRouter.pushNamed(RouteNames.closingAgent));
+    }
+  }
+
+  static bool _shouldSkipPrompt(ProviderContainer container) {
+    final phase = container.read(closingAgentControllerProvider).phase;
     return phase == ClosingAgentPhase.ritualDesk ||
         phase == ClosingAgentPhase.ritualRunning;
   }
 
-  static Future<Contact?> _loadContact(WidgetRef ref, String contactId) async {
-    final result = await ref.read(contactByIdProvider(contactId).future);
+  static Future<Contact?> _loadContact(
+    ProviderContainer container,
+    String contactId,
+  ) async {
+    final result = await container.read(contactByIdProvider(contactId).future);
     return result.fold((_) => null, (contact) => contact);
   }
 
   static Future<({int outstandingMinor, int creditLimitMinor, String currencyCode})?>
-  _loadDebtMetrics(WidgetRef ref, Contact contact) async {
+  _loadDebtMetrics(ProviderContainer container, Contact contact) async {
     final creditLimit = contact.creditLimit;
     if (creditLimit == null || creditLimit <= 0) {
       return null;
     }
 
     final balances =
-        await ref.read(contactBalanceProvider(contact.id).future);
+        await container.read(contactBalanceProvider(contact.id).future);
     final relevant = _selectRelevantBalance(balances, contact.creditCurrency);
     if (relevant == null) {
       return null;

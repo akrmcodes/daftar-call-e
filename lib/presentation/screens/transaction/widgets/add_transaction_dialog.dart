@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
@@ -295,6 +296,9 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
         unawaited(HapticService.transactionSaved());
         final messenger = ScaffoldMessenger.of(context);
         final isDark = context.theme.brightness == Brightness.dark;
+        final overlayContext =
+            rootNavigatorKey.currentContext ??
+            Navigator.of(context, rootNavigator: true).context;
 
         Navigator.of(context).pop();
 
@@ -310,7 +314,7 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
             _type == TransactionType.debt) {
           unawaited(
             CreditLimitBTrigger.offerAfterDebtSave(
-              context: context,
+              context: overlayContext,
               ref: ref,
               contactId: widget.contactId,
               type: _type,

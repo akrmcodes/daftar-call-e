@@ -61,12 +61,14 @@ class AppBottomSheet extends StatelessWidget {
     double maxHeightFactor = 0.92,
     bool showDragHandle = true,
     EdgeInsetsGeometry? padding,
+    bool useRootNavigator = false,
   }) {
     final theme = context.theme;
 
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: useRootNavigator,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: theme.colorScheme.scrim.withValues(alpha: 0.55),

@@ -1,6 +1,7 @@
 import 'dart:async' show unawaited;
 import 'dart:ui' as ui;
 
+import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
@@ -48,10 +49,12 @@ class CreditLimitCallSheet extends StatelessWidget {
     required int creditLimitMinor,
     required String currencyCode,
   }) async {
+    final host = rootNavigatorKey.currentContext ?? context;
     final result = await AppBottomSheet.show<bool>(
-      context,
-      title: AppLocalizations.of(context)!.creditLimitCallSheetTitle,
+      host,
+      title: AppLocalizations.of(host)!.creditLimitCallSheetTitle,
       maxHeightFactor: 0.88,
+      useRootNavigator: true,
       child: CreditLimitCallSheet(
         contactName: contactName,
         outstandingMinor: outstandingMinor,
