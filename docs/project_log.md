@@ -4857,3 +4857,24 @@ Lapis Law preserved — primary CTA stays monochrome + lapis glow. Debt chroma i
 ### Status
 Ready for device QA on exceeded-limit save → sheet glow + no overflow flash. Dial-off / failed call unchanged (service disabled).
 
+## 2026-09-08 — Credit-limit glow: inward wash
+
+### Context
+The first debt-red crest radiated past the sheet (negative offsets + large BoxShadow). The merchant asked for a softer, in-card glow that starts at the top edge and falls downward.
+
+### Done
+- [`lib/presentation/shared/widgets/app_bottom_sheet.dart`](lib/presentation/shared/widgets/app_bottom_sheet.dart): paint `horizonGlow` **inside** the clipped Material (behind content), `ClipRect` so blur cannot leave the card
+- [`lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart`](lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart): inward wash — ellipses centered on the top edge so the upper half is clipped away; named alphas only; quieter breath
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart): top accent hairline `alphaSoft` (was `alphaMedium`)
+
+### Architecture / decisions
+Still light-not-paint: no debt fill on the CTA. Glow is clipped to the sheet radius.
+
+### Ops / verification
+- `dart analyze` on touched files
+- `flutter test test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart`
+- Phone: **hot restart** (`R`)
+
+### Status
+Visual polish on the HITL sheet. Dial-off unchanged.
+

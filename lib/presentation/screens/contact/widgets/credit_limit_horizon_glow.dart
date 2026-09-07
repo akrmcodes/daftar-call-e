@@ -1,14 +1,15 @@
 import 'dart:async' show unawaited;
+import 'dart:ui' as ui;
 
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_motion.dart';
 import 'package:flutter/material.dart';
 
-/// Top-of-sheet debt-red horizon for the credit-limit HITL sheet.
+/// In-card debt-red horizon for the credit-limit HITL sheet.
 ///
-/// Same grammar as Closing Agent working glow: BoxShadow emission + hairline
-/// stroke only — never a red fill on the sheet surface.
+/// Light sits on the top edge and falls downward into the sheet. Emission is
+/// clipped to the card — never a red fill, never a halo outside the radius.
 class CreditLimitHorizonGlow extends StatefulWidget {
   const CreditLimitHorizonGlow({
     required this.active,
@@ -18,7 +19,8 @@ class CreditLimitHorizonGlow extends StatefulWidget {
   /// When true the crest fades in and breathes; when false it exhales out.
   final bool active;
 
-  static const double crestHeight = 200;
+  /// Tall enough for the downward wash to finish inside the header.
+  static const double crestHeight = 96;
 
   @override
   State<CreditLimitHorizonGlow> createState() => _CreditLimitHorizonGlowState();
@@ -130,9 +132,11 @@ class _CreditLimitHorizonGlowState extends State<CreditLimitHorizonGlow>
               child: SizedBox(
                 height: CreditLimitHorizonGlow.crestHeight,
                 width: double.infinity,
-                child: _DebtHorizonCrest(
-                  isDark: isDark,
-                  breath: breathT,
+                child: CustomPaint(
+                  painter: _DebtInwardWashPainter(
+                    isDark: isDark,
+                    breath: breathT,
+                  ),
                 ),
               ),
             );
@@ -143,8 +147,9 @@ class _CreditLimitHorizonGlowState extends State<CreditLimitHorizonGlow>
   }
 }
 
-class _DebtHorizonCrest extends StatelessWidget {
-  const _DebtHorizonCrest({
+/// Top-edge emitter: the upper half is clipped away so light only falls down.
+class _DebtInwardWashPainter extends CustomPainter {
+  const _DebtInwardWashPainter({
     required this.isDark,
     required this.breath,
   });
@@ -153,134 +158,78 @@ class _DebtHorizonCrest extends StatelessWidget {
   final double breath;
 
   @override
-  Widget build(BuildContext context) {
-    final ambient = _ambientShadows(isDark, breath);
-    final core = _coreShadows(isDark, breath);
-    final coreScale = 0.94 + (0.12 * breath);
-    final hairline = isDark ? AppColors.debt : AppColors.debtLight;
-    final hairlinePeak = hairline.withValues(
-      alpha: AppColors.alphaMedium + (AppColors.alphaSoft * breath),
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            PositionedDirectional(
-              top: -28,
-              start: -width * 0.08,
-              end: -width * 0.08,
-              height: 56,
-              child: _EmissiveBand(shadows: ambient),
-            ),
-            PositionedDirectional(
-              top: -14,
-              start: width * 0.22,
-              end: width * 0.22,
-              height: 28,
-              child: Transform.scale(
-                scale: coreScale,
-                alignment: AlignmentDirectional.topCenter,
-                child: _EmissiveBand(shadows: core),
-              ),
-            ),
-            PositionedDirectional(
-              top: 0,
-              start: 0,
-              end: 0,
-              height: 3,
-              child: CustomPaint(
-                painter: _DebtHairlinePainter(
-                  color: hairline,
-                  peak: hairlinePeak,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  static List<BoxShadow> _ambientShadows(bool isDark, double breath) {
-    final base = isDark ? AppColors.debt : AppColors.debtLight;
-    final soft = base.withValues(alpha: AppColors.alphaSoft);
-    final medium = base.withValues(alpha: AppColors.alphaMedium);
-    return [
-      BoxShadow.lerp(
-        BoxShadow(color: soft, blurRadius: 64),
-        BoxShadow(color: medium, blurRadius: 96, spreadRadius: 8),
-        breath,
-      )!,
-    ];
-  }
-
-  static List<BoxShadow> _coreShadows(bool isDark, double breath) {
-    final base = isDark ? AppColors.debt : AppColors.debtLight;
-    final soft = base.withValues(alpha: AppColors.alphaSoft);
-    final medium = base.withValues(alpha: AppColors.alphaMedium);
-    return [
-      BoxShadow.lerp(
-        BoxShadow(color: soft, blurRadius: 8),
-        BoxShadow(color: medium, blurRadius: 24),
-        breath,
-      )!,
-    ];
-  }
-}
-
-class _EmissiveBand extends StatelessWidget {
-  const _EmissiveBand({required this.shadows});
-
-  final List<BoxShadow> shadows;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        color: Colors.transparent,
-        boxShadow: shadows,
-      ),
-    );
-  }
-}
-
-class _DebtHairlinePainter extends CustomPainter {
-  const _DebtHairlinePainter({
-    required this.color,
-    required this.peak,
-  });
-
-  final Color color;
-  final Color peak;
-
-  @override
   void paint(Canvas canvas, Size size) {
-    if (size.width <= 0) {
+    if (size.width <= 0 || size.height <= 0) {
       return;
     }
-    const y = 0.5;
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final paint = Paint()
+
+    canvas
+      ..save()
+      ..clipRect(Offset.zero & size);
+
+    final base = isDark ? AppColors.debt : AppColors.debtLight;
+    final ambientAlpha = isDark
+        ? ui.lerpDouble(AppColors.alphaSubtle, AppColors.alphaSoft, breath)!
+        : ui.lerpDouble(
+            AppColors.alphaHairline,
+            AppColors.alphaWhisper,
+            breath,
+          )!;
+    final coreAlpha = isDark
+        ? ui.lerpDouble(AppColors.alphaWhisper, AppColors.alphaSubtle, breath)!
+        : ui.lerpDouble(
+            AppColors.alphaHairline,
+            AppColors.alphaWhisper,
+            breath,
+          )!;
+    final ambientBlur = isDark ? 22.0 + (6.0 * breath) : 18.0 + (4.0 * breath);
+    final coreBlur = isDark ? 10.0 + (3.0 * breath) : 8.0 + (2.0 * breath);
+
+    final ambient = Paint()
+      ..color = base.withValues(alpha: ambientAlpha)
+      ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, ambientBlur);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(size.width / 2, 0),
+        width: size.width * 0.92,
+        height: 56 + (10 * breath),
+      ),
+      ambient,
+    );
+
+    final core = Paint()
+      ..color = base.withValues(alpha: coreAlpha)
+      ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, coreBlur);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(size.width / 2, 0),
+        width: size.width * 0.42,
+        height: 22 + (6 * breath),
+      ),
+      core,
+    );
+
+    final hairline = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5
       ..strokeCap = StrokeCap.round
       ..shader = LinearGradient(
         colors: [
-          color.withValues(alpha: 0),
-          peak,
-          color.withValues(alpha: 0),
+          base.withValues(alpha: 0),
+          base.withValues(
+            alpha: isDark ? AppColors.alphaSoft : AppColors.alphaSubtle,
+          ),
+          base.withValues(alpha: 0),
         ],
-        stops: const [0.06, 0.5, 0.94],
-      ).createShader(rect);
-    canvas.drawLine(const Offset(0, y), Offset(size.width, y), paint);
+        stops: const [0.08, 0.5, 0.92],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, 2));
+    canvas
+      ..drawLine(const Offset(0, 0.5), Offset(size.width, 0.5), hairline)
+      ..restore();
   }
 
   @override
-  bool shouldRepaint(covariant _DebtHairlinePainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.peak != peak;
+  bool shouldRepaint(covariant _DebtInwardWashPainter oldDelegate) {
+    return oldDelegate.isDark != isDark || oldDelegate.breath != breath;
   }
 }

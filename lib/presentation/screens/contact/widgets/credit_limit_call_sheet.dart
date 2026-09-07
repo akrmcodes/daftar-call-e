@@ -59,8 +59,7 @@ class CreditLimitCallSheet extends StatelessWidget {
     unawaited(HapticService.light());
 
     final isDark = Theme.of(host).brightness == Brightness.dark;
-    final accentBorder =
-        isDark ? AppColors.debt : AppColors.debtLight;
+    final accentBorder = isDark ? AppColors.debt : AppColors.debtLight;
 
     final result = await AppBottomSheet.show<bool>(
       host,
@@ -68,7 +67,7 @@ class CreditLimitCallSheet extends StatelessWidget {
       maxHeightFactor: 0.88,
       useRootNavigator: true,
       horizonGlow: const CreditLimitHorizonGlow(active: true),
-      accentBorderColor: accentBorder.withValues(alpha: AppColors.alphaMedium),
+      accentBorderColor: accentBorder.withValues(alpha: AppColors.alphaSoft),
       child: CreditLimitCallSheet(
         contactName: contactName,
         outstandingMinor: outstandingMinor,
@@ -91,7 +90,10 @@ class CreditLimitCallSheet extends StatelessWidget {
 
     const cap = AppDimensions.animationMedium;
     final stopwatch = Stopwatch()..start();
-    while (host.mounted && stopwatch.elapsed < cap) {
+    while (stopwatch.elapsed < cap) {
+      if (!host.mounted) {
+        return;
+      }
       if (MediaQuery.viewInsetsOf(host).bottom < 1) {
         return;
       }
@@ -118,10 +120,12 @@ class CreditLimitCallSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = context.theme.brightness == Brightness.dark;
-    final inkPrimary =
-        isDark ? AppColors.inkPrimary : AppColors.inkPrimaryLight;
-    final inkSecondary =
-        isDark ? AppColors.inkSecondary : AppColors.inkSecondaryLight;
+    final inkPrimary = isDark
+        ? AppColors.inkPrimary
+        : AppColors.inkPrimaryLight;
+    final inkSecondary = isDark
+        ? AppColors.inkSecondary
+        : AppColors.inkSecondaryLight;
     final accentColor = isDark ? AppColors.debt : AppColors.debtLight;
     final outstandingText = _formatAmount(outstandingMinor);
     final limitText = _formatAmount(creditLimitMinor);
@@ -177,8 +181,9 @@ class CreditLimitCallSheet extends StatelessWidget {
           child: LinearProgressIndicator(
             value: utilization,
             minHeight: 8,
-            backgroundColor: (isDark ? AppColors.surface5 : AppColors.surface3Light)
-                .withValues(alpha: 0.9),
+            backgroundColor:
+                (isDark ? AppColors.surface5 : AppColors.surface3Light)
+                    .withValues(alpha: 0.9),
             valueColor: AlwaysStoppedAnimation<Color>(accentColor),
           ),
         ),
