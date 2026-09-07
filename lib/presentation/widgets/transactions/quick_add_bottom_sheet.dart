@@ -311,13 +311,36 @@ class _QuickAddBottomSheetBodyState
         }
         if (saveResult.warningLevel == CreditWarningLevel.exceeded &&
             state.transactionType == TransactionType.debt) {
-          await CreditLimitBTrigger.offerAfterDebtSave(
+          final shown = await CreditLimitBTrigger.offerAfterDebtSave(
             context: overlayContext,
             ref: ref,
             contactId: contactId,
             type: state.transactionType,
             warningLevel: saveResult.warningLevel,
           );
+          if (!shown && mounted) {
+            final contact = await ref
+                .read(contactByIdProvider(contactId).future)
+                .then((result) => result.fold((_) => null, (c) => c));
+            final policy = ref.read(calleDevicePolicyProvider);
+            if (!mounted) {
+              return;
+            }
+            if (contact != null &&
+                !CreditLimitBTrigger.isCallPromptEligible(contact, policy)) {
+              final host = rootNavigatorKey.currentContext ?? overlayContext;
+              if (!host.mounted) {
+                return;
+              }
+              final messenger = ScaffoldMessenger.of(host);
+              final isDark = Theme.of(host).brightness == Brightness.dark;
+              _showCreditLimitExceededSnackBar(
+                messenger: messenger,
+                message: l10n.creditLimitExceeded,
+                isDark: isDark,
+              );
+            }
+          }
         }
       },
     );
@@ -1559,6 +1582,82 @@ class _QuickAddLedgerChip extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Utilities
 // ---------------------------------------------------------------------------
+
+void _showCreditLimitExceededSnackBar({
+  required ScaffoldMessengerState messenger,
+  required String message,
+  required bool isDark,
+}) {
+  final accentColor = isDark ? AppColors.debt : AppColors.debtLight;
+  messenger
+    ..removeCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        margin: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 24),
+        padding: EdgeInsets.zero,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        content: Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surface2 : AppColors.surface1Light,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            border: Border.all(
+              color: accentColor.withValues(alpha: isDark ? 0.34 : 0.24),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: isDark ? 0.18 : 0.10),
+                blurRadius: 26,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.26 : 0.10),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.spacingMd,
+              vertical: AppDimensions.spacingMd,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(
+                      alpha: isDark ? 0.18 : 0.12,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.error_outline_rounded,
+                    color: accentColor,
+                    size: AppDimensions.iconSmall + 2,
+                  ),
+                ),
+                const Gap(AppDimensions.spacingMd),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: isDark
+                          ? AppColors.inkPrimary
+                          : AppColors.inkPrimaryLight,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+}
 
 Color _parseLedgerHexColor(String value) {
   var hex = value.trim();

@@ -161,4 +161,66 @@ void main() {
       expect(us.region, 'US');
     });
   });
+
+  group('J10RegionGate.isSupportedCallingNumber', () {
+    bool supported({
+      required PhoneNumber phone,
+      required String declaredRegion,
+      String allowlistRegion = 'US',
+    }) {
+      return J10RegionGate.isSupportedCallingNumber(
+        phone: phone,
+        declaredRegion: declaredRegion,
+        allowlistRegion: allowlistRegion,
+      );
+    }
+
+    test('YE is unsupported even when allowlisted on evaluate', () {
+      const ye = PhoneNumber('0771234567');
+      expect(
+        supported(phone: ye, declaredRegion: 'YE'),
+        isFalse,
+      );
+    });
+
+    test('empty and invalid phones are unsupported', () {
+      expect(supported(phone: const PhoneNumber(''), declaredRegion: 'US'), isFalse);
+      expect(
+        supported(phone: const PhoneNumber('not-a-phone'), declaredRegion: 'US'),
+        isFalse,
+      );
+    });
+
+    test('US and SA are supported with empty allowlist', () {
+      expect(
+        supported(phone: const PhoneNumber(usPhone), declaredRegion: 'US'),
+        isTrue,
+      );
+      expect(
+        supported(
+          phone: const PhoneNumber('+966 50 123 4567'),
+          declaredRegion: 'SA',
+        ),
+        isTrue,
+      );
+    });
+
+    test('isSupportedContactPhone respects doNotCall', () {
+      expect(
+        J10RegionGate.isSupportedContactPhone(
+          phoneRaw: usPhone,
+          allowlistRegion: 'US',
+          doNotCall: true,
+        ),
+        isFalse,
+      );
+      expect(
+        J10RegionGate.isSupportedContactPhone(
+          phoneRaw: usPhone,
+          allowlistRegion: 'US',
+        ),
+        isTrue,
+      );
+    });
+  });
 }

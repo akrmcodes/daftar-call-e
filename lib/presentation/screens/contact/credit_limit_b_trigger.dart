@@ -3,6 +3,8 @@ import 'dart:async' show unawaited;
 import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/router/route_names.dart';
 import 'package:daftar/application/contact/check_credit_limit_use_case.dart';
+import 'package:daftar/domain/constants/calle_device_policy.dart';
+import 'package:daftar/domain/constants/j10_region_gate.dart';
 import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/contact_balance.dart';
 import 'package:daftar/domain/enums/transaction_type.dart';
@@ -10,6 +12,7 @@ import 'package:daftar/presentation/providers/balance_providers.dart';
 import 'package:daftar/presentation/providers/closing_agent_controller.dart';
 import 'package:daftar/presentation/providers/closing_agent_state.dart';
 import 'package:daftar/presentation/providers/contact_providers.dart';
+import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:daftar/presentation/screens/contact/widgets/credit_limit_call_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,14 +20,26 @@ import 'package:go_router/go_router.dart';
 
 /// Shared B-trigger entry after a committed debt save.
 abstract final class CreditLimitBTrigger {
+  /// Whether [contact] may see the Prepare-the-call HITL.
+  ///
+  /// J.10 region supported (allowlist ignored); skips [Contact.doNotCall].
+  static bool isCallPromptEligible(Contact contact, CalleDevicePolicy policy) {
+    return J10RegionGate.isSupportedContactPhone(
+      phoneRaw: contact.phone,
+      allowlistRegion: policy.allowlistRegion,
+      doNotCall: contact.doNotCall,
+    );
+  }
+
   /// Shows the HITL sheet when [warningLevel] is exceeded for a debt save.
   ///
+  /// Returns `true` when the Prepare-the-call sheet was presented.
   /// On accept, starts the credit-limit call session (one HITL) and navigates
   /// to the Closing Agent when not already there. Never auto-dials on dismiss.
   ///
   /// Uses the app [ProviderContainer] from the root overlay — never [ref]
   /// after an await. Add-debt callers pop their route before Prepare.
-  static Future<void> offerAfterDebtSave({
+  static Future<bool> offerAfterDebtSave({
     required BuildContext context,
     required WidgetRef ref,
     required String contactId,
@@ -32,38 +47,43 @@ abstract final class CreditLimitBTrigger {
     required CreditWarningLevel warningLevel,
   }) async {
     if (warningLevel != CreditWarningLevel.exceeded) {
-      return;
+      return false;
     }
     if (type != TransactionType.debt) {
-      return;
+      return false;
     }
 
     final overlay = _overlayContext() ?? (context.mounted ? context : null);
     if (overlay == null || !overlay.mounted) {
-      return;
+      return false;
     }
     final container = ProviderScope.containerOf(overlay, listen: false);
     final router = GoRouter.maybeOf(overlay);
+    final policy = container.read(calleDevicePolicyProvider);
 
     if (_shouldSkipPrompt(container)) {
-      return;
+      return false;
     }
 
     final contact = await _loadContact(container, contactId);
     final sheetHost = _overlayContext();
     if (contact == null || sheetHost == null || !sheetHost.mounted) {
-      return;
+      return false;
+    }
+
+    if (!isCallPromptEligible(contact, policy)) {
+      return false;
     }
 
     final metrics = await _loadDebtMetrics(container, contact);
     final sheetOverlay = _overlayContext();
     if (metrics == null || sheetOverlay == null || !sheetOverlay.mounted) {
-      return;
+      return false;
     }
 
     await CreditLimitCallSheet.waitForKeyboardToSettle(sheetOverlay);
     if (!sheetOverlay.mounted) {
-      return;
+      return false;
     }
 
     final accepted = await CreditLimitCallSheet.show(
@@ -74,13 +94,14 @@ abstract final class CreditLimitBTrigger {
       currencyCode: metrics.currencyCode,
     );
     if (!accepted) {
-      return;
+      return true;
     }
 
     await container
         .read(closingAgentControllerProvider.notifier)
         .startCreditLimitCallSession(contactId);
     _openClosingAgent(router);
+    return true;
   }
 
   /// Presents the sheet for a pending agent prompt (same contact on screen).
@@ -94,6 +115,7 @@ abstract final class CreditLimitBTrigger {
       return;
     }
     final container = ProviderScope.containerOf(overlay, listen: false);
+    final policy = container.read(calleDevicePolicyProvider);
 
     if (_shouldSkipPrompt(container)) {
       container
@@ -104,6 +126,13 @@ abstract final class CreditLimitBTrigger {
 
     final contact = await _loadContact(container, contactId);
     if (contact == null) {
+      container
+          .read(closingAgentControllerProvider.notifier)
+          .clearCreditLimitPrompt();
+      return;
+    }
+
+    if (!isCallPromptEligible(contact, policy)) {
       container
           .read(closingAgentControllerProvider.notifier)
           .clearCreditLimitPrompt();

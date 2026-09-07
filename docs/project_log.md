@@ -4878,3 +4878,26 @@ Still light-not-paint: no debt fill on the CTA. Glow is clipped to the sheet rad
 ### Status
 Visual polish on the HITL sheet. Dial-off unchanged.
 
+## 2026-09-08 — B-trigger: Prepare the call only for supported numbers
+
+### Context
+Credit-limit exceeded saves showed **Prepare the call** for every contact (including Yemen and missing phones), then failed on dispatch. Merchant asked for the HITL only when the number is CALL-E region-supported; unsupported contacts keep the exceeded notification only.
+
+### Done
+- [`lib/domain/constants/j10_region_gate.dart`](lib/domain/constants/j10_region_gate.dart): `isSupportedCallingNumber` (allowlist ignored) + `isSupportedContactPhone` (DNC-aware)
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): gate `offerAfterDebtSave` / `presentPendingPrompt`; returns `bool` (sheet presented); `isCallPromptEligible` for callers
+- [`lib/presentation/providers/closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart): `_queueCreditLimitPromptIfNeeded` skips unsupported contacts
+- [`lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart`](lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart) + [`quick_add_bottom_sheet.dart`](lib/presentation/widgets/transactions/quick_add_bottom_sheet.dart): in-app `creditLimitExceeded` snackbar when sheet skipped (unsupported phone only)
+- Tests: [`test/domain/constants/j10_region_gate_test.dart`](test/domain/constants/j10_region_gate_test.dart), [`test/presentation/screens/contact/credit_limit_b_trigger_test.dart`](test/presentation/screens/contact/credit_limit_b_trigger_test.dart) (US shows sheet; YE / empty do not)
+
+### Architecture / decisions
+Region-only gate per owner choice — `CallNotAllowlisted` still sees Prepare; PSTN allowlist + kill switch unchanged on `run-batch`. OS `notificationExceededBody` still fires for all exceeded saves. No Cloud Run / dial-on change.
+
+### Ops / verification
+- `dart analyze` on touched files — clean (info-level ordering only)
+- `flutter test` j10_region_gate + credit_limit_b_trigger — 18/18 pass
+- Phone: **hot restart** (`R`); test YE contact → exceeded snackbar only; US DID → Prepare sheet
+
+### Status
+B-trigger HITL aligned with J.10 supported regions. Stage 5 / live dial unchanged.
+

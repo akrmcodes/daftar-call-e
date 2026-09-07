@@ -43,6 +43,45 @@ abstract final class J10RegionGate {
     return CallEligible(e164: e164, region: declaredIso);
   }
 
+  /// True when the number passes J.10 region gate (allowlist ignored).
+  ///
+  /// Used for B-trigger HITL — [CallNotAllowlisted] still counts as supported;
+  /// PSTN allowlist is enforced later on dispatch.
+  static bool isSupportedCallingNumber({
+    required PhoneNumber phone,
+    required String declaredRegion,
+    required String allowlistRegion,
+  }) {
+    final gate = evaluate(
+      phone: phone,
+      declaredRegion: declaredRegion,
+      allowlistRegion: allowlistRegion,
+      allowlist: const {},
+    );
+    return gate is CallEligible || gate is CallNotAllowlisted;
+  }
+
+  /// B-trigger / agent-queue gate: J.10 region supported, not DNC.
+  static bool isSupportedContactPhone({
+    required String? phoneRaw,
+    required String allowlistRegion,
+    bool doNotCall = false,
+  }) {
+    if (doNotCall) {
+      return false;
+    }
+    final phone = PhoneNumber(phoneRaw ?? '');
+    final declaredRegion = J10CalleRegions.declaredRegionFor(
+      phone.e164,
+      allowlistRegion,
+    );
+    return isSupportedCallingNumber(
+      phone: phone,
+      declaredRegion: declaredRegion,
+      allowlistRegion: allowlistRegion,
+    );
+  }
+
   static bool _regionGateFails({
     required String e164,
     required String declaredIso,

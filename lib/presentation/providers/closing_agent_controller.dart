@@ -51,10 +51,12 @@ import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/domain/value_objects/collections_send_queue.dart';
 import 'package:daftar/domain/value_objects/contact_search_hit.dart';
+import 'package:daftar/domain/constants/j10_region_gate.dart';
 import 'package:daftar/presentation/providers/backup_providers.dart';
 import 'package:daftar/presentation/providers/closing_agent_state.dart';
 import 'package:daftar/presentation/providers/closing_ritual_providers.dart';
 import 'package:daftar/presentation/providers/connectivity_providers.dart';
+import 'package:daftar/presentation/providers/contact_providers.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -1753,6 +1755,19 @@ class ClosingAgentController extends _$ClosingAgentController {
     final level =
         result.getRight().toNullable() ?? CreditWarningLevel.none;
     if (level != CreditWarningLevel.exceeded) {
+      return;
+    }
+    final contactResult = await ref.read(contactByIdProvider(trimmed).future);
+    final contact = contactResult.fold((_) => null, (c) => c);
+    if (contact == null) {
+      return;
+    }
+    final policy = ref.read(calleDevicePolicyProvider);
+    if (!J10RegionGate.isSupportedContactPhone(
+      phoneRaw: contact.phone,
+      allowlistRegion: policy.allowlistRegion,
+      doNotCall: contact.doNotCall,
+    )) {
       return;
     }
     state = state.copyWith(pendingCreditLimitPromptContactId: trimmed);
