@@ -63,7 +63,7 @@ void main() {
     );
   }
 
-  testWidgets('consent card shows dual CTAs and promise banner', (tester) async {
+  testWidgets('consent card shows dual CTAs without promise banner', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('en'),
@@ -90,7 +90,7 @@ void main() {
     expect(find.text('Confirm & Send Statements'), findsOneWidget);
     expect(find.text('Confirm without calling'), findsOneWidget);
     expect(find.text('Confirm without sending'), findsOneWidget);
-    expect(find.text('A promise is not a payment'), findsOneWidget);
+    expect(find.text('A promise is not a payment'), findsNothing);
   });
 
   testWidgets('YE row shows Cant call badge', (tester) async {

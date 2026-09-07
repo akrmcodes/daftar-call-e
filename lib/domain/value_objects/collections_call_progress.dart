@@ -62,6 +62,30 @@ class CollectionsCallProgress extends Equatable {
     return started;
   }
 
+  /// True when every row is terminal (`completed` or `failed`).
+  bool get isTerminal {
+    if (results.isEmpty) {
+      return false;
+    }
+    return results.every(
+      (row) =>
+          row.status == CollectionsCallRowStatus.completed ||
+          row.status == CollectionsCallRowStatus.failed,
+    );
+  }
+
+  /// Last row with a non-empty [CollectionsCallProgressRow.runId].
+  CollectionsCallProgressRow? get lastRowWithRunId {
+    CollectionsCallProgressRow? last;
+    for (final row in results) {
+      final trimmed = row.runId?.trim() ?? '';
+      if (trimmed.isNotEmpty) {
+        last = row;
+      }
+    }
+    return last;
+  }
+
   CollectionsCallProgress copyWith({
     List<CollectionsCallProgressRow>? results,
   }) {

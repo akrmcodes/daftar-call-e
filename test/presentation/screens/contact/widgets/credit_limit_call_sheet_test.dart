@@ -45,7 +45,7 @@ void main() {
 
     expect(find.text('Prepare the call'), findsOneWidget);
     expect(find.text('Not now'), findsOneWidget);
-    expect(find.textContaining('A promise is not a payment'), findsOneWidget);
+    expect(find.textContaining('A promise is not a payment'), findsNothing);
 
     await tester.tap(find.text('Prepare the call'));
     await tester.pumpAndSettle();

@@ -4766,3 +4766,29 @@ Default forever: Cloud Run + APK dial **off**, min **0**. Live `CALLE_ALLOW_DIAL
 ### Status
 Roadmap reorganized. Next: owner runs [`docs/qa/stage4_phone_qa.md`](../docs/qa/stage4_phone_qa.md) on phone, then Stage 5. Film after feature freeze per §6.3.
 
+## 2026-09-08 — Credit-limit call session + drop promise banner
+
+### Context
+Merchants saw a confusing “A promise is not a payment” banner after credit-limit saves, and **Prepare the call** dumped them onto the full Collections Desk with a second Confirm & Call tap. This slice removes the slogan everywhere and adds a dedicated Khazna call-session surface with one HITL, live progress, terminal summary, and leave/return chips.
+
+### Done
+- Removed `DaftarPermissionBanner` promise slogan from `lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart` and `lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`; contact card promise banner keeps display copy with new `contactPendingPromiseSemantics` ARB key in `lib/presentation/screens/contact/widgets/contact_pending_promise_banner.dart`
+- B-trigger: `CreditLimitBTrigger` → `startCreditLimitCallSession()` (`openCreditLimitDesk` + `confirmAndCall`) in `lib/presentation/screens/contact/credit_limit_b_trigger.dart`; `dismissCreditLimitSession()` and `finishDesk` no-op for `creditLimit` in `lib/presentation/providers/closing_agent_controller.dart`
+- New `lib/presentation/screens/closing_agent/widgets/credit_limit_call_session.dart` (progress + summary + Done); routed from `lib/presentation/screens/closing_agent/closing_agent_screen.dart` when `callBatchTrigger == creditLimit`; composer hidden; working glow while live
+- Resume chips: `lib/presentation/screens/closing_agent/widgets/credit_limit_call_resume_chip.dart` on `lib/presentation/shared/widgets/main_shell.dart` (home) and `lib/presentation/screens/contact/contact_detail_screen.dart`
+- State helpers on `ClosingAgentState`: `isCreditLimitCallSessionActive`, `creditLimitCallSessionTerminal`, `creditLimitSessionContactId`; `CollectionsCallProgress.isTerminal` / `lastRowWithRunId`; thicker session progress bar variant
+- EN+AR l10n keys; widget/controller tests; updated consent + sheet tests
+
+### Architecture / decisions
+- **One HITL** on the credit-limit sheet; close-the-day desk still uses Confirm & Call on `CollectionsDeskPanel`
+- Session persists on pop/back until merchant taps **Done**; kill-switch / empty allowlist still surfaces honest `failed` progress (no fake ring)
+- Lapis law preserved: glow edges and progress stripe only — no blue fills
+
+### Ops / verification
+- `flutter gen-l10n`
+- `flutter test` credit-limit widget + controller tests (sheet, consent, session, controller `credit-limit` filter) — pass
+- No Cloud Run / dial policy change
+
+### Status
+UX slice complete. Stage 5 / §6.3 / live dial unchanged. Owner can QA credit-limit flow on device with existing dial-off policy.
+

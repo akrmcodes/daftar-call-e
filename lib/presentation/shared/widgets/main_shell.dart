@@ -10,6 +10,7 @@ import 'package:daftar/core/utils/haptic_service.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:daftar/presentation/providers/ledger_providers.dart';
+import 'package:daftar/presentation/screens/closing_agent/widgets/credit_limit_call_resume_chip.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_coach_mark.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_tap_target.dart';
 import 'package:daftar/presentation/widgets/transactions/quick_add_bottom_sheet.dart';
@@ -308,7 +309,18 @@ class _MainShellState extends ConsumerState<MainShell>
       // Let the body extend behind the floating bar so content can scroll
       // underneath the glass.
       extendBody: true,
-      body: widget.child,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          widget.child,
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            bottom: MediaQuery.paddingOf(context).bottom + 88,
+            child: const CreditLimitCallResumeChip(),
+          ),
+        ],
+      ),
       bottomNavigationBar: _FloatingGlassNavBar(
         indicatorPos: _indicatorPos,
         fabCoachTargetKey: _fabCoachTargetKey,

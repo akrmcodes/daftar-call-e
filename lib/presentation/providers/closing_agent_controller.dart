@@ -1617,6 +1617,9 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (state.phase != ClosingAgentPhase.ritualDesk) {
       return;
     }
+    if (state.callBatchTrigger == CallBatchTrigger.creditLimit) {
+      return;
+    }
     _invalidateCallPoll();
     final result = state.ritualResult;
     if (result == null) {
@@ -1630,23 +1633,6 @@ class ClosingAgentController extends _$ClosingAgentController {
           row,
     ];
     state = state.copyWith(deskRows: rows);
-    if (state.callBatchTrigger == CallBatchTrigger.creditLimit) {
-      state = state.copyWith(
-        phase: ClosingAgentPhase.idle,
-        ritualResult: null,
-        ritualPromptKind: null,
-        deskBusyContactId: null,
-        collectionsDispatching: false,
-        collectionsBatchId: null,
-        callConsented: false,
-        sendConsented: false,
-        callProgress: null,
-        callBatchTrigger: CallBatchTrigger.closeDay,
-        sendOutreachEnabled: false,
-        actionFailure: null,
-      );
-      return;
-    }
     final metrics = CollectionsQueueMetrics.fromRows(rows);
     _showRitualReport(result.withQueueMetrics(metrics));
     await _completePersistedQueue();
@@ -1709,6 +1695,39 @@ class ClosingAgentController extends _$ClosingAgentController {
     await _openCollectionsDesk(
       ritual,
       trigger: CallBatchTrigger.creditLimit,
+    );
+  }
+
+  /// Opens the credit-limit desk and immediately runs Confirm & Call (one HITL).
+  Future<void> startCreditLimitCallSession(String contactId) async {
+    await openCreditLimitDesk(contactId);
+    if (state.phase != ClosingAgentPhase.ritualDesk ||
+        state.callBatchTrigger != CallBatchTrigger.creditLimit) {
+      return;
+    }
+    await confirmAndCall();
+  }
+
+  /// Merchant taps Done on the credit-limit session summary — clears session.
+  Future<void> dismissCreditLimitSession() async {
+    if (state.callBatchTrigger != CallBatchTrigger.creditLimit) {
+      return;
+    }
+    _invalidateCallPoll();
+    state = state.copyWith(
+      phase: ClosingAgentPhase.idle,
+      ritualResult: null,
+      ritualPromptKind: null,
+      deskRows: const [],
+      deskBusyContactId: null,
+      collectionsDispatching: false,
+      collectionsBatchId: null,
+      callConsented: false,
+      sendConsented: false,
+      callProgress: null,
+      callBatchTrigger: CallBatchTrigger.closeDay,
+      sendOutreachEnabled: false,
+      actionFailure: null,
     );
   }
 

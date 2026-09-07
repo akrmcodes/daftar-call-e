@@ -215,6 +215,30 @@ abstract class ClosingAgentState with _$ClosingAgentState {
   /// Whether Confirm & Call should own the primary lapis glow.
   bool get callPrimaryOnDesk => deskCallCount > 0 && !callConsented;
 
+  /// B-trigger credit-limit call session (single contact, dedicated UI).
+  bool get isCreditLimitCallSessionActive =>
+      phase == ClosingAgentPhase.ritualDesk &&
+      callBatchTrigger == CallBatchTrigger.creditLimit;
+
+  /// Terminal when every call row is `completed` or `failed`.
+  bool get creditLimitCallSessionTerminal =>
+      callProgress?.isTerminal ?? false;
+
+  /// Contact id for the active credit-limit session, if any.
+  String? get creditLimitSessionContactId {
+    if (!isCreditLimitCallSessionActive) {
+      return null;
+    }
+    if (deskRows.isNotEmpty) {
+      return deskRows.first.candidate.contactId;
+    }
+    final shortlist = ritualResult?.shortlist;
+    if (shortlist != null && shortlist.isNotEmpty) {
+      return shortlist.first.contactId;
+    }
+    return null;
+  }
+
   static bool _isConfirmable(ProposalTool tool) {
     return tool == ProposalTool.proposeDebt ||
         tool == ProposalTool.proposePayment ||

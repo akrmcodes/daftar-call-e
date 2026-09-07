@@ -970,6 +970,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get creditLimitCallSheetLimit => 'حد الائتمان';
 
   @override
+  String get creditLimitCallSessionTitle => 'مكالمة الحد الائتماني';
+
+  @override
+  String get creditLimitCallSessionInProgress => 'المكالمة قيد التنفيذ';
+
+  @override
+  String get creditLimitCallSessionPreparing => 'جاري إعداد المكالمة…';
+
+  @override
+  String get creditLimitCallSessionSummaryTitle => 'ملخص المكالمة';
+
+  @override
+  String get creditLimitCallSessionDone => 'تم';
+
+  @override
+  String get creditLimitCallSessionViewCall => 'عرض المكالمة';
+
+  @override
+  String get creditLimitCallSessionResumeChip => 'مكالمة قيد التنفيذ';
+
+  @override
+  String creditLimitCallSessionRunId(String id) {
+    return 'تشغيل · $id';
+  }
+
+  @override
   String get collectionsDeskCreditLimitSubtitle =>
       'تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.';
 
@@ -3867,6 +3893,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String contactPendingPromiseBody(String amount, String date) {
     return 'وعد بـ $amount في $date';
+  }
+
+  @override
+  String contactPendingPromiseSemantics(String amount, String date) {
+    return 'وعد معلّق: $amount في $date';
   }
 
   @override

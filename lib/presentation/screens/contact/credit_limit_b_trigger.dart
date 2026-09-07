@@ -18,8 +18,8 @@ import 'package:go_router/go_router.dart';
 abstract final class CreditLimitBTrigger {
   /// Shows the HITL sheet when [warningLevel] is exceeded for a debt save.
   ///
-  /// On accept, opens the credit-limit Collections Desk and navigates to the
-  /// Closing Agent when not already there. Never auto-dials.
+  /// On accept, starts the credit-limit call session (one HITL) and navigates
+  /// to the Closing Agent when not already there. Never auto-dials on dismiss.
   static Future<void> offerAfterDebtSave({
     required BuildContext context,
     required WidgetRef ref,
@@ -60,7 +60,7 @@ abstract final class CreditLimitBTrigger {
 
     await ref
         .read(closingAgentControllerProvider.notifier)
-        .openCreditLimitDesk(contactId);
+        .startCreditLimitCallSession(contactId);
     if (!context.mounted) {
       return;
     }
@@ -120,7 +120,7 @@ abstract final class CreditLimitBTrigger {
 
     await ref
         .read(closingAgentControllerProvider.notifier)
-        .openCreditLimitDesk(contactId);
+        .startCreditLimitCallSession(contactId);
   }
 
   static bool _shouldSkipPrompt(WidgetRef ref) {

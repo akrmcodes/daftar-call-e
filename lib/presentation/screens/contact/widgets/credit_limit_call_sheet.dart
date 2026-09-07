@@ -11,14 +11,13 @@ import 'package:daftar/core/utils/money_util.dart';
 import 'package:daftar/domain/constants/built_in_currencies.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_permission_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 /// HITL sheet after a debt save exceeds the contact credit limit (B-trigger).
 ///
 /// Never auto-dials. [show] returns `true` when the merchant chooses to open
-/// the Collections Desk — Confirm & Call remains the only PSTN consent.
+/// the credit-limit call session — Prepare the call is the only PSTN consent.
 class CreditLimitCallSheet extends StatelessWidget {
   /// Creates the B-trigger confirmation sheet.
   const CreditLimitCallSheet({
@@ -145,11 +144,6 @@ class CreditLimitCallSheet extends StatelessWidget {
                 .withValues(alpha: 0.9),
             valueColor: AlwaysStoppedAnimation<Color>(accentColor),
           ),
-        ),
-        const Gap(AppDimensions.spacingLg),
-        DaftarPermissionBanner(
-          message: l10n.collectionsDeskPromiseNotPayment,
-          semanticsLabel: l10n.collectionsDeskPromiseNotPaymentSubtitle,
         ),
         const Gap(AppDimensions.spacingLg),
         DaftarButton(

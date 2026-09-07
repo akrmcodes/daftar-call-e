@@ -982,6 +982,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditLimitCallSheetLimit => 'Credit limit';
 
   @override
+  String get creditLimitCallSessionTitle => 'Credit-limit call';
+
+  @override
+  String get creditLimitCallSessionInProgress => 'Call in progress';
+
+  @override
+  String get creditLimitCallSessionPreparing => 'Preparing call…';
+
+  @override
+  String get creditLimitCallSessionSummaryTitle => 'Call summary';
+
+  @override
+  String get creditLimitCallSessionDone => 'Done';
+
+  @override
+  String get creditLimitCallSessionViewCall => 'View call';
+
+  @override
+  String get creditLimitCallSessionResumeChip => 'Call in progress';
+
+  @override
+  String creditLimitCallSessionRunId(String id) {
+    return 'Run · $id';
+  }
+
+  @override
   String get collectionsDeskCreditLimitSubtitle =>
       'Credit limit reached — confirm outreach for this account.';
 
@@ -3902,6 +3928,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String contactPendingPromiseBody(String amount, String date) {
     return 'Promised $amount on $date';
+  }
+
+  @override
+  String contactPendingPromiseSemantics(String amount, String date) {
+    return 'Pending promise: $amount on $date';
   }
 
   @override

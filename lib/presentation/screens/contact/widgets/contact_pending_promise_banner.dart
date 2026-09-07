@@ -48,7 +48,10 @@ class ContactPendingPromiseBanner extends ConsumerWidget {
         ),
         child: DaftarPermissionBanner(
           message: l10n.contactPendingPromiseBody(amountText, dateText),
-          semanticsLabel: l10n.collectionsDeskPromiseNotPaymentSubtitle,
+          semanticsLabel: l10n.contactPendingPromiseSemantics(
+            amountText,
+            dateText,
+          ),
         ),
       ),
     );

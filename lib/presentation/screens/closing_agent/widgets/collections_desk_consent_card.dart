@@ -7,7 +7,6 @@ import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_permission_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -93,10 +92,6 @@ class CollectionsDeskConsentCard extends StatelessWidget {
             ),
           ],
           const Gap(AppDimensions.spacingSm),
-          DaftarPermissionBanner(
-            message: l10n.collectionsDeskPromiseNotPayment,
-            semanticsLabel: l10n.collectionsDeskPromiseNotPaymentSubtitle,
-          ),
           if (callProgress != null) ...[
             const Gap(AppDimensions.spacingMd),
             CollectionsCallProgressBar(progress: callProgress!),

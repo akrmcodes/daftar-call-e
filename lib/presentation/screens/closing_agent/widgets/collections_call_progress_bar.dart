@@ -12,11 +12,15 @@ class CollectionsCallProgressBar extends StatelessWidget {
   /// Creates the progress bar.
   const CollectionsCallProgressBar({
     required this.progress,
+    this.barHeight = 4,
     super.key,
   });
 
   /// Device-side call progress.
   final CollectionsCallProgress progress;
+
+  /// Track height — session UI uses a thicker lapis-edged bar.
+  final double barHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +52,7 @@ class CollectionsCallProgressBar extends StatelessWidget {
             ),
             if (latestStatus != null)
               Text(
-                _statusLabel(l10n, latestStatus),
+                statusLabel(l10n, latestStatus),
                 style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
               ),
           ],
@@ -57,7 +61,7 @@ class CollectionsCallProgressBar extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(AppDimensions.radiusXs),
           child: SizedBox(
-            height: 4,
+            height: barHeight,
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -83,7 +87,7 @@ class CollectionsCallProgressBar extends StatelessWidget {
     );
   }
 
-  static String _statusLabel(
+  static String statusLabel(
     AppLocalizations l10n,
     CollectionsCallRowStatus status,
   ) {

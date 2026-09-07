@@ -52,6 +52,7 @@ import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/domain/value_objects/collections_send_queue.dart';
@@ -3194,7 +3195,8 @@ void main() {
     verifyNever(() => runCall.execute(any()));
   });
 
-  test('credit-limit finishDesk returns idle not ritual report', () async {
+  test('credit-limit dismissCreditLimitSession returns idle not ritual report',
+      () async {
     const usPhone = '+15555550100';
     when(
       () => collectionsCandidates.execute(
@@ -3230,7 +3232,7 @@ void main() {
     final notifier = c.read(closingAgentControllerProvider.notifier);
 
     await notifier.openCreditLimitDesk('us');
-    await notifier.finishDesk();
+    await notifier.dismissCreditLimitSession();
 
     final state = c.read(closingAgentControllerProvider);
     expect(state.phase, ClosingAgentPhase.idle);
@@ -3295,5 +3297,102 @@ void main() {
     await notifier.confirmAndCall();
 
     expect(capturedPlan?.trigger, CallBatchTrigger.creditLimit);
+  });
+
+  test('credit-limit finishDesk keeps session active', () async {
+    const usPhone = '+15555550100';
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.openCreditLimitDesk('us');
+    await notifier.finishDesk();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.phase, ClosingAgentPhase.ritualDesk);
+    expect(state.callBatchTrigger, CallBatchTrigger.creditLimit);
+    expect(state.isCreditLimitCallSessionActive, isTrue);
+  });
+
+  test('credit-limit session terminal when all rows complete', () async {
+    const usPhone = '+15555550100';
+    when(
+      () => collectionsCandidates.execute(
+        asOf: any(named: 'asOf'),
+        allowlist: any(named: 'allowlist'),
+        allowlistRegion: any(named: 'allowlistRegion'),
+        contactId: 'us',
+      ),
+    ).thenAnswer(
+      (_) async => const Right([
+        CollectionsCandidate(
+          contactId: 'us',
+          name: 'us',
+          email: 'us@example.com',
+          phone: usPhone,
+          ledgerId: 'ledger',
+          netBalance: -100,
+          currencyCode: 'USD',
+          ageDays: 12,
+          toneBand: ReminderToneBand.reminder,
+          rail: OutreachRail.both,
+        ),
+      ]),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.openCreditLimitDesk('us');
+    notifier.state = notifier.state.copyWith(
+      callProgress: const CollectionsCallProgress(
+        results: [
+          CollectionsCallProgressRow(
+            contactId: 'us',
+            status: CollectionsCallRowStatus.completed,
+            runId: 'run-12345678',
+          ),
+        ],
+      ),
+    );
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.creditLimitCallSessionTerminal, isTrue);
+    expect(state.creditLimitSessionContactId, 'us');
   });
 }

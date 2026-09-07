@@ -411,6 +411,19 @@
   "creditLimitCallSheetNotNow": "ليس الآن",
   "creditLimitCallSheetOutstanding": "المستحق",
   "creditLimitCallSheetLimit": "حد الائتمان",
+  "creditLimitCallSessionTitle": "مكالمة الحد الائتماني",
+  "creditLimitCallSessionInProgress": "المكالمة قيد التنفيذ",
+  "creditLimitCallSessionPreparing": "جاري إعداد المكالمة…",
+  "creditLimitCallSessionSummaryTitle": "ملخص المكالمة",
+  "creditLimitCallSessionDone": "تم",
+  "creditLimitCallSessionViewCall": "عرض المكالمة",
+  "creditLimitCallSessionResumeChip": "مكالمة قيد التنفيذ",
+  "creditLimitCallSessionRunId": "تشغيل · {id}",
+  "@creditLimitCallSessionRunId": {
+    "placeholders": {
+      "id": { "type": "String", "example": "44665544" }
+    }
+  },
   "collectionsDeskCreditLimitSubtitle": "تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.",
   "errorCreditLimitNoOutreach": "لا يوجد هاتف أو بريد يمكن استخدامه للتواصل مع هذا الحساب.",
   "notificationWarningTitle": "تنبيه ائتماني",
@@ -1731,6 +1744,13 @@
   "collectionsDeskPromiseNotPaymentSubtitle": "يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.",
   "contactPendingPromiseBody": "وعد بـ {amount} في {date}",
   "@contactPendingPromiseBody": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "15.00 ﷼" },
+      "date": { "type": "String", "example": "10 سبتمبر 2026" }
+    }
+  },
+  "contactPendingPromiseSemantics": "وعد معلّق: {amount} في {date}",
+  "@contactPendingPromiseSemantics": {
     "placeholders": {
       "amount": { "type": "String", "example": "15.00 ﷼" },
       "date": { "type": "String", "example": "10 سبتمبر 2026" }
