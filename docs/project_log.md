@@ -4745,3 +4745,24 @@ Plan/run `daftar.agent.call` emitters unchanged. Non-terminal GET polls emit **n
 ### Status
 §4.3 ticked (unchanged). §4.4 complete. Next: §4.5 Gate 4 film (owner) or Stage 4 validation gate.
 
+## 2026-09-08 — Move Gate 4 film; dial-off phone QA
+
+### Context
+Owner moved live ring filming to Stage 6 (after Stage 5). Stage 4 should exit on thorough device QA with `CALLE_ALLOW_DIAL=false` and min instances 0. Credit burn must be avoided during QA.
+
+### Done
+- [`docs/roadmap_v3.md`](../docs/roadmap_v3.md): removed **4.5 Gate 4 film** from Stage 4; added **4.5 Device QA (owner)**; merged film bullets into **§6.3 Video**; retargeted Stage 4/5/6 gates and dependency graph (Stage 5 after dial-off QA, not live ring).
+- [`docs/qa/stage4_phone_qa.md`](../docs/qa/stage4_phone_qa.md): dial-off phone pass (Passes A–D) before Stage 5.
+- [`docs/qa/calle_live_dial_window.md`](../docs/qa/calle_live_dial_window.md): credit-safe arm/disarm SOP for Stage 6 film only.
+- [`docs/qa/gate4_device_runbook.md`](../docs/qa/gate4_device_runbook.md): heritage banner (frozen Agentic SMTP — do not warm).
+- [`docs/qa/README.md`](../docs/qa/README.md): binding contract → v3; QA doc index updated.
+
+### Architecture / decisions
+Default forever: Cloud Run + APK dial **off**, min **0**. Live `CALLE_ALLOW_DIAL=true` only per `calle_live_dial_window.md` on film day. Poll loop does not re-`create`; `callConsented` blocks double Confirm & Call per desk. §4.5 / Stage 4 Validation Gate remain **unchecked** until owner runs `stage4_phone_qa.md`. §6.3 / Stage 6 film items **unchecked**.
+
+### Ops / verification
+`gcloud run services describe daftar-call-e`: revision `daftar-call-e-00008-nbv`, `CALLE_ALLOW_DIAL=false`, minScale unset (0), maxScale 2 — **no update required**. Frozen `daftar-closing-agent-00055-pbm` untouched. No deploy. No `DAFTAR_CALL_E_ALLOW_DIAL=true`.
+
+### Status
+Roadmap reorganized. Next: owner runs [`docs/qa/stage4_phone_qa.md`](../docs/qa/stage4_phone_qa.md) on phone, then Stage 5. Film after feature freeze per §6.3.
+

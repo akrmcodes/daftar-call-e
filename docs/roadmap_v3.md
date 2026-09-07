@@ -103,7 +103,7 @@ Source: [CALL-E Devpost judging criteria](https://call-e.devpost.com/) · [Offic
 | **CALL-E sibling** | Stage 1 | 3–4 Sep | `plan-batch` / `run-batch` / `GET` · OpenAPI · catalog freeze |
 | **Device contract** | Stage 2 | 5–6 Sep | Schema 26 · E.164 · region gate · allowlist · aging split |
 | **Confirm & Call UI** | Stage 3 | 7–8 Sep | Desk badges · B-trigger · HUD call chip · dry-run |
-| **Live loop** | Stage 4 | 9–10 Sep | Poll → structured write-back · **MFP filmable** · Gate 4 |
+| **Live loop** | Stage 4 | 9–10 Sep | Poll → structured write-back · **MFP capability** · device QA (dial off) |
 | **Polish + skill** | Stage 5 | 11 Sep | One retry · kill switch · awesome-list skill · **feature freeze EOD** |
 | **Package** | Stage 6 | 12–13 Sep | Diagram · README · ≤3 min video · PR · Devpost · **video lock 13** |
 | **Submit** | Stage 7 | 14 Sep | Freeze SHA · Devpost · MVF survey |
@@ -123,21 +123,21 @@ Stage 0 (CALL-E account + KYC + US DID + disclosure + new Cloud Run)
   └── Stage 1 (Sibling plan/run/get + OpenAPI + eight-tool freeze)
         └── Stage 2 (Drift schema 26 + E.164 + region + allowlist + dual rail)
               └── Stage 3 (Confirm & Call UI + B-trigger + HUD)
-                    └── Stage 4 (Live poll + structured write-back + Gate 4 film)
+                    └── Stage 4 (Live poll + structured write-back + device QA)
                           └── Stage 5 (Retry + skill pack + feature freeze)
                                 └── Stage 6 (Video / README / awesome-list PR / Devpost)
                                       └── Stage 7 (SHA freeze + Devpost submit + MVF)
 ```
 
 > [!IMPORTANT]
-> **Feature freeze:** 11 Sep 2026 EOD — no new CALL-E capabilities after Gate 5 unless Gate 4 is already green. **Do not start Stage 5 until Gate 4.**
-> **Video lock:** 13 Sep 2026.
+> **Feature freeze:** 11 Sep 2026 EOD — no new CALL-E capabilities after Gate 5 unless Stage 4 device QA is already green. **Do not start Stage 5 until Stage 4 Validation Gate (device QA, dial off).**
+> **Video lock:** 13 Sep 2026. **Live ring filming** is §6.3 (Stage 6), not Stage 4.
 > **Do not start Stage N+1** until Stage N Validation Gate is checked.
 > **Stop product Phase 2 / Shipaton / Agentic-main work.** This fork only. Do not push to the frozen Agentic repository.
 
 ### Minimum Filmable Product (MFP)
 
-Must be **filmable by Gate 4 (~10 Sep)**. Everything beyond this is polish. **MFP** is this contest slice. **MCP** in this document means **Model Context Protocol** only.
+Must be **capable by end of Stage 4** (device QA with dial off). **Filming** is §6.3 (Stage 6) after Stage 5 feature freeze. Everything beyond MFP is polish. **MFP** is this contest slice. **MCP** in this document means **Model Context Protocol** only.
 
 1. Merchant **Confirm & Call** on the **Collections Desk** after aging (HITL — not the plan-review pair)
 2. Cloud Run **`plan-batch` (Daftar-local) then `run-batch` (`calls.create`)** using `calle-ai` (not an ADK tool)
@@ -396,7 +396,9 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 | **Thu 3 – Fri 4 Sep** | 1 | Sibling plan/run/get · OpenAPI · eight-tool freeze | Gate 1 |
 | **Sat 5 – Sun 6 Sep** | 2 | Schema 26 · E.164 · region · allowlist · dual-rail aging | Gate 2 |
 | **Mon 7 – Tue 8 Sep** | 3 | Confirm & Call UI · B-trigger · HUD · dry-run | Gate 3 |
-| **Wed 9 – Thu 10 Sep** | 4 | Live poll + write-back · **MFP filmable** | Gate 4 |
+| **Wed 9 – Thu 10 Sep** | 4 | Live poll + write-back · **MFP capability** | Stage 4 device QA |
+
+> **As-of v3.3:** Live ring **recording** moved from Stage 4 to **§6.3 Video** (Stage 6). Stage 4 exits on dial-off phone QA only.
 | **Fri 11 Sep** | 5 | Retry · kill switch · skill pack · **feature freeze EOD** | Gate 5 |
 | **Sat 12 – Sun 13 Sep** | 6 | Video ≤3 min · README · awesome-list PR · Devpost · **video lock 13** | Gate 6 |
 | **Mon 14 Sep** | 7 | Submit by **official 23:45 SGT** (owner buffer ≤ **18:00 AST**) | Gate 7 |
@@ -674,9 +676,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 ## Stage 4: Live Lifecycle + Structured Write-back
 
-**Goal:** Confirm & Call places a real CALL-E call, polls to terminal, writes J.9 result into Drift, shows a promise card. **MFP.** Film Gate 4.
+**Goal:** Confirm & Call polls to terminal, writes J.9 result into Drift, shows a promise card. **MFP capability** (live ring is filmed in §6.3).
 
-**Prerequisites:** Gate 3. `CALLE_ALLOW_DIAL=true` only on the demo profile. Allowlist = US DID (+ optional consented SA later).
+**Prerequisites:** Gate 3. Device QA uses **`CALLE_ALLOW_DIAL=false`** on Cloud Run and the demo APK. Live ring filming follows [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) in Stage 6 only.
 
 **Features from Product Spec:** Chapter 3 steps 8–10. Model is not cashier.
 
@@ -708,22 +710,22 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] `daftar.agent.call` on plan, run, terminal (masked phone, `runId`, `outcome`, **no** evidence PII dump)
 - [x] HUD updates from poll
 
-**4.5 Gate 4 film (owner)**
+**4.5 Device QA (owner)**
 
-- [ ] Warm Cloud Run once
-- [ ] Confirm & Call → US DID rings → short consented script (“I’ll pay {integer} on {date}”)
-- [ ] Device shows outcome + promise card + HUD last-8
-- [ ] Optional: Cloud Logging screenshot
-- [ ] No real debtors
+- [ ] Run [`docs/qa/stage4_phone_qa.md`](qa/stage4_phone_qa.md) on a dedicated demo profile with **dial off** (Cloud Run `CALLE_ALLOW_DIAL=false`, no `CALLE_ALLOW_DIAL=true` dart-define)
+- [ ] Kill switch refuses PSTN; YE stays `callUnavailable`; Confirm & Send independent
+- [ ] SMTP rail still runs; HUD chip from poll/progress (no delivered/paid)
+- [ ] Airplane mode / agent down → ledger intact
 
 #### Stage 4 Validation Gate
 
-- [ ] Live CALL-E call from **this** app (not only laptop smoke)
-- [ ] Structured integer write-back with **no** new txn
+- [ ] Stage 4 device QA runbook complete (dial off — **no** live ring)
+- [ ] Kill switch off → server refuses dial; device shows `needsHuman` / failed progress without `run-batch` `create`
+- [ ] Structured write-back path verified in tests; promise card when live dial is armed later
 - [ ] YE row never dialed
-- [ ] HUD `runId` last-8 matches logs (CALL-E `call.id`)
-- [ ] SMTP rail still compiles/runs
-- [ ] **MFP filmable** — **do not start Stage 5 until this gate is green**
+- [ ] SMTP rail still compiles/runs on device
+- [ ] HUD updates from poll/progress without delivered/paid copy
+- [ ] **Do not start Stage 5 until this gate is green** (live ring + HUD last-8 vs logs → §6.3 / Stage 6 Validation Gate)
 
 ---
 
@@ -731,7 +733,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **Goal:** One no-answer retry, merchant kill switch, portable skill for the awesome-list. **Freeze EOD 11 Sep.**
 
-**Prerequisites:** Gate 4.
+**Prerequisites:** Stage 4 Validation Gate (device QA, dial off).
 
 ### Task Checklist
 
@@ -781,7 +783,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **Goal:** Judges can score from video + repo + PR. Appendix I stretch stays retired.
 
-**Prerequisites:** Gate 5 (film). Packaging copy may start after Gate 4.
+**Prerequisites:** Gate 5 (feature freeze). Packaging copy may start after Stage 4 device QA.
 
 ### Task Checklist
 
@@ -807,6 +809,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [ ] **Do not** open on Gemini / ADK / Cloud Run. **Do not** climax on mid-day capture, Drive, SMTP inbox, WhatsApp, Live API, inbound, “we invented collections promises,” or All Things Agentic 4:00 pacing
 - [ ] SMTP YE row: one `callUnavailable` badge + one line, or narrate
 - [ ] film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
+- [ ] **Owner film-day (moved from Stage 4.5):** warm `daftar-call-e` once per [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md); Confirm & Call → US DID rings → short consented script (“I’ll pay {integer} on {date}”); device shows outcome + promise card + HUD last-8; optional Cloud Logging screenshot; no real debtors; disarm dial immediately after terminal GET
 
 - [ ] **Beat sheet (lock):**
 
@@ -850,6 +853,8 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 - [ ] Diagram + README + disclosure match v3.3
 - [ ] Video ≤3:00 public; on-device live ring; beat sheet followed
+- [ ] Live CALL-E call from **this** app (not only laptop smoke); structured integer write-back with **no** new txn
+- [ ] HUD `runId` last-8 matches logs (CALL-E `call.id`)
 - [ ] English Devpost About covers all four criteria
 - [ ] Awesome-list PR opened
 - [ ] Devpost draft complete
@@ -1051,7 +1056,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | `credential_grant_unavailable` | Chat/MCP can ring while Developer API cannot. Gate 0 = API 404 probe + `create_and_wait`, not Chat |
 | NANP `+1` US vs CA | Demo DID `region: US` from allowlist config, never inferred from `+1` |
 | Arabic PSTN fail | Film US English; narrate J.10 |
-| Scope creep | Feature freeze 11 Sep; **MFP** by Gate 4 |
+| Scope creep | Feature freeze 11 Sep; **MFP** by Stage 4 device QA; film §6.3 |
 | Awesome-list PR rejected | `skills/` template; dry-run; `validate_repository.py`; no secrets |
 | Video >3 min | Hard cut; judges need not watch more |
 | Cold start | Warm once before recording |
