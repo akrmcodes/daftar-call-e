@@ -140,7 +140,7 @@ void main() {
     expect(snapshot.deskSentCount, 0);
   });
 
-  test('resolveCallChip uses last runId and latest status', () {
+  test('resolveCallChip uses last runId row for both runId and status', () {
     const progress = CollectionsCallProgress(
       results: [
         CollectionsCallProgressRow(
@@ -164,6 +164,26 @@ void main() {
     expect(chip.runId, '11111111-2222-3333-4444-555566667777');
     expect(chip.status, CollectionsCallRowStatus.completed);
     expect(ArchitectureHudSnapshot.tail8(chip.runId), '66667777');
+  });
+
+  test('resolveCallChip ignores later planned row without runId', () {
+    const progress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'a',
+          status: CollectionsCallRowStatus.completed,
+          runId: 'call_zQn3UWw0E9hTHp1rN2R75g',
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'b',
+          status: CollectionsCallRowStatus.planned,
+        ),
+      ],
+    );
+
+    final chip = ArchitectureHudSnapshot.resolveCallChip(progress);
+    expect(chip.runId, 'call_zQn3UWw0E9hTHp1rN2R75g');
+    expect(chip.status, CollectionsCallRowStatus.completed);
   });
 
   test('resolveCallChip returns planned without runId before run-batch', () {
@@ -227,6 +247,50 @@ void main() {
     expect(snapshot.smtpMessageId, '<22222222ccccdddd@gmail.com>');
     expect(ArchitectureHudSnapshot.tail8(snapshot.smtpMessageId), 'ccccdddd');
     expect(snapshot.callStatus, CollectionsCallRowStatus.ringing);
+  });
+
+  test('fromAgent call chip follows poll from ringing to completed', () {
+    const ringingProgress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'c1',
+          status: CollectionsCallRowStatus.ringing,
+          runId: '550e8400-e29b-41d4-a716-446655440000',
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'c2',
+          status: CollectionsCallRowStatus.planned,
+        ),
+      ],
+    );
+    final ringing = ArchitectureHudSnapshot.fromAgent(
+      enabled: true,
+      turnResult: turn,
+      callProgress: ringingProgress,
+    );
+    expect(ringing.callStatus, CollectionsCallRowStatus.ringing);
+    expect(ringing.callRunId, '550e8400-e29b-41d4-a716-446655440000');
+
+    const completedProgress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'c1',
+          status: CollectionsCallRowStatus.completed,
+          runId: '550e8400-e29b-41d4-a716-446655440000',
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'c2',
+          status: CollectionsCallRowStatus.planned,
+        ),
+      ],
+    );
+    final completed = ArchitectureHudSnapshot.fromAgent(
+      enabled: true,
+      turnResult: turn,
+      callProgress: completedProgress,
+    );
+    expect(completed.callStatus, CollectionsCallRowStatus.completed);
+    expect(completed.callRunId, '550e8400-e29b-41d4-a716-446655440000');
   });
 
   group('resolveHitlStep', () {

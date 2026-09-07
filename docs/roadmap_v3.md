@@ -705,8 +705,8 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **4.4 Observability**
 
-- [ ] `daftar.agent.call` on plan, run, terminal (masked phone, `runId`, `outcome`, **no** evidence PII dump)
-- [ ] HUD updates from poll
+- [x] `daftar.agent.call` on plan, run, terminal (masked phone, `runId`, `outcome`, **no** evidence PII dump)
+- [x] HUD updates from poll
 
 **4.5 Gate 4 film (owner)**
 

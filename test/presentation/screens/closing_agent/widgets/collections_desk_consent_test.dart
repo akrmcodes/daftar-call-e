@@ -270,4 +270,33 @@ void main() {
     expect(find.text('Confirm without calling'), findsNothing);
     expect(find.text('Confirm & Send Statements'), findsOneWidget);
   });
+
+  testWidgets('Confirm and Send remains visible after call consented', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: CollectionsDeskConsentCard(
+            callCount: 1,
+            emailCount: 2,
+            callConsented: true,
+            sendOutreachEnabled: true,
+            busy: false,
+            isDispatching: false,
+            onConfirmAndCall: () {},
+            onConfirmAndSend: () {},
+            onConfirmWithoutCalling: () {},
+            onConfirmWithoutSending: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Confirm & Call'), findsNothing);
+    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+  });
 }

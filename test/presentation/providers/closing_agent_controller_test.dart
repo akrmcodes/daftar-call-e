@@ -1515,6 +1515,103 @@ void main() {
     expect(request.recipients.single.contactId, 'us');
   });
 
+  test('approveAndSend still dispatches YE after Confirm and Call omits YE', () async {
+    const usPhone = '+15555550100';
+    late List<CollectionsDeskRow> dispatched;
+    when(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    ).thenAnswer((invocation) async {
+      dispatched = List<CollectionsDeskRow>.from(
+        invocation.namedArguments[#rows]! as List<CollectionsDeskRow>,
+      );
+      final onRows =
+          invocation.namedArguments[#onRows]
+              as void Function(List<CollectionsDeskRow>)?;
+      final sent = [
+        for (final row in dispatched)
+          row.copyWith(
+            status: CollectionsDeskRowStatus.sent,
+            smtpCode: 250,
+            smtpMessageId: '<mid@gmail.com>',
+          ),
+      ];
+      onRows?.call(sent);
+      return Right(
+        DispatchCollectionsEmailResult(
+          rows: sent,
+          metrics: CollectionsQueueMetrics.fromRows(sent),
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+          CollectionsCandidate(
+            contactId: 'ye',
+            name: 'ye',
+            email: 'ye@example.com',
+            phone: '+967771234567',
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'YER',
+            ageDays: 20,
+            toneBand: ReminderToneBand.firm,
+            rail: OutreachRail.callUnavailable,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final planCaptured = verify(() => planCall.execute(captureAny())).captured;
+    final planRequest = planCaptured.last as CallPlanBatchRequest;
+    expect(planRequest.recipients, hasLength(1));
+    expect(planRequest.recipients.single.contactId, 'us');
+
+    await notifier.approveAndSend();
+
+    expect(
+      dispatched.map((row) => row.candidate.contactId),
+      containsAll(['us', 'ye']),
+    );
+  });
+
   test('Confirm and Call kill switch 403 is needsHuman', () async {
     const usPhone = '+15555550100';
     when(() => runCall.execute(any())).thenAnswer(

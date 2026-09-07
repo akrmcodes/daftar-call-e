@@ -251,14 +251,16 @@ class ArchitectureHudSnapshot extends Equatable {
 
     String? runId;
     CollectionsCallRowStatus? status;
+    CollectionsCallRowStatus? latestStatus;
     for (final row in callProgress.results) {
-      status = row.status;
+      latestStatus = row.status;
       final trimmed = row.runId?.trim() ?? '';
       if (trimmed.isNotEmpty) {
         runId = trimmed;
+        status = row.status;
       }
     }
-    return (runId: runId, status: status);
+    return (runId: runId, status: status ?? latestStatus);
   }
 
   /// Last 8 characters of [raw] for HUD chips.

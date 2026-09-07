@@ -1474,6 +1474,7 @@ class ClosingAgentController extends _$ClosingAgentController {
         state.collectionsDispatching) {
       return;
     }
+    _invalidateCallPoll();
     final pending = [
       for (final row in state.deskRows)
         if (row.status == CollectionsDeskRowStatus.pending &&

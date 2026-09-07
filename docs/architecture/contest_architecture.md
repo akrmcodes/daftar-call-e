@@ -126,7 +126,7 @@ Coordinator + scoped sub-agents (B-Prime) remain a **post-contest** option only 
 | Surface | What to show |
 | --- | --- |
 | Device HUD | `Cloud Run · gemini-3.5-flash`, tool scope, HITL step, correlation last-8, `Sent ·` Message-ID last-8 |
-| Cloud Logging | `daftar.agent.model`, `daftar.agent.tool`, `daftar.agent.email` (SMTP **250** + **Message-ID**) |
+| Cloud Logging | `daftar.agent.model`, `daftar.agent.tool`, `daftar.agent.email` (SMTP **250** + **Message-ID**), `daftar.agent.call` (`plan` / `run` / terminal `action=terminal` with masked phone + `runId` + `outcome`) |
 | Inbox | Proof of Action — PDF on ranked Top 5; text-only remainder intentional |
 
 SMTP **250** is server **accept**, not mailbox-delivered. Gmail has no delivery webhook — do not fake `delivered`.

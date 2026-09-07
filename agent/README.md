@@ -238,19 +238,21 @@ ADK `before_/after_model_callback` and `before_/after_tool_callback` emit **sing
 | `latency_ms` | model + tool |
 | `model_id` | model + tool (`gemini-3.5-flash`) |
 | `correlation_id` | when `daftarContext.correlationId` is set |
-| `event` | `daftar.agent.model` / `daftar.agent.tool` (+ `.start`) / `daftar.agent.email` |
+| `event` | `daftar.agent.model` / `daftar.agent.tool` (+ `.start`) / `daftar.agent.email` / `daftar.agent.call` |
 
-Demo / Logs Explorer query:
+Demo / Logs Explorer query (CALL-E Stage 1 service `daftar-call-e` — not frozen Agentic `daftar-closing-agent`):
 
 ```text
 resource.type="cloud_run_revision"
-resource.labels.service_name="daftar-closing-agent"
-jsonPayload.event=("daftar.agent.tool" OR "daftar.agent.model" OR "daftar.agent.email" OR "daftar.agent.tts")
+resource.labels.service_name="daftar-call-e"
+jsonPayload.event=("daftar.agent.tool" OR "daftar.agent.model" OR "daftar.agent.email" OR "daftar.agent.tts" OR "daftar.agent.call")
 ```
+
+CALL-E terminal poll logs use `jsonPayload.action="terminal"` with masked phone, `runId`, and `outcome` — never full E.164, confirm handles, or evidence quotes.
 
 ```bash
 gcloud logging read \
-  'resource.type="cloud_run_revision" AND resource.labels.service_name="daftar-closing-agent" AND jsonPayload.event="daftar.agent.tool"' \
+  'resource.type="cloud_run_revision" AND resource.labels.service_name="daftar-call-e" AND jsonPayload.event="daftar.agent.call"' \
   --project=daftar-closing-agent --limit=5 --format=json
 ```
 

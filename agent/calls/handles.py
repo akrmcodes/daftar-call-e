@@ -22,6 +22,12 @@ class PlanSnapshot:
     trigger: str
 
 
+@dataclass(frozen=True)
+class RunContext:
+    batch_id: str
+    correlation_id: str
+
+
 class ConfirmHandleStore:
     def put(self, batch_id: str, contact_id: str, snapshot: PlanSnapshot) -> None:
         raise NotImplementedError
@@ -44,6 +50,17 @@ class ConfirmHandleStore:
     def get_run_mask(self, run_id: str) -> str | None:
         raise NotImplementedError
 
+    def put_run_context(
+        self,
+        run_id: str,
+        batch_id: str,
+        correlation_id: str,
+    ) -> None:
+        raise NotImplementedError
+
+    def get_run_context(self, run_id: str) -> RunContext | None:
+        raise NotImplementedError
+
 
 class InMemoryConfirmHandleStore(ConfirmHandleStore):
     def __init__(self) -> None:
@@ -51,6 +68,7 @@ class InMemoryConfirmHandleStore(ConfirmHandleStore):
         self._snapshots: dict[tuple[str, str], PlanSnapshot] = {}
         self._run_ids: dict[tuple[str, str], str] = {}
         self._run_masks: dict[str, str] = {}
+        self._run_contexts: dict[str, RunContext] = {}
 
     def put(self, batch_id: str, contact_id: str, snapshot: PlanSnapshot) -> None:
         with self._lock:
@@ -79,6 +97,22 @@ class InMemoryConfirmHandleStore(ConfirmHandleStore):
     def get_run_mask(self, run_id: str) -> str | None:
         with self._lock:
             return self._run_masks.get(run_id)
+
+    def put_run_context(
+        self,
+        run_id: str,
+        batch_id: str,
+        correlation_id: str,
+    ) -> None:
+        with self._lock:
+            self._run_contexts[run_id] = RunContext(
+                batch_id=batch_id,
+                correlation_id=correlation_id,
+            )
+
+    def get_run_context(self, run_id: str) -> RunContext | None:
+        with self._lock:
+            return self._run_contexts.get(run_id)
 
 
 def new_confirm_handle() -> str:

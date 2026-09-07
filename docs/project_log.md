@@ -4725,3 +4725,23 @@ Promise remains display-only — no `AddTransactionUseCase`. Currency still requ
 ### Status
 Roadmap §4.2 all items ticked. Next: §4.3 YE film row or §4.4 HUD poll observability.
 
+## 2026-09-06 — Stage 4.3 review + §4.4 Observability
+
+### Context
+Owner requested professional review of §4.3 (email remainder independence) and implementation of §4.4 (Cloud Logging terminal events + HUD poll chip).
+
+### Done
+- **§4.3 (kept ticked):** [`test/presentation/providers/closing_agent_controller_test.dart`](../test/presentation/providers/closing_agent_controller_test.dart) — US+YE desk: `confirmAndCall` plan-batch US-only, then `approveAndSend` dispatches both including YE. [`test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart`](../test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart) — Confirm & Send visible after `callConsented`. [`closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart) — `_invalidateCallPoll()` at start of `approveAndSend`.
+- **§4.4 Cloud Run:** [`agent/calls/handles.py`](../agent/calls/handles.py) — `RunContext` map (`put_run_context` / `get_run_context`). [`agent/calls/router.py`](../agent/calls/router.py) — `action=terminal` only on terminal GET (no per-poll `action=get` spam); `correlationId` + `batchId` from run context; PII-safe fields only.
+- **§4.4 HUD:** [`architecture_hud_provider.dart`](../lib/presentation/providers/architecture_hud_provider.dart) — `resolveCallChip` last row **with non-empty `runId`** wins for both `runId` and `status` (later `planned` rows no longer mask ringing/completed).
+- Docs: [`docs/roadmap_v3.md`](../docs/roadmap_v3.md) §4.4 ticked; [`agent/README.md`](../agent/README.md) Logs Explorer query for `daftar.agent.call` on `daftar-call-e`; [`docs/architecture/contest_architecture.md`](../docs/architecture/contest_architecture.md) Cloud Logging row.
+
+### Architecture / decisions
+Plan/run `daftar.agent.call` emitters unchanged. Non-terminal GET polls emit **no** call log. Gate 4 film / Stage 6.3 YE inbox beat remain unchecked. No Cloud Run deploy. No Firebase Analytics.
+
+### Ops / verification
+`agent/.venv/bin/python -m pytest tests/test_calls_get.py` — 14 passed. `flutter test` on controller, HUD provider, consent widget — passed. `flutter analyze` on touched Dart files — clean.
+
+### Status
+§4.3 ticked (unchanged). §4.4 complete. Next: §4.5 Gate 4 film (owner) or Stage 4 validation gate.
+
