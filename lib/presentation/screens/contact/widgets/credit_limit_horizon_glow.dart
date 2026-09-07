@@ -20,7 +20,7 @@ class CreditLimitHorizonGlow extends StatefulWidget {
   final bool active;
 
   /// Tall enough for the downward wash to finish inside the header.
-  static const double crestHeight = 96;
+  static const double crestHeight = 128;
 
   @override
   State<CreditLimitHorizonGlow> createState() => _CreditLimitHorizonGlowState();
@@ -168,31 +168,28 @@ class _DebtInwardWashPainter extends CustomPainter {
       ..clipRect(Offset.zero & size);
 
     final base = isDark ? AppColors.debt : AppColors.debtLight;
-    final ambientAlpha = isDark
-        ? ui.lerpDouble(AppColors.alphaSubtle, AppColors.alphaSoft, breath)!
-        : ui.lerpDouble(
-            AppColors.alphaHairline,
-            AppColors.alphaWhisper,
-            breath,
-          )!;
-    final coreAlpha = isDark
-        ? ui.lerpDouble(AppColors.alphaWhisper, AppColors.alphaSubtle, breath)!
-        : ui.lerpDouble(
-            AppColors.alphaHairline,
-            AppColors.alphaWhisper,
-            breath,
-          )!;
-    final ambientBlur = isDark ? 22.0 + (6.0 * breath) : 18.0 + (4.0 * breath);
-    final coreBlur = isDark ? 10.0 + (3.0 * breath) : 8.0 + (2.0 * breath);
+    final origin = Offset(size.width / 2, 8);
+    final ambientAlpha = ui.lerpDouble(
+      AppColors.alphaSoft,
+      AppColors.alphaMedium,
+      breath,
+    )!;
+    final coreAlpha = ui.lerpDouble(
+      AppColors.alphaMedium,
+      AppColors.alphaStrong,
+      breath,
+    )!;
+    final ambientBlur = isDark ? 28.0 + (8.0 * breath) : 24.0 + (6.0 * breath);
+    final coreBlur = isDark ? 14.0 + (4.0 * breath) : 12.0 + (3.0 * breath);
 
     final ambient = Paint()
       ..color = base.withValues(alpha: ambientAlpha)
       ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, ambientBlur);
     canvas.drawOval(
       Rect.fromCenter(
-        center: Offset(size.width / 2, 0),
-        width: size.width * 0.92,
-        height: 56 + (10 * breath),
+        center: origin,
+        width: size.width * 0.96,
+        height: 80 + (16 * breath),
       ),
       ambient,
     );
@@ -202,29 +199,27 @@ class _DebtInwardWashPainter extends CustomPainter {
       ..maskFilter = ui.MaskFilter.blur(ui.BlurStyle.normal, coreBlur);
     canvas.drawOval(
       Rect.fromCenter(
-        center: Offset(size.width / 2, 0),
-        width: size.width * 0.42,
-        height: 22 + (6 * breath),
+        center: origin,
+        width: size.width * 0.48,
+        height: 36 + (10 * breath),
       ),
       core,
     );
 
     final hairline = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5
+      ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round
       ..shader = LinearGradient(
         colors: [
           base.withValues(alpha: 0),
-          base.withValues(
-            alpha: isDark ? AppColors.alphaSoft : AppColors.alphaSubtle,
-          ),
+          base.withValues(alpha: AppColors.alphaMedium),
           base.withValues(alpha: 0),
         ],
         stops: const [0.08, 0.5, 0.92],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, 2));
+      ).createShader(Rect.fromLTWH(0, 0, size.width, 3));
     canvas
-      ..drawLine(const Offset(0, 0.5), Offset(size.width, 0.5), hairline)
+      ..drawLine(const Offset(0, 1), Offset(size.width, 1), hairline)
       ..restore();
   }
 

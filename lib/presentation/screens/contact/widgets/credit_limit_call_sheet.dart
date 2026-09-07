@@ -67,7 +67,7 @@ class CreditLimitCallSheet extends StatelessWidget {
       maxHeightFactor: 0.88,
       useRootNavigator: true,
       horizonGlow: const CreditLimitHorizonGlow(active: true),
-      accentBorderColor: accentBorder.withValues(alpha: AppColors.alphaSoft),
+      accentBorderColor: accentBorder.withValues(alpha: AppColors.alphaMedium),
       child: CreditLimitCallSheet(
         contactName: contactName,
         outstandingMinor: outstandingMinor,
