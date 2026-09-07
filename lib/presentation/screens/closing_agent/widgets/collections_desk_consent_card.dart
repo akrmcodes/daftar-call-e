@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/utils/haptic_service.dart';
@@ -10,9 +11,9 @@ import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-/// HITL consent card: Confirm & Call · Confirm & Send · without paths.
+/// Compact HITL dock: dual primary + skip row (four explicit actions).
 class CollectionsDeskConsentCard extends StatelessWidget {
-  /// Creates the consent card.
+  /// Creates the consent dock.
   const CollectionsDeskConsentCard({
     required this.callCount,
     required this.emailCount,
@@ -28,10 +29,10 @@ class CollectionsDeskConsentCard extends StatelessWidget {
     super.key,
   });
 
-  /// CALL-E call-set size.
+  /// CALL-E call-set size (controls call-rail visibility).
   final int callCount;
 
-  /// Email-rail size.
+  /// Email-rail size (controls send enablement).
   final int emailCount;
 
   /// Merchant already consented to outbound calls.
@@ -64,90 +65,110 @@ class CollectionsDeskConsentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final callPrimary = callCount > 0 && !callConsented;
-    final sendPrimary = !callPrimary && sendOutreachEnabled && emailCount > 0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final showCall = !callConsented && callCount > 0;
+    final showSend = sendOutreachEnabled;
+    final callPrimary = showCall;
+    final sendPrimary = !callPrimary && showSend && emailCount > 0;
     final actionsLocked = busy || isDispatching;
+    final hairline = isDark
+        ? AppColors.borderSubtle.withValues(alpha: 0.8)
+        : AppColors.borderSubtleLight.withValues(alpha: 0.9);
 
-    return DaftarCard(
-      variant: DaftarCardVariant.premium,
-      margin: const EdgeInsetsDirectional.fromSTEB(
-        AppDimensions.pagePaddingH,
-        0,
-        AppDimensions.pagePaddingH,
-        AppDimensions.spacingMd,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: hairline, width: 0.5),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (callCount > 0)
-            Text(
-              l10n.collectionsDeskCallCount(callCount),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          if (emailCount > 0) ...[
-            if (callCount > 0) const Gap(AppDimensions.spacingXxs),
-            Text(
-              l10n.collectionsDeskEmailCount(emailCount),
-              style: Theme.of(context).textTheme.bodySmall,
+      child: DaftarCard(
+        variant: DaftarCardVariant.premium,
+        margin: const EdgeInsetsDirectional.fromSTEB(
+          AppDimensions.pagePaddingH,
+          AppDimensions.spacingSm,
+          AppDimensions.pagePaddingH,
+          AppDimensions.spacingMd,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (callProgress != null) ...[
+              CollectionsCallProgressBar(progress: callProgress!),
+              const Gap(AppDimensions.spacingSm),
+            ],
+            if (showCall || showSend)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (showCall)
+                    Expanded(
+                      child: DaftarButton(
+                        label: l10n.collectionsDeskConfirmAndCall,
+                        variant: callPrimary
+                            ? DaftarButtonVariant.primary
+                            : DaftarButtonVariant.secondary,
+                        size: DaftarButtonSize.small,
+                        isExpanded: true,
+                        onPressed: !actionsLocked
+                            ? () {
+                                unawaited(HapticService.medium());
+                                onConfirmAndCall();
+                              }
+                            : null,
+                      ),
+                    ),
+                  if (showCall && showSend)
+                    const Gap(AppDimensions.spacingSm),
+                  if (showSend)
+                    Expanded(
+                      child: DaftarButton(
+                        label: l10n.closingAgentConfirmAndSend,
+                        variant: sendPrimary
+                            ? DaftarButtonVariant.primary
+                            : DaftarButtonVariant.secondary,
+                        size: DaftarButtonSize.small,
+                        isExpanded: true,
+                        isLoading: isDispatching,
+                        onPressed: emailCount > 0 && !actionsLocked
+                            ? () {
+                                if (sendPrimary) {
+                                  unawaited(HapticService.medium());
+                                }
+                                onConfirmAndSend();
+                              }
+                            : null,
+                      ),
+                    ),
+                ],
+              ),
+            if (showCall || showSend) const Gap(AppDimensions.spacingSm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showCall)
+                  Expanded(
+                    child: DaftarButton(
+                      label: l10n.collectionsDeskWithoutCalling,
+                      variant: DaftarButtonVariant.tertiary,
+                      size: DaftarButtonSize.small,
+                      isExpanded: true,
+                      onPressed: actionsLocked ? null : onConfirmWithoutCalling,
+                    ),
+                  ),
+                if (showCall) const Gap(AppDimensions.spacingSm),
+                Expanded(
+                  child: DaftarButton(
+                    label: l10n.collectionsDeskWithoutSending,
+                    variant: DaftarButtonVariant.tertiary,
+                    size: DaftarButtonSize.small,
+                    isExpanded: true,
+                    onPressed: actionsLocked ? null : onConfirmWithoutSending,
+                  ),
+                ),
+              ],
             ),
           ],
-          const Gap(AppDimensions.spacingSm),
-          if (callProgress != null) ...[
-            const Gap(AppDimensions.spacingMd),
-            CollectionsCallProgressBar(progress: callProgress!),
-          ],
-          if (!callConsented && callCount > 0) ...[
-            const Gap(AppDimensions.spacingMd),
-            DaftarButton(
-              label: l10n.collectionsDeskConfirmAndCall,
-              variant: callPrimary
-                  ? DaftarButtonVariant.primary
-                  : DaftarButtonVariant.secondary,
-              isExpanded: true,
-              onPressed: !actionsLocked
-                  ? () {
-                      unawaited(HapticService.medium());
-                      onConfirmAndCall();
-                    }
-                  : null,
-            ),
-          ],
-          if (sendOutreachEnabled) ...[
-            const Gap(AppDimensions.spacingSm),
-            DaftarButton(
-              label: l10n.closingAgentConfirmAndSend,
-              variant: sendPrimary
-                  ? DaftarButtonVariant.primary
-                  : DaftarButtonVariant.secondary,
-              isExpanded: true,
-              isLoading: isDispatching,
-              onPressed: emailCount > 0 && !actionsLocked
-                  ? () {
-                      if (sendPrimary) {
-                        unawaited(HapticService.medium());
-                      }
-                      onConfirmAndSend();
-                    }
-                  : null,
-            ),
-          ],
-          if (!callConsented && callCount > 0) ...[
-            const Gap(AppDimensions.spacingSm),
-            DaftarButton(
-              label: l10n.collectionsDeskConfirmWithoutCalling,
-              variant: DaftarButtonVariant.tertiary,
-              isExpanded: true,
-              onPressed: actionsLocked ? null : onConfirmWithoutCalling,
-            ),
-          ],
-          const Gap(AppDimensions.spacingSm),
-          DaftarButton(
-            label: l10n.closingAgentConfirmWithoutSending,
-            variant: DaftarButtonVariant.tertiary,
-            isExpanded: true,
-            onPressed: actionsLocked ? null : onConfirmWithoutSending,
-          ),
-        ],
+        ),
       ),
     );
   }

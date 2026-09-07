@@ -4901,3 +4901,25 @@ Region-only gate per owner choice — `CallNotAllowlisted` still sees Prepare; P
 ### Status
 B-trigger HITL aligned with J.10 supported regions. Stage 5 / live dial unchanged.
 
+## 2026-09-08 — Collections Desk: compact consent dock
+
+### Context
+Close-the-day paused with four stacked full-width consent buttons (~320dp) above draft previews, making C.3 / C.2 review difficult. Roadmap still requires four explicit HITL actions — layout only.
+
+### Done
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): compact dock — two-up Call/Send primaries + one skip row; progress bar when in flight; collapses call rail after consent
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): drafts `Expanded` first; consent dock pinned below list; rail counts merged into header meta (`1 call · 2 emails`)
+- [`lib/core/l10n/app_en.arb`](lib/core/l10n/app_en.arb) / [`app_ar.arb`](lib/core/l10n/app_ar.arb): `collectionsDeskWithoutCalling` / `collectionsDeskWithoutSending` (short skip copy)
+- [`test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart`](test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart): four actions still present; RTL + YE-only + post-call collapse
+
+### Architecture / decisions
+Same four callbacks and single lapis glow moment. Dedicated desk preserved — not compact taskmaster. Khazna: monochrome dock + hairline top border; no lapis fill.
+
+### Ops / verification
+- `flutter gen-l10n`
+- `flutter test test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart` — 8/8 pass
+- Phone: **hot restart** (`R`); Close the day → previews first, slim dock at bottom
+
+### Status
+Review-first Collections Desk UX. Dispatch semantics unchanged.
+

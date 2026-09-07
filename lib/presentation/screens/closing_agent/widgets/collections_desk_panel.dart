@@ -158,6 +158,14 @@ class CollectionsDeskPanel extends StatelessWidget {
       (row) => row.status == CollectionsDeskRowStatus.pending,
     );
     final busy = busyContactId != null;
+    final railMetaParts = <String>[];
+    if (callCount > 0) {
+      railMetaParts.add(l10n.collectionsDeskCallCount(callCount));
+    }
+    if (emailCount > 0) {
+      railMetaParts.add(l10n.collectionsDeskEmailCount(emailCount));
+    }
+    final railMeta = railMetaParts.isEmpty ? null : railMetaParts.join(' · ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -184,6 +192,16 @@ class CollectionsDeskPanel extends StatelessWidget {
                 l10n.collectionsDeskCount(rows.length),
                 style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
               ),
+              if (railMeta != null) ...[
+                const Gap(AppDimensions.spacingXxs),
+                Text(
+                  railMeta,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: inkSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
               if (deskSubtitle != null && deskSubtitle!.trim().isNotEmpty) ...[
                 const Gap(AppDimensions.spacingXxs),
                 Text(
@@ -197,27 +215,13 @@ class CollectionsDeskPanel extends StatelessWidget {
             ],
           ),
         ),
-        if (!showHybridELeftover)
-          CollectionsDeskConsentCard(
-            callCount: callCount,
-            emailCount: emailCount,
-            callConsented: callConsented,
-            sendOutreachEnabled: sendOutreachEnabled,
-            busy: busy,
-            isDispatching: isDispatching,
-            callProgress: callProgress,
-            onConfirmAndCall: onConfirmAndCall,
-            onConfirmAndSend: onApproveAndSend,
-            onConfirmWithoutCalling: onConfirmWithoutCalling,
-            onConfirmWithoutSending: onDone,
-          ),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsetsDirectional.fromSTEB(
               AppDimensions.pagePaddingH,
               0,
               AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd + paddingBottom,
+              AppDimensions.spacingMd,
             ),
             itemCount: rows.length,
             itemBuilder: (context, index) {
@@ -242,13 +246,30 @@ class CollectionsDeskPanel extends StatelessWidget {
             },
           ),
         ),
+        if (!showHybridELeftover)
+          Padding(
+            padding: EdgeInsets.only(bottom: paddingBottom),
+            child: CollectionsDeskConsentCard(
+              callCount: callCount,
+              emailCount: emailCount,
+              callConsented: callConsented,
+              sendOutreachEnabled: sendOutreachEnabled,
+              busy: busy,
+              isDispatching: isDispatching,
+              callProgress: callProgress,
+              onConfirmAndCall: onConfirmAndCall,
+              onConfirmAndSend: onApproveAndSend,
+              onConfirmWithoutCalling: onConfirmWithoutCalling,
+              onConfirmWithoutSending: onDone,
+            ),
+          ),
         if (showHybridELeftover || isDispatching || showRetrySend)
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
+            padding: EdgeInsetsDirectional.fromSTEB(
               AppDimensions.pagePaddingH,
               0,
               AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd,
+              AppDimensions.spacingMd + paddingBottom,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1764,6 +1764,8 @@
   "collectionsDeskFailedStatus": "Failed",
   "collectionsDeskConfirmAndCall": "Confirm & Call",
   "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
+  "collectionsDeskWithoutCalling": "Without calling",
+  "collectionsDeskWithoutSending": "Without sending",
   "collectionsDeskPromiseNotPayment": "A promise is not a payment",
   "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
   "contactPendingPromiseBody": "Promised {amount} on {date}",

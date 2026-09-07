@@ -3884,6 +3884,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskConfirmWithoutCalling => 'تأكيد دون اتصال';
 
   @override
+  String get collectionsDeskWithoutCalling => 'دون اتصال';
+
+  @override
+  String get collectionsDeskWithoutSending => 'دون إرسال';
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
 
   @override

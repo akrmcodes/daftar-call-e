@@ -1740,6 +1740,8 @@
   "collectionsDeskFailedStatus": "فشل",
   "collectionsDeskConfirmAndCall": "تأكيد والاتصال",
   "collectionsDeskConfirmWithoutCalling": "تأكيد دون اتصال",
+  "collectionsDeskWithoutCalling": "دون اتصال",
+  "collectionsDeskWithoutSending": "دون إرسال",
   "collectionsDeskPromiseNotPayment": "الوعد ليس دفعة",
   "collectionsDeskPromiseNotPaymentSubtitle": "يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.",
   "contactPendingPromiseBody": "وعد بـ {amount} في {date}",

@@ -3919,6 +3919,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskConfirmWithoutCalling => 'Confirm without calling';
 
   @override
+  String get collectionsDeskWithoutCalling => 'Without calling';
+
+  @override
+  String get collectionsDeskWithoutSending => 'Without sending';
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
 
   @override

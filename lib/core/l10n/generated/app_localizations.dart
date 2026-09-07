@@ -6940,6 +6940,18 @@ abstract class AppLocalizations {
   /// **'تأكيد دون اتصال'**
   String get collectionsDeskConfirmWithoutCalling;
 
+  /// No description provided for @collectionsDeskWithoutCalling.
+  ///
+  /// In ar, this message translates to:
+  /// **'دون اتصال'**
+  String get collectionsDeskWithoutCalling;
+
+  /// No description provided for @collectionsDeskWithoutSending.
+  ///
+  /// In ar, this message translates to:
+  /// **'دون إرسال'**
+  String get collectionsDeskWithoutSending;
+
   /// No description provided for @collectionsDeskPromiseNotPayment.
   ///
   /// In ar, this message translates to:

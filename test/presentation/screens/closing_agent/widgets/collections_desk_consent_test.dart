@@ -88,8 +88,8 @@ void main() {
 
     expect(find.text('Confirm & Call'), findsOneWidget);
     expect(find.text('Confirm & Send Statements'), findsOneWidget);
-    expect(find.text('Confirm without calling'), findsOneWidget);
-    expect(find.text('Confirm without sending'), findsOneWidget);
+    expect(find.text('Without calling'), findsOneWidget);
+    expect(find.text('Without sending'), findsOneWidget);
     expect(find.text('A promise is not a payment'), findsNothing);
   });
 
@@ -240,7 +240,7 @@ void main() {
     );
 
     expect(find.text('تأكيد والاتصال'), findsOneWidget);
-    expect(find.text('تأكيد دون اتصال'), findsOneWidget);
+    expect(find.text('دون اتصال'), findsOneWidget);
   });
 
   testWidgets('YE-only desk hides Confirm and Call', (tester) async {
@@ -267,7 +267,7 @@ void main() {
     );
 
     expect(find.text('Confirm & Call'), findsNothing);
-    expect(find.text('Confirm without calling'), findsNothing);
+    expect(find.text('Without calling'), findsNothing);
     expect(find.text('Confirm & Send Statements'), findsOneWidget);
   });
 
