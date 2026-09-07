@@ -4834,3 +4834,26 @@ App `ProviderContainer` outlives the add-debt route. Kill switch / empty allowli
 ### Status
 Ready for device QA. Stage 5 / §6.3 / live dial unchanged.
 
+## 2026-09-08 — Credit-limit sheet: debt glow + keyboard overflow
+
+### Context
+After Prepare-the-call navigation worked, the exceeded-limit HITL sheet flashed a one-frame Column overflow when the keyboard was still animating closed after a debt save. The merchant also asked for a professional debt-red horizon glow (same light-not-paint grammar as the Closing Agent crest).
+
+### Done
+- [`lib/presentation/shared/widgets/app_bottom_sheet.dart`](lib/presentation/shared/widgets/app_bottom_sheet.dart): stop double-counting `viewInsets` in `maxHeight`; wrap scroll body in `Flexible`; optional `horizonGlow` + `accentBorderColor`
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart): `waitForKeyboardToSettle` (unfocus + frame wait) before present; debt accent border + light haptic on enter
+- [`lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart`](lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart): debt-red BoxShadow crest + 0.5px hairline; breath animation; respects reduce-motion
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): shared keyboard settle before sheet in both entry paths
+- [`test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart`](test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart): viewInsets animate pump must not overflow; horizon glow present
+
+### Architecture / decisions
+Lapis Law preserved — primary CTA stays monochrome + lapis glow. Debt chroma is semantic emission only (shadow + hairline). Shared sheet infrastructure fix benefits all `AppBottomSheet` callers without changing close-the-day desk.
+
+### Ops / verification
+- `dart analyze` on touched files — clean (info-level only)
+- `flutter test test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart` — 3/3 pass
+- Phone: **hot restart** (`R`) after landing
+
+### Status
+Ready for device QA on exceeded-limit save → sheet glow + no overflow flash. Dial-off / failed call unchanged (service disabled).
+

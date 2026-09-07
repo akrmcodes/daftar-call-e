@@ -10,6 +10,7 @@ import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/utils/haptic_service.dart';
 import 'package:daftar/core/utils/money_util.dart';
 import 'package:daftar/domain/constants/built_in_currencies.dart';
+import 'package:daftar/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
 import 'package:flutter/material.dart';
@@ -50,11 +51,24 @@ class CreditLimitCallSheet extends StatelessWidget {
     required String currencyCode,
   }) async {
     final host = rootNavigatorKey.currentContext ?? context;
+    await waitForKeyboardToSettle(host);
+    if (!host.mounted) {
+      return false;
+    }
+
+    unawaited(HapticService.light());
+
+    final isDark = Theme.of(host).brightness == Brightness.dark;
+    final accentBorder =
+        isDark ? AppColors.debt : AppColors.debtLight;
+
     final result = await AppBottomSheet.show<bool>(
       host,
       title: AppLocalizations.of(host)!.creditLimitCallSheetTitle,
       maxHeightFactor: 0.88,
       useRootNavigator: true,
+      horizonGlow: const CreditLimitHorizonGlow(active: true),
+      accentBorderColor: accentBorder.withValues(alpha: AppColors.alphaMedium),
       child: CreditLimitCallSheet(
         contactName: contactName,
         outstandingMinor: outstandingMinor,
@@ -63,6 +77,26 @@ class CreditLimitCallSheet extends StatelessWidget {
       ),
     );
     return result ?? false;
+  }
+
+  /// Unfocuses the IME and waits until viewInsets bottom is ~0.
+  ///
+  /// Shared by show and CreditLimitBTrigger so the sheet never presents
+  /// while the keyboard is still animating closed after a debt save.
+  static Future<void> waitForKeyboardToSettle(BuildContext host) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!host.mounted) {
+      return;
+    }
+
+    const cap = AppDimensions.animationMedium;
+    final stopwatch = Stopwatch()..start();
+    while (host.mounted && stopwatch.elapsed < cap) {
+      if (MediaQuery.viewInsetsOf(host).bottom < 1) {
+        return;
+      }
+      await WidgetsBinding.instance.endOfFrame;
+    }
   }
 
   String _formatAmount(int minorUnits) {

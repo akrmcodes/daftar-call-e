@@ -61,6 +61,11 @@ abstract final class CreditLimitBTrigger {
       return;
     }
 
+    await CreditLimitCallSheet.waitForKeyboardToSettle(sheetOverlay);
+    if (!sheetOverlay.mounted) {
+      return;
+    }
+
     final accepted = await CreditLimitCallSheet.show(
       sheetOverlay,
       contactName: contact.name,
@@ -115,6 +120,11 @@ abstract final class CreditLimitBTrigger {
 
     final sheetOverlay = _overlayContext();
     if (sheetOverlay == null || !sheetOverlay.mounted) {
+      return;
+    }
+
+    await CreditLimitCallSheet.waitForKeyboardToSettle(sheetOverlay);
+    if (!sheetOverlay.mounted) {
       return;
     }
 

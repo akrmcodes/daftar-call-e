@@ -22,6 +22,8 @@ class AppBottomSheet extends StatelessWidget {
     this.maxHeightFactor = 0.92,
     this.showDragHandle = true,
     this.padding,
+    this.horizonGlow,
+    this.accentBorderColor,
   }) : assert(
          maxHeightFactor > 0 && maxHeightFactor <= 1,
          'maxHeightFactor must be between 0 and 1.',
@@ -37,6 +39,12 @@ class AppBottomSheet extends StatelessWidget {
   final double maxHeightFactor;
   final bool showDragHandle;
   final EdgeInsetsGeometry? padding;
+
+  /// Optional top-edge emissive crest (BoxShadow + hairline only).
+  final Widget? horizonGlow;
+
+  /// Optional accent hairline on the top sheet edge (e.g. debt red).
+  final Color? accentBorderColor;
 
   /// Presents a localized error bottom sheet for [error].
   ///
@@ -62,6 +70,8 @@ class AppBottomSheet extends StatelessWidget {
     bool showDragHandle = true,
     EdgeInsetsGeometry? padding,
     bool useRootNavigator = false,
+    Widget? horizonGlow,
+    Color? accentBorderColor,
   }) {
     final theme = context.theme;
 
@@ -84,6 +94,8 @@ class AppBottomSheet extends StatelessWidget {
           maxHeightFactor: maxHeightFactor,
           showDragHandle: showDragHandle,
           padding: padding,
+          horizonGlow: horizonGlow,
+          accentBorderColor: accentBorderColor,
           child: child,
         );
       },
@@ -145,9 +157,9 @@ class AppBottomSheet extends StatelessWidget {
         );
 
     final mediaQuery = MediaQuery.of(context);
-    // Shrink the sheet when the keyboard is open so the header stays visible.
-    final availableHeight =
-        mediaQuery.size.height - mediaQuery.viewInsets.bottom;
+    // AnimatedPadding below lifts the sheet for the IME — do not subtract
+    // viewInsets here or the max height is double-counted during keyboard exit.
+    final availableHeight = mediaQuery.size.height;
 
     final maxSheetHeight = availableHeight * maxHeightFactor;
     final headerHeight = _estimatedHeaderHeight(
@@ -171,7 +183,17 @@ class AppBottomSheet extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            border: Border.all(color: surfaceBorderColor),
+            border: accentBorderColor != null
+                ? Border(
+                    top: BorderSide(
+                      color: accentBorderColor!,
+                      width: 0.5,
+                    ),
+                    left: BorderSide(color: surfaceBorderColor),
+                    right: BorderSide(color: surfaceBorderColor),
+                    bottom: BorderSide(color: surfaceBorderColor),
+                  )
+                : Border.all(color: surfaceBorderColor),
           ),
           child: LayoutBuilder(
             builder: (context, boxConstraints) {
@@ -263,7 +285,7 @@ class AppBottomSheet extends StatelessWidget {
                         ],
                       ),
                     ),
-                  body,
+                  Flexible(child: body),
                 ],
               );
             },
@@ -271,6 +293,21 @@ class AppBottomSheet extends StatelessWidget {
         ),
       ),
     );
+
+    final sheetWithGlow = horizonGlow != null
+        ? Stack(
+            clipBehavior: Clip.none,
+            children: [
+              sheetSurface,
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: horizonGlow!,
+              ),
+            ],
+          )
+        : sheetSurface;
 
     return SafeArea(
       top: false,
@@ -291,7 +328,7 @@ class AppBottomSheet extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: sheetSurface,
+              child: sheetWithGlow,
             ),
           ],
         ),
