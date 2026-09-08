@@ -793,9 +793,9 @@ skills/ledger-collections-call/          # awesome-list copy — same bytes
     └── sample-overdue.json              # +15555550100; integer amountMinor
 ```
 
-- [ ] Source copy lands at [`docs/skills/ledger-collections-call/`](skills/ledger-collections-call/)
-- [ ] **No** `README.md` inside the skill folder (`validate_repository.py` fails except `outbound-call-skill-creator`)
-- [ ] Every `scripts/` or `references/` path named in `SKILL.md` exists on disk
+- [x] Source copy lands at [`docs/skills/ledger-collections-call/`](skills/ledger-collections-call/)
+- [x] **No** `README.md` inside the skill folder (`validate_repository.py` fails except `outbound-call-skill-creator`)
+- [x] Every `scripts/` or `references/` path named in `SKILL.md` exists on disk
 
 **`SKILL.md` (clone `appointment-confirm` + `service-dispatch-call`)**
 
@@ -807,11 +807,11 @@ Locale `ar` is documented in **English** only (CONTRIBUTING: English-only; do no
 
 **`preview.py` (default path — Gate 5)**
 
-- [ ] Validates intake JSON; masks E.164 in stdout; refuses YE / `doNotCall` / non-int amount
-- [ ] Prints CALL-E task + result schema; exits 0 with `status: not_called`
-- [ ] **No** network; **no** `CALLE_API_KEY`
-- [ ] Optional live behind two gates — document only; not required to merge
-- [ ] Tests (stdlib or tiny pytest beside preview): YE refuse; float amount refuse; dry-run never POSTs; phone masked. Zero credentials
+- [x] Validates intake JSON; masks E.164 in stdout; refuses YE / `doNotCall` / non-int amount
+- [x] Prints CALL-E task + result schema; exits 0 with `status: not_called`
+- [x] **No** network; **no** `CALLE_API_KEY`
+- [x] Optional live behind two gates — document only; not required to merge
+- [x] Tests (stdlib or tiny pytest beside preview): YE refuse; float amount refuse; dry-run never POSTs; phone masked. Zero credentials
 
 **README one-liner (English, locked — do not rewrite)**
 

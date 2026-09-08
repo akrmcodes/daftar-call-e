@@ -5052,3 +5052,27 @@ Roadmap §5.3 complete. Next: §5.4 portable skill per [`roadmap_v3.md`](docs/ro
 ### Status
 §5.4 checkboxes remain `[ ]` until the skill + PR land. Next: implement the skill per the new §5.4 contract.
 
+## 2026-09-08 — Stage 5.4 skill source copy (usefulness lock)
+
+### Context
+Author `ledger-collections-call` in this repo only: HITL outbound collections **call** + display-only integer promise. Do not clone `kept`. No awesome-list PR in this slice.
+
+### Done
+- Source of truth: [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/) — `SKILL.md`, `references/{overlap,safety,examples,result-schema,regions}.md`, `scripts/preview.py`, `scripts/test_preview.py`, `assets/sample-overdue.json`
+- No skill-folder `README.md`
+- `preview.py`: stdlib dry-run; YE / float / DNC refuse; E.164 last-4 mask; `--live` rejected; never POSTs
+- Tests: `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 5 passed
+- Roadmap §5.4 **source-copy** and **preview.py** boxes ticked; **awesome-list PR** boxes remain `[ ]`
+
+### Architecture / decisions
+- Complements `kept` (campaign + capture + bank ledger) rather than replacing it
+- J.10 supported-region frozenset copied into the skill; YE never eligible
+- Promise is not a payment; no `AddTransaction`; no Cloud Run / Flutter in the skill
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; no GitHub PR to awesome-phone-call-agents
+
+### Status
+Source copy ready for review. Next: copy into an awesome-list clone and open `feat/ledger-collections-call` per §5.4 PR mechanics.
+
