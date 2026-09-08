@@ -30,11 +30,11 @@ void main() {
             (ref) => Stream.value([promise]),
           ),
         ],
-        child: MaterialApp(
-          locale: const Locale('en'),
+        child: const MaterialApp(
+          locale: Locale('en'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const CustomScrollView(
+          home: CustomScrollView(
             slivers: [
               ContactPendingPromiseBanner(
                 contactId: contactId,

@@ -230,7 +230,9 @@ class CollectionCallLocalDataSource {
     );
     final updated = await getPromiseById(promiseId);
     if (updated == null) {
-      throw DatabaseException('Collection promise not found after update');
+      throw const DatabaseException(
+        'Collection promise not found after update',
+      );
     }
     return updated;
   }
