@@ -5123,3 +5123,22 @@ Final review of the portable skill, recopy into the awesome-list clone, commit/p
 ### Status
 §5.4 PR title / template stay `[ ]` until the upstream PR exists. Owner: submit from the GitHub compare page (browser opened) after `gh auth login` or using the prefilled title.
 
+## 2026-09-08 — Stage 5.4 awesome-list PR opened (#385)
+
+### Context
+Owner opened and verified [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (`feat(ledger-collections-call): add HITL integer-promise collections skill`). Tick the remaining §5.4 PR boxes.
+
+### Done
+- Roadmap §5.4 PR title and template/complementarity-with-`kept` boxes marked `[x]`; PR URL recorded on the title line
+- §5.5 freeze, Gate 5 freeze, §6.4 Devpost URL, and Stage 6 “PR opened” left `[ ]` (Devpost paste and freeze are later bands)
+
+### Architecture / decisions
+Unchanged: skill complements `kept`; display-only integer promise; dry-run default; no ledger write.
+
+### Ops / verification
+- Owner-verified PR: https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385
+- No deploy; no `CALLE_ALLOW_DIAL=true`; `skill-pack` still not pushed
+
+### Status
+§5.4 merge-contract work is complete pending maintainer review. Next: paste this PR URL on Devpost (§6.4), answer review comments, then Stage 5.5 freeze / Stage 6 packaging.
+

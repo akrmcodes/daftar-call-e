@@ -828,8 +828,8 @@ Never push to `daftar-closing-agent`. Never put the Flutter app in `apps/` or `s
 - [x] Copy this repo’s `docs/skills/ledger-collections-call/` byte-identical into the clone’s `skills/ledger-collections-call/`
 - [x] Add the locked README Skills bullet
 - [x] `python3 scripts/validate_repository.py` green **on that clone**
-- [ ] PR title: `feat(ledger-collections-call): add HITL integer-promise collections skill`
-- [ ] Fill `.github/pull_request_template.md`; PR body states complementarity with `kept` (skill stops at display-only promise; `kept` owns capture/reconcile)
+- [x] PR title: `feat(ledger-collections-call): add HITL integer-promise collections skill` — [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)
+- [x] Fill `.github/pull_request_template.md`; PR body states complementarity with `kept` (skill stops at display-only promise; `kept` owns capture/reconcile)
 - [x] Fictional `+1555…` only; example emails `@example.com` / `.net` / `.org` only
 
 **Forbidden in the PR (maintainer reject list)**
