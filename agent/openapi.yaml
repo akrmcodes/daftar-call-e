@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Daftar Closing Agent — Device ↔ Cloud Run Wire Contract
-  version: 2.7.0
+  version: 2.8.0
   summary: Frozen Appendix J contract plus CALL-E plan-batch, run-batch, and get.
   description: |
     Normative machine-readable contract for Stages 1–4 of `docs/roadmap_v2.md` **Appendix J**,
@@ -1368,6 +1368,14 @@ components:
           maxItems: 5
           items:
             $ref: "#/components/schemas/RunRecipient"
+        attempt:
+          type: integer
+          enum: [0, 1]
+          default: 0
+          description: >
+            0 = first Confirm & Call create. 1 = one HITL no-answer/voicemail retry
+            with idempotency key `{batchId}:{contactId}:retry1`. Requires a prior
+            attempt-0 run and a fresh plan-batch confirm handle.
 
     RunRecipient:
       type: object

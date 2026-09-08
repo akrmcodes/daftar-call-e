@@ -6988,6 +6988,12 @@ abstract class AppLocalizations {
   /// **'تخطي التواصل وإغلاق اليوم'**
   String get collectionsDeskCommitSeal;
 
+  /// No description provided for @collectionsDeskRetryUnanswered.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الاتصال بالمتخطين — {count}'**
+  String collectionsDeskRetryUnanswered(int count);
+
   /// No description provided for @collectionsDeskPromiseNotPayment.
   ///
   /// In ar, this message translates to:

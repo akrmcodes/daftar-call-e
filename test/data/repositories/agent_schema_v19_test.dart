@@ -65,9 +65,9 @@ void main() {
       await database.close();
     });
 
-    test('schemaVersion is 26 and session → turn → journal persist', () async {
+    test('schemaVersion is 27 and session → turn → journal persist', () async {
       expect(database.schemaVersion, DbConstants.schemaVersion);
-      expect(database.schemaVersion, 26);
+      expect(database.schemaVersion, 27);
 
       final settings = await database.select(database.appSettingsTable).getSingle();
       expect(settings.ttsMuted, isFalse);

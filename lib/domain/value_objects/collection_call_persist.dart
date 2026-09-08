@@ -12,15 +12,17 @@ class CollectionCallRunSeed extends Equatable {
     required this.region,
     required this.locale,
     required this.runId,
+    this.retryCount = 0,
   });
 
   final String contactId;
   final String region;
   final String locale;
   final String runId;
+  final int retryCount;
 
   @override
-  List<Object?> get props => [contactId, region, locale, runId];
+  List<Object?> get props => [contactId, region, locale, runId, retryCount];
 }
 
 /// Header + queued runs after Confirm & Call `run-batch`.

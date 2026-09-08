@@ -2,8 +2,10 @@ import 'package:daftar/application/agent/ask_books_intent.dart';
 import 'package:daftar/application/agent/speech_locale.dart';
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/enums/call_batch_trigger.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
 import 'package:daftar/domain/enums/proposal_tool.dart';
@@ -120,6 +122,7 @@ abstract class ClosingAgentState with _$ClosingAgentState {
     @Default(false) bool sendConsented,
     @Default(false) bool sendOutreachEnabled,
     @Default(false) bool pendingSendAfterCall,
+    @Default(false) bool callRetryDismissed,
     CollectionsCallProgress? callProgress,
     String? speechLocaleOverride,
     @Default(CallBatchTrigger.closeDay) CallBatchTrigger callBatchTrigger,
@@ -215,6 +218,32 @@ abstract class ClosingAgentState with _$ClosingAgentState {
 
   /// Whether Confirm & Call should own the primary lapis glow.
   bool get callPrimaryOnDesk => deskCallCount > 0 && !callConsented;
+
+  /// Contacts eligible for one HITL no-answer/voicemail retry.
+  int get callRetryOfferCount {
+    if (callRetryDismissed) {
+      return 0;
+    }
+    final progress = callProgress;
+    if (progress == null || !progress.isTerminal) {
+      return 0;
+    }
+    var count = 0;
+    for (final row in progress.results) {
+      if (row.retryCount > 0) {
+        continue;
+      }
+      if (row.status != CollectionsCallRowStatus.completed) {
+        continue;
+      }
+      final outcome = row.outcome;
+      if (outcome == CallRunOutcome.noAnswer ||
+          outcome == CallRunOutcome.voicemail) {
+        count += 1;
+      }
+    }
+    return count;
+  }
 
   /// B-trigger credit-limit call session (single contact, dedicated UI).
   bool get isCreditLimitCallSessionActive =>

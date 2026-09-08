@@ -26,7 +26,7 @@ def _spec() -> dict:
 
 def test_openapi_version_and_j9_paths() -> None:
     spec = _spec()
-    assert spec["info"]["version"] == "2.7.0"
+    assert spec["info"]["version"] == "2.8.0"
     paths = spec["paths"]
     assert "post" in paths["/v1/calls/plan-batch"]
     assert "post" in paths["/v1/calls/run-batch"]

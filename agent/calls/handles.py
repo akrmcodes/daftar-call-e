@@ -44,6 +44,12 @@ class ConfirmHandleStore:
     def put_run_id(self, batch_id: str, contact_id: str, run_id: str) -> None:
         raise NotImplementedError
 
+    def get_retry_run_id(self, batch_id: str, contact_id: str) -> str | None:
+        raise NotImplementedError
+
+    def put_retry_run_id(self, batch_id: str, contact_id: str, run_id: str) -> None:
+        raise NotImplementedError
+
     def put_run_mask(self, run_id: str, phone_masked: str) -> None:
         raise NotImplementedError
 
@@ -67,6 +73,7 @@ class InMemoryConfirmHandleStore(ConfirmHandleStore):
         self._lock = Lock()
         self._snapshots: dict[tuple[str, str], PlanSnapshot] = {}
         self._run_ids: dict[tuple[str, str], str] = {}
+        self._retry_run_ids: dict[tuple[str, str], str] = {}
         self._run_masks: dict[str, str] = {}
         self._run_contexts: dict[str, RunContext] = {}
 
@@ -89,6 +96,14 @@ class InMemoryConfirmHandleStore(ConfirmHandleStore):
     def put_run_id(self, batch_id: str, contact_id: str, run_id: str) -> None:
         with self._lock:
             self._run_ids[(batch_id, contact_id)] = run_id
+
+    def get_retry_run_id(self, batch_id: str, contact_id: str) -> str | None:
+        with self._lock:
+            return self._retry_run_ids.get((batch_id, contact_id))
+
+    def put_retry_run_id(self, batch_id: str, contact_id: str, run_id: str) -> None:
+        with self._lock:
+            self._retry_run_ids[(batch_id, contact_id)] = run_id
 
     def put_run_mask(self, run_id: str, phone_masked: str) -> None:
         with self._lock:

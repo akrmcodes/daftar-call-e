@@ -1774,6 +1774,12 @@
     }
   },
   "collectionsDeskCommitSeal": "تخطي التواصل وإغلاق اليوم",
+  "collectionsDeskRetryUnanswered": "إعادة الاتصال بالمتخطين — {count}",
+  "@collectionsDeskRetryUnanswered": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
   "collectionsDeskPromiseNotPayment": "الوعد ليس دفعة",
   "collectionsDeskPromiseNotPaymentSubtitle": "يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.",
   "contactPendingPromiseBody": "وعد بـ {amount} في {date}",

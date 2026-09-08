@@ -4949,3 +4949,26 @@ HITL preserved: chips are the four-way decision; CTA **names** counts before dia
 ### Status
 Collections Desk consent UX v2 shipped. Stage 5 / live dial unchanged.
 
+## 2026-09-08 — Stage 5.1: HITL no-answer / voicemail retry
+
+### Context
+Roadmap §5.1: one merchant-tapped retry for CALL-E rows whose structured outcome is `no_answer` or `voicemail`. Policy locked to **HITL only** (not auto-dial) to preserve Confirm → Create and contest credit budget.
+
+### Done
+- **Agent J.9:** [`agent/calls/schemas.py`](agent/calls/schemas.py) optional `attempt: 0|1`; [`agent/calls/router.py`](agent/calls/router.py) idempotency `{batchId}:{contactId}:retry1` on attempt 1; [`agent/calls/handles.py`](agent/calls/handles.py) retry run_id slot; OpenAPI **2.8.0**; pytest in [`agent/tests/test_calls_run_batch.py`](agent/tests/test_calls_run_batch.py)
+- **Schema 27:** [`collection_call_runs_table.dart`](lib/data/datasources/local/tables/collection_call_runs_table.dart) `retryCount`; migration in [`drift_database.dart`](lib/data/datasources/local/drift_database.dart); [`DbConstants`](lib/core/constants/db_constants.dart) / [`DriveBackupConstants`](lib/domain/constants/drive_backup_constants.dart) bumped together
+- **Device:** [`collections_call_progress.dart`](lib/domain/value_objects/collections_call_progress.dart) `outcome` + `retryCount`; [`closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart) `retryUnansweredCalls`, SMTP hold via `callRetryOfferCount`, poll fix (`break` + timeout only when pending); desk + credit-limit retry CTA; EN/AR `collectionsDeskRetryUnanswered`
+- Tests: controller retry (`attempt: 1`, promised no-offer, second retry no-op), consent widget, schema v27
+
+### Architecture / decisions
+HITL retry only — merchant taps “Retry unanswered — {n}”. Re-plan same `batchId` then `run-batch` with `attempt: 1`. One retry per contact (`retryCount`); no `scheduled_at`; cap 5 unchanged. Dual-rail `pendingSendAfterCall` held until retry consumed or merchant sends/seals/done.
+
+### Ops / verification
+- `agent/.venv/bin/python -m pytest tests/test_calls_run_batch.py tests/test_calls_openapi_j9.py`
+- `dart run build_runner build --delete-conflicting-outputs`; `flutter gen-l10n`
+- `flutter analyze`; targeted `flutter test` on controller + consent + schema
+- **No Cloud Run deploy**; **no** `CALLE_ALLOW_DIAL=true`
+
+### Status
+§5.1 checklist ticked. Stage 5.2+ (kill switch UI, skill PR) unchanged.
+

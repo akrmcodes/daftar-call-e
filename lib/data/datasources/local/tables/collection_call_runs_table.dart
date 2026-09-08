@@ -46,6 +46,10 @@ class CollectionCallRuns extends Table {
   /// CALL-E status pass-through (queued, completed, …).
   TextColumn get rawStatus => text().nullable()();
 
+  /// 0 = first create; 1 = one no-answer/voicemail retry.
+  IntColumn get retryCount =>
+      integer().withDefault(const Constant(0))();
+
   /// UTC insert time.
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 

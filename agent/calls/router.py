@@ -244,21 +244,46 @@ async def _run_row(
     creator: CallCreator,
     batch_id: str,
     correlation_id: str,
+    attempt: int = 0,
 ) -> tuple[RunBatchRowResult, bool]:
     contact_key = str(recipient.contactId)
-    existing = store.get_run_id(batch_id, contact_key)
-    if existing:
-        snap = store.get(batch_id, contact_key)
-        masked = mask_e164(snap.phone_e164) if snap else "+…????"
-        return (
-            RunBatchRowResult(
-                contactId=recipient.contactId,
-                status="skippedDuplicate",
-                runId=existing,
-                phoneMasked=masked,
-            ),
-            False,
-        )
+    if attempt == 1:
+        existing_retry = store.get_retry_run_id(batch_id, contact_key)
+        if existing_retry:
+            snap = store.get(batch_id, contact_key)
+            masked = mask_e164(snap.phone_e164) if snap else "+…????"
+            return (
+                RunBatchRowResult(
+                    contactId=recipient.contactId,
+                    status="skippedDuplicate",
+                    runId=existing_retry,
+                    phoneMasked=masked,
+                ),
+                False,
+            )
+        if store.get_run_id(batch_id, contact_key) is None:
+            return (
+                RunBatchRowResult(
+                    contactId=recipient.contactId,
+                    status="rejected",
+                    reason="invalidHandle",
+                ),
+                False,
+            )
+    else:
+        existing = store.get_run_id(batch_id, contact_key)
+        if existing:
+            snap = store.get(batch_id, contact_key)
+            masked = mask_e164(snap.phone_e164) if snap else "+…????"
+            return (
+                RunBatchRowResult(
+                    contactId=recipient.contactId,
+                    status="skippedDuplicate",
+                    runId=existing,
+                    phoneMasked=masked,
+                ),
+                False,
+            )
 
     snapshot = store.get(batch_id, contact_key)
     if snapshot is None or not token_matches(snapshot.token, recipient.confirmHandle):
@@ -290,7 +315,10 @@ async def _run_row(
         "contactId": contact_key,
         "trigger": snapshot.trigger,
     }
-    idempotency_key = f"{batch_id}:{contact_key}"
+    if attempt == 1:
+        idempotency_key = f"{batch_id}:{contact_key}:retry1"
+    else:
+        idempotency_key = f"{batch_id}:{contact_key}"
     try:
         run_id = await asyncio.to_thread(
             lambda: creator.create(
@@ -318,7 +346,10 @@ async def _run_row(
             True,
         )
 
-    store.put_run_id(batch_id, contact_key, run_id)
+    if attempt == 1:
+        store.put_retry_run_id(batch_id, contact_key, run_id)
+    else:
+        store.put_run_id(batch_id, contact_key, run_id)
     store.put_run_mask(run_id, masked)
     store.put_run_context(run_id, batch_id, correlation_id)
     store.delete(batch_id, contact_key)
@@ -386,6 +417,8 @@ async def run_batch(
         raise HTTPException(status_code=400, detail="invalid_request_json") from exc
 
     body = _parse_run(data)
+    if body.attempt >= 2:
+        raise HTTPException(status_code=400, detail="invalid_request:attempt")
     if not settings.allow_dial:
         return JSONResponse(
             status_code=403,
@@ -404,6 +437,7 @@ async def run_batch(
             creator=creator,
             batch_id=batch_id,
             correlation_id=correlation_id,
+            attempt=body.attempt,
         )
         needs_human = needs_human or human
         results.append(row)

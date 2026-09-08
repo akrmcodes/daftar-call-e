@@ -109,6 +109,7 @@ def _plan_then_run(
     plan: dict[str, Any] | None = None,
     handle_override: str | None = None,
     drop_handle: bool = False,
+    attempt: int = 0,
 ) -> tuple[Any, dict[str, Any]]:
     payload = plan if plan is not None else _plan_body()
     planned = client.post("/v1/calls/plan-batch", json=payload)
@@ -119,11 +120,13 @@ def _plan_then_run(
         run_row["confirmHandle"] = (
             handle_override if handle_override is not None else row["confirmHandle"]
         )
-    run_body = {
+    run_body: dict[str, Any] = {
         "batchId": payload["batchId"],
         "correlationId": payload["correlationId"],
         "recipients": [run_row],
     }
+    if attempt != 0:
+        run_body["attempt"] = attempt
     return client.post("/v1/calls/run-batch", json=run_body), payload
 
 
@@ -239,6 +242,119 @@ def test_second_run_is_skipped_duplicate() -> None:
     assert row["status"] == "skippedDuplicate"
     assert row["runId"] == FAKE_RUN_ID
     assert len(fake.calls) == 1
+
+
+def test_retry_attempt_uses_retry1_idempotency_key() -> None:
+    fake = RecordingCreator()
+    fake.next_id = FAKE_RUN_ID
+    client, store, fake = _app(_settings(), creator=fake)
+    first, payload = _plan_then_run(client)
+    contact_id = payload["recipients"][0]["contactId"]
+    assert first.json()["results"][0]["status"] == "queued"
+
+    fake.next_id = "call_test_retry_1"
+    replanned = client.post("/v1/calls/plan-batch", json=payload)
+    assert replanned.status_code == 200
+    retry_handle = replanned.json()["results"][0]["confirmHandle"]
+    retry = client.post(
+        "/v1/calls/run-batch",
+        json={
+            "batchId": payload["batchId"],
+            "correlationId": payload["correlationId"],
+            "attempt": 1,
+            "recipients": [
+                {"contactId": contact_id, "confirmHandle": retry_handle},
+            ],
+        },
+    )
+    assert retry.status_code == 200
+    row = retry.json()["results"][0]
+    assert row["status"] == "queued"
+    assert row["runId"] == "call_test_retry_1"
+    assert len(fake.calls) == 2
+    assert fake.calls[1]["idempotency_key"] == f"{payload['batchId']}:{contact_id}:retry1"
+    assert store.get_retry_run_id(payload["batchId"], contact_id) == "call_test_retry_1"
+    assert store.get_run_id(payload["batchId"], contact_id) == FAKE_RUN_ID
+
+
+def test_retry_without_first_run_rejected() -> None:
+    client, _, fake = _app(_settings())
+    payload = _plan_body()
+    planned = client.post("/v1/calls/plan-batch", json=payload)
+    handle = planned.json()["results"][0]["confirmHandle"]
+    contact_id = payload["recipients"][0]["contactId"]
+    response = client.post(
+        "/v1/calls/run-batch",
+        json={
+            "batchId": payload["batchId"],
+            "correlationId": payload["correlationId"],
+            "attempt": 1,
+            "recipients": [{"contactId": contact_id, "confirmHandle": handle}],
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["results"][0]["status"] == "rejected"
+    assert response.json()["results"][0]["reason"] == "invalidHandle"
+    assert fake.calls == []
+
+
+def test_second_retry_is_skipped_duplicate() -> None:
+    fake = RecordingCreator()
+    client, store, fake = _app(_settings(), creator=fake)
+    first, payload = _plan_then_run(client)
+    contact_id = payload["recipients"][0]["contactId"]
+    assert first.json()["results"][0]["status"] == "queued"
+
+    fake.next_id = "call_test_retry_1"
+    replanned = client.post("/v1/calls/plan-batch", json=payload)
+    retry_handle = replanned.json()["results"][0]["confirmHandle"]
+    first_retry = client.post(
+        "/v1/calls/run-batch",
+        json={
+            "batchId": payload["batchId"],
+            "correlationId": payload["correlationId"],
+            "attempt": 1,
+            "recipients": [
+                {"contactId": contact_id, "confirmHandle": retry_handle},
+            ],
+        },
+    )
+    assert first_retry.json()["results"][0]["status"] == "queued"
+
+    second_retry = client.post(
+        "/v1/calls/run-batch",
+        json={
+            "batchId": payload["batchId"],
+            "correlationId": payload["correlationId"],
+            "attempt": 1,
+            "recipients": [
+                {
+                    "contactId": contact_id,
+                    "confirmHandle": "already-consumed-handle",
+                },
+            ],
+        },
+    )
+    assert second_retry.json()["results"][0]["status"] == "skippedDuplicate"
+    assert second_retry.json()["results"][0]["runId"] == "call_test_retry_1"
+    assert len(fake.calls) == 2
+
+
+def test_attempt_two_is_400() -> None:
+    client, _, fake = _app(_settings())
+    response = client.post(
+        "/v1/calls/run-batch",
+        json={
+            "batchId": str(uuid4()),
+            "correlationId": str(uuid4()),
+            "attempt": 2,
+            "recipients": [
+                {"contactId": str(uuid4()), "confirmHandle": "token"},
+            ],
+        },
+    )
+    assert response.status_code == 400
+    assert fake.calls == []
 
 
 def test_ye_snapshot_rejected_no_create() -> None:

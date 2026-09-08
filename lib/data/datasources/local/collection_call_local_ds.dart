@@ -60,6 +60,7 @@ class CollectionCallLocalDataSource {
               contactId: Value(run.contactId),
               region: Value(run.region),
               locale: Value(run.locale),
+              retryCount: Value(run.retryCount),
               updatedAt: Value(now),
             ),
           );
@@ -73,6 +74,7 @@ class CollectionCallLocalDataSource {
             region: run.region,
             locale: run.locale,
             runId: Value(run.runId),
+            retryCount: Value(run.retryCount),
             createdAt: Value(now),
             updatedAt: Value(now),
           ),

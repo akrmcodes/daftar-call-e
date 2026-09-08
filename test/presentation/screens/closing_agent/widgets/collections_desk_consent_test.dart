@@ -1,5 +1,6 @@
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
@@ -314,5 +315,46 @@ void main() {
     expect(find.text('Voice calls · 1'), findsNothing);
     expect(find.text('Email · 2'), findsOneWidget);
     expect(find.text('Send email only — 2'), findsOneWidget);
+  });
+
+  testWidgets('retry unanswered CTA shows when eligible', (tester) async {
+    var retried = false;
+    const progress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'us',
+          status: CollectionsCallRowStatus.completed,
+          runId: 'run-us',
+          outcome: CallRunOutcome.noAnswer,
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: CollectionsDeskConsentCard(
+            callCount: 1,
+            emailCount: 2,
+            callConsented: true,
+            sendOutreachEnabled: true,
+            busy: false,
+            isDispatching: false,
+            callProgress: progress,
+            retryOfferCount: 1,
+            onRetryUnanswered: () => retried = true,
+            onCommit: ({required call, required send}) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Retry unanswered — 1'), findsOneWidget);
+    await tester.tap(find.text('Retry unanswered — 1'));
+    await tester.pumpAndSettle();
+    expect(retried, isTrue);
   });
 }

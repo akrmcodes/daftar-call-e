@@ -739,9 +739,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **5.1 No-answer retry (Should)**
 
-- [ ] If `outcome=no_answer` or `voicemail`, offer **one** HITL retry: a second `calls.create` with a **new** idempotency key (e.g. `{batchId}:retry1`). Developer API `CreateCallInput` has **no** `scheduled_at` — do not claim one
-- [ ] Still HITL **or** pre-approved single retry policy documented in the PR
-- [ ] Never infinite loops; never exceed remaining call credits blindly
+- [x] If `outcome=no_answer` or `voicemail`, offer **one** HITL retry: a second `calls.create` with a **new** idempotency key (e.g. `{batchId}:retry1`). Developer API `CreateCallInput` has **no** `scheduled_at` — do not claim one
+- [x] Still HITL **or** pre-approved single retry policy documented in the PR
+- [x] Never infinite loops; never exceed remaining call credits blindly
 
 **5.2 Kill switch UI**
 

@@ -102,6 +102,26 @@ class CreditLimitCallSession extends ConsumerWidget {
                 inkPrimary: inkPrimary,
                 inkSecondary: inkSecondary,
               ),
+              if (state.callRetryOfferCount > 0) ...[
+                const Gap(AppDimensions.spacingLg),
+                DaftarButton(
+                  label: l10n.collectionsDeskRetryUnanswered(
+                    state.callRetryOfferCount,
+                  ),
+                  isExpanded: true,
+                  onPressed: (state.callProgress != null &&
+                          !state.callProgress!.isTerminal)
+                      ? null
+                      : () {
+                          unawaited(HapticService.selection());
+                          unawaited(
+                            ref
+                                .read(closingAgentControllerProvider.notifier)
+                                .retryUnansweredCalls(),
+                          );
+                        },
+                ),
+              ],
               const Gap(AppDimensions.spacingLg),
               DaftarButton(
                 label: l10n.creditLimitCallSessionDone,

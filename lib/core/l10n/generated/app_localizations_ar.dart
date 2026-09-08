@@ -3918,6 +3918,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskCommitSeal => 'تخطي التواصل وإغلاق اليوم';
 
   @override
+  String collectionsDeskRetryUnanswered(int count) {
+    return 'إعادة الاتصال بالمتخطين — $count';
+  }
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
 
   @override

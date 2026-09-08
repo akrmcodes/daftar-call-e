@@ -1,3 +1,4 @@
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:equatable/equatable.dart';
 
@@ -8,6 +9,8 @@ class CollectionsCallProgressRow extends Equatable {
     required this.contactId,
     required this.status,
     this.runId,
+    this.outcome,
+    this.retryCount = 0,
   });
 
   /// Drift contact id.
@@ -19,19 +22,29 @@ class CollectionsCallProgressRow extends Equatable {
   /// CALL-E `call.id` after `run-batch`. HUD shows last-8.
   final String? runId;
 
+  /// J.9 structured outcome when terminal.
+  final CallRunOutcome? outcome;
+
+  /// 0 = first create; 1 = one no-answer/voicemail retry.
+  final int retryCount;
+
   CollectionsCallProgressRow copyWith({
     CollectionsCallRowStatus? status,
     String? runId,
+    CallRunOutcome? outcome,
+    int? retryCount,
   }) {
     return CollectionsCallProgressRow(
       contactId: contactId,
       status: status ?? this.status,
       runId: runId ?? this.runId,
+      outcome: outcome ?? this.outcome,
+      retryCount: retryCount ?? this.retryCount,
     );
   }
 
   @override
-  List<Object?> get props => [contactId, status, runId];
+  List<Object?> get props => [contactId, status, runId, outcome, retryCount];
 }
 
 /// Device-side call progress from server per-row results (no fake spinner).

@@ -130,6 +130,7 @@ class RunBatchRequest(BaseModel):
     batchId: UUID
     correlationId: UUID
     recipients: list[RunRecipient] = Field(min_length=1, max_length=MAX_RECIPIENTS)
+    attempt: Literal[0, 1] = 0
 
 
 class RunBatchRowResult(BaseModel):

@@ -40,11 +40,15 @@ class CallRunBatchRequest extends Equatable {
     required this.batchId,
     required this.correlationId,
     required this.recipients,
+    this.attempt = 0,
   });
 
   final String batchId;
   final String correlationId;
   final List<CallRunRecipient> recipients;
+
+  /// 0 = first create; 1 = one HITL no-answer/voicemail retry.
+  final int attempt;
 
   Map<String, Object?> toJson() {
     return {
@@ -53,11 +57,12 @@ class CallRunBatchRequest extends Equatable {
       'recipients': [
         for (final recipient in recipients) recipient.toJson(),
       ],
+      if (attempt != 0) 'attempt': attempt,
     };
   }
 
   @override
-  List<Object?> get props => [batchId, correlationId, recipients];
+  List<Object?> get props => [batchId, correlationId, recipients, attempt];
 }
 
 /// One run-batch result row.

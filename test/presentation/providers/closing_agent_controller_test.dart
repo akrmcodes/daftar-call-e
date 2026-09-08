@@ -1889,6 +1889,194 @@ void main() {
     verify(() => getCall.execute('run-us')).called(1);
   });
 
+  test('HITL retry after no_answer runs plan then run with attempt 1', () async {
+    const usPhone = '+15555550100';
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.noAnswer,
+          ),
+        ),
+      );
+    });
+    final attempts = <int>[];
+    when(() => runCall.execute(any())).thenAnswer((invocation) async {
+      final request =
+          invocation.positionalArguments.first as CallRunBatchRequest;
+      attempts.add(request.attempt);
+      return Right(
+        CallRunBatchResponse(
+          batchId: request.batchId,
+          needsHuman: false,
+          results: [
+            for (final recipient in request.recipients)
+              CallRunRowResult(
+                contactId: recipient.contactId,
+                status: CallRunRemoteStatus.queued,
+                runId: 'run-${recipient.contactId}',
+              ),
+          ],
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    expect(c.read(closingAgentControllerProvider).callRetryOfferCount, 1);
+    await notifier.retryUnansweredCalls();
+
+    expect(attempts, [0, 1]);
+    verify(() => planCall.execute(any())).called(2);
+    verify(() => runCall.execute(any())).called(2);
+    verify(() => getCall.execute('run-us')).called(2);
+  });
+
+  test('promised outcome does not offer HITL retry', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callRetryOfferCount, 0);
+  });
+
+  test('second HITL retry no-ops after one retry', () async {
+    const usPhone = '+15555550100';
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.voicemail,
+          ),
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+    await notifier.retryUnansweredCalls();
+
+    expect(c.read(closingAgentControllerProvider).callRetryOfferCount, 0);
+
+    clearInteractions(planCall);
+    clearInteractions(runCall);
+    await notifier.retryUnansweredCalls();
+
+    verifyNever(() => planCall.execute(any()));
+    verifyNever(() => runCall.execute(any()));
+  });
+
   test('Confirm and Call poll timeout does not run-batch again', () async {
     const usPhone = '+15555550100';
     when(() => getCall.execute(any())).thenAnswer((invocation) async {
@@ -2158,6 +2346,7 @@ void main() {
   test('finishDesk invalidates stale poll timeout', () async {
     const usPhone = '+15555550100';
     ClosingAgentController.callPollInterval = const Duration(milliseconds: 20);
+    ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
     when(() => getCall.execute(any())).thenAnswer((invocation) async {
       final runId = invocation.positionalArguments.first as String;
       return Right(

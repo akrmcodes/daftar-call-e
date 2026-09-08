@@ -577,6 +577,10 @@ class _AgentBody extends ConsumerWidget {
               callConsented: agentState.callConsented,
               sendOutreachEnabled: agentState.sendOutreachEnabled,
               callProgress: agentState.callProgress,
+              retryOfferCount: agentState.callRetryOfferCount,
+              onRetryUnanswered: agentState.callRetryOfferCount > 0
+                  ? () => unawaited(notifier.retryUnansweredCalls())
+                  : null,
               startSendingIsPrimary: agentState.ownsPrimaryGlow,
               busyContactId: agentState.deskBusyContactId,
               isQueueInFlight: agentState.isQueueInFlight,

@@ -25,10 +25,10 @@ void main() {
       await database.close();
     });
 
-    test('DbConstants and DriveBackupConstants schemaVersion are 26', () {
-      expect(DbConstants.schemaVersion, 26);
-      expect(DriveBackupConstants.schemaVersion, 26);
-      expect(database.schemaVersion, 26);
+    test('DbConstants and DriveBackupConstants schemaVersion are 27', () {
+      expect(DbConstants.schemaVersion, 27);
+      expect(DriveBackupConstants.schemaVersion, 27);
+      expect(database.schemaVersion, 27);
       expect(
         DbConstants.schemaVersion,
         DriveBackupConstants.schemaVersion,
@@ -122,6 +122,7 @@ void main() {
           .getSingle();
       expect(run.promisedAmountMinor, 500);
       expect(run.promisedAmountMinor, isA<int>());
+      expect(run.retryCount, 0);
 
       final promise = await (database.select(database.collectionPromises)
             ..where((row) => row.runId.equals(runId)))

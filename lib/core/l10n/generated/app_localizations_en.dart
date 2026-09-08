@@ -3953,6 +3953,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskCommitSeal => 'Skip outreach and seal the day';
 
   @override
+  String collectionsDeskRetryUnanswered(int count) {
+    return 'Retry unanswered — $count';
+  }
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
 
   @override

@@ -45,6 +45,8 @@ class CollectionsDeskPanel extends StatelessWidget {
     this.showHybridELeftover = false,
     this.showRetrySend = false,
     this.callProgress,
+    this.retryOfferCount = 0,
+    this.onRetryUnanswered,
     this.paddingBottom = 0,
     this.deskSubtitle,
     super.key,
@@ -76,6 +78,12 @@ class CollectionsDeskPanel extends StatelessWidget {
 
   /// Seeded call progress after Confirm & Call.
   final CollectionsCallProgress? callProgress;
+
+  /// Contacts eligible for one no-answer/voicemail retry.
+  final int retryOfferCount;
+
+  /// Merchant consents to retry unanswered calls.
+  final VoidCallback? onRetryUnanswered;
 
   /// Skip a pending row.
   final ValueChanged<String> onSkip;
@@ -235,6 +243,8 @@ class CollectionsDeskPanel extends StatelessWidget {
               busy: busy,
               isDispatching: isDispatching,
               callProgress: callProgress,
+              retryOfferCount: retryOfferCount,
+              onRetryUnanswered: onRetryUnanswered,
               onCommit: onCommitOutreach,
             ),
           ),

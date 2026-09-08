@@ -25,6 +25,8 @@ class CollectionsDeskConsentCard extends StatefulWidget {
     required this.isDispatching,
     required this.onCommit,
     this.callProgress,
+    this.retryOfferCount = 0,
+    this.onRetryUnanswered,
     super.key,
   });
 
@@ -51,6 +53,12 @@ class CollectionsDeskConsentCard extends StatefulWidget {
 
   /// Seeded after Confirm & Call.
   final CollectionsCallProgress? callProgress;
+
+  /// Contacts eligible for one no-answer/voicemail retry.
+  final int retryOfferCount;
+
+  /// Merchant consents to retry unanswered calls.
+  final VoidCallback? onRetryUnanswered;
 
   @override
   State<CollectionsDeskConsentCard> createState() =>
@@ -152,6 +160,10 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
     final showChips = _showCallChip || _showSendChip;
     final ctaLabel = _ctaLabel(l10n);
     final ctaPrimary = _commitMode != _DeskCommitMode.seal;
+    final showRetry =
+        widget.retryOfferCount > 0 &&
+        widget.onRetryUnanswered != null &&
+        !_ctaLoading;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -172,6 +184,19 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
           children: [
             if (widget.callProgress != null) ...[
               CollectionsCallProgressBar(progress: widget.callProgress!),
+              const Gap(AppDimensions.spacingSm),
+            ],
+            if (showRetry) ...[
+              DaftarButton(
+                label: l10n.collectionsDeskRetryUnanswered(widget.retryOfferCount),
+                isExpanded: true,
+                onPressed: widget.busy || widget.isDispatching
+                    ? null
+                    : () {
+                        unawaited(HapticService.selection());
+                        widget.onRetryUnanswered!();
+                      },
+              ),
               const Gap(AppDimensions.spacingSm),
             ],
             if (showChips) ...[
