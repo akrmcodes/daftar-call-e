@@ -982,6 +982,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditLimitCallSheetLimit => 'Credit limit';
 
   @override
+  String get creditLimitCallSessionTitle => 'Credit-limit call';
+
+  @override
+  String get creditLimitCallSessionInProgress => 'Call in progress';
+
+  @override
+  String get creditLimitCallSessionPreparing => 'Preparing call…';
+
+  @override
+  String get creditLimitCallSessionSummaryTitle => 'Call summary';
+
+  @override
+  String get creditLimitCallSessionDone => 'Done';
+
+  @override
+  String get creditLimitCallSessionViewCall => 'View call';
+
+  @override
+  String get creditLimitCallSessionResumeChip => 'Call in progress';
+
+  @override
+  String creditLimitCallSessionRunId(String id) {
+    return 'Run · $id';
+  }
+
+  @override
   String get collectionsDeskCreditLimitSubtitle =>
       'Credit limit reached — confirm outreach for this account.';
 
@@ -3893,11 +3919,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskConfirmWithoutCalling => 'Confirm without calling';
 
   @override
+  String get collectionsDeskWithoutCalling => 'Without calling';
+
+  @override
+  String get collectionsDeskWithoutSending => 'Without sending';
+
+  @override
+  String collectionsDeskRailChipVoiceCalls(int count) {
+    return 'Voice calls · $count';
+  }
+
+  @override
+  String collectionsDeskRailChipEmail(int count) {
+    return 'Email · $count';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
+    return 'Confirm outreach — $callCount calls + $emailCount emails';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(int count) {
+    return 'Start calls only — $count';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(int count) {
+    return 'Send email only — $count';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'Skip outreach and seal the day';
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
 
   @override
   String get collectionsDeskPromiseNotPaymentSubtitle =>
       'CALL-E records what the customer said they will pay. It does not write money to your ledger.';
+
+  @override
+  String contactPendingPromiseBody(String amount, String date) {
+    return 'Promised $amount on $date';
+  }
+
+  @override
+  String contactPendingPromiseSemantics(String amount, String date) {
+    return 'Pending promise: $amount on $date';
+  }
 
   @override
   String get collectionsDeskCallPreviewTitle => 'What CALL-E will say';

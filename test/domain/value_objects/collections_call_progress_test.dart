@@ -38,6 +38,23 @@ void main() {
     expect(progress.callingIndex, 0);
   });
 
+  test('latestRowStatus returns last row status', () {
+    const progress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'a',
+          status: CollectionsCallRowStatus.completed,
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'b',
+          status: CollectionsCallRowStatus.ringing,
+        ),
+      ],
+    );
+
+    expect(progress.latestRowStatus, CollectionsCallRowStatus.ringing);
+  });
+
   test('copyWith preserves runId when only status changes', () {
     const row = CollectionsCallProgressRow(
       contactId: 'a',

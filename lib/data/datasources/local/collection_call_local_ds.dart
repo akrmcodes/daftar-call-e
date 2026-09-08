@@ -128,18 +128,7 @@ class CollectionCallLocalDataSource {
 
       final batchId = existing?.batchId;
       if (batchId != null && batchId.isNotEmpty) {
-        await (database.update(database.collectionCallBatches)
-              ..where((row) => row.batchId.equals(batchId)))
-            .write(
-          db.CollectionCallBatchesCompanion(
-            status: Value(
-              write.needsHuman
-                  ? CallBatchStatus.failed
-                  : CallBatchStatus.completed,
-            ),
-            updatedAt: Value(now),
-          ),
-        );
+        await _maybeFinalizeBatchStatus(batchId, now, write.needsHuman);
       }
 
       if (!write.shouldUpsertPromise) {
@@ -180,5 +169,62 @@ class CollectionCallLocalDataSource {
         ),
       );
     });
+  }
+
+  /// Watches non-deleted pending promises for a contact.
+  Stream<List<db.CollectionPromise>> watchPendingPromisesByContact(
+    String contactId,
+  ) {
+    return (database.select(database.collectionPromises)
+          ..where(
+            (row) =>
+                row.contactId.equals(contactId) &
+                row.status.equalsValue(CollectionPromiseStatus.pending) &
+                row.isDeleted.equals(false),
+          )
+          ..orderBy([
+            (row) => OrderingTerm(
+              expression: row.updatedAt,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+        .watch();
+  }
+
+  Future<void> _maybeFinalizeBatchStatus(
+    String batchId,
+    DateTime now,
+    bool currentNeedsHuman,
+  ) async {
+    final allRuns = await (database.select(database.collectionCallRuns)
+          ..where((row) => row.batchId.equals(batchId)))
+        .get();
+    if (allRuns.isEmpty) {
+      return;
+    }
+    final allTerminal = allRuns.every((run) {
+      final status = run.rawStatus?.trim() ?? '';
+      return status.isNotEmpty;
+    });
+    if (!allTerminal) {
+      return;
+    }
+    final failed = currentNeedsHuman ||
+        allRuns.any((run) {
+          final status = run.rawStatus!.trim();
+          return status == 'timeout' ||
+              status == 'failed' ||
+              status == 'canceled';
+        });
+    await (database.update(database.collectionCallBatches)
+          ..where((row) => row.batchId.equals(batchId)))
+        .write(
+      db.CollectionCallBatchesCompanion(
+        status: Value(
+          failed ? CallBatchStatus.failed : CallBatchStatus.completed,
+        ),
+        updatedAt: Value(now),
+      ),
+    );
   }
 }

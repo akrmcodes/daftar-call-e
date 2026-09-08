@@ -320,6 +320,7 @@ async def _run_row(
 
     store.put_run_id(batch_id, contact_key, run_id)
     store.put_run_mask(run_id, masked)
+    store.put_run_context(run_id, batch_id, correlation_id)
     store.delete(batch_id, contact_key)
     return (
         RunBatchRowResult(
@@ -472,14 +473,22 @@ async def get_call(
         if payload.structuredResult is not None
         else None
     )
-    _emit_call(
-        action="get",
-        status=payload.status,
-        phone_masked=payload.phoneMasked,
-        run_id=payload.runId,
-        terminal=payload.terminal,
-        outcome=outcome,
+    should_log_terminal = payload.terminal or (
+        payload.needsHuman
+        and payload.status in {"failed", "canceled"}
     )
+    if should_log_terminal:
+        ctx = store.get_run_context(run_id)
+        _emit_call(
+            action="terminal",
+            correlation_id=ctx.correlation_id if ctx is not None else "",
+            batch_id=ctx.batch_id if ctx is not None else "",
+            status=payload.status,
+            phone_masked=payload.phoneMasked,
+            run_id=payload.runId,
+            terminal=payload.terminal,
+            outcome=outcome,
+        )
     return JSONResponse(
         content=payload.model_dump(mode="json", exclude_none=True),
     )

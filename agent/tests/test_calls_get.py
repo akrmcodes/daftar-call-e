@@ -199,9 +199,7 @@ def test_completed_without_outcome_is_not_needs_human() -> None:
     ) is None
 
 
-def test_full_e164_masked_in_response_and_logs(
-    capsys: pytest.CaptureFixture[str],
-) -> None:
+def test_full_e164_masked_in_response(capsys: pytest.CaptureFixture[str]) -> None:
     payload = _queued_payload(status="in_progress")
     client, _ = _app(_settings(), FakeGetter(payload=payload))
     response = client.get(f"/v1/calls/{FAKE_RUN_ID}")
@@ -213,8 +211,71 @@ def test_full_e164_masked_in_response_and_logs(
     combined = captured.out + captured.err
     assert TEST_PHONE not in combined
     assert FAKE_KEY not in combined
-    assert '"action":"get"' in combined
+    assert "daftar.agent.call" not in combined
+
+
+def test_ringing_get_does_not_emit_call_log(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    client, _ = _app(
+        _settings(),
+        FakeGetter(payload=_queued_payload(status="in_progress")),
+    )
+    client.get(f"/v1/calls/{FAKE_RUN_ID}")
+    captured = capsys.readouterr()
+    combined = captured.out + captured.err
+    assert "daftar.agent.call" not in combined
+
+
+def test_terminal_get_emits_action_terminal_with_context(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from calls.handles import InMemoryConfirmHandleStore
+
+    store = InMemoryConfirmHandleStore()
+    batch_id = "batch-terminal-1"
+    correlation_id = "corr-terminal-1"
+    store.put_run_context(FAKE_RUN_ID, batch_id, correlation_id)
+    store.put_run_mask(FAKE_RUN_ID, mask_e164(TEST_PHONE))
+
+    payload = _queued_payload(
+        status="completed",
+        task_completed=True,
+        structured_result={"completed_count": 1},
+        recipients=[
+            {
+                "phones": [TEST_PHONE],
+                "structured_result": {
+                    "outcome": "promised",
+                    "promised_amount_minor": 500,
+                    "promised_currency": "YER",
+                },
+            }
+        ],
+    )
+    app = FastAPI()
+    app.include_router(router)
+    app.dependency_overrides[get_call_settings] = lambda: _settings()
+    app.dependency_overrides[get_handle_store] = lambda: store
+    app.dependency_overrides[get_call_creator] = lambda: FakeGetter(payload=payload)
+    client = TestClient(app)
+
+    response = client.get(f"/v1/calls/{FAKE_RUN_ID}")
+    assert response.status_code == 200
+    assert response.json()["terminal"] is True
+
+    captured = capsys.readouterr()
+    combined = captured.out + captured.err
+    assert '"action":"terminal"' in combined
+    assert '"correlationId":"corr-terminal-1"' in combined
+    assert '"batchId":"batch-terminal-1"' in combined
+    assert f'"runId":"{FAKE_RUN_ID}"' in combined
     assert mask_e164(TEST_PHONE) in combined
+    assert '"outcome":"promised"' in combined
+    assert TEST_PHONE not in combined
+    assert "promised_amount_minor" not in combined
+    assert "evidence_quote" not in combined
+    assert "confirmHandle" not in combined
 
 
 def test_sdk_not_found_is_404() -> None:

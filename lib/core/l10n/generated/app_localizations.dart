@@ -1836,6 +1836,54 @@ abstract class AppLocalizations {
   /// **'حد الائتمان'**
   String get creditLimitCallSheetLimit;
 
+  /// No description provided for @creditLimitCallSessionTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكالمة الحد الائتماني'**
+  String get creditLimitCallSessionTitle;
+
+  /// No description provided for @creditLimitCallSessionInProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'المكالمة قيد التنفيذ'**
+  String get creditLimitCallSessionInProgress;
+
+  /// No description provided for @creditLimitCallSessionPreparing.
+  ///
+  /// In ar, this message translates to:
+  /// **'جاري إعداد المكالمة…'**
+  String get creditLimitCallSessionPreparing;
+
+  /// No description provided for @creditLimitCallSessionSummaryTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملخص المكالمة'**
+  String get creditLimitCallSessionSummaryTitle;
+
+  /// No description provided for @creditLimitCallSessionDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم'**
+  String get creditLimitCallSessionDone;
+
+  /// No description provided for @creditLimitCallSessionViewCall.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض المكالمة'**
+  String get creditLimitCallSessionViewCall;
+
+  /// No description provided for @creditLimitCallSessionResumeChip.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكالمة قيد التنفيذ'**
+  String get creditLimitCallSessionResumeChip;
+
+  /// No description provided for @creditLimitCallSessionRunId.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل · {id}'**
+  String creditLimitCallSessionRunId(String id);
+
   /// No description provided for @collectionsDeskCreditLimitSubtitle.
   ///
   /// In ar, this message translates to:
@@ -6892,6 +6940,54 @@ abstract class AppLocalizations {
   /// **'تأكيد دون اتصال'**
   String get collectionsDeskConfirmWithoutCalling;
 
+  /// No description provided for @collectionsDeskWithoutCalling.
+  ///
+  /// In ar, this message translates to:
+  /// **'دون اتصال'**
+  String get collectionsDeskWithoutCalling;
+
+  /// No description provided for @collectionsDeskWithoutSending.
+  ///
+  /// In ar, this message translates to:
+  /// **'دون إرسال'**
+  String get collectionsDeskWithoutSending;
+
+  /// No description provided for @collectionsDeskRailChipVoiceCalls.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكالمات · {count}'**
+  String collectionsDeskRailChipVoiceCalls(int count);
+
+  /// No description provided for @collectionsDeskRailChipEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'بريد · {count}'**
+  String collectionsDeskRailChipEmail(int count);
+
+  /// No description provided for @collectionsDeskCommitOutreachBoth.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد التواصل — {callCount} مكالمات + {emailCount} رسائل'**
+  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount);
+
+  /// No description provided for @collectionsDeskCommitCallsOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدء المكالمات فقط — {count}'**
+  String collectionsDeskCommitCallsOnly(int count);
+
+  /// No description provided for @collectionsDeskCommitEmailOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال البريد فقط — {count}'**
+  String collectionsDeskCommitEmailOnly(int count);
+
+  /// No description provided for @collectionsDeskCommitSeal.
+  ///
+  /// In ar, this message translates to:
+  /// **'تخطي التواصل وإغلاق اليوم'**
+  String get collectionsDeskCommitSeal;
+
   /// No description provided for @collectionsDeskPromiseNotPayment.
   ///
   /// In ar, this message translates to:
@@ -6903,6 +6999,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.'**
   String get collectionsDeskPromiseNotPaymentSubtitle;
+
+  /// No description provided for @contactPendingPromiseBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'وعد بـ {amount} في {date}'**
+  String contactPendingPromiseBody(String amount, String date);
+
+  /// No description provided for @contactPendingPromiseSemantics.
+  ///
+  /// In ar, this message translates to:
+  /// **'وعد معلّق: {amount} في {date}'**
+  String contactPendingPromiseSemantics(String amount, String date);
 
   /// No description provided for @collectionsDeskCallPreviewTitle.
   ///

@@ -47,6 +47,10 @@ class CollectionsCallProgress extends Equatable {
   /// Total recipients in this batch.
   int get total => results.length;
 
+  /// Status of the last row in the batch (drives the desk status word).
+  CollectionsCallRowStatus? get latestRowStatus =>
+      results.isEmpty ? null : results.last.status;
+
   /// Count of rows no longer `planned` — drives "Calling i of N".
   int get callingIndex {
     var started = 0;
@@ -56,6 +60,30 @@ class CollectionsCallProgress extends Equatable {
       }
     }
     return started;
+  }
+
+  /// True when every row is terminal (`completed` or `failed`).
+  bool get isTerminal {
+    if (results.isEmpty) {
+      return false;
+    }
+    return results.every(
+      (row) =>
+          row.status == CollectionsCallRowStatus.completed ||
+          row.status == CollectionsCallRowStatus.failed,
+    );
+  }
+
+  /// Last row with a non-empty [CollectionsCallProgressRow.runId].
+  CollectionsCallProgressRow? get lastRowWithRunId {
+    CollectionsCallProgressRow? last;
+    for (final row in results) {
+      final trimmed = row.runId?.trim() ?? '';
+      if (trimmed.isNotEmpty) {
+        last = row;
+      }
+    }
+    return last;
   }
 
   CollectionsCallProgress copyWith({

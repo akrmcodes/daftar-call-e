@@ -32,8 +32,7 @@ class CollectionsDeskPanel extends StatelessWidget {
     required this.emailCount,
     required this.callConsented,
     required this.sendOutreachEnabled,
-    required this.onConfirmAndCall,
-    required this.onConfirmWithoutCalling,
+    required this.onCommitOutreach,
     this.isDispatching = false,
     this.isQueueInFlight = false,
     this.isQueuePaused = false,
@@ -72,11 +71,8 @@ class CollectionsDeskPanel extends StatelessWidget {
   /// Plan chose Confirm & Send (SMTP path available).
   final bool sendOutreachEnabled;
 
-  /// Local call consent.
-  final VoidCallback onConfirmAndCall;
-
-  /// Skip call rail.
-  final VoidCallback onConfirmWithoutCalling;
+  /// Commits chip-selected outreach (call / send / seal).
+  final void Function({required bool call, required bool send}) onCommitOutreach;
 
   /// Seeded call progress after Confirm & Call.
   final CollectionsCallProgress? callProgress;
@@ -197,27 +193,13 @@ class CollectionsDeskPanel extends StatelessWidget {
             ],
           ),
         ),
-        if (!showHybridELeftover)
-          CollectionsDeskConsentCard(
-            callCount: callCount,
-            emailCount: emailCount,
-            callConsented: callConsented,
-            sendOutreachEnabled: sendOutreachEnabled,
-            busy: busy,
-            isDispatching: isDispatching,
-            callProgress: callProgress,
-            onConfirmAndCall: onConfirmAndCall,
-            onConfirmAndSend: onApproveAndSend,
-            onConfirmWithoutCalling: onConfirmWithoutCalling,
-            onConfirmWithoutSending: onDone,
-          ),
         Expanded(
           child: ListView.builder(
-            padding: EdgeInsetsDirectional.fromSTEB(
+            padding: const EdgeInsetsDirectional.fromSTEB(
               AppDimensions.pagePaddingH,
               0,
               AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd + paddingBottom,
+              AppDimensions.spacingMd,
             ),
             itemCount: rows.length,
             itemBuilder: (context, index) {
@@ -242,13 +224,27 @@ class CollectionsDeskPanel extends StatelessWidget {
             },
           ),
         ),
+        if (!showHybridELeftover)
+          Padding(
+            padding: EdgeInsets.only(bottom: paddingBottom),
+            child: CollectionsDeskConsentCard(
+              callCount: callCount,
+              emailCount: emailCount,
+              callConsented: callConsented,
+              sendOutreachEnabled: sendOutreachEnabled,
+              busy: busy,
+              isDispatching: isDispatching,
+              callProgress: callProgress,
+              onCommit: onCommitOutreach,
+            ),
+          ),
         if (showHybridELeftover || isDispatching || showRetrySend)
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
+            padding: EdgeInsetsDirectional.fromSTEB(
               AppDimensions.pagePaddingH,
               0,
               AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd,
+              AppDimensions.spacingMd + paddingBottom,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

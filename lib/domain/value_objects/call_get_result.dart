@@ -1,4 +1,5 @@
 import 'package:daftar/domain/constants/promised_amount_minor.dart';
+import 'package:daftar/domain/constants/promised_calendar_day.dart';
 import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:equatable/equatable.dart';
@@ -16,10 +17,12 @@ class CallStructuredOutcome extends Equatable {
     this.acknowledgedHold,
     this.evidenceQuote,
     this.amountInvalid = false,
+    this.dateInvalid = false,
   });
 
   factory CallStructuredOutcome.fromJson(Map<String, Object?> json) {
     final amountRaw = json['promised_amount_minor'] ?? json['promisedAmountMinor'];
+    final dateRaw = json['promised_date'] ?? json['promisedDate'];
     return CallStructuredOutcome(
       completedCount: PromisedAmountMinor.tryParse(
         json['completed_count'] ?? json['completedCount'],
@@ -30,14 +33,14 @@ class CallStructuredOutcome extends Equatable {
       promisedAmountMinor: PromisedAmountMinor.tryParse(amountRaw),
       promisedCurrency: json['promised_currency'] as String? ??
           json['promisedCurrency'] as String?,
-      promisedDate:
-          json['promised_date'] as String? ?? json['promisedDate'] as String?,
+      promisedDate: PromisedCalendarDay.tryParse(dateRaw),
       language: json['language'] as String?,
       acknowledgedHold: json['acknowledged_hold'] as bool? ??
           json['acknowledgedHold'] as bool?,
       evidenceQuote: json['evidence_quote'] as String? ??
           json['evidenceQuote'] as String?,
       amountInvalid: PromisedAmountMinor.isInvalidPresent(amountRaw),
+      dateInvalid: PromisedCalendarDay.isInvalidPresent(dateRaw),
     );
   }
 
@@ -50,6 +53,7 @@ class CallStructuredOutcome extends Equatable {
   final bool? acknowledgedHold;
   final String? evidenceQuote;
   final bool amountInvalid;
+  final bool dateInvalid;
 
   @override
   List<Object?> get props => [
@@ -62,6 +66,7 @@ class CallStructuredOutcome extends Equatable {
         acknowledgedHold,
         evidenceQuote,
         amountInvalid,
+        dateInvalid,
       ];
 }
 
@@ -90,7 +95,8 @@ class CallGetResult extends Equatable {
     final terminal = json['terminal'] == true;
     final status = json['status'] as String? ?? 'unknown';
     final completedOk = status == 'completed';
-    final schemaInvalid = structured?.amountInvalid ?? false;
+    final schemaInvalid = (structured?.amountInvalid ?? false) ||
+        (structured?.dateInvalid ?? false);
     final wireNeedsHuman =
         json['needsHuman'] == true || json['needs_human'] == true;
     final failedTerminal = status == 'failed' || status == 'canceled';
@@ -119,7 +125,8 @@ class CallGetResult extends Equatable {
 
   /// Desk rail status from this GET (never `delivered` / `paid`).
   CollectionsCallRowStatus get deskStatus {
-    if (structuredResult?.amountInvalid == true) {
+    if (structuredResult?.amountInvalid == true ||
+        structuredResult?.dateInvalid == true) {
       return CollectionsCallRowStatus.failed;
     }
     if (status == 'failed' || status == 'canceled') {
@@ -131,7 +138,12 @@ class CallGetResult extends Equatable {
     if (needsHuman || terminal) {
       return CollectionsCallRowStatus.failed;
     }
-    return CollectionsCallRowStatus.ringing;
+    return switch (status) {
+      'planned' || 'queued' || 'preparing' || 'unknown' =>
+        CollectionsCallRowStatus.planned,
+      'ringing' || 'in_progress' => CollectionsCallRowStatus.ringing,
+      _ => CollectionsCallRowStatus.ringing,
+    };
   }
 
   @override

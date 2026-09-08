@@ -4681,3 +4681,271 @@ HUD never HTTP-polls. Last progress row with `runId` wins (SMTP Message-ID patte
 ### Status
 Roadmap §3.3 all four items ticked. Gate 3 HUD call chip ticked. Next: Gate 4 film / §4.4 HUD updates from live poll when demo window reopens.
 
+## 2026-09-06 — Stage 4.1 Device poll loop hardening
+
+### Context
+Review of roadmap §4.1 found the happy path (persist `runId`, ~60s then 5–10s GET, timeout without re-create) was already correct but airplane-mode during poll, GET-driven progress, Drift on timeout, and `finishDesk` races needed hardening.
+
+### Done
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): GET `Left` surfaces `ErrorTranslator` copy and keeps polling; successful GET clears transient `NetworkFailure` only; `persistQueued` `Left` surfaced; rows stay `planned` until GET; timeout `persistTerminal` (`rawStatus: timeout`, `needsHuman: true`); `_callPollEpoch` invalidates stale UI on `finishDesk` / `confirmWithoutCalling` (Drift terminal writes still run).
+- [`lib/domain/value_objects/call_get_result.dart`](../lib/domain/value_objects/call_get_result.dart): `planned` / `queued` / `preparing` / `unknown` → `planned`; `ringing` / `in_progress` → `ringing`; `canceled` → `failed`.
+- [`lib/domain/value_objects/collections_call_progress.dart`](../lib/domain/value_objects/collections_call_progress.dart): `latestRowStatus` for desk status word.
+- [`lib/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart`](../lib/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart): HUD ARB status word for latest row (no `delivered` / `paid`).
+- Tests: [`call_get_result_test.dart`](../test/domain/value_objects/call_get_result_test.dart), [`collections_call_progress_test.dart`](../test/domain/value_objects/collections_call_progress_test.dart), [`collections_call_progress_bar_test.dart`](../test/presentation/screens/closing_agent/widgets/collections_call_progress_bar_test.dart), extended [`closing_agent_controller_test.dart`](../test/presentation/providers/closing_agent_controller_test.dart) (network GET, timeout Drift, epoch race, planned-until-GET).
+
+### Architecture / decisions
+Never `run-batch` again to poll. Poll epoch guards UI only — terminal Drift must not lose `runId`. Reused HUD status ARB keys on desk bar (Lapis 2dp stripe unchanged). §4.1 boxes remain ticked; §4.4 / Gate 4 film out of scope.
+
+### Ops / verification
+`flutter test` on touched test files — all passed. `flutter analyze` — no issues. No Cloud Run deploy.
+
+### Status
+Roadmap §4.1 hardened and remains ticked. Next: §4.2 contact-card polish or §4.4 HUD poll observability when owner prioritizes.
+
+## 2026-09-06 — Stage 4.2 Write-back hardening
+
+### Context
+Review of roadmap §4.2 found integer write-back, Drift upsert, and no-ledger-txn rules were already correct, but `promised_date` was not validated on device, `persistTerminal` `Left` was dropped, and the contact card never read `collection_promises`.
+
+### Done
+- [`lib/domain/constants/promised_calendar_day.dart`](../lib/domain/constants/promised_calendar_day.dart): `YYYY-MM-DD` calendar validation (matches Cloud Run `get_map.py`).
+- [`lib/domain/value_objects/call_get_result.dart`](../lib/domain/value_objects/call_get_result.dart): `dateInvalid` → `needsHuman`; invalid dates omitted from structured outcome.
+- [`lib/domain/value_objects/collection_call_persist.dart`](../lib/domain/value_objects/collection_call_persist.dart): `dateInvalid` on terminal write; `shouldUpsertPromise` requires valid calendar day + currency.
+- [`lib/presentation/providers/closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart): `_surfacePersistTerminal` surfaces Drift `Left`; never invents amount.
+- [`lib/data/datasources/local/collection_call_local_ds.dart`](../lib/data/datasources/local/collection_call_local_ds.dart): batch header finalized only when all runs have `rawStatus`; `watchPendingPromisesByContact`.
+- Contact card: [`CollectionPromise`](../lib/domain/entities/collection_promise.dart), [`WatchPendingCollectionPromisesUseCase`](../lib/application/contact/watch_pending_collection_promises_use_case.dart), [`ContactPendingPromiseBanner`](../lib/presentation/screens/contact/widgets/contact_pending_promise_banner.dart) on [`contact_detail_screen.dart`](../lib/presentation/screens/contact/contact_detail_screen.dart) (Khazna info banner, int money + date, promise ≠ payment).
+- ARB `contactPendingPromiseBody` EN+AR. Tests across domain, local DS, controller, widget.
+
+### Architecture / decisions
+Promise remains display-only — no `AddTransactionUseCase`. Currency still required for promise upsert (cannot format int money without it). Completed without collections `outcome` unchanged (§4.2 / live lesson). §4.4 / Gate 4 film out of scope.
+
+### Ops / verification
+`flutter test` on touched files — all passed. `flutter analyze` — clean. `build_runner` + `gen-l10n`. No Cloud Run deploy.
+
+### Status
+Roadmap §4.2 all items ticked. Next: §4.3 YE film row or §4.4 HUD poll observability.
+
+## 2026-09-06 — Stage 4.3 review + §4.4 Observability
+
+### Context
+Owner requested professional review of §4.3 (email remainder independence) and implementation of §4.4 (Cloud Logging terminal events + HUD poll chip).
+
+### Done
+- **§4.3 (kept ticked):** [`test/presentation/providers/closing_agent_controller_test.dart`](../test/presentation/providers/closing_agent_controller_test.dart) — US+YE desk: `confirmAndCall` plan-batch US-only, then `approveAndSend` dispatches both including YE. [`test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart`](../test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart) — Confirm & Send visible after `callConsented`. [`closing_agent_controller.dart`](../lib/presentation/providers/closing_agent_controller.dart) — `_invalidateCallPoll()` at start of `approveAndSend`.
+- **§4.4 Cloud Run:** [`agent/calls/handles.py`](../agent/calls/handles.py) — `RunContext` map (`put_run_context` / `get_run_context`). [`agent/calls/router.py`](../agent/calls/router.py) — `action=terminal` only on terminal GET (no per-poll `action=get` spam); `correlationId` + `batchId` from run context; PII-safe fields only.
+- **§4.4 HUD:** [`architecture_hud_provider.dart`](../lib/presentation/providers/architecture_hud_provider.dart) — `resolveCallChip` last row **with non-empty `runId`** wins for both `runId` and `status` (later `planned` rows no longer mask ringing/completed).
+- Docs: [`docs/roadmap_v3.md`](../docs/roadmap_v3.md) §4.4 ticked; [`agent/README.md`](../agent/README.md) Logs Explorer query for `daftar.agent.call` on `daftar-call-e`; [`docs/architecture/contest_architecture.md`](../docs/architecture/contest_architecture.md) Cloud Logging row.
+
+### Architecture / decisions
+Plan/run `daftar.agent.call` emitters unchanged. Non-terminal GET polls emit **no** call log. Gate 4 film / Stage 6.3 YE inbox beat remain unchecked. No Cloud Run deploy. No Firebase Analytics.
+
+### Ops / verification
+`agent/.venv/bin/python -m pytest tests/test_calls_get.py` — 14 passed. `flutter test` on controller, HUD provider, consent widget — passed. `flutter analyze` on touched Dart files — clean.
+
+### Status
+§4.3 ticked (unchanged). §4.4 complete. Next: §4.5 Gate 4 film (owner) or Stage 4 validation gate.
+
+## 2026-09-08 — Move Gate 4 film; dial-off phone QA
+
+### Context
+Owner moved live ring filming to Stage 6 (after Stage 5). Stage 4 should exit on thorough device QA with `CALLE_ALLOW_DIAL=false` and min instances 0. Credit burn must be avoided during QA.
+
+### Done
+- [`docs/roadmap_v3.md`](../docs/roadmap_v3.md): removed **4.5 Gate 4 film** from Stage 4; added **4.5 Device QA (owner)**; merged film bullets into **§6.3 Video**; retargeted Stage 4/5/6 gates and dependency graph (Stage 5 after dial-off QA, not live ring).
+- [`docs/qa/stage4_phone_qa.md`](../docs/qa/stage4_phone_qa.md): dial-off phone pass (Passes A–D) before Stage 5.
+- [`docs/qa/calle_live_dial_window.md`](../docs/qa/calle_live_dial_window.md): credit-safe arm/disarm SOP for Stage 6 film only.
+- [`docs/qa/gate4_device_runbook.md`](../docs/qa/gate4_device_runbook.md): heritage banner (frozen Agentic SMTP — do not warm).
+- [`docs/qa/README.md`](../docs/qa/README.md): binding contract → v3; QA doc index updated.
+
+### Architecture / decisions
+Default forever: Cloud Run + APK dial **off**, min **0**. Live `CALLE_ALLOW_DIAL=true` only per `calle_live_dial_window.md` on film day. Poll loop does not re-`create`; `callConsented` blocks double Confirm & Call per desk. §4.5 / Stage 4 Validation Gate remain **unchecked** until owner runs `stage4_phone_qa.md`. §6.3 / Stage 6 film items **unchecked**.
+
+### Ops / verification
+`gcloud run services describe daftar-call-e`: revision `daftar-call-e-00008-nbv`, `CALLE_ALLOW_DIAL=false`, minScale unset (0), maxScale 2 — **no update required**. Frozen `daftar-closing-agent-00055-pbm` untouched. No deploy. No `DAFTAR_CALL_E_ALLOW_DIAL=true`.
+
+### Status
+Roadmap reorganized. Next: owner runs [`docs/qa/stage4_phone_qa.md`](../docs/qa/stage4_phone_qa.md) on phone, then Stage 5. Film after feature freeze per §6.3.
+
+## 2026-09-08 — Credit-limit call session + drop promise banner
+
+### Context
+Merchants saw a confusing “A promise is not a payment” banner after credit-limit saves, and **Prepare the call** dumped them onto the full Collections Desk with a second Confirm & Call tap. This slice removes the slogan everywhere and adds a dedicated Khazna call-session surface with one HITL, live progress, terminal summary, and leave/return chips.
+
+### Done
+- Removed `DaftarPermissionBanner` promise slogan from `lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart` and `lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`; contact card promise banner keeps display copy with new `contactPendingPromiseSemantics` ARB key in `lib/presentation/screens/contact/widgets/contact_pending_promise_banner.dart`
+- B-trigger: `CreditLimitBTrigger` → `startCreditLimitCallSession()` (`openCreditLimitDesk` + `confirmAndCall`) in `lib/presentation/screens/contact/credit_limit_b_trigger.dart`; `dismissCreditLimitSession()` and `finishDesk` no-op for `creditLimit` in `lib/presentation/providers/closing_agent_controller.dart`
+- New `lib/presentation/screens/closing_agent/widgets/credit_limit_call_session.dart` (progress + summary + Done); routed from `lib/presentation/screens/closing_agent/closing_agent_screen.dart` when `callBatchTrigger == creditLimit`; composer hidden; working glow while live
+- Resume chips: `lib/presentation/screens/closing_agent/widgets/credit_limit_call_resume_chip.dart` on `lib/presentation/shared/widgets/main_shell.dart` (home) and `lib/presentation/screens/contact/contact_detail_screen.dart`
+- State helpers on `ClosingAgentState`: `isCreditLimitCallSessionActive`, `creditLimitCallSessionTerminal`, `creditLimitSessionContactId`; `CollectionsCallProgress.isTerminal` / `lastRowWithRunId`; thicker session progress bar variant
+- EN+AR l10n keys; widget/controller tests; updated consent + sheet tests
+
+### Architecture / decisions
+- **One HITL** on the credit-limit sheet; close-the-day desk still uses Confirm & Call on `CollectionsDeskPanel`
+- Session persists on pop/back until merchant taps **Done**; kill-switch / empty allowlist still surfaces honest `failed` progress (no fake ring)
+- Lapis law preserved: glow edges and progress stripe only — no blue fills
+
+### Ops / verification
+- `flutter gen-l10n`
+- `flutter test` credit-limit widget + controller tests (sheet, consent, session, controller `credit-limit` filter) — pass
+- No Cloud Run / dial policy change
+
+### Status
+UX slice complete. Stage 5 / §6.3 / live dial unchanged. Owner can QA credit-limit flow on device with existing dial-off policy.
+
+## 2026-09-08 — Fix Prepare the call no-op
+
+### Context
+Tapping **Prepare the call** dismissed the HITL sheet and then did nothing. Add-debt callers pop their dialog/sheet first, so `offerAfterDebtSave` saw `context.mounted == false` and skipped `startCreditLimitCallSession` / navigation.
+
+### Done
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): after Prepare, start the session without requiring the caller widget; show the sheet and push Closing Agent via `rootNavigatorKey` / captured `GoRouter`
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart) + [`app_bottom_sheet.dart`](lib/presentation/shared/widgets/app_bottom_sheet.dart): `useRootNavigator: true`
+- Callers pass a surviving overlay context before pop: [`add_transaction_dialog.dart`](lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart), [`quick_add_bottom_sheet.dart`](lib/presentation/widgets/transactions/quick_add_bottom_sheet.dart)
+- Widget test [`test/presentation/screens/contact/credit_limit_b_trigger_test.dart`](test/presentation/screens/contact/credit_limit_b_trigger_test.dart): pop host → Prepare → session + `/closing-agent`
+
+### Architecture / decisions
+Kill switch / empty allowlist still refuse `run-batch` honestly. No Cloud Run or dial-on change.
+
+### Ops / verification
+- `dart analyze` on touched files — clean
+- `flutter test` trigger + sheet tests — pass
+- Phone: **hot restart** the existing `flutter run` session (hot reload is not enough)
+
+### Status
+Ready for device QA. Stage 5 / §6.3 / live dial unchanged.
+
+## 2026-09-08 — Fix Prepare the call disposed WidgetRef crash
+
+### Context
+Phone Crashlytics: `Using "ref" when a widget is about to or has been unmounted` at `CreditLimitBTrigger.offerAfterDebtSave` line 69. The add-debt dialog’s `WidgetRef` was still used after Prepare; the merchant never reached the call session.
+
+### Done
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): capture `ProviderScope.containerOf` from the root overlay at entry; all reads (`skip`, contact, balances, `startCreditLimitCallSession`) go through that container — never `ref.read` after an await
+- [`test/presentation/screens/contact/credit_limit_b_trigger_test.dart`](test/presentation/screens/contact/credit_limit_b_trigger_test.dart): Prepare uses a **dialog `Consumer` `WidgetRef`** that is popped before the tap
+
+### Architecture / decisions
+App `ProviderContainer` outlives the add-debt route. Kill switch / empty allowlist still honest. No Cloud Run / dial-on.
+
+### Ops / verification
+- `dart analyze` on trigger + test — clean
+- `flutter test test/presentation/screens/contact/credit_limit_b_trigger_test.dart` — pass
+- Phone: **hot restart** (`R`) the running `flutter run` session
+
+### Status
+Ready for device QA. Stage 5 / §6.3 / live dial unchanged.
+
+## 2026-09-08 — Credit-limit sheet: debt glow + keyboard overflow
+
+### Context
+After Prepare-the-call navigation worked, the exceeded-limit HITL sheet flashed a one-frame Column overflow when the keyboard was still animating closed after a debt save. The merchant also asked for a professional debt-red horizon glow (same light-not-paint grammar as the Closing Agent crest).
+
+### Done
+- [`lib/presentation/shared/widgets/app_bottom_sheet.dart`](lib/presentation/shared/widgets/app_bottom_sheet.dart): stop double-counting `viewInsets` in `maxHeight`; wrap scroll body in `Flexible`; optional `horizonGlow` + `accentBorderColor`
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart): `waitForKeyboardToSettle` (unfocus + frame wait) before present; debt accent border + light haptic on enter
+- [`lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart`](lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart): debt-red BoxShadow crest + 0.5px hairline; breath animation; respects reduce-motion
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): shared keyboard settle before sheet in both entry paths
+- [`test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart`](test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart): viewInsets animate pump must not overflow; horizon glow present
+
+### Architecture / decisions
+Lapis Law preserved — primary CTA stays monochrome + lapis glow. Debt chroma is semantic emission only (shadow + hairline). Shared sheet infrastructure fix benefits all `AppBottomSheet` callers without changing close-the-day desk.
+
+### Ops / verification
+- `dart analyze` on touched files — clean (info-level only)
+- `flutter test test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart` — 3/3 pass
+- Phone: **hot restart** (`R`) after landing
+
+### Status
+Ready for device QA on exceeded-limit save → sheet glow + no overflow flash. Dial-off / failed call unchanged (service disabled).
+
+## 2026-09-08 — Credit-limit glow: inward wash
+
+### Context
+The first debt-red crest radiated past the sheet (negative offsets + large BoxShadow). The merchant asked for a softer, in-card glow that starts at the top edge and falls downward.
+
+### Done
+- [`lib/presentation/shared/widgets/app_bottom_sheet.dart`](lib/presentation/shared/widgets/app_bottom_sheet.dart): paint `horizonGlow` **inside** the clipped Material (behind content), `ClipRect` so blur cannot leave the card
+- [`lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart`](lib/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart): inward wash — ellipses centered on the top edge so the upper half is clipped away; named alphas only; quieter breath
+- [`lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart`](lib/presentation/screens/contact/widgets/credit_limit_call_sheet.dart): top accent hairline `alphaSoft` (was `alphaMedium`)
+
+### Architecture / decisions
+Still light-not-paint: no debt fill on the CTA. Glow is clipped to the sheet radius.
+
+### Ops / verification
+- `dart analyze` on touched files
+- `flutter test test/presentation/screens/contact/widgets/credit_limit_call_sheet_test.dart`
+- Phone: **hot restart** (`R`)
+
+### Status
+Visual polish on the HITL sheet. Dial-off unchanged.
+
+## 2026-09-08 — B-trigger: Prepare the call only for supported numbers
+
+### Context
+Credit-limit exceeded saves showed **Prepare the call** for every contact (including Yemen and missing phones), then failed on dispatch. Merchant asked for the HITL only when the number is CALL-E region-supported; unsupported contacts keep the exceeded notification only.
+
+### Done
+- [`lib/domain/constants/j10_region_gate.dart`](lib/domain/constants/j10_region_gate.dart): `isSupportedCallingNumber` (allowlist ignored) + `isSupportedContactPhone` (DNC-aware)
+- [`lib/presentation/screens/contact/credit_limit_b_trigger.dart`](lib/presentation/screens/contact/credit_limit_b_trigger.dart): gate `offerAfterDebtSave` / `presentPendingPrompt`; returns `bool` (sheet presented); `isCallPromptEligible` for callers
+- [`lib/presentation/providers/closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart): `_queueCreditLimitPromptIfNeeded` skips unsupported contacts
+- [`lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart`](lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart) + [`quick_add_bottom_sheet.dart`](lib/presentation/widgets/transactions/quick_add_bottom_sheet.dart): in-app `creditLimitExceeded` snackbar when sheet skipped (unsupported phone only)
+- Tests: [`test/domain/constants/j10_region_gate_test.dart`](test/domain/constants/j10_region_gate_test.dart), [`test/presentation/screens/contact/credit_limit_b_trigger_test.dart`](test/presentation/screens/contact/credit_limit_b_trigger_test.dart) (US shows sheet; YE / empty do not)
+
+### Architecture / decisions
+Region-only gate per owner choice — `CallNotAllowlisted` still sees Prepare; PSTN allowlist + kill switch unchanged on `run-batch`. OS `notificationExceededBody` still fires for all exceeded saves. No Cloud Run / dial-on change.
+
+### Ops / verification
+- `dart analyze` on touched files — clean (info-level ordering only)
+- `flutter test` j10_region_gate + credit_limit_b_trigger — 18/18 pass
+- Phone: **hot restart** (`R`); test YE contact → exceeded snackbar only; US DID → Prepare sheet
+
+### Status
+B-trigger HITL aligned with J.10 supported regions. Stage 5 / live dial unchanged.
+
+## 2026-09-08 — Collections Desk: compact consent dock
+
+### Context
+Close-the-day paused with four stacked full-width consent buttons (~320dp) above draft previews, making C.3 / C.2 review difficult. Roadmap still requires four explicit HITL actions — layout only.
+
+### Done
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): compact dock — two-up Call/Send primaries + one skip row; progress bar when in flight; collapses call rail after consent
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): drafts `Expanded` first; consent dock pinned below list; rail counts merged into header meta (`1 call · 2 emails`)
+- [`lib/core/l10n/app_en.arb`](lib/core/l10n/app_en.arb) / [`app_ar.arb`](lib/core/l10n/app_ar.arb): `collectionsDeskWithoutCalling` / `collectionsDeskWithoutSending` (short skip copy)
+- [`test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart`](test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart): four actions still present; RTL + YE-only + post-call collapse
+
+### Architecture / decisions
+Same four callbacks and single lapis glow moment. Dedicated desk preserved — not compact taskmaster. Khazna: monochrome dock + hairline top border; no lapis fill.
+
+### Ops / verification
+- `flutter gen-l10n`
+- `flutter test test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart` — 8/8 pass
+- Phone: **hot restart** (`R`); Close the day → previews first, slim dock at bottom
+
+### Status
+Review-first Collections Desk UX. Dispatch semantics unchanged.
+
+## 2026-09-08 — Collections Desk: rail chips + dynamic CTA
+
+### Context
+Four-button consent dock still crowded decision-making. Merchant requested two toggle chips (voice / email) and one dynamic primary whose label declares the exact outreach commit before dispatch.
+
+### Done
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_rail_chip.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_rail_chip.dart): Khazna filter-chip rail toggle (check scale, lapis hairline, `glowXs`, 48dp tap)
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): StatefulWidget — two chips + `AnimatedSwitcher` CTA; four commit modes (both / call / email / seal)
+- [`lib/presentation/providers/closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart): `commitDeskOutreach`; `pendingSendAfterCall` queues `approveAndSend` after call poll terminal
+- [`lib/presentation/providers/closing_agent_state.dart`](lib/presentation/providers/closing_agent_state.dart): `pendingSendAfterCall` flag
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart) / [`closing_agent_screen.dart`](lib/presentation/screens/closing_agent/closing_agent_screen.dart): `onCommitOutreach` wiring; header rail counts removed (chips carry counts)
+- [`lib/core/l10n/app_en.arb`](lib/core/l10n/app_en.arb) / [`app_ar.arb`](lib/core/l10n/app_ar.arb): chip labels + four CTA strings with int placeholders
+- Tests: [`collections_desk_consent_test.dart`](test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart), [`collections_desk_panel_test.dart`](test/presentation/screens/closing_agent/widgets/collections_desk_panel_test.dart), controller `commitDeskOutreach both queues approveAndSend`
+
+### Architecture / decisions
+HITL preserved: chips are the four-way decision; CTA **names** counts before dial/SMTP. Dual-rail one-tap sets `pendingSendAfterCall` — SMTP only after terminal call rows (declared in label). Call-only commit does not auto-send. Hybrid E leftover chrome unchanged.
+
+### Ops / verification
+- `flutter gen-l10n`; `dart run build_runner build --delete-conflicting-outputs`
+- `flutter test` consent + panel widgets — 18/18 pass
+- Controller `commitDeskOutreach both queues approveAndSend after call terminal`
+- Phone: **hot restart** (`R`); Close the day → chips + one button, drafts readable
+
+### Status
+Collections Desk consent UX v2 shipped. Stage 5 / live dial unchanged.
+

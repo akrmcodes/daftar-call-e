@@ -22,6 +22,8 @@ class AppBottomSheet extends StatelessWidget {
     this.maxHeightFactor = 0.92,
     this.showDragHandle = true,
     this.padding,
+    this.horizonGlow,
+    this.accentBorderColor,
   }) : assert(
          maxHeightFactor > 0 && maxHeightFactor <= 1,
          'maxHeightFactor must be between 0 and 1.',
@@ -37,6 +39,12 @@ class AppBottomSheet extends StatelessWidget {
   final double maxHeightFactor;
   final bool showDragHandle;
   final EdgeInsetsGeometry? padding;
+
+  /// Optional top-edge emissive crest (BoxShadow + hairline only).
+  final Widget? horizonGlow;
+
+  /// Optional accent hairline on the top sheet edge (e.g. debt red).
+  final Color? accentBorderColor;
 
   /// Presents a localized error bottom sheet for [error].
   ///
@@ -61,12 +69,16 @@ class AppBottomSheet extends StatelessWidget {
     double maxHeightFactor = 0.92,
     bool showDragHandle = true,
     EdgeInsetsGeometry? padding,
+    bool useRootNavigator = false,
+    Widget? horizonGlow,
+    Color? accentBorderColor,
   }) {
     final theme = context.theme;
 
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: useRootNavigator,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: theme.colorScheme.scrim.withValues(alpha: 0.55),
@@ -82,6 +94,8 @@ class AppBottomSheet extends StatelessWidget {
           maxHeightFactor: maxHeightFactor,
           showDragHandle: showDragHandle,
           padding: padding,
+          horizonGlow: horizonGlow,
+          accentBorderColor: accentBorderColor,
           child: child,
         );
       },
@@ -102,7 +116,8 @@ class AppBottomSheet extends StatelessWidget {
       }
       if (subtitle != null) {
         const style = AppTextStyles.bodyMedium;
-        rowContentHeight += AppDimensions.spacingXxs +
+        rowContentHeight +=
+            AppDimensions.spacingXxs +
             (style.fontSize ?? 14) * (style.height ?? 1);
       }
       if (leading != null || trailing != null) {
@@ -127,9 +142,7 @@ class AppBottomSheet extends StatelessWidget {
     final surfaceBorderColor = isDark
         ? AppColors.borderSubtle.withValues(alpha: 0.8)
         : AppColors.borderSubtleLight.withValues(alpha: 0.9);
-    final mutedColor = isDark
-        ? AppColors.inkMuted
-        : AppColors.inkMutedLight;
+    final mutedColor = isDark ? AppColors.inkMuted : AppColors.inkMutedLight;
     final onSurfaceColor = isDark
         ? AppColors.inkPrimary
         : AppColors.inkPrimaryLight;
@@ -143,13 +156,14 @@ class AppBottomSheet extends StatelessWidget {
         );
 
     final mediaQuery = MediaQuery.of(context);
-    // Shrink the sheet when the keyboard is open so the header stays visible.
-    final availableHeight =
-        mediaQuery.size.height - mediaQuery.viewInsets.bottom;
+    // AnimatedPadding below lifts the sheet for the IME — do not subtract
+    // viewInsets here or the max height is double-counted during keyboard exit.
+    final availableHeight = mediaQuery.size.height;
 
     final maxSheetHeight = availableHeight * maxHeightFactor;
     final headerHeight = _estimatedHeaderHeight(
-      hasTitleRow: title != null ||
+      hasTitleRow:
+          title != null ||
           subtitle != null ||
           leading != null ||
           trailing != null,
@@ -167,105 +181,132 @@ class AppBottomSheet extends StatelessWidget {
           ),
         ),
         clipBehavior: Clip.antiAlias,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border.all(color: surfaceBorderColor),
-          ),
-          child: LayoutBuilder(
-            builder: (context, boxConstraints) {
-              final bodyMaxHeight = (boxConstraints.maxHeight - headerHeight)
-                  .clamp(0.0, double.infinity);
-              final body = scrollable
-                  ? ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: bodyMaxHeight),
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        physics: const BouncingScrollPhysics(),
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        padding: sheetPadding,
-                        child: child,
-                      ),
-                    )
-                  : Padding(
-                      padding: sheetPadding,
-                      child: child,
-                    );
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (horizonGlow case final glow?)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ClipRect(child: glow),
+              ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                border: accentBorderColor != null
+                    ? Border(
+                        top: BorderSide(
+                          color: accentBorderColor!,
+                          width: 0.5,
+                        ),
+                        left: BorderSide(color: surfaceBorderColor),
+                        right: BorderSide(color: surfaceBorderColor),
+                        bottom: BorderSide(color: surfaceBorderColor),
+                      )
+                    : Border.all(color: surfaceBorderColor),
+              ),
+              child: LayoutBuilder(
+                builder: (context, boxConstraints) {
+                  final bodyMaxHeight =
+                      (boxConstraints.maxHeight - headerHeight).clamp(
+                        0.0,
+                        double.infinity,
+                      );
+                  final body = scrollable
+                      ? ConstrainedBox(
+                          constraints: BoxConstraints(maxHeight: bodyMaxHeight),
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            physics: const BouncingScrollPhysics(),
+                            keyboardDismissBehavior:
+                                ScrollViewKeyboardDismissBehavior.onDrag,
+                            padding: sheetPadding,
+                            child: child,
+                          ),
+                        )
+                      : Padding(
+                          padding: sheetPadding,
+                          child: child,
+                        );
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (showDragHandle)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: AppDimensions.spacingSm,
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: AppDimensions.dragHandleWidth,
-                          height: AppDimensions.dragHandleHeight,
-                          decoration: BoxDecoration(
-                            color: mutedColor,
-                            borderRadius: BorderRadius.circular(
-                              AppDimensions.radiusCircular,
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (showDragHandle)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: AppDimensions.spacingSm,
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: AppDimensions.dragHandleWidth,
+                              height: AppDimensions.dragHandleHeight,
+                              decoration: BoxDecoration(
+                                color: mutedColor,
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusCircular,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  if (title != null ||
-                      subtitle != null ||
-                      leading != null ||
-                      trailing != null)
-                    Padding(
-                      padding: sheetPadding,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (leading != null) ...[
-                            leading!,
-                            const SizedBox(width: AppDimensions.spacingMd),
-                          ],
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (title != null)
-                                  Text(
-                                    title!,
-                                    textAlign: TextAlign.start,
-                                    style: AppTextStyles.titleLarge.copyWith(
-                                      color: onSurfaceColor,
-                                    ),
-                                  ),
-                                if (subtitle != null) ...[
-                                  const SizedBox(
-                                    height: AppDimensions.spacingXxs,
-                                  ),
-                                  Text(
-                                    subtitle!,
-                                    textAlign: TextAlign.start,
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: mutedColor,
-                                    ),
-                                  ),
-                                ],
+                      if (title != null ||
+                          subtitle != null ||
+                          leading != null ||
+                          trailing != null)
+                        Padding(
+                          padding: sheetPadding,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (leading != null) ...[
+                                leading!,
+                                const SizedBox(width: AppDimensions.spacingMd),
                               ],
-                            ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (title != null)
+                                      Text(
+                                        title!,
+                                        textAlign: TextAlign.start,
+                                        style: AppTextStyles.titleLarge
+                                            .copyWith(
+                                              color: onSurfaceColor,
+                                            ),
+                                      ),
+                                    if (subtitle != null) ...[
+                                      const SizedBox(
+                                        height: AppDimensions.spacingXxs,
+                                      ),
+                                      Text(
+                                        subtitle!,
+                                        textAlign: TextAlign.start,
+                                        style: AppTextStyles.bodyMedium
+                                            .copyWith(
+                                              color: mutedColor,
+                                            ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              if (trailing != null) ...[
+                                const SizedBox(width: AppDimensions.spacingSm),
+                                trailing!,
+                              ],
+                            ],
                           ),
-                          if (trailing != null) ...[
-                            const SizedBox(width: AppDimensions.spacingSm),
-                            trailing!,
-                          ],
-                        ],
-                      ),
-                    ),
-                  body,
-                ],
-              );
-            },
-          ),
+                        ),
+                      Flexible(child: body),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

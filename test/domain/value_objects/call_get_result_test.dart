@@ -58,4 +58,76 @@ void main() {
     expect(result.structuredResult?.amountInvalid, isTrue);
     expect(result.deskStatus, CollectionsCallRowStatus.failed);
   });
+
+  test('queued and planned map to planned desk status', () {
+    for (final status in ['queued', 'planned', 'preparing', 'unknown']) {
+      final result = CallGetResult.fromJson({
+        'runId': 'run-planned',
+        'status': status,
+        'terminal': false,
+        'phoneMasked': '+…0100',
+        'needsHuman': false,
+      });
+      expect(result.deskStatus, CollectionsCallRowStatus.planned);
+    }
+  });
+
+  test('in_progress maps to ringing', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-ring',
+      'status': 'in_progress',
+      'terminal': false,
+      'phoneMasked': '+…0100',
+      'needsHuman': false,
+    });
+    expect(result.deskStatus, CollectionsCallRowStatus.ringing);
+  });
+
+  test('canceled maps to failed', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-cancel',
+      'status': 'canceled',
+      'terminal': true,
+      'phoneMasked': '+…0100',
+      'needsHuman': false,
+    });
+    expect(result.deskStatus, CollectionsCallRowStatus.failed);
+  });
+
+  test('invalid promised date is needsHuman and omitted', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-date',
+      'status': 'completed',
+      'terminal': true,
+      'phoneMasked': '+…0100',
+      'needsHuman': false,
+      'structuredResult': {
+        'outcome': 'promised',
+        'promised_amount_minor': 1500,
+        'promised_currency': 'USD',
+        'promised_date': 'next Friday',
+      },
+    });
+
+    expect(result.needsHuman, isTrue);
+    expect(result.structuredResult?.dateInvalid, isTrue);
+    expect(result.structuredResult?.promisedDate, isNull);
+    expect(result.deskStatus, CollectionsCallRowStatus.failed);
+  });
+
+  test('string promised amount stays invalid', () {
+    final result = CallGetResult.fromJson(const {
+      'runId': 'run-str',
+      'status': 'completed',
+      'terminal': true,
+      'phoneMasked': '+…0100',
+      'structuredResult': {
+        'outcome': 'promised',
+        'promised_amount_minor': '1500',
+      },
+    });
+
+    expect(result.structuredResult?.amountInvalid, isTrue);
+    expect(result.needsHuman, isTrue);
+  });
 }

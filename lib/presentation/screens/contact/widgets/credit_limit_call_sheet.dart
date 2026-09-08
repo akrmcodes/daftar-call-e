@@ -1,6 +1,7 @@
 import 'dart:async' show unawaited;
 import 'dart:ui' as ui;
 
+import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
@@ -9,16 +10,16 @@ import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/utils/haptic_service.dart';
 import 'package:daftar/core/utils/money_util.dart';
 import 'package:daftar/domain/constants/built_in_currencies.dart';
+import 'package:daftar/presentation/screens/contact/widgets/credit_limit_horizon_glow.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_permission_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 /// HITL sheet after a debt save exceeds the contact credit limit (B-trigger).
 ///
 /// Never auto-dials. [show] returns `true` when the merchant chooses to open
-/// the Collections Desk — Confirm & Call remains the only PSTN consent.
+/// the credit-limit call session — Prepare the call is the only PSTN consent.
 class CreditLimitCallSheet extends StatelessWidget {
   /// Creates the B-trigger confirmation sheet.
   const CreditLimitCallSheet({
@@ -49,10 +50,24 @@ class CreditLimitCallSheet extends StatelessWidget {
     required int creditLimitMinor,
     required String currencyCode,
   }) async {
+    final host = rootNavigatorKey.currentContext ?? context;
+    await waitForKeyboardToSettle(host);
+    if (!host.mounted) {
+      return false;
+    }
+
+    unawaited(HapticService.light());
+
+    final isDark = Theme.of(host).brightness == Brightness.dark;
+    final accentBorder = isDark ? AppColors.debt : AppColors.debtLight;
+
     final result = await AppBottomSheet.show<bool>(
-      context,
-      title: AppLocalizations.of(context)!.creditLimitCallSheetTitle,
+      host,
+      title: AppLocalizations.of(host)!.creditLimitCallSheetTitle,
       maxHeightFactor: 0.88,
+      useRootNavigator: true,
+      horizonGlow: const CreditLimitHorizonGlow(active: true),
+      accentBorderColor: accentBorder.withValues(alpha: AppColors.alphaMedium),
       child: CreditLimitCallSheet(
         contactName: contactName,
         outstandingMinor: outstandingMinor,
@@ -61,6 +76,29 @@ class CreditLimitCallSheet extends StatelessWidget {
       ),
     );
     return result ?? false;
+  }
+
+  /// Unfocuses the IME and waits until viewInsets bottom is ~0.
+  ///
+  /// Shared by show and CreditLimitBTrigger so the sheet never presents
+  /// while the keyboard is still animating closed after a debt save.
+  static Future<void> waitForKeyboardToSettle(BuildContext host) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!host.mounted) {
+      return;
+    }
+
+    const cap = AppDimensions.animationMedium;
+    final stopwatch = Stopwatch()..start();
+    while (stopwatch.elapsed < cap) {
+      if (!host.mounted) {
+        return;
+      }
+      if (MediaQuery.viewInsetsOf(host).bottom < 1) {
+        return;
+      }
+      await WidgetsBinding.instance.endOfFrame;
+    }
   }
 
   String _formatAmount(int minorUnits) {
@@ -82,10 +120,12 @@ class CreditLimitCallSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = context.theme.brightness == Brightness.dark;
-    final inkPrimary =
-        isDark ? AppColors.inkPrimary : AppColors.inkPrimaryLight;
-    final inkSecondary =
-        isDark ? AppColors.inkSecondary : AppColors.inkSecondaryLight;
+    final inkPrimary = isDark
+        ? AppColors.inkPrimary
+        : AppColors.inkPrimaryLight;
+    final inkSecondary = isDark
+        ? AppColors.inkSecondary
+        : AppColors.inkSecondaryLight;
     final accentColor = isDark ? AppColors.debt : AppColors.debtLight;
     final outstandingText = _formatAmount(outstandingMinor);
     final limitText = _formatAmount(creditLimitMinor);
@@ -141,15 +181,11 @@ class CreditLimitCallSheet extends StatelessWidget {
           child: LinearProgressIndicator(
             value: utilization,
             minHeight: 8,
-            backgroundColor: (isDark ? AppColors.surface5 : AppColors.surface3Light)
-                .withValues(alpha: 0.9),
+            backgroundColor:
+                (isDark ? AppColors.surface5 : AppColors.surface3Light)
+                    .withValues(alpha: 0.9),
             valueColor: AlwaysStoppedAnimation<Color>(accentColor),
           ),
-        ),
-        const Gap(AppDimensions.spacingLg),
-        DaftarPermissionBanner(
-          message: l10n.collectionsDeskPromiseNotPayment,
-          semanticsLabel: l10n.collectionsDeskPromiseNotPaymentSubtitle,
         ),
         const Gap(AppDimensions.spacingLg),
         DaftarButton(

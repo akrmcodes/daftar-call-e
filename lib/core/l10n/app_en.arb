@@ -419,6 +419,19 @@
   "creditLimitCallSheetNotNow": "Not now",
   "creditLimitCallSheetOutstanding": "Outstanding",
   "creditLimitCallSheetLimit": "Credit limit",
+  "creditLimitCallSessionTitle": "Credit-limit call",
+  "creditLimitCallSessionInProgress": "Call in progress",
+  "creditLimitCallSessionPreparing": "Preparing call…",
+  "creditLimitCallSessionSummaryTitle": "Call summary",
+  "creditLimitCallSessionDone": "Done",
+  "creditLimitCallSessionViewCall": "View call",
+  "creditLimitCallSessionResumeChip": "Call in progress",
+  "creditLimitCallSessionRunId": "Run · {id}",
+  "@creditLimitCallSessionRunId": {
+    "placeholders": {
+      "id": { "type": "String", "example": "44665544" }
+    }
+  },
   "collectionsDeskCreditLimitSubtitle": "Credit limit reached — confirm outreach for this account.",
   "errorCreditLimitNoOutreach": "This account has no phone or email we can use for outreach.",
   "notificationWarningTitle": "Credit Alert",
@@ -1751,8 +1764,56 @@
   "collectionsDeskFailedStatus": "Failed",
   "collectionsDeskConfirmAndCall": "Confirm & Call",
   "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
+  "collectionsDeskWithoutCalling": "Without calling",
+  "collectionsDeskWithoutSending": "Without sending",
+  "collectionsDeskRailChipVoiceCalls": "Voice calls · {count}",
+  "@collectionsDeskRailChipVoiceCalls": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailChipEmail": "Email · {count}",
+  "@collectionsDeskRailChipEmail": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskCommitOutreachBoth": "Confirm outreach — {callCount} calls + {emailCount} emails",
+  "@collectionsDeskCommitOutreachBoth": {
+    "placeholders": {
+      "callCount": { "type": "int", "example": "2" },
+      "emailCount": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskCommitCallsOnly": "Start calls only — {count}",
+  "@collectionsDeskCommitCallsOnly": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskCommitEmailOnly": "Send email only — {count}",
+  "@collectionsDeskCommitEmailOnly": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskCommitSeal": "Skip outreach and seal the day",
   "collectionsDeskPromiseNotPayment": "A promise is not a payment",
   "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
+  "contactPendingPromiseBody": "Promised {amount} on {date}",
+  "@contactPendingPromiseBody": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "$15.00" },
+      "date": { "type": "String", "example": "Sep 10, 2026" }
+    }
+  },
+  "contactPendingPromiseSemantics": "Pending promise: {amount} on {date}",
+  "@contactPendingPromiseSemantics": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "$15.00" },
+      "date": { "type": "String", "example": "Sep 10, 2026" }
+    }
+  },
   "collectionsDeskCallPreviewTitle": "What CALL-E will say",
   "collectionsDeskCallingProgress": "Calling {index} of {total}",
   "@collectionsDeskCallingProgress": {

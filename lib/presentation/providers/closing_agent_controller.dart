@@ -20,6 +20,7 @@ import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
+import 'package:daftar/domain/constants/j10_region_gate.dart';
 import 'package:daftar/domain/constants/run_batch_recipient_guard.dart';
 import 'package:daftar/domain/entities/app_settings.dart';
 import 'package:daftar/domain/entities/contact.dart';
@@ -55,6 +56,7 @@ import 'package:daftar/presentation/providers/backup_providers.dart';
 import 'package:daftar/presentation/providers/closing_agent_state.dart';
 import 'package:daftar/presentation/providers/closing_ritual_providers.dart';
 import 'package:daftar/presentation/providers/connectivity_providers.dart';
+import 'package:daftar/presentation/providers/contact_providers.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -109,6 +111,7 @@ class ClosingAgentController extends _$ClosingAgentController {
   bool _sendOutreach = false;
   bool _autoDispatchOutreach = false;
   Timer? _holdHintDismissTimer;
+  int _callPollEpoch = 0;
 
   static const Duration holdHintVisible = Duration(milliseconds: 2800);
 
@@ -1123,7 +1126,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       );
       _setCallRowStatus(
         row.contactId,
-        CollectionsCallRowStatus.ringing,
+        CollectionsCallRowStatus.planned,
         runId: runId,
       );
     }
@@ -1133,23 +1136,29 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
-    await ref.read(persistCollectionCallOutcomeUseCaseProvider).persistQueued(
-      CollectionCallBatchSeed(
-        batchId: batchId,
-        correlationId: correlationId,
-        trigger: state.callBatchTrigger,
-        status: CallBatchStatus.running,
-        runs: [
-          for (final item in queued)
-            CollectionCallRunSeed(
-              contactId: item.contactId,
-              region: item.region,
-              locale: item.locale,
-              runId: item.runId,
-            ),
-        ],
-      ),
-    );
+    final queuedPersist = await ref
+        .read(persistCollectionCallOutcomeUseCaseProvider)
+        .persistQueued(
+          CollectionCallBatchSeed(
+            batchId: batchId,
+            correlationId: correlationId,
+            trigger: state.callBatchTrigger,
+            status: CallBatchStatus.running,
+            runs: [
+              for (final item in queued)
+                CollectionCallRunSeed(
+                  contactId: item.contactId,
+                  region: item.region,
+                  locale: item.locale,
+                  runId: item.runId,
+                ),
+            ],
+          ),
+        );
+    final queuedPersistFailure = queuedPersist.getLeft().toNullable();
+    if (queuedPersistFailure != null) {
+      state = state.copyWith(actionFailure: queuedPersistFailure);
+    }
 
     await _pollQueuedCalls(queued);
   }
@@ -1251,7 +1260,11 @@ class ClosingAgentController extends _$ClosingAgentController {
   }
 
   Future<void> _pollQueuedCalls(List<_QueuedCallRow> queued) async {
+    final pollEpoch = ++_callPollEpoch;
     await Future<void>.delayed(callPollInitialDelay);
+    if (!_pollEpochMatches(pollEpoch)) {
+      return;
+    }
     final stopwatch = Stopwatch()..start();
     final pending = {for (final item in queued) item.contactId};
     while (pending.isNotEmpty) {
@@ -1264,36 +1277,52 @@ class ClosingAgentController extends _$ClosingAgentController {
             .execute(item.runId);
         final getFailure = got.getLeft().toNullable();
         if (getFailure != null) {
+          if (_pollEpochMatches(pollEpoch)) {
+            state = state.copyWith(actionFailure: getFailure);
+          }
           continue;
         }
+        if (_pollEpochMatches(pollEpoch)) {
+          _clearPollNetworkFailureIfNeeded();
+        }
         final result = got.getRight().toNullable()!;
-        _setCallRowStatus(item.contactId, result.deskStatus);
+        _setCallRowStatus(
+          item.contactId,
+          result.deskStatus,
+          pollEpoch: pollEpoch,
+        );
         if (!result.terminal && !result.needsHuman) {
           continue;
         }
         pending.remove(item.contactId);
         final structured = result.structuredResult;
         final amountInvalid = structured?.amountInvalid ?? false;
+        final dateInvalid = structured?.dateInvalid ?? false;
         final review = amountInvalid ||
+            dateInvalid ||
             (result.needsHuman && result.status != 'completed');
-        await ref
-            .read(persistCollectionCallOutcomeUseCaseProvider)
-            .persistTerminal(
-              CollectionCallTerminalWrite(
-                runId: item.runId,
-                contactId: item.contactId,
-                rawStatus: result.status,
-                needsHuman: review,
-                outcome: structured?.outcome,
-                promisedAmountMinor: structured?.promisedAmountMinor,
-                promisedCurrency: structured?.promisedCurrency,
-                promisedDate: structured?.promisedDate,
-                acknowledgedHold: structured?.acknowledgedHold,
-                evidenceQuote: structured?.evidenceQuote,
-                amountInvalid: amountInvalid,
+        await _surfacePersistTerminal(
+          await ref
+              .read(persistCollectionCallOutcomeUseCaseProvider)
+              .persistTerminal(
+                CollectionCallTerminalWrite(
+                  runId: item.runId,
+                  contactId: item.contactId,
+                  rawStatus: result.status,
+                  needsHuman: review,
+                  outcome: structured?.outcome,
+                  promisedAmountMinor: structured?.promisedAmountMinor,
+                  promisedCurrency: structured?.promisedCurrency,
+                  promisedDate: structured?.promisedDate,
+                  acknowledgedHold: structured?.acknowledgedHold,
+                  evidenceQuote: structured?.evidenceQuote,
+                  amountInvalid: amountInvalid,
+                  dateInvalid: dateInvalid,
+                ),
               ),
-            );
-        if (review) {
+          pollEpoch: pollEpoch,
+        );
+        if (review && _pollEpochMatches(pollEpoch)) {
           state = state.copyWith(actionFailure: _calleNeedsHuman);
         }
       }
@@ -1306,16 +1335,63 @@ class ClosingAgentController extends _$ClosingAgentController {
       await Future<void>.delayed(callPollInterval);
     }
     for (final contactId in pending) {
-      _setCallRowStatus(contactId, CollectionsCallRowStatus.failed);
+      final item = queued.firstWhere((row) => row.contactId == contactId);
+      await _surfacePersistTerminal(
+        await ref
+            .read(persistCollectionCallOutcomeUseCaseProvider)
+            .persistTerminal(
+              CollectionCallTerminalWrite(
+                runId: item.runId,
+                contactId: item.contactId,
+                rawStatus: 'timeout',
+                needsHuman: true,
+              ),
+            ),
+        pollEpoch: pollEpoch,
+      );
+      _setCallRowStatus(
+        contactId,
+        CollectionsCallRowStatus.failed,
+        pollEpoch: pollEpoch,
+      );
     }
-    state = state.copyWith(actionFailure: _callePollTimeout);
+    if (_pollEpochMatches(pollEpoch)) {
+      state = state.copyWith(actionFailure: _callePollTimeout);
+    }
+    await _maybeDispatchPendingSendAfterCall();
+  }
+
+  bool _pollEpochMatches(int pollEpoch) => pollEpoch == _callPollEpoch;
+
+  void _clearPollNetworkFailureIfNeeded() {
+    if (state.actionFailure is NetworkFailure) {
+      state = state.copyWith(actionFailure: null);
+    }
+  }
+
+  void _invalidateCallPoll() {
+    _callPollEpoch += 1;
+  }
+
+  Future<void> _surfacePersistTerminal(
+    Either<Failure, Unit> result, {
+    required int pollEpoch,
+  }) async {
+    final failure = result.getLeft().toNullable();
+    if (failure != null && _pollEpochMatches(pollEpoch)) {
+      state = state.copyWith(actionFailure: failure);
+    }
   }
 
   void _setCallRowStatus(
     String contactId,
     CollectionsCallRowStatus status, {
     String? runId,
+    int? pollEpoch,
   }) {
+    if (pollEpoch != null && !_pollEpochMatches(pollEpoch)) {
+      return;
+    }
     final progress = state.callProgress;
     if (progress == null) {
       return;
@@ -1361,6 +1437,7 @@ class ClosingAgentController extends _$ClosingAgentController {
         ],
       ),
     );
+    unawaited(_maybeDispatchPendingSendAfterCall());
   }
 
   /// Skip the call rail; email outreach remains available.
@@ -1368,7 +1445,61 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (state.phase != ClosingAgentPhase.ritualDesk) {
       return;
     }
-    state = state.copyWith(callConsented: false, callProgress: null);
+    _invalidateCallPoll();
+    state = state.copyWith(
+      callConsented: false,
+      callProgress: null,
+      pendingSendAfterCall: false,
+    );
+  }
+
+  /// Commits desk outreach from chip selection + dynamic CTA.
+  Future<void> commitDeskOutreach({
+    required bool call,
+    required bool send,
+  }) async {
+    if (state.phase != ClosingAgentPhase.ritualDesk) {
+      return;
+    }
+
+    if (!call && !send) {
+      state = state.copyWith(pendingSendAfterCall: false);
+      await finishDesk();
+      return;
+    }
+
+    if (call && send) {
+      state = state.copyWith(pendingSendAfterCall: true);
+      await confirmAndCall();
+      await _maybeDispatchPendingSendAfterCall();
+      return;
+    }
+
+    state = state.copyWith(pendingSendAfterCall: false);
+
+    if (call) {
+      await confirmAndCall();
+      return;
+    }
+
+    await confirmWithoutCalling();
+    await approveAndSend();
+  }
+
+  Future<void> _maybeDispatchPendingSendAfterCall() async {
+    if (!state.pendingSendAfterCall) {
+      return;
+    }
+    final progress = state.callProgress;
+    final callsTerminal = progress == null || progress.isTerminal;
+    if (!callsTerminal) {
+      return;
+    }
+    state = state.copyWith(pendingSendAfterCall: false);
+    if (!state.sendOutreachEnabled || state.deskEmailCount <= 0) {
+      return;
+    }
+    await approveAndSend();
   }
 
   static bool _isEmailDispatchRow(CollectionsDeskRow row) {
@@ -1400,6 +1531,7 @@ class ClosingAgentController extends _$ClosingAgentController {
         state.collectionsDispatching) {
       return;
     }
+    _invalidateCallPoll();
     final pending = [
       for (final row in state.deskRows)
         if (row.status == CollectionsDeskRowStatus.pending &&
@@ -1542,6 +1674,11 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (state.phase != ClosingAgentPhase.ritualDesk) {
       return;
     }
+    if (state.callBatchTrigger == CallBatchTrigger.creditLimit) {
+      return;
+    }
+    _invalidateCallPoll();
+    state = state.copyWith(pendingSendAfterCall: false);
     final result = state.ritualResult;
     if (result == null) {
       return;
@@ -1554,23 +1691,6 @@ class ClosingAgentController extends _$ClosingAgentController {
           row,
     ];
     state = state.copyWith(deskRows: rows);
-    if (state.callBatchTrigger == CallBatchTrigger.creditLimit) {
-      state = state.copyWith(
-        phase: ClosingAgentPhase.idle,
-        ritualResult: null,
-        ritualPromptKind: null,
-        deskBusyContactId: null,
-        collectionsDispatching: false,
-        collectionsBatchId: null,
-        callConsented: false,
-        sendConsented: false,
-        callProgress: null,
-        callBatchTrigger: CallBatchTrigger.closeDay,
-        sendOutreachEnabled: false,
-        actionFailure: null,
-      );
-      return;
-    }
     final metrics = CollectionsQueueMetrics.fromRows(rows);
     _showRitualReport(result.withQueueMetrics(metrics));
     await _completePersistedQueue();
@@ -1636,6 +1756,39 @@ class ClosingAgentController extends _$ClosingAgentController {
     );
   }
 
+  /// Opens the credit-limit desk and immediately runs Confirm & Call (one HITL).
+  Future<void> startCreditLimitCallSession(String contactId) async {
+    await openCreditLimitDesk(contactId);
+    if (state.phase != ClosingAgentPhase.ritualDesk ||
+        state.callBatchTrigger != CallBatchTrigger.creditLimit) {
+      return;
+    }
+    await confirmAndCall();
+  }
+
+  /// Merchant taps Done on the credit-limit session summary — clears session.
+  Future<void> dismissCreditLimitSession() async {
+    if (state.callBatchTrigger != CallBatchTrigger.creditLimit) {
+      return;
+    }
+    _invalidateCallPoll();
+    state = state.copyWith(
+      phase: ClosingAgentPhase.idle,
+      ritualResult: null,
+      ritualPromptKind: null,
+      deskRows: const [],
+      deskBusyContactId: null,
+      collectionsDispatching: false,
+      collectionsBatchId: null,
+      callConsented: false,
+      sendConsented: false,
+      callProgress: null,
+      callBatchTrigger: CallBatchTrigger.closeDay,
+      sendOutreachEnabled: false,
+      actionFailure: null,
+    );
+  }
+
   /// Clears a pending B-trigger prompt after the sheet is handled.
   void clearCreditLimitPrompt() {
     if (state.pendingCreditLimitPromptContactId == null) {
@@ -1658,6 +1811,19 @@ class ClosingAgentController extends _$ClosingAgentController {
     final level =
         result.getRight().toNullable() ?? CreditWarningLevel.none;
     if (level != CreditWarningLevel.exceeded) {
+      return;
+    }
+    final contactResult = await ref.read(contactByIdProvider(trimmed).future);
+    final contact = contactResult.fold((_) => null, (c) => c);
+    if (contact == null) {
+      return;
+    }
+    final policy = ref.read(calleDevicePolicyProvider);
+    if (!J10RegionGate.isSupportedContactPhone(
+      phoneRaw: contact.phone,
+      allowlistRegion: policy.allowlistRegion,
+      doNotCall: contact.doNotCall,
+    )) {
       return;
     }
     state = state.copyWith(pendingCreditLimitPromptContactId: trimmed);

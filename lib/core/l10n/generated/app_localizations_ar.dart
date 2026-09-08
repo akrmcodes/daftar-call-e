@@ -970,6 +970,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get creditLimitCallSheetLimit => 'حد الائتمان';
 
   @override
+  String get creditLimitCallSessionTitle => 'مكالمة الحد الائتماني';
+
+  @override
+  String get creditLimitCallSessionInProgress => 'المكالمة قيد التنفيذ';
+
+  @override
+  String get creditLimitCallSessionPreparing => 'جاري إعداد المكالمة…';
+
+  @override
+  String get creditLimitCallSessionSummaryTitle => 'ملخص المكالمة';
+
+  @override
+  String get creditLimitCallSessionDone => 'تم';
+
+  @override
+  String get creditLimitCallSessionViewCall => 'عرض المكالمة';
+
+  @override
+  String get creditLimitCallSessionResumeChip => 'مكالمة قيد التنفيذ';
+
+  @override
+  String creditLimitCallSessionRunId(String id) {
+    return 'تشغيل · $id';
+  }
+
+  @override
   String get collectionsDeskCreditLimitSubtitle =>
       'تجاوز الحد الائتماني — أكّد التواصل لهذا الحساب.';
 
@@ -3858,11 +3884,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskConfirmWithoutCalling => 'تأكيد دون اتصال';
 
   @override
+  String get collectionsDeskWithoutCalling => 'دون اتصال';
+
+  @override
+  String get collectionsDeskWithoutSending => 'دون إرسال';
+
+  @override
+  String collectionsDeskRailChipVoiceCalls(int count) {
+    return 'مكالمات · $count';
+  }
+
+  @override
+  String collectionsDeskRailChipEmail(int count) {
+    return 'بريد · $count';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
+    return 'تأكيد التواصل — $callCount مكالمات + $emailCount رسائل';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(int count) {
+    return 'بدء المكالمات فقط — $count';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(int count) {
+    return 'إرسال البريد فقط — $count';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'تخطي التواصل وإغلاق اليوم';
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
 
   @override
   String get collectionsDeskPromiseNotPaymentSubtitle =>
       'يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.';
+
+  @override
+  String contactPendingPromiseBody(String amount, String date) {
+    return 'وعد بـ $amount في $date';
+  }
+
+  @override
+  String contactPendingPromiseSemantics(String amount, String date) {
+    return 'وعد معلّق: $amount في $date';
+  }
 
   @override
   String get collectionsDeskCallPreviewTitle => 'ما سيقوله CALL-E';

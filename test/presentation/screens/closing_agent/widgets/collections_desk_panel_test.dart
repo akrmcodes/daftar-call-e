@@ -61,8 +61,7 @@ void main() {
       queueIndex: queueIndex,
       queueTotal: queueTotal,
       queueContactName: queueContactName,
-      onConfirmAndCall: () {},
-      onConfirmWithoutCalling: () {},
+      onCommitOutreach: ({required call, required send}) {},
       onSkip: (_) {},
       onCopy: (_) {},
       onOpen: (_) {},
@@ -103,8 +102,11 @@ void main() {
     );
 
     expect(find.byType(CollectionsDeskRowCard), findsNWidgets(5));
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
-    expect(find.text('Confirm & Call'), findsOneWidget);
+    expect(
+      find.text('Confirm outreach — 1 calls + 5 emails'),
+      findsOneWidget,
+    );
+    expect(find.text('Voice calls · 1'), findsOneWidget);
     expect(find.text('Dispatch collection emails'), findsNothing);
     expect(find.text('Open collections desk'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
@@ -211,7 +213,10 @@ void main() {
     expect(find.text('Sending 1 of 2'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
     expect(find.text('Pause'), findsNothing);
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+    expect(
+      find.text('Confirm outreach — 1 calls + 2 emails'),
+      findsOneWidget,
+    );
     expect(find.text('Skip outreach'), findsNothing);
   });
 
@@ -322,7 +327,10 @@ void main() {
     );
 
     expect(find.text('Retry sending'), findsOneWidget);
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+    expect(
+      find.text('Confirm outreach — 1 calls + 2 emails'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Retry sending'));
     await tester.pump();
     expect(retryCount, 1);

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:daftar/app/router/app_router.dart';
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
@@ -19,6 +20,7 @@ import 'package:daftar/domain/entities/item_suggestion.dart';
 import 'package:daftar/domain/entities/transaction.dart';
 import 'package:daftar/domain/enums/transaction_type.dart';
 import 'package:daftar/domain/value_objects/currency_precision.dart';
+import 'package:daftar/presentation/providers/contact_providers.dart';
 import 'package:daftar/presentation/providers/core_providers.dart';
 import 'package:daftar/presentation/providers/transaction_providers.dart';
 import 'package:daftar/presentation/screens/contact/credit_limit_b_trigger.dart';
@@ -295,6 +297,9 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
         unawaited(HapticService.transactionSaved());
         final messenger = ScaffoldMessenger.of(context);
         final isDark = context.theme.brightness == Brightness.dark;
+        final overlayContext =
+            rootNavigatorKey.currentContext ??
+            Navigator.of(context, rootNavigator: true).context;
 
         Navigator.of(context).pop();
 
@@ -309,13 +314,33 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
         } else if (saveResult.warningLevel == CreditWarningLevel.exceeded &&
             _type == TransactionType.debt) {
           unawaited(
-            CreditLimitBTrigger.offerAfterDebtSave(
-              context: context,
-              ref: ref,
-              contactId: widget.contactId,
-              type: _type,
-              warningLevel: saveResult.warningLevel,
-            ),
+            () async {
+              final shown = await CreditLimitBTrigger.offerAfterDebtSave(
+                context: overlayContext,
+                ref: ref,
+                contactId: widget.contactId,
+                type: _type,
+                warningLevel: saveResult.warningLevel,
+              );
+              if (shown) {
+                return;
+              }
+              final contact = await ref
+                  .read(contactByIdProvider(widget.contactId).future)
+                  .then((result) => result.fold((_) => null, (c) => c));
+              final policy = ref.read(calleDevicePolicyProvider);
+              if (contact == null ||
+                  CreditLimitBTrigger.isCallPromptEligible(contact, policy)) {
+                return;
+              }
+              _showCreditLimitSnackBar(
+                messenger: messenger,
+                message: l10n.creditLimitExceeded,
+                accentColor: isDark ? AppColors.debt : AppColors.debtLight,
+                icon: Icons.error_outline_rounded,
+                isDark: isDark,
+              );
+            }(),
           );
         }
       },

@@ -1,3 +1,4 @@
+import 'package:daftar/domain/constants/promised_calendar_day.dart';
 import 'package:daftar/domain/enums/call_batch_status.dart';
 import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/call_run_outcome.dart';
@@ -58,6 +59,7 @@ class CollectionCallTerminalWrite extends Equatable {
     this.acknowledgedHold,
     this.evidenceQuote,
     this.amountInvalid = false,
+    this.dateInvalid = false,
   });
 
   final String runId;
@@ -71,17 +73,22 @@ class CollectionCallTerminalWrite extends Equatable {
   final bool? acknowledgedHold;
   final String? evidenceQuote;
   final bool amountInvalid;
+  final bool dateInvalid;
 
   /// Promise card only when outcome is promised, amount is a valid int, and
   /// date is a calendar day.
   bool get shouldUpsertPromise {
-    if (outcome != CallRunOutcome.promised || amountInvalid) {
+    if (outcome != CallRunOutcome.promised ||
+        amountInvalid ||
+        dateInvalid) {
       return false;
     }
     final amount = promisedAmountMinor;
     final date = promisedDate?.trim() ?? '';
     final currency = promisedCurrency?.trim() ?? '';
-    return amount != null && date.isNotEmpty && currency.isNotEmpty;
+    return amount != null &&
+        PromisedCalendarDay.isValid(date) &&
+        currency.isNotEmpty;
   }
 
   @override
@@ -97,5 +104,6 @@ class CollectionCallTerminalWrite extends Equatable {
         acknowledgedHold,
         evidenceQuote,
         amountInvalid,
+        dateInvalid,
       ];
 }

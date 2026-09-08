@@ -40,6 +40,7 @@ import 'package:daftar/presentation/screens/closing_agent/widgets/closing_agent_
 import 'package:daftar/presentation/screens/closing_agent/widgets/closing_agent_working_studio.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/closing_ritual_panel.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_panel.dart';
+import 'package:daftar/presentation/screens/closing_agent/widgets/credit_limit_call_session.dart';
 import 'package:daftar/presentation/screens/contact/credit_limit_b_trigger.dart';
 import 'package:daftar/presentation/shared/animations/fade_slide_transition.dart';
 import 'package:daftar/presentation/shared/widgets/app_bottom_sheet.dart';
@@ -242,7 +243,11 @@ class _ClosingAgentScreenState extends ConsumerState<ClosingAgentScreen>
         ? 1.0
         : 0.35;
 
-    final glowActive = agentState.phase == ClosingAgentPhase.running;
+    final glowActive =
+        agentState.phase == ClosingAgentPhase.running ||
+        (agentState.isCreditLimitCallSessionActive &&
+            agentState.callConsented &&
+            !agentState.creditLimitCallSessionTerminal);
 
     return Scaffold(
       backgroundColor: surface,
@@ -370,22 +375,26 @@ class _ClosingAgentScreenState extends ConsumerState<ClosingAgentScreen>
                   ),
                 SafeArea(
                   top: false,
-                  child: ClosingAgentComposer(
-                    controller: _composerController,
-                    isRunning:
-                        agentState.phase == ClosingAgentPhase.running ||
-                        agentState.phase == ClosingAgentPhase.ritualRunning,
-                    isRecording: _mic.isRecording,
-                    amplitudeStream: _mic.isRecording
-                        ? _mic.amplitudeStream()
-                        : null,
-                    sendIsPrimary: !agentState.ownsPrimaryGlow,
-                    onSubmit: _submit,
-                    onMicTap: _onMicTap,
-                    onMicHoldStart: () => unawaited(_onMicHoldStart()),
-                    onMicHoldEnd: () => unawaited(_onMicHoldEnd()),
-                    onMicHoldCancel: () => unawaited(_onMicHoldCancel()),
-                  ),
+                  child: agentState.isCreditLimitCallSessionActive
+                      ? const SizedBox.shrink()
+                      : ClosingAgentComposer(
+                          controller: _composerController,
+                          isRunning:
+                              agentState.phase == ClosingAgentPhase.running ||
+                              agentState.phase ==
+                                  ClosingAgentPhase.ritualRunning,
+                          isRecording: _mic.isRecording,
+                          amplitudeStream: _mic.isRecording
+                              ? _mic.amplitudeStream()
+                              : null,
+                          sendIsPrimary: !agentState.ownsPrimaryGlow,
+                          onSubmit: _submit,
+                          onMicTap: _onMicTap,
+                          onMicHoldStart: () => unawaited(_onMicHoldStart()),
+                          onMicHoldEnd: () => unawaited(_onMicHoldEnd()),
+                          onMicHoldCancel: () =>
+                              unawaited(_onMicHoldCancel()),
+                        ),
                 ),
               ],
             ),
@@ -547,6 +556,9 @@ class _AgentBody extends ConsumerWidget {
 
     if (agentState.phase == ClosingAgentPhase.ritualDesk) {
       final notifier = ref.read(closingAgentControllerProvider.notifier);
+      if (agentState.callBatchTrigger == CallBatchTrigger.creditLimit) {
+        return CreditLimitCallSession(paddingBottom: paddingBottom);
+      }
       // Dedicated Collections Desk after aging — not compact taskmaster chrome.
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -574,9 +586,9 @@ class _AgentBody extends ConsumerWidget {
               queueTotal: agentState.deskRows.length,
               queueContactName:
                   agentState.firstPendingDeskRow?.candidate.name ?? '',
-              onConfirmAndCall: () => unawaited(notifier.confirmAndCall()),
-              onConfirmWithoutCalling: () =>
-                  unawaited(notifier.confirmWithoutCalling()),
+              onCommitOutreach: ({required call, required send}) {
+                unawaited(notifier.commitDeskOutreach(call: call, send: send));
+              },
               onSkip: (contactId) {
                 unawaited(notifier.skipDeskRow(contactId));
               },

@@ -1,4 +1,5 @@
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/entities/collection_promise.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -11,4 +12,7 @@ abstract class CollectionCallRepository {
   Future<Either<Failure, Unit>> persistTerminalWrite(
     CollectionCallTerminalWrite write,
   );
+
+  /// Live pending promises for one contact, newest first.
+  Stream<List<CollectionPromise>> watchPendingByContact(String contactId);
 }
