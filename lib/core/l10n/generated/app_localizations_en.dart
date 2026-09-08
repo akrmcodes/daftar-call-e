@@ -3925,6 +3925,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskWithoutSending => 'Without sending';
 
   @override
+  String collectionsDeskRailChipVoiceCalls(int count) {
+    return 'Voice calls · $count';
+  }
+
+  @override
+  String collectionsDeskRailChipEmail(int count) {
+    return 'Email · $count';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
+    return 'Confirm outreach — $callCount calls + $emailCount emails';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(int count) {
+    return 'Start calls only — $count';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(int count) {
+    return 'Send email only — $count';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'Skip outreach and seal the day';
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
 
   @override

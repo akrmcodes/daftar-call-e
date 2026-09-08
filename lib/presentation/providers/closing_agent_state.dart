@@ -119,6 +119,7 @@ abstract class ClosingAgentState with _$ClosingAgentState {
     @Default(false) bool callConsented,
     @Default(false) bool sendConsented,
     @Default(false) bool sendOutreachEnabled,
+    @Default(false) bool pendingSendAfterCall,
     CollectionsCallProgress? callProgress,
     String? speechLocaleOverride,
     @Default(CallBatchTrigger.closeDay) CallBatchTrigger callBatchTrigger,

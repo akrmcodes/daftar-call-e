@@ -1358,6 +1358,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (_pollEpochMatches(pollEpoch)) {
       state = state.copyWith(actionFailure: _callePollTimeout);
     }
+    await _maybeDispatchPendingSendAfterCall();
   }
 
   bool _pollEpochMatches(int pollEpoch) => pollEpoch == _callPollEpoch;
@@ -1436,6 +1437,7 @@ class ClosingAgentController extends _$ClosingAgentController {
         ],
       ),
     );
+    unawaited(_maybeDispatchPendingSendAfterCall());
   }
 
   /// Skip the call rail; email outreach remains available.
@@ -1444,7 +1446,60 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
     _invalidateCallPoll();
-    state = state.copyWith(callConsented: false, callProgress: null);
+    state = state.copyWith(
+      callConsented: false,
+      callProgress: null,
+      pendingSendAfterCall: false,
+    );
+  }
+
+  /// Commits desk outreach from chip selection + dynamic CTA.
+  Future<void> commitDeskOutreach({
+    required bool call,
+    required bool send,
+  }) async {
+    if (state.phase != ClosingAgentPhase.ritualDesk) {
+      return;
+    }
+
+    if (!call && !send) {
+      state = state.copyWith(pendingSendAfterCall: false);
+      await finishDesk();
+      return;
+    }
+
+    if (call && send) {
+      state = state.copyWith(pendingSendAfterCall: true);
+      await confirmAndCall();
+      await _maybeDispatchPendingSendAfterCall();
+      return;
+    }
+
+    state = state.copyWith(pendingSendAfterCall: false);
+
+    if (call) {
+      await confirmAndCall();
+      return;
+    }
+
+    await confirmWithoutCalling();
+    await approveAndSend();
+  }
+
+  Future<void> _maybeDispatchPendingSendAfterCall() async {
+    if (!state.pendingSendAfterCall) {
+      return;
+    }
+    final progress = state.callProgress;
+    final callsTerminal = progress == null || progress.isTerminal;
+    if (!callsTerminal) {
+      return;
+    }
+    state = state.copyWith(pendingSendAfterCall: false);
+    if (!state.sendOutreachEnabled || state.deskEmailCount <= 0) {
+      return;
+    }
+    await approveAndSend();
   }
 
   static bool _isEmailDispatchRow(CollectionsDeskRow row) {
@@ -1623,6 +1678,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
     _invalidateCallPoll();
+    state = state.copyWith(pendingSendAfterCall: false);
     final result = state.ritualResult;
     if (result == null) {
       return;

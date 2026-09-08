@@ -586,9 +586,9 @@ class _AgentBody extends ConsumerWidget {
               queueTotal: agentState.deskRows.length,
               queueContactName:
                   agentState.firstPendingDeskRow?.candidate.name ?? '',
-              onConfirmAndCall: () => unawaited(notifier.confirmAndCall()),
-              onConfirmWithoutCalling: () =>
-                  unawaited(notifier.confirmWithoutCalling()),
+              onCommitOutreach: ({required bool call, required bool send}) {
+                unawaited(notifier.commitDeskOutreach(call: call, send: send));
+              },
               onSkip: (contactId) {
                 unawaited(notifier.skipDeskRow(contactId));
               },

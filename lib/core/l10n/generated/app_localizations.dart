@@ -6952,6 +6952,42 @@ abstract class AppLocalizations {
   /// **'دون إرسال'**
   String get collectionsDeskWithoutSending;
 
+  /// No description provided for @collectionsDeskRailChipVoiceCalls.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكالمات · {count}'**
+  String collectionsDeskRailChipVoiceCalls(int count);
+
+  /// No description provided for @collectionsDeskRailChipEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'بريد · {count}'**
+  String collectionsDeskRailChipEmail(int count);
+
+  /// No description provided for @collectionsDeskCommitOutreachBoth.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد التواصل — {callCount} مكالمات + {emailCount} رسائل'**
+  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount);
+
+  /// No description provided for @collectionsDeskCommitCallsOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدء المكالمات فقط — {count}'**
+  String collectionsDeskCommitCallsOnly(int count);
+
+  /// No description provided for @collectionsDeskCommitEmailOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال البريد فقط — {count}'**
+  String collectionsDeskCommitEmailOnly(int count);
+
+  /// No description provided for @collectionsDeskCommitSeal.
+  ///
+  /// In ar, this message translates to:
+  /// **'تخطي التواصل وإغلاق اليوم'**
+  String get collectionsDeskCommitSeal;
+
   /// No description provided for @collectionsDeskPromiseNotPayment.
   ///
   /// In ar, this message translates to:

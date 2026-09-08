@@ -4923,3 +4923,29 @@ Same four callbacks and single lapis glow moment. Dedicated desk preserved — n
 ### Status
 Review-first Collections Desk UX. Dispatch semantics unchanged.
 
+## 2026-09-08 — Collections Desk: rail chips + dynamic CTA
+
+### Context
+Four-button consent dock still crowded decision-making. Merchant requested two toggle chips (voice / email) and one dynamic primary whose label declares the exact outreach commit before dispatch.
+
+### Done
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_rail_chip.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_rail_chip.dart): Khazna filter-chip rail toggle (check scale, lapis hairline, `glowXs`, 48dp tap)
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): StatefulWidget — two chips + `AnimatedSwitcher` CTA; four commit modes (both / call / email / seal)
+- [`lib/presentation/providers/closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart): `commitDeskOutreach`; `pendingSendAfterCall` queues `approveAndSend` after call poll terminal
+- [`lib/presentation/providers/closing_agent_state.dart`](lib/presentation/providers/closing_agent_state.dart): `pendingSendAfterCall` flag
+- [`lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart`](lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart) / [`closing_agent_screen.dart`](lib/presentation/screens/closing_agent/closing_agent_screen.dart): `onCommitOutreach` wiring; header rail counts removed (chips carry counts)
+- [`lib/core/l10n/app_en.arb`](lib/core/l10n/app_en.arb) / [`app_ar.arb`](lib/core/l10n/app_ar.arb): chip labels + four CTA strings with int placeholders
+- Tests: [`collections_desk_consent_test.dart`](test/presentation/screens/closing_agent/widgets/collections_desk_consent_test.dart), [`collections_desk_panel_test.dart`](test/presentation/screens/closing_agent/widgets/collections_desk_panel_test.dart), controller `commitDeskOutreach both queues approveAndSend`
+
+### Architecture / decisions
+HITL preserved: chips are the four-way decision; CTA **names** counts before dial/SMTP. Dual-rail one-tap sets `pendingSendAfterCall` — SMTP only after terminal call rows (declared in label). Call-only commit does not auto-send. Hybrid E leftover chrome unchanged.
+
+### Ops / verification
+- `flutter gen-l10n`; `dart run build_runner build --delete-conflicting-outputs`
+- `flutter test` consent + panel widgets — 18/18 pass
+- Controller `commitDeskOutreach both queues approveAndSend after call terminal`
+- Phone: **hot restart** (`R`); Close the day → chips + one button, drafts readable
+
+### Status
+Collections Desk consent UX v2 shipped. Stage 5 / live dial unchanged.
+

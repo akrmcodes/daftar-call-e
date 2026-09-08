@@ -63,34 +63,83 @@ void main() {
     );
   }
 
-  testWidgets('consent card shows dual CTAs without promise banner', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: CollectionsDeskConsentCard(
-            callCount: 1,
-            emailCount: 2,
-            callConsented: false,
-            sendOutreachEnabled: true,
-            busy: false,
-            isDispatching: false,
-            onConfirmAndCall: () {},
-            onConfirmAndSend: () {},
-            onConfirmWithoutCalling: () {},
-            onConfirmWithoutSending: () {},
-          ),
+  Widget consentHost({
+    required int callCount,
+    required int emailCount,
+    bool callConsented = false,
+    bool sendOutreachEnabled = true,
+    CollectionsCallProgress? callProgress,
+    void Function({required bool call, required bool send})? onCommit,
+  }) {
+    return MaterialApp(
+      locale: const Locale('en'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: CollectionsDeskConsentCard(
+          callCount: callCount,
+          emailCount: emailCount,
+          callConsented: callConsented,
+          sendOutreachEnabled: sendOutreachEnabled,
+          busy: false,
+          isDispatching: false,
+          callProgress: callProgress,
+          onCommit: onCommit ?? ({required bool call, required bool send}) {},
         ),
       ),
     );
+  }
 
-    expect(find.text('Confirm & Call'), findsOneWidget);
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
-    expect(find.text('Without calling'), findsOneWidget);
-    expect(find.text('Without sending'), findsOneWidget);
+  testWidgets('default both-on shows dual-rail commit CTA', (tester) async {
+    await tester.pumpWidget(consentHost(callCount: 2, emailCount: 5));
+
+    expect(find.text('Voice calls · 2'), findsOneWidget);
+    expect(find.text('Email · 5'), findsOneWidget);
+    expect(
+      find.text('Confirm outreach — 2 calls + 5 emails'),
+      findsOneWidget,
+    );
     expect(find.text('A promise is not a payment'), findsNothing);
+  });
+
+  testWidgets('toggle call off shows email-only CTA', (tester) async {
+    await tester.pumpWidget(consentHost(callCount: 1, emailCount: 3));
+    await tester.tap(find.text('Voice calls · 1'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Send email only — 3'), findsOneWidget);
+  });
+
+  testWidgets('both off shows seal CTA', (tester) async {
+    await tester.pumpWidget(consentHost(callCount: 1, emailCount: 2));
+    await tester.tap(find.text('Voice calls · 1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Email · 2'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Skip outreach and seal the day'), findsOneWidget);
+  });
+
+  testWidgets('commit passes chip selection', (tester) async {
+    bool? committedCall;
+    bool? committedSend;
+    await tester.pumpWidget(
+      consentHost(
+        callCount: 1,
+        emailCount: 2,
+        onCommit: ({required bool call, required bool send}) {
+          committedCall = call;
+          committedSend = send;
+        },
+      ),
+    );
+    await tester.tap(find.text('Voice calls · 1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Send email only — 2'));
+    await tester.pumpAndSettle();
+
+    expect(committedCall, isFalse);
+    expect(committedSend, isTrue);
   });
 
   testWidgets('YE row shows Cant call badge', (tester) async {
@@ -144,39 +193,35 @@ void main() {
   testWidgets('progress shows Calling 1 of 3 from results', (tester) async {
     const progress = CollectionsCallProgress(
       results: [
-        CollectionsCallProgressRow(contactId: 'a', status: CollectionsCallRowStatus.planned),
-        CollectionsCallProgressRow(contactId: 'b', status: CollectionsCallRowStatus.planned),
-        CollectionsCallProgressRow(contactId: 'c', status: CollectionsCallRowStatus.completed),
+        CollectionsCallProgressRow(
+          contactId: 'a',
+          status: CollectionsCallRowStatus.planned,
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'b',
+          status: CollectionsCallRowStatus.planned,
+        ),
+        CollectionsCallProgressRow(
+          contactId: 'c',
+          status: CollectionsCallRowStatus.completed,
+        ),
       ],
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: CollectionsDeskConsentCard(
-            callCount: 3,
-            emailCount: 0,
-            callConsented: true,
-            sendOutreachEnabled: false,
-            busy: false,
-            isDispatching: false,
-            callProgress: progress,
-            onConfirmAndCall: () {},
-            onConfirmAndSend: () {},
-            onConfirmWithoutCalling: () {},
-            onConfirmWithoutSending: () {},
-          ),
-        ),
+      consentHost(
+        callCount: 3,
+        emailCount: 0,
+        callConsented: true,
+        sendOutreachEnabled: false,
+        callProgress: progress,
       ),
     );
 
     expect(find.text('Calling 1 of 3'), findsOneWidget);
   });
 
-  testWidgets('SMTP desk shows Confirm and Send on consent card', (tester) async {
+  testWidgets('SMTP desk shows chip commit dock', (tester) async {
     tester.view
       ..physicalSize = const Size(400, 4000)
       ..devicePixelRatio = 1;
@@ -197,8 +242,7 @@ void main() {
             sendOutreachEnabled: true,
             startSendingIsPrimary: true,
             busyContactId: null,
-            onConfirmAndCall: () {},
-            onConfirmWithoutCalling: () {},
+            onCommitOutreach: ({required bool call, required bool send}) {},
             onSkip: (_) {},
             onCopy: (_) {},
             onOpen: (_) {},
@@ -212,11 +256,14 @@ void main() {
       ),
     );
 
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+    expect(
+      find.text('Confirm outreach — 1 calls + 2 emails'),
+      findsOneWidget,
+    );
     expect(find.text('Open WhatsApp'), findsNothing);
   });
 
-  testWidgets('RTL smoke shows Arabic consent labels', (tester) async {
+  testWidgets('RTL smoke shows Arabic chip and CTA labels', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('ar'),
@@ -230,73 +277,42 @@ void main() {
             sendOutreachEnabled: true,
             busy: false,
             isDispatching: false,
-            onConfirmAndCall: () {},
-            onConfirmAndSend: () {},
-            onConfirmWithoutCalling: () {},
-            onConfirmWithoutSending: () {},
+            onCommit: ({required bool call, required bool send}) {},
           ),
         ),
       ),
     );
 
-    expect(find.text('تأكيد والاتصال'), findsOneWidget);
-    expect(find.text('دون اتصال'), findsOneWidget);
+    expect(find.text('مكالمات · 1'), findsOneWidget);
+    expect(find.textContaining('تأكيد التواصل'), findsOneWidget);
   });
 
-  testWidgets('YE-only desk hides Confirm and Call', (tester) async {
+  testWidgets('YE-only desk hides call chip', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: CollectionsDeskConsentCard(
-            callCount: 0,
-            emailCount: 2,
-            callConsented: false,
-            sendOutreachEnabled: true,
-            busy: false,
-            isDispatching: false,
-            onConfirmAndCall: () {},
-            onConfirmAndSend: () {},
-            onConfirmWithoutCalling: () {},
-            onConfirmWithoutSending: () {},
-          ),
-        ),
+      consentHost(
+        callCount: 0,
+        emailCount: 2,
       ),
     );
 
-    expect(find.text('Confirm & Call'), findsNothing);
-    expect(find.text('Without calling'), findsNothing);
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+    expect(find.text('Voice calls · 0'), findsNothing);
+    expect(find.text('Email · 2'), findsOneWidget);
+    expect(find.text('Send email only — 2'), findsOneWidget);
   });
 
-  testWidgets('Confirm and Send remains visible after call consented', (
+  testWidgets('after call consented email chip remains for follow-up send', (
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: CollectionsDeskConsentCard(
-            callCount: 1,
-            emailCount: 2,
-            callConsented: true,
-            sendOutreachEnabled: true,
-            busy: false,
-            isDispatching: false,
-            onConfirmAndCall: () {},
-            onConfirmAndSend: () {},
-            onConfirmWithoutCalling: () {},
-            onConfirmWithoutSending: () {},
-          ),
-        ),
+      consentHost(
+        callCount: 1,
+        emailCount: 2,
+        callConsented: true,
       ),
     );
 
-    expect(find.text('Confirm & Call'), findsNothing);
-    expect(find.text('Confirm & Send Statements'), findsOneWidget);
+    expect(find.text('Voice calls · 1'), findsNothing);
+    expect(find.text('Email · 2'), findsOneWidget);
+    expect(find.text('Send email only — 2'), findsOneWidget);
   });
 }

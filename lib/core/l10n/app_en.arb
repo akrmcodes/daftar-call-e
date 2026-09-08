@@ -1766,6 +1766,38 @@
   "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
   "collectionsDeskWithoutCalling": "Without calling",
   "collectionsDeskWithoutSending": "Without sending",
+  "collectionsDeskRailChipVoiceCalls": "Voice calls · {count}",
+  "@collectionsDeskRailChipVoiceCalls": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailChipEmail": "Email · {count}",
+  "@collectionsDeskRailChipEmail": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskCommitOutreachBoth": "Confirm outreach — {callCount} calls + {emailCount} emails",
+  "@collectionsDeskCommitOutreachBoth": {
+    "placeholders": {
+      "callCount": { "type": "int", "example": "2" },
+      "emailCount": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskCommitCallsOnly": "Start calls only — {count}",
+  "@collectionsDeskCommitCallsOnly": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskCommitEmailOnly": "Send email only — {count}",
+  "@collectionsDeskCommitEmailOnly": {
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+  "collectionsDeskCommitSeal": "Skip outreach and seal the day",
   "collectionsDeskPromiseNotPayment": "A promise is not a payment",
   "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
   "contactPendingPromiseBody": "Promised {amount} on {date}",

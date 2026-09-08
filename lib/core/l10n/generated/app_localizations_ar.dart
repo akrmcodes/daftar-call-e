@@ -3890,6 +3890,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskWithoutSending => 'دون إرسال';
 
   @override
+  String collectionsDeskRailChipVoiceCalls(int count) {
+    return 'مكالمات · $count';
+  }
+
+  @override
+  String collectionsDeskRailChipEmail(int count) {
+    return 'بريد · $count';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
+    return 'تأكيد التواصل — $callCount مكالمات + $emailCount رسائل';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(int count) {
+    return 'بدء المكالمات فقط — $count';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(int count) {
+    return 'إرسال البريد فقط — $count';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'تخطي التواصل وإغلاق اليوم';
+
+  @override
   String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
 
   @override

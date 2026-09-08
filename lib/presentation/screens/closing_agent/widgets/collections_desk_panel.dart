@@ -32,8 +32,7 @@ class CollectionsDeskPanel extends StatelessWidget {
     required this.emailCount,
     required this.callConsented,
     required this.sendOutreachEnabled,
-    required this.onConfirmAndCall,
-    required this.onConfirmWithoutCalling,
+    required this.onCommitOutreach,
     this.isDispatching = false,
     this.isQueueInFlight = false,
     this.isQueuePaused = false,
@@ -72,11 +71,8 @@ class CollectionsDeskPanel extends StatelessWidget {
   /// Plan chose Confirm & Send (SMTP path available).
   final bool sendOutreachEnabled;
 
-  /// Local call consent.
-  final VoidCallback onConfirmAndCall;
-
-  /// Skip call rail.
-  final VoidCallback onConfirmWithoutCalling;
+  /// Commits chip-selected outreach (call / send / seal).
+  final void Function({required bool call, required bool send}) onCommitOutreach;
 
   /// Seeded call progress after Confirm & Call.
   final CollectionsCallProgress? callProgress;
@@ -158,14 +154,6 @@ class CollectionsDeskPanel extends StatelessWidget {
       (row) => row.status == CollectionsDeskRowStatus.pending,
     );
     final busy = busyContactId != null;
-    final railMetaParts = <String>[];
-    if (callCount > 0) {
-      railMetaParts.add(l10n.collectionsDeskCallCount(callCount));
-    }
-    if (emailCount > 0) {
-      railMetaParts.add(l10n.collectionsDeskEmailCount(emailCount));
-    }
-    final railMeta = railMetaParts.isEmpty ? null : railMetaParts.join(' · ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,16 +180,6 @@ class CollectionsDeskPanel extends StatelessWidget {
                 l10n.collectionsDeskCount(rows.length),
                 style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
               ),
-              if (railMeta != null) ...[
-                const Gap(AppDimensions.spacingXxs),
-                Text(
-                  railMeta,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: inkSecondary,
-                    height: 1.35,
-                  ),
-                ),
-              ],
               if (deskSubtitle != null && deskSubtitle!.trim().isNotEmpty) ...[
                 const Gap(AppDimensions.spacingXxs),
                 Text(
@@ -257,10 +235,7 @@ class CollectionsDeskPanel extends StatelessWidget {
               busy: busy,
               isDispatching: isDispatching,
               callProgress: callProgress,
-              onConfirmAndCall: onConfirmAndCall,
-              onConfirmAndSend: onApproveAndSend,
-              onConfirmWithoutCalling: onConfirmWithoutCalling,
-              onConfirmWithoutSending: onDone,
+              onCommit: onCommitOutreach,
             ),
           ),
         if (showHybridELeftover || isDispatching || showRetrySend)
