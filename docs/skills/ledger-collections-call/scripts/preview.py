@@ -12,8 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-# Lockstep with daftar-call-e agent/calls/j10.py (CALL-E GitHub snapshot Sep 2026 + EG).
-# YE is intentionally absent. Do not import Daftar packages from this skill.
+# Lockstep with CALL-E GitHub supported-regions snapshot Sep 2026 plus EG.
+# YE is intentionally absent. Do not import a host ledger package from this skill.
 SUPPORTED_REGIONS: frozenset[str] = frozenset(
     {
         "AE",

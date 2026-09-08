@@ -15,7 +15,7 @@ This skill does not book a payment, post a ledger row, or run a campaign. A huma
 ## When To Use
 
 - One overdue contact the operator already authorized, with E.164, integer `amountMinor`, currency, locale, and region in JSON
-- Preview the CALL-E task and J.9 schema without credentials
+- Preview the CALL-E task and recipient result schema without credentials
 - Refuse Yemen and other unsupported regions **before** `POST /v1/calls`
 - Hand a structured promise to a human, a display-only card, or `kept` capture — not to a cashier
 
@@ -59,14 +59,14 @@ Optional: `storeName` (default `Store`), `promisedDate` (`YYYY-MM-DD` or empty; 
 
 No CALL-E credentials. No network. `scripts/preview.py` never POSTs.
 
-From this repository (daftar-call-e):
+If the skill lives under `docs/skills/` (originating product repo):
 
 ```bash
 python3 docs/skills/ledger-collections-call/scripts/preview.py \
   --request docs/skills/ledger-collections-call/assets/sample-overdue.json
 ```
 
-From an awesome-phone-call-agents clone (after copy):
+If the skill lives under `skills/` (this awesome-list layout):
 
 ```bash
 python3 skills/ledger-collections-call/scripts/preview.py \

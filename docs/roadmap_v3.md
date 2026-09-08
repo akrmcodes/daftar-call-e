@@ -823,14 +823,14 @@ Paste as the Skills list entry, matching existing punctuation (`* slug - sentenc
 
 Never push to `daftar-closing-agent`. Never put the Flutter app in `apps/` or `skills/`.
 
-- [ ] Fork/clone [CALLE-AI/awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents)
-- [ ] `python3 scripts/check_branch_name.py --branch feat/ledger-collections-call`
-- [ ] Copy this repo’s `docs/skills/ledger-collections-call/` byte-identical into the clone’s `skills/ledger-collections-call/`
-- [ ] Add the locked README Skills bullet
-- [ ] `python3 scripts/validate_repository.py` green **on that clone**
+- [x] Fork/clone [CALLE-AI/awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents)
+- [x] `python3 scripts/check_branch_name.py --branch feat/ledger-collections-call`
+- [x] Copy this repo’s `docs/skills/ledger-collections-call/` byte-identical into the clone’s `skills/ledger-collections-call/`
+- [x] Add the locked README Skills bullet
+- [x] `python3 scripts/validate_repository.py` green **on that clone**
 - [ ] PR title: `feat(ledger-collections-call): add HITL integer-promise collections skill`
 - [ ] Fill `.github/pull_request_template.md`; PR body states complementarity with `kept` (skill stops at display-only promise; `kept` owns capture/reconcile)
-- [ ] Fictional `+1555…` only; example emails `@example.com` / `.net` / `.org` only
+- [x] Fictional `+1555…` only; example emails `@example.com` / `.net` / `.org` only
 
 **Forbidden in the PR (maintainer reject list)**
 

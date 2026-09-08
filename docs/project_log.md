@@ -5076,3 +5076,50 @@ Author `ledger-collections-call` in this repo only: HITL outbound collections **
 ### Status
 Source copy ready for review. Next: copy into an awesome-list clone and open `feat/ledger-collections-call` per §5.4 PR mechanics.
 
+## 2026-09-08 — Stage 5.4 awesome-list clone prep (no PR)
+
+### Context
+Owner forked/cloned [awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents) to `/Users/aq/Work/01_Projects/awesome-phone-call-agents`, branch `feat/ledger-collections-call`, `check_branch_name.py` green. This slice copies the skill and README bullet only — no push, no GitHub PR.
+
+### Done
+- Hygiene in source so the clone is merge-ready: [`references/regions.md`](docs/skills/ledger-collections-call/references/regions.md) host-agnostic dual-rail wording; [`references/examples.md`](docs/skills/ledger-collections-call/references/examples.md) both dry-run paths; [`scripts/preview.py`](docs/skills/ledger-collections-call/scripts/preview.py) lockstep comment without a Daftar import path
+- Byte-identical copy into clone `skills/ledger-collections-call/` (no skill `README.md`)
+- Locked Skills one-liner appended to the clone `README.md` after `concord-policy-audit` (`](path/) - ` punctuation; sentence unchanged)
+- Clone verification: dry-run `status: not_called`; `test_preview.py` 5 passed; `python3 scripts/validate_repository.py` → `Repository validation passed.`
+- Roadmap §5.4 clone-prep boxes ticked; **PR title / PR template remain `[ ]`**
+
+### Architecture / decisions
+- Complements `kept`; promise is display-only; `preview.py` still never POSTs
+- Origin on the clone is `akrmcodes/awesome-phone-call-agents` (fork), not `daftar-closing-agent`
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` (source)
+- Clone: preview.py dry-run; `python3 skills/ledger-collections-call/scripts/test_preview.py`; `python3 scripts/validate_repository.py`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; no `git push`; no `gh pr create`; no commit in either repo
+
+### Status
+Clone is ready for owner review, then a local commit + PR. Next: push `feat/ledger-collections-call` and open the awesome-list PR per remaining §5.4 boxes.
+
+## 2026-09-08 — Stage 5.4 clone push (PR open needs GitHub login)
+
+### Context
+Final review of the portable skill, recopy into the awesome-list clone, commit/push the fork, open the CALLE-AI PR. `gh` is not logged in on this machine, so the compare page was opened for the owner.
+
+### Done
+- Source hygiene: layout-based dry-run paths (no `daftar-call-e` label); drop J.9/J.10 and Daftar §5.3 from skill copy; DNC unittest
+- Tests: `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 6 passed
+- Clone recopy byte-identical; `validate_repository.py` green
+- Clone commit `5f77698` `feat(ledger-collections-call): add HITL integer-promise collections skill`
+- Pushed `feat/ledger-collections-call` to `akrmcodes/awesome-phone-call-agents` (fork). Not `daftar-closing-agent`
+
+### Architecture / decisions
+- Skill still complements `kept`; dry-run only; no ledger write
+- `skill-pack` has no upstream tracking — daftar-call-e commit is local only
+
+### Ops / verification
+- Clone: dry-run, 6 tests, `python3 scripts/validate_repository.py`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; daftar-call-e **not** pushed
+
+### Status
+§5.4 PR title / template stay `[ ]` until the upstream PR exists. Owner: submit from the GitHub compare page (browser opened) after `gh auth login` or using the prefilled title.
+

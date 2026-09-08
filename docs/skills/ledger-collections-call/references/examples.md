@@ -8,9 +8,18 @@ Every phone number below is fictional (`+1555…` or a documented YE example use
 
 Intake: `assets/sample-overdue.json` (`+15555550100`, `region: US`, integer `amountMinor`).
 
+If the skill lives under `docs/skills/` (originating product repo):
+
 ```bash
 python3 docs/skills/ledger-collections-call/scripts/preview.py \
   --request docs/skills/ledger-collections-call/assets/sample-overdue.json
+```
+
+If the skill lives under `skills/` (this awesome-list layout):
+
+```bash
+python3 skills/ledger-collections-call/scripts/preview.py \
+  --request skills/ledger-collections-call/assets/sample-overdue.json
 ```
 
 Expected: `status: not_called`, masked phone, printed CALL-E task and schema, derived idempotency key. No network. No `CALLE_API_KEY`.

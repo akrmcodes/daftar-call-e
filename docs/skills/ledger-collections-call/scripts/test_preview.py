@@ -65,6 +65,21 @@ class PreviewDryRunTest(unittest.TestCase):
         self.assertIn("blocker: unsupportedRegion", text)
         self.assertNotIn("Call Alex", text)
 
+    def test_dnc_refused(self) -> None:
+        payload = _sample()
+        payload["doNotCall"] = True
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            json.dump(payload, handle)
+            path = Path(handle.name)
+        try:
+            code, text = preview_file(path, live=False, utc_day="2026-09-08")
+        finally:
+            path.unlink(missing_ok=True)
+        self.assertEqual(code, 0)
+        self.assertIn("status: not_called", text)
+        self.assertIn("blocker: dnc", text)
+        self.assertNotIn("Call Alex", text)
+
     def test_float_amount_refused(self) -> None:
         payload = _sample()
         payload["amountMinor"] = 1500.5
