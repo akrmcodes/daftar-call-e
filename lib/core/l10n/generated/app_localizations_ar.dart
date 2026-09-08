@@ -126,11 +126,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsCalleAllowDialSubtitle =>
-      'مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.';
-
-  @override
-  String get settingsCalleAllowDialStubHint =>
-      'المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.';
+      'بوابة على الجهاز لـ Confirm & Call. يجب تفعيل علم البناء في التطبيق والخادم أيضاً.';
 
   @override
   String architectureHudSemantics(String step) {

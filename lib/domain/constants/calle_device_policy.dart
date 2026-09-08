@@ -54,6 +54,14 @@ class CalleDevicePolicy {
   /// PSTN allowed only when the raw value is the exact lowercase string `true`.
   final bool allowDial;
 
+  /// Effective dial permission: compile-time gate AND persisted merchant toggle.
+  static bool effectiveAllowDial({
+    required bool compiledAllowDial,
+    required bool persistedAllowDial,
+  }) {
+    return compiledAllowDial && persistedAllowDial;
+  }
+
   /// Exact-match E.164 allowlist. Empty means nobody.
   final Set<String> allowlist;
 

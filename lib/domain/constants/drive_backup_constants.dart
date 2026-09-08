@@ -7,7 +7,7 @@ abstract final class DriveBackupConstants {
   static const String appVersionLabel = '0.1.0+1';
 
   /// Drift schema generation / migration version at backup creation time.
-  static const int schemaVersion = 27;
+  static const int schemaVersion = 28;
 
   /// Maximum `.daftar` files retained in Drive `appDataFolder`.
   ///

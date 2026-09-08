@@ -127,11 +127,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCalleAllowDialSubtitle =>
-      'Compiled kill switch for Confirm & Call. Server still enforces the same flag.';
-
-  @override
-  String get settingsCalleAllowDialStubHint =>
-      'Outbound calls are configured at build time until Stage 5. Rebuild with dart-define to change.';
+      'On-device gate for Confirm & Call. The APK build flag and Cloud Run must also be on.';
 
   @override
   String architectureHudSemantics(String step) {

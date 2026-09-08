@@ -217,9 +217,10 @@ class DemoStoreSeeder {
     await (_database.update(
       _database.appSettingsTable,
     )..where((row) => row.id.equals(DbConstants.appSettingsId))).write(
-      const AppSettingsTableCompanion(
-        defaultCurrency: Value(demoCurrencyCode),
-        isMultiCurrencyEnabled: Value(false),
+      AppSettingsTableCompanion(
+        defaultCurrency: const Value(demoCurrencyCode),
+        isMultiCurrencyEnabled: const Value(false),
+        calleAllowDial: Value(kDebugMode),
       ),
     );
   }

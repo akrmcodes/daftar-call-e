@@ -63,6 +63,7 @@ import 'package:daftar/application/merchant/update_merchant_profile_use_case.dar
 import 'package:daftar/application/settings/complete_onboarding_use_case.dart';
 import 'package:daftar/application/settings/mark_agent_fab_tip_seen_use_case.dart';
 import 'package:daftar/application/settings/set_demo_architecture_hud_use_case.dart';
+import 'package:daftar/application/settings/set_calle_allow_dial_use_case.dart';
 import 'package:daftar/application/transaction/add_transaction_use_case.dart';
 import 'package:daftar/application/transaction/delete_transaction_use_case.dart';
 import 'package:daftar/application/transaction/get_all_transactions_for_contact_use_case.dart';
@@ -587,6 +588,12 @@ SetDemoArchitectureHudUseCase setDemoArchitectureHudUseCase(Ref ref) {
   return SetDemoArchitectureHudUseCase(ref.watch(settingsRepositoryProvider));
 }
 
+/// Persists the merchant CALL-E outbound kill switch.
+@Riverpod(keepAlive: true)
+SetCalleAllowDialUseCase setCalleAllowDialUseCase(Ref ref) {
+  return SetCalleAllowDialUseCase(ref.watch(settingsRepositoryProvider));
+}
+
 /// Provides the merchant profile repository.
 @Riverpod(keepAlive: true)
 MerchantProfileRepository merchantProfileRepository(Ref ref) {
@@ -783,7 +790,17 @@ GetCollectionsCandidatesUseCase getCollectionsCandidatesUseCase(Ref ref) {
 /// Compile-time CALL-E kill switch + allowlist (not Envied).
 @Riverpod(keepAlive: true)
 CalleDevicePolicy calleDevicePolicy(Ref ref) {
-  return CalleDevicePolicy.fromCompiled();
+  final compiled = CalleDevicePolicy.fromCompiled();
+  final persisted =
+      ref.watch(appSettingsProvider).asData?.value.calleAllowDial ?? false;
+  return CalleDevicePolicy(
+    allowDial: CalleDevicePolicy.effectiveAllowDial(
+      compiledAllowDial: compiled.allowDial,
+      persistedAllowDial: persisted,
+    ),
+    allowlist: compiled.allowlist,
+    allowlistRegion: compiled.allowlistRegion,
+  );
 }
 
 /// Drift `localDay` snapshot for close-the-day (Appendix J.4).

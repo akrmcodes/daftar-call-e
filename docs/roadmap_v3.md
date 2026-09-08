@@ -745,9 +745,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **5.2 Kill switch UI**
 
-- [ ] Settings GlowPill: **Allow CALL-E outbound** bound to the same flag as `CALLE_ALLOW_DIAL`
-- [ ] Default off in release unless demo seeder / debug
-- [ ] Server still authoritative
+- [x] Settings GlowPill: **Allow CALL-E outbound** bound to the same flag as `CALLE_ALLOW_DIAL`
+- [x] Default off in release unless demo seeder / debug
+- [x] Server still authoritative
 
 **5.3 Promise card polish**
 

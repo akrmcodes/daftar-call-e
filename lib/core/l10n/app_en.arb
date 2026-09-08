@@ -37,8 +37,7 @@
   "settingsDemoArchitectureHud": "Show agent architecture",
   "settingsDemoArchitectureHudSubtitle": "For demos: model, tools, HITL path, and round-trip time. Not a product tour.",
   "settingsCalleAllowDial": "Allow CALL-E outbound",
-  "settingsCalleAllowDialSubtitle": "Compiled kill switch for Confirm & Call. Server still enforces the same flag.",
-  "settingsCalleAllowDialStubHint": "Outbound calls are configured at build time until Stage 5. Rebuild with dart-define to change.",
+  "settingsCalleAllowDialSubtitle": "On-device gate for Confirm & Call. The APK build flag and Cloud Run must also be on.",
   "architectureHudSemantics": "Agent architecture instrument, step {step}",
   "@architectureHudSemantics": {
     "placeholders": {

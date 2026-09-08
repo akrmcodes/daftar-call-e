@@ -323,14 +323,8 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCalleAllowDialSubtitle.
   ///
   /// In ar, this message translates to:
-  /// **'مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.'**
+  /// **'بوابة على الجهاز لـ Confirm & Call. يجب تفعيل علم البناء في التطبيق والخادم أيضاً.'**
   String get settingsCalleAllowDialSubtitle;
-
-  /// No description provided for @settingsCalleAllowDialStubHint.
-  ///
-  /// In ar, this message translates to:
-  /// **'المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.'**
-  String get settingsCalleAllowDialStubHint;
 
   /// No description provided for @architectureHudSemantics.
   ///

@@ -47,6 +47,7 @@ extension SettingsDriftMapper on db.AppSettingsTableData {
       hasSeenAgentFabTip: hasSeenAgentFabTip,
       ttsMuted: ttsMuted,
       demoArchitectureHud: demoArchitectureHud,
+      calleAllowDial: calleAllowDial,
       syncPullWatermarkOpSeq: syncPullWatermarkOpSeq,
     );
   }
@@ -88,6 +89,7 @@ extension SettingsCompanionMapper on db.AppSettingsTableCompanion {
       hasSeenAgentFabTip: hasSeenAgentFabTip.value,
       ttsMuted: ttsMuted.value,
       demoArchitectureHud: demoArchitectureHud.value,
+      calleAllowDial: calleAllowDial.value,
       syncPullWatermarkOpSeq: syncPullWatermarkOpSeq.present
           ? syncPullWatermarkOpSeq.value
           : 0,

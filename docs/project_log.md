@@ -4985,3 +4985,28 @@ Review found three controller gaps: `invalidHandle` recovery dropped `attempt: 1
 ### Status
 §5.1 behavior unchanged; retry path no longer silently no-ops or sticks the desk.
 
+## 2026-09-08 — Stage 5.2 Kill switch UI
+
+### Context
+Stage 5.2 adds the merchant-facing **Allow CALL-E outbound** GlowPill in Settings, persisted in Drift. Effective device dial requires GlowPill AND compile-time `CALLE_ALLOW_DIAL=true`; Cloud Run remains authoritative (403). No deploy or live dial in this slice.
+
+### Done
+- Schema **28**: `AppSettings.calleAllowDial` default `false` — [`app_settings_table.dart`](lib/data/datasources/local/tables/app_settings_table.dart), [`drift_database.dart`](lib/data/datasources/local/drift_database.dart), [`db_constants.dart`](lib/core/constants/db_constants.dart), [`drive_backup_constants.dart`](lib/domain/constants/drive_backup_constants.dart)
+- Threaded through entity/model/mapper/repo — [`app_settings.dart`](lib/domain/entities/app_settings.dart), [`settings_model.dart`](lib/data/models/settings_model.dart), [`settings_mapper.dart`](lib/data/mappers/settings_mapper.dart), [`settings_repository_impl.dart`](lib/data/repositories/settings_repository_impl.dart)
+- [`set_calle_allow_dial_use_case.dart`](lib/application/settings/set_calle_allow_dial_use_case.dart); [`calleDevicePolicyProvider`](lib/presentation/providers/core_providers.dart) AND overlay via [`CalleDevicePolicy.effectiveAllowDial`](lib/domain/constants/calle_device_policy.dart)
+- Settings GlowPill enabled — [`settings_screen.dart`](lib/presentation/screens/settings/settings_screen.dart); EN/AR ARB; debug [`demo_store_seeder.dart`](lib/core/utils/demo_store_seeder.dart) arms pill when `kDebugMode`
+- Tests: use case, policy AND matrix, schema 28, seeder `calleAllowDial == kDebugMode`
+- Roadmap §5.2 ticked; QA copy updated — [`stage4_phone_qa.md`](docs/qa/stage4_phone_qa.md), [`flutter_env.template.md`](docs/qa/flutter_env.template.md)
+
+### Architecture / decisions
+- GlowPill **value** = persisted merchant intent (`calleAllowDial`), not effective AND
+- Fail closed when settings not loaded (`persisted ?? false`)
+- Device can only be stricter than server; no Cloud Run changes
+
+### Ops / verification
+- `flutter analyze` + targeted tests (settings/policy/schema/controller)
+- No deploy; no `CALLE_ALLOW_DIAL=true` on Cloud Run
+
+### Status
+Roadmap §5.2 complete. Next bands per [`roadmap_v3.md`](docs/roadmap_v3.md).
+

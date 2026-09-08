@@ -116,6 +116,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
         ttsMuted: params.ttsMuted ?? existing.ttsMuted,
         demoArchitectureHud:
             params.demoArchitectureHud ?? existing.demoArchitectureHud,
+        calleAllowDial: params.calleAllowDial ?? existing.calleAllowDial,
       );
 
       if (params.clearGoogleAccount) {
@@ -143,6 +144,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
           'hasSeenAgentFabTip': updated.hasSeenAgentFabTip,
           'ttsMuted': updated.ttsMuted,
           'demoArchitectureHud': updated.demoArchitectureHud,
+          'calleAllowDial': updated.calleAllowDial,
         }),
       );
 

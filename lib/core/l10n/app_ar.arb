@@ -37,8 +37,7 @@
   "settingsDemoArchitectureHud": "عرض هيكل الوكيل",
   "settingsDemoArchitectureHudSubtitle": "للتجربة: النموذج والأدوات ومسار التأكيد البشري وزمن الاستجابة. ليس جولة في المنتج.",
   "settingsCalleAllowDial": "السماح بالاتصال عبر CALL-E",
-  "settingsCalleAllowDialSubtitle": "مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.",
-  "settingsCalleAllowDialStubHint": "المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.",
+  "settingsCalleAllowDialSubtitle": "بوابة على الجهاز لـ Confirm & Call. يجب تفعيل علم البناء في التطبيق والخادم أيضاً.",
   "architectureHudSemantics": "أداة هيكل الوكيل، المرحلة {step}",
   "@architectureHudSemantics": {
     "placeholders": {

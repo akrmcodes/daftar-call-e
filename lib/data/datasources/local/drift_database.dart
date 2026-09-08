@@ -317,6 +317,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 27) {
         await m.addColumn(collectionCallRuns, collectionCallRuns.retryCount);
       }
+      // v28: merchant CALL-E outbound kill switch in app settings.
+      if (from < 28) {
+        await m.addColumn(appSettingsTable, appSettingsTable.calleAllowDial);
+      }
     },
     beforeOpen: (details) async {
       // Idempotent for installs already on v22 before the composite index.
