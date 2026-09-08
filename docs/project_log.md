@@ -4972,3 +4972,16 @@ HITL retry only — merchant taps “Retry unanswered — {n}”. Re-plan same `
 ### Status
 §5.1 checklist ticked. Stage 5.2+ (kill switch UI, skill PR) unchanged.
 
+## 2026-09-08 — Stage 5.1 review patches
+
+### Context
+Review found three controller gaps: `invalidHandle` recovery dropped `attempt: 1`, retry HTTP failure left rows `planned` (chips locked, SMTP held, offer spent), and no in-flight lock before hydrate.
+
+### Done
+- [`closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart): pass `attempt` through `_planThenRun` invalidHandle re-plan; restore prior progress on retry create failure; `_retryUnansweredInFlight` before first await
+- [`app_ar.arb`](lib/core/l10n/app_ar.arb): `إعادة الاتصال بمن لم يرد — {count}`
+- Test: `no_answer holds pending SMTP until HITL retry completes`
+
+### Status
+§5.1 behavior unchanged; retry path no longer silently no-ops or sticks the desk.
+

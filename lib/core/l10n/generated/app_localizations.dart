@@ -6991,7 +6991,7 @@ abstract class AppLocalizations {
   /// No description provided for @collectionsDeskRetryUnanswered.
   ///
   /// In ar, this message translates to:
-  /// **'إعادة الاتصال بالمتخطين — {count}'**
+  /// **'إعادة الاتصال بمن لم يرد — {count}'**
   String collectionsDeskRetryUnanswered(int count);
 
   /// No description provided for @collectionsDeskPromiseNotPayment.

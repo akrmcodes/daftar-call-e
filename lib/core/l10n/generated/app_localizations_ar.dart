@@ -3919,7 +3919,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String collectionsDeskRetryUnanswered(int count) {
-    return 'إعادة الاتصال بالمتخطين — $count';
+    return 'إعادة الاتصال بمن لم يرد — $count';
   }
 
   @override

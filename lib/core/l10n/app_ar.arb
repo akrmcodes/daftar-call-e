@@ -1774,7 +1774,7 @@
     }
   },
   "collectionsDeskCommitSeal": "تخطي التواصل وإغلاق اليوم",
-  "collectionsDeskRetryUnanswered": "إعادة الاتصال بالمتخطين — {count}",
+  "collectionsDeskRetryUnanswered": "إعادة الاتصال بمن لم يرد — {count}",
   "@collectionsDeskRetryUnanswered": {
     "placeholders": {
       "count": { "type": "int", "example": "2" }

@@ -1704,6 +1704,111 @@ void main() {
     expect(state.phase, ClosingAgentPhase.ritualReport);
   });
 
+  test('no_answer holds pending SMTP until HITL retry completes', () async {
+    const usPhone = '+15555550100';
+    var dispatchCount = 0;
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.noAnswer,
+          ),
+        ),
+      );
+    });
+    when(
+      () => dispatchEmail.execute(
+        rows: any(named: 'rows'),
+        locale: any(named: 'locale'),
+        storeName: any(named: 'storeName'),
+        batchId: any(named: 'batchId'),
+        correlationId: any(named: 'correlationId'),
+        isRtl: any(named: 'isRtl'),
+        onRows: any(named: 'onRows'),
+      ),
+    ).thenAnswer((invocation) async {
+      dispatchCount += 1;
+      final rows = List<CollectionsDeskRow>.from(
+        invocation.namedArguments[#rows]! as List<CollectionsDeskRow>,
+      );
+      final onRows =
+          invocation.namedArguments[#onRows]
+              as void Function(List<CollectionsDeskRow>)?;
+      final sent = [
+        for (final row in rows)
+          row.copyWith(
+            status: CollectionsDeskRowStatus.sent,
+            smtpCode: 250,
+            smtpMessageId: '<mid@gmail.com>',
+          ),
+      ];
+      onRows?.call(sent);
+      return Right(
+        DispatchCollectionsEmailResult(
+          rows: sent,
+          metrics: CollectionsQueueMetrics.fromRows(sent),
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.commitDeskOutreach(call: true, send: true);
+
+    expect(dispatchCount, 0);
+    expect(c.read(closingAgentControllerProvider).pendingSendAfterCall, isTrue);
+    expect(c.read(closingAgentControllerProvider).callRetryOfferCount, 1);
+    expect(
+      c.read(closingAgentControllerProvider).phase,
+      ClosingAgentPhase.ritualDesk,
+    );
+
+    await notifier.retryUnansweredCalls();
+
+    expect(dispatchCount, 1);
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.pendingSendAfterCall, isFalse);
+    expect(state.callRetryOfferCount, 0);
+    expect(state.phase, ClosingAgentPhase.ritualReport);
+  });
+
   test('Confirm and Call kill switch 403 is needsHuman', () async {
     const usPhone = '+15555550100';
     when(() => runCall.execute(any())).thenAnswer(

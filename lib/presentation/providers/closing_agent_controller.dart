@@ -115,6 +115,7 @@ class ClosingAgentController extends _$ClosingAgentController {
   bool _autoDispatchOutreach = false;
   Timer? _holdHintDismissTimer;
   int _callPollEpoch = 0;
+  bool _retryUnansweredInFlight = false;
 
   static const Duration holdHintVisible = Duration(milliseconds: 2800);
 
@@ -1260,7 +1261,11 @@ class ClosingAgentController extends _$ClosingAgentController {
       (row) => row.reason == CallRejectReason.invalidHandle,
     );
     if (invalidHandle && !isRetry) {
-      return _planThenRun(planRequest: planRequest, isRetry: true);
+      return _planThenRun(
+        planRequest: planRequest,
+        isRetry: true,
+        attempt: attempt,
+      );
     }
     return Right(runResponse);
   }
@@ -1572,6 +1577,9 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (state.phase != ClosingAgentPhase.ritualDesk) {
       return;
     }
+    if (_retryUnansweredInFlight) {
+      return;
+    }
     if (state.callRetryOfferCount <= 0) {
       return;
     }
@@ -1607,6 +1615,25 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
+    _retryUnansweredInFlight = true;
+    try {
+      await _retryUnansweredCallsBody(
+        progress: progress,
+        eligibleIds: eligibleIds,
+        guard: guard,
+        batchId: batchId,
+      );
+    } finally {
+      _retryUnansweredInFlight = false;
+    }
+  }
+
+  Future<void> _retryUnansweredCallsBody({
+    required CollectionsCallProgress progress,
+    required Set<String> eligibleIds,
+    required RunBatchRecipientGuardResult guard,
+    required String batchId,
+  }) async {
     final tokenResult = await ref
         .read(hydrateAgentIdTokenUseCaseProvider)
         .execute();
@@ -1640,6 +1667,13 @@ class ClosingAgentController extends _$ClosingAgentController {
       ),
     );
 
+    void restoreProgress(Failure failure) {
+      state = state.copyWith(
+        actionFailure: failure,
+        callProgress: progress,
+      );
+    }
+
     final planRequest = CallPlanBatchRequest(
       batchId: batchId,
       correlationId: correlationId,
@@ -1659,13 +1693,13 @@ class ClosingAgentController extends _$ClosingAgentController {
     final ran = await _planThenRun(planRequest: planRequest, attempt: 1);
     final runFailure = ran.getLeft().toNullable();
     if (runFailure != null) {
-      state = state.copyWith(actionFailure: runFailure);
+      restoreProgress(runFailure);
       return;
     }
     final runResponse = ran.getRight().toNullable()!;
     if (runResponse.needsHuman &&
         runResponse.results.every((row) => row.runId == null)) {
-      state = state.copyWith(actionFailure: _calleNeedsHuman);
+      restoreProgress(_calleNeedsHuman);
       return;
     }
 
@@ -1697,7 +1731,7 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
 
     if (queued.isEmpty) {
-      state = state.copyWith(actionFailure: _calleNeedsHuman);
+      restoreProgress(_calleNeedsHuman);
       return;
     }
 
