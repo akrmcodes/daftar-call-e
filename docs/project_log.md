@@ -5034,3 +5034,21 @@ Roadmap §5.3: merchants mark pending CALL-E promises kept / broken / cancelled 
 ### Status
 Roadmap §5.3 complete. Next: §5.4 portable skill per [`roadmap_v3.md`](docs/roadmap_v3.md).
 
+## 2026-09-08 — Stage 5.4 merge-contract rewrite (not implemented)
+
+### Context
+§5.4 was a thin checkbox. After studying [awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents) (`kept`, `appointment-confirm`, `service-dispatch-call`, CONTRIBUTING, `validate_repository.py`), the skill is useful only as a **HITL outbound call + display-only integer promise**, not a `kept` clone or a Flutter dump.
+
+### Done
+- [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.4**: §5.4 merge contract (scope vs `kept`, validator folder tree, SKILL.md/preview.py, locked README one-liner, PR mechanics, reject list)
+- §6.4 now points at the **same** PR (Devpost URL + review replies; no second skill PR)
+- **Did not** author `docs/skills/ledger-collections-call/` or open the awesome-list PR
+
+### Architecture / decisions
+- Skill never cashiers; never writes a ledger; region refuse including YE before `POST /v1/calls`
+- Dual rail / Drift / Cloud Run stay product-only
+- English-only PR copy; `locale: ar` documented in English
+
+### Status
+§5.4 checkboxes remain `[ ]` until the skill + PR land. Next: implement the skill per the new §5.4 contract.
+

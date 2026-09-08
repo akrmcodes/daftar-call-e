@@ -1,6 +1,6 @@
 # Daftar Closing Agent — CALL-E Contest Execution Roadmap (v3)
 
-> **Version:** 3.3 · **Date:** 2026-09-04 · **Submission Period:** 23 Jul 2026 – 14 Sep 2026 11:45pm SGT
+> **Version:** 3.4 · **Date:** 2026-09-08 · **Submission Period:** 23 Jul 2026 – 14 Sep 2026 11:45pm SGT
 >
 > **Derived from:** Locked Confirm & Call catalog (brainstorm Aug–Sep 2026) · [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) [Official Rules](https://call-e.devpost.com/rules) · [CALL-E integrations](https://github.com/CALLE-AI/call-e-integrations) region table · Developer API `POST /v1/calls` + `GET /v1/calls/{id}` (`calle-ai` 0.7.0) · MCP/CLI `plan_call` / `run_call` / `get_call_run` is a **separate** surface (owner-ops only) · disclosed Daftar ledger + All Things Agentic Closing Agent already in this repository ([`roadmap_v2.md`](roadmap_v2.md) v2.8, **frozen heritage**)
 >
@@ -13,6 +13,8 @@
 > **v3.2 changelog:** Judging-criteria lock only. Winning map answers the four official Stage Two questions plus the Impact tie-break. Post-hackathon: Confirm & Call stays in the product. Skill one-liner, 3:00 beat sheet, four-paragraph Devpost About. Do not open the film on Gemini/ADK. Product, calendar, and J.9 unchanged from v3.1. **Credits:** extra-calls form **approved 2026-09-03** — **200** in pool (1 spent Gate 0); film inside **200**.
 >
 > **v3.3 changelog:** Close-the-day **plan confirm starts the ritual only**. Dual-rail consent is a **dedicated Collections Desk** after aging — not a paused “Dispatch collection emails” task and not four buttons on the plan. Device **Confirm & Call** = `plan-batch` then `run-batch` then poll `GET /v1/calls/{runId}`. Cloud Run kill switch `true` is a **demo-window opt-in** on service `daftar-call-e` only (default remains false). Handle store is process-local — live dial uses min-instances **1** for that window. CALL-E `recipient_result_schema` uses optional scalar JSON types (no `["integer","null"]` unions). Credits: laptop smoke + device live each burn the pool; stay inside **200**.
+>
+> **v3.4 changelog:** §5.4 is the awesome-list **merge contract** (not a thin checkbox). `ledger-collections-call` is complementary to [`apps/python/kept`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/apps/python/kept): HITL outbound call + integer display-only promise; never cashiers; never clones capture/reconcile. Product, J.9, and calendar unchanged from v3.3.
 
 **Binding contract:** `docs/roadmap_v3.md` is the **sole implementation contract** for this CALL-E submission. [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its Gates. Product Phase 2 (`docs/product/roadmap.md` stub + `docs/archive/`) remains **deferred**.
 
@@ -403,7 +405,7 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 | **Sat 12 – Sun 13 Sep** | 6 | Video ≤3 min · README · awesome-list PR · Devpost · **video lock 13** | Gate 6 |
 | **Mon 14 Sep** | 7 | Submit by **official 23:45 SGT** (owner buffer ≤ **18:00 AST**) | Gate 7 |
 
-> **As-of note (v3.3):** This repository is a duplicate of the Agentic submission. Stages 0–7 **above** are CALL-E work. Do **not** rewrite v2.8 calendar history. v3.1 locked the Developer API surface. v3.2 locks judge-facing claims. v3.3 locks Collections Desk as the dual-rail confirm gate and device J.9 live path.
+> **As-of note (v3.3 / v3.4):** This repository is a duplicate of the Agentic submission. Stages 0–7 **above** are CALL-E work. Do **not** rewrite v2.8 calendar history. v3.1 locked the Developer API surface. v3.2 locks judge-facing claims. v3.3 locks Collections Desk as the dual-rail confirm gate and device J.9 live path. **v3.4** locks §5.4 as the awesome-list merge contract (skill complementary to `kept`; product/J.9 unchanged).
 
 ---
 
@@ -754,16 +756,85 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 - [x] Status `pending` / merchant can mark `kept` / `broken` / `cancelled` **without** implying a txn
 - [x] Optional: marking `kept` **navigates** to payment confirm (does not auto-write money)
 
-**5.4 Portable skill (Must for Quality of Idea)**
+**5.4 Portable skill (Must for Quality of Idea) — merge contract**
 
-- [ ] Source copy in this repo: `docs/skills/ledger-collections-call/` (SKILL.md + references + scripts)
-- [ ] Devpost PR payload in [awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents): **`skills/ledger-collections-call/`** with `SKILL.md`, `references/`, `scripts/`, optional `assets/`
-- [ ] **README one-liner (English, paste as the awesome-list entry):** `ledger-collections-call` — HITL outbound collections call from overdue JSON (E.164, integer minor units, region); CALL-E `create` + poll; structured promise out; dry-run default; never posts to unsupported regions (including YE)
-- [ ] Skill: overdue JSON in (contact, E.164, `amountMinor`, currency, locale, region) → J.9 schema out; **dry-run / no-call path by default** (CONTRIBUTING: private-only apps are out of scope)
-- [ ] Allowlist / YE / HITL / integer-money notes in `references/`
-- [ ] English-only list entry; fictional/masked numbers
-- [ ] This is the **Agent Skills** PR — **not** the APK. Do not PR a Flutter app as the contribution area
-- [ ] Branch `feat/ledger-collections-call`; PR title Conventional Commits; run `python3 scripts/validate_repository.py` before opening
+Author the skill **and open the awesome-list PR in this band** (review time before 14 Sep). §6.4 only pastes the PR URL on Devpost and answers review comments — **do not** open a second skill PR.
+
+**Usefulness lock (do not clone `kept`)**
+
+[`apps/python/kept`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/apps/python/kept) already phones overdue B2B invoices, captures a promise as a **financial record**, and reconciles a bank feed. Do **not** claim we invented collections promises. Adjacent, not duplicates: `appointment-confirm` (HITL confirm; When Not To Use includes collections — **clone its SKILL.md shape**), `service-dispatch-call` (gather ≠ commit), `creditcall` (invoice-exception app), `ringer-consumer-tasks` (consumer outbound the other direction).
+
+Locked skill scope:
+
+- One HITL outbound collections **call** from overdue JSON → CALL-E `create` + poll → J.9 structured **promise**
+- Dry-run / no-call **default** (no `CALLE_API_KEY`)
+- Region refuse **including YE** before `POST /v1/calls`
+- Integer `promised_amount_minor` only (float / remainder → refuse, never coerce)
+- **Never writes a ledger / never cashiers.** Host may hand off to `kept`, Daftar §5.3, or a human
+- Name stays `ledger-collections-call` (Devpost already cites it). `SKILL.md` must say the name does **not** mean a money write
+
+Out of the skill (product-only): Flutter APK, Drift, SMTP dual rail, Cloud Run `daftar-call-e`, Gemini aging.
+
+**Folder tree** (source copy in this repo; identical payload in the awesome-list clone)
+
+```text
+docs/skills/ledger-collections-call/     # daftar-call-e source of truth
+skills/ledger-collections-call/          # awesome-list copy — same bytes
+├── SKILL.md                             # YAML name must equal directory slug
+├── references/
+│   ├── safety.md                        # validator required
+│   ├── examples.md                      # validator required (safe + unsafe)
+│   ├── result-schema.md                 # J.9 recipient schema; no type unions
+│   ├── regions.md                       # refuse YE / unsupported before create
+│   └── overlap.md                       # vs kept / creditcall / ringer
+├── scripts/
+│   └── preview.py                       # stdlib; default no network
+└── assets/
+    └── sample-overdue.json              # +15555550100; integer amountMinor
+```
+
+- [ ] Source copy lands at [`docs/skills/ledger-collections-call/`](skills/ledger-collections-call/)
+- [ ] **No** `README.md` inside the skill folder (`validate_repository.py` fails except `outbound-call-skill-creator`)
+- [ ] Every `scripts/` or `references/` path named in `SKILL.md` exists on disk
+
+**`SKILL.md` (clone `appointment-confirm` + `service-dispatch-call`)**
+
+Frontmatter: `name: ledger-collections-call`; `description` ≥ 40 characters and contains `phone` or `call`; optional `license: MIT`.
+
+Body must include: When To Use / When Not To Use (not consumer FDCPA collections; not PCI; not auto-retry `unknown`; not ledger write); required JSON fields (`contact` / display name, E.164, `amountMinor` int, currency, locale `ar`|`en`, region, `doNotCall`); preflight; dry-run command from **awesome-list repo root**; English C.3-equivalent goal template; J.9 result schema; live only after `--live` **and** a confirm flag; idempotency derived from authorization (`contactId` + amount + currency + date + UTC day), **not** `uuid4`; cancellation = do not execute / do not redial unknown.
+
+Locale `ar` is documented in **English** only (CONTRIBUTING: English-only; do not put Arabic script in the PR).
+
+**`preview.py` (default path — Gate 5)**
+
+- [ ] Validates intake JSON; masks E.164 in stdout; refuses YE / `doNotCall` / non-int amount
+- [ ] Prints CALL-E task + result schema; exits 0 with `status: not_called`
+- [ ] **No** network; **no** `CALLE_API_KEY`
+- [ ] Optional live behind two gates — document only; not required to merge
+- [ ] Tests (stdlib or tiny pytest beside preview): YE refuse; float amount refuse; dry-run never POSTs; phone masked. Zero credentials
+
+**README one-liner (English, locked — do not rewrite)**
+
+Paste as the Skills list entry, matching existing punctuation (`* slug - sentence`), no marketing:
+
+`ledger-collections-call` — HITL outbound collections call from overdue JSON (E.164, integer minor units, region); CALL-E `create` + poll; structured promise out; dry-run default; never posts to unsupported regions (including YE)
+
+**Awesome-list PR (this band, separate clone)**
+
+Never push to `daftar-closing-agent`. Never put the Flutter app in `apps/` or `skills/`.
+
+- [ ] Fork/clone [CALLE-AI/awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents)
+- [ ] `python3 scripts/check_branch_name.py --branch feat/ledger-collections-call`
+- [ ] Copy this repo’s `docs/skills/ledger-collections-call/` byte-identical into the clone’s `skills/ledger-collections-call/`
+- [ ] Add the locked README Skills bullet
+- [ ] `python3 scripts/validate_repository.py` green **on that clone**
+- [ ] PR title: `feat(ledger-collections-call): add HITL integer-promise collections skill`
+- [ ] Fill `.github/pull_request_template.md`; PR body states complementarity with `kept` (skill stops at display-only promise; `kept` owns capture/reconcile)
+- [ ] Fictional `+1555…` only; example emails `@example.com` / `.net` / `.org` only
+
+**Forbidden in the PR (maintainer reject list)**
+
+Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · `create_and_wait` · webhook · JSON Schema `["integer","null"]` unions · “we invented collections” · auto `AddTransaction` · skill-folder `README.md` · campaign runner / bank feed (that is `kept`)
 
 **5.5 Freeze**
 
@@ -825,12 +896,11 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **6.4 Awesome-list PR (Must)**
 
-- [ ] PR to [CALLE-AI/awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents)
-- [ ] Contribution Area **Agent Skills**: `skills/ledger-collections-call/` (template in CONTRIBUTING)
-- [ ] README one-liner; English; no secrets, no personal numbers, no transcripts with PII — **use the §5.4 locked sentence**
-- [ ] Dry-run / fake-server path in the PR
-- [ ] `python3 scripts/validate_repository.py` green; branch `feat/ledger-collections-call`
-- [ ] Devpost field = **this PR URL**
+§5.4 already **authored and opened** the Agent Skills PR. This band does not open a second skill PR.
+
+- [ ] Devpost field = **the §5.4 PR URL** (Contribution Area **Agent Skills**: `skills/ledger-collections-call/`)
+- [ ] Address maintainer review comments on that PR; keep the §5.4 locked README sentence
+- [ ] Re-run `python3 scripts/validate_repository.py` after any review fix
 - [ ] Flutter APK is the Devpost project, **not** the awesome-list contribution
 
 **6.5 Devpost draft**
@@ -1096,7 +1166,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 
 | Doc | Role |
 | --- | --- |
-| **`docs/roadmap_v3.md` v3.3** | **Binding** CALL-E implementation contract |
+| **`docs/roadmap_v3.md` v3.4** | **Binding** CALL-E implementation contract |
 | [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 | Frozen All Things Agentic heritage — **not** the live checklist |
 | [`docs/product/roadmap.md`](product/roadmap.md) | Phase 2 **deferred** after contest submit |
 | `docs/archive/product_roadmap_phase2_v3.6.md` | Archived full product plan (not binding) |
@@ -1295,4 +1365,4 @@ Snapshot used for planning (Sep 2026):
 
 ---
 
-*End of Contest Execution Roadmap v3.3 — implement top → bottom; check Validation Gates; do not mutate the Agentic Cloud Run URL; submit Stage 7.*
+*End of Contest Execution Roadmap v3.4 — implement top → bottom; check Validation Gates; do not mutate the Agentic Cloud Run URL; submit Stage 7.*
