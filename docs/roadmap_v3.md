@@ -712,20 +712,20 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **4.5 Device QA (owner)**
 
-- [ ] Run [`docs/qa/stage4_phone_qa.md`](qa/stage4_phone_qa.md) on a dedicated demo profile with **dial off** (Cloud Run `CALLE_ALLOW_DIAL=false`, no `CALLE_ALLOW_DIAL=true` dart-define)
-- [ ] Kill switch refuses PSTN; YE stays `callUnavailable`; Confirm & Send independent
-- [ ] SMTP rail still runs; HUD chip from poll/progress (no delivered/paid)
-- [ ] Airplane mode / agent down → ledger intact
+- [x] Run [`docs/qa/stage4_phone_qa.md`](qa/stage4_phone_qa.md) on a dedicated demo profile with **dial off** (Cloud Run `CALLE_ALLOW_DIAL=false`, no `CALLE_ALLOW_DIAL=true` dart-define)
+- [x] Kill switch refuses PSTN; YE stays `callUnavailable`; Confirm & Send independent
+- [x] SMTP rail still runs; HUD chip from poll/progress (no delivered/paid)
+- [x] Airplane mode / agent down → ledger intact
 
 #### Stage 4 Validation Gate
 
-- [ ] Stage 4 device QA runbook complete (dial off — **no** live ring)
-- [ ] Kill switch off → server refuses dial; device shows `needsHuman` / failed progress without `run-batch` `create`
-- [ ] Structured write-back path verified in tests; promise card when live dial is armed later
-- [ ] YE row never dialed
-- [ ] SMTP rail still compiles/runs on device
-- [ ] HUD updates from poll/progress without delivered/paid copy
-- [ ] **Do not start Stage 5 until this gate is green** (live ring + HUD last-8 vs logs → §6.3 / Stage 6 Validation Gate)
+- [x] Stage 4 device QA runbook complete (dial off — **no** live ring)
+- [x] Kill switch off → server refuses dial; device shows `needsHuman` / failed progress without `run-batch` `create`
+- [x] Structured write-back path verified in tests; promise card when live dial is armed later
+- [x] YE row never dialed
+- [x] SMTP rail still compiles/runs on device
+- [x] HUD updates from poll/progress without delivered/paid copy
+- [x] **Do not start Stage 5 until this gate is green** (live ring + HUD last-8 vs logs → §6.3 / Stage 6 Validation Gate)
 
 ---
 

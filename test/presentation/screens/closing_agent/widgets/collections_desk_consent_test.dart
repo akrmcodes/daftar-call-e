@@ -84,7 +84,7 @@ void main() {
           busy: false,
           isDispatching: false,
           callProgress: callProgress,
-          onCommit: onCommit ?? ({required bool call, required bool send}) {},
+          onCommit: onCommit ?? ({required call, required send}) {},
         ),
       ),
     );
@@ -127,7 +127,7 @@ void main() {
       consentHost(
         callCount: 1,
         emailCount: 2,
-        onCommit: ({required bool call, required bool send}) {
+        onCommit: ({required call, required send}) {
           committedCall = call;
           committedSend = send;
         },
@@ -242,7 +242,7 @@ void main() {
             sendOutreachEnabled: true,
             startSendingIsPrimary: true,
             busyContactId: null,
-            onCommitOutreach: ({required bool call, required bool send}) {},
+            onCommitOutreach: ({required call, required send}) {},
             onSkip: (_) {},
             onCopy: (_) {},
             onOpen: (_) {},
@@ -277,7 +277,7 @@ void main() {
             sendOutreachEnabled: true,
             busy: false,
             isDispatching: false,
-            onCommit: ({required bool call, required bool send}) {},
+            onCommit: ({required call, required send}) {},
           ),
         ),
       ),

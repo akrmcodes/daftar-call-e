@@ -195,7 +195,7 @@ class CollectionsDeskPanel extends StatelessWidget {
         ),
         Expanded(
           child: ListView.builder(
-            padding: EdgeInsetsDirectional.fromSTEB(
+            padding: const EdgeInsetsDirectional.fromSTEB(
               AppDimensions.pagePaddingH,
               0,
               AppDimensions.pagePaddingH,

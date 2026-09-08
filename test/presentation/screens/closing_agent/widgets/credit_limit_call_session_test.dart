@@ -41,9 +41,8 @@ void main() {
   ProviderContainer seededContainer({
     required ClosingAgentState agentState,
   }) {
-    final container = ProviderContainer();
-    final notifier = container.read(closingAgentControllerProvider.notifier);
-    notifier.state = agentState;
+    final container = ProviderContainer()
+      ..read(closingAgentControllerProvider.notifier).state = agentState;
     return container;
   }
 

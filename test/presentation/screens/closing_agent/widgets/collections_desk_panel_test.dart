@@ -61,7 +61,7 @@ void main() {
       queueIndex: queueIndex,
       queueTotal: queueTotal,
       queueContactName: queueContactName,
-      onCommitOutreach: ({required bool call, required bool send}) {},
+      onCommitOutreach: ({required call, required send}) {},
       onSkip: (_) {},
       onCopy: (_) {},
       onOpen: (_) {},

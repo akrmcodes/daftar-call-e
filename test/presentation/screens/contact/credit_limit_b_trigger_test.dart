@@ -30,7 +30,7 @@ void main() {
   final now = DateTime.utc(2026, 9, 8);
   const callePolicy = CalleDevicePolicy(
     allowDial: false,
-    allowlist: const {},
+    allowlist: {},
     allowlistRegion: 'US',
   );
   final balance = ContactBalance(
