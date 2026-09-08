@@ -1,5 +1,6 @@
 import 'package:daftar/core/errors/failures.dart';
 import 'package:daftar/domain/entities/collection_promise.dart';
+import 'package:daftar/domain/enums/collection_promise_status.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -15,4 +16,10 @@ abstract class CollectionCallRepository {
 
   /// Live pending promises for one contact, newest first.
   Stream<List<CollectionPromise>> watchPendingByContact(String contactId);
+
+  /// Marks a pending promise [status]. Never writes ledger money.
+  Future<Either<Failure, CollectionPromise>> updatePromiseStatus({
+    required String promiseId,
+    required CollectionPromiseStatus status,
+  });
 }

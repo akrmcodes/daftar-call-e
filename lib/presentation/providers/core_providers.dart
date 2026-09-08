@@ -41,6 +41,7 @@ import 'package:daftar/application/contact/restore_contact_use_case.dart';
 import 'package:daftar/application/contact/search_contacts_use_case.dart';
 import 'package:daftar/application/contact/update_contact_use_case.dart';
 import 'package:daftar/application/contact/watch_contact_count_use_case.dart';
+import 'package:daftar/application/contact/update_collection_promise_status_use_case.dart';
 import 'package:daftar/application/contact/watch_pending_collection_promises_use_case.dart';
 import 'package:daftar/application/import/import_csv_use_case.dart';
 import 'package:daftar/application/ledger/archive_ledger_use_case.dart';
@@ -1075,6 +1076,16 @@ WatchPendingCollectionPromisesUseCase watchPendingCollectionPromisesUseCase(
   Ref ref,
 ) {
   return WatchPendingCollectionPromisesUseCase(
+    collectionCallRepository: ref.watch(collectionCallRepositoryProvider),
+  );
+}
+
+/// Marks a display-only CALL-E promise kept, broken, or cancelled.
+@Riverpod(keepAlive: true)
+UpdateCollectionPromiseStatusUseCase updateCollectionPromiseStatusUseCase(
+  Ref ref,
+) {
+  return UpdateCollectionPromiseStatusUseCase(
     collectionCallRepository: ref.watch(collectionCallRepositoryProvider),
   );
 }

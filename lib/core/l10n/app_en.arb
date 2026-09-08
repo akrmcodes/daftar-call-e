@@ -1819,6 +1819,16 @@
       "date": { "type": "String", "example": "Sep 10, 2026" }
     }
   },
+  "contactPromiseStatusPending": "Pending",
+  "contactPromiseUpdateStatus": "Update status",
+  "contactPromiseStatusActionSheetTitle": "Promise status",
+  "contactPromiseStatusKept": "Kept",
+  "contactPromiseStatusBroken": "Broken",
+  "contactPromiseStatusCancelled": "Cancelled",
+  "contactPromiseMarkBrokenConfirmTitle": "Mark promise broken?",
+  "contactPromiseMarkBrokenConfirmBody": "This updates the promise card only. It does not write money to your ledger.",
+  "contactPromiseMarkCancelledConfirmTitle": "Cancel this promise?",
+  "contactPromiseMarkCancelledConfirmBody": "This updates the promise card only. It does not write money to your ledger.",
   "collectionsDeskCallPreviewTitle": "What CALL-E will say",
   "collectionsDeskCallingProgress": "Calling {index} of {total}",
   "@collectionsDeskCallingProgress": {

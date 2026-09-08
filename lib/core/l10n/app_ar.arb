@@ -1795,6 +1795,16 @@
       "date": { "type": "String", "example": "10 سبتمبر 2026" }
     }
   },
+  "contactPromiseStatusPending": "معلّق",
+  "contactPromiseUpdateStatus": "تحديث الحالة",
+  "contactPromiseStatusActionSheetTitle": "حالة الوعد",
+  "contactPromiseStatusKept": "تم الوفاء",
+  "contactPromiseStatusBroken": "لم يُوفَ",
+  "contactPromiseStatusCancelled": "ملغى",
+  "contactPromiseMarkBrokenConfirmTitle": "تعليم الوعد بأنه لم يُوفَ؟",
+  "contactPromiseMarkBrokenConfirmBody": "يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.",
+  "contactPromiseMarkCancelledConfirmTitle": "إلغاء هذا الوعد؟",
+  "contactPromiseMarkCancelledConfirmBody": "يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.",
   "collectionsDeskCallPreviewTitle": "ما سيقوله CALL-E",
   "collectionsDeskCallingProgress": "جاري الاتصال {index} من {total}",
   "@collectionsDeskCallingProgress": {

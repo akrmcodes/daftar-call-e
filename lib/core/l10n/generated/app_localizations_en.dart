@@ -3971,6 +3971,38 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactPromiseStatusPending => 'Pending';
+
+  @override
+  String get contactPromiseUpdateStatus => 'Update status';
+
+  @override
+  String get contactPromiseStatusActionSheetTitle => 'Promise status';
+
+  @override
+  String get contactPromiseStatusKept => 'Kept';
+
+  @override
+  String get contactPromiseStatusBroken => 'Broken';
+
+  @override
+  String get contactPromiseStatusCancelled => 'Cancelled';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmTitle => 'Mark promise broken?';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmBody =>
+      'This updates the promise card only. It does not write money to your ledger.';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmTitle => 'Cancel this promise?';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmBody =>
+      'This updates the promise card only. It does not write money to your ledger.';
+
+  @override
   String get collectionsDeskCallPreviewTitle => 'What CALL-E will say';
 
   @override

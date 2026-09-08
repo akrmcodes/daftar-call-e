@@ -3936,6 +3936,39 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get contactPromiseStatusPending => 'معلّق';
+
+  @override
+  String get contactPromiseUpdateStatus => 'تحديث الحالة';
+
+  @override
+  String get contactPromiseStatusActionSheetTitle => 'حالة الوعد';
+
+  @override
+  String get contactPromiseStatusKept => 'تم الوفاء';
+
+  @override
+  String get contactPromiseStatusBroken => 'لم يُوفَ';
+
+  @override
+  String get contactPromiseStatusCancelled => 'ملغى';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmTitle =>
+      'تعليم الوعد بأنه لم يُوفَ؟';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmBody =>
+      'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmTitle => 'إلغاء هذا الوعد؟';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmBody =>
+      'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.';
+
+  @override
   String get collectionsDeskCallPreviewTitle => 'ما سيقوله CALL-E';
 
   @override

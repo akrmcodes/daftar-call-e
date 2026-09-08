@@ -751,8 +751,8 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **5.3 Promise card polish**
 
-- [ ] Status `pending` / merchant can mark `kept` / `broken` / `cancelled` **without** implying a txn
-- [ ] Optional: marking `kept` **navigates** to payment confirm (does not auto-write money)
+- [x] Status `pending` / merchant can mark `kept` / `broken` / `cancelled` **without** implying a txn
+- [x] Optional: marking `kept` **navigates** to payment confirm (does not auto-write money)
 
 **5.4 Portable skill (Must for Quality of Idea)**
 

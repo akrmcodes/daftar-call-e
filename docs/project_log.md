@@ -5010,3 +5010,27 @@ Stage 5.2 adds the merchant-facing **Allow CALL-E outbound** GlowPill in Setting
 ### Status
 Roadmap §5.2 complete. Next bands per [`roadmap_v3.md`](docs/roadmap_v3.md).
 
+## 2026-09-08 — Stage 5.3 Promise card polish
+
+### Context
+Roadmap §5.3: merchants mark pending CALL-E promises kept / broken / cancelled without ledger writes. Optional: Kept opens payment entry prefilled — Save still HITL.
+
+### Done
+- [`update_collection_promise_status_use_case.dart`](lib/application/contact/update_collection_promise_status_use_case.dart); repo/DS `updatePromiseStatus`; `persistTerminalWrite` preserves resolved status
+- Contact [`ContactPendingPromiseBanner`](lib/presentation/screens/contact/widgets/contact_pending_promise_banner.dart) → DaftarCard + action/confirm sheets; EN/AR ARB
+- [`showAddTransactionDialog`](lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart): `initialType` + `initialAmountMinor` prefill after Kept
+- Tests: use case, enum extension, local DS status flip + kept preservation, widget card
+- Roadmap §5.3 ticked; film QA [`calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md) step 4
+
+### Architecture / decisions
+- Promise status change never calls `AddTransactionUseCase`
+- Merchant HITL wins over late terminal GET re-upsert
+- No schema bump (status enum already in v26)
+
+### Ops / verification
+- `flutter analyze` + targeted tests
+- No deploy; no `CALLE_ALLOW_DIAL=true`
+
+### Status
+Roadmap §5.3 complete. Next: §5.4 portable skill per [`roadmap_v3.md`](docs/roadmap_v3.md).
+

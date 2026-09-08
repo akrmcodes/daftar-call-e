@@ -96,6 +96,115 @@ void main() {
     expect(promise.status, CollectionPromiseStatus.pending);
   });
 
+  test('updatePromiseStatus flips pending to kept', () async {
+    final now = DateTime.utc(2026, 9, 4, 12);
+    await _seedContact(database, now, 'contact-status', 'ledger-status');
+    await local.persistQueuedBatch(
+      const CollectionCallBatchSeed(
+        batchId: 'batch-status',
+        correlationId: 'corr-status',
+        trigger: CallBatchTrigger.closeDay,
+        status: CallBatchStatus.running,
+        runs: [
+          CollectionCallRunSeed(
+            contactId: 'contact-status',
+            region: 'US',
+            locale: 'en',
+            runId: 'calle-run-status',
+          ),
+        ],
+      ),
+    );
+    await local.persistTerminalWrite(
+      const CollectionCallTerminalWrite(
+        runId: 'calle-run-status',
+        contactId: 'contact-status',
+        rawStatus: 'completed',
+        needsHuman: false,
+        outcome: CallRunOutcome.promised,
+        promisedAmountMinor: 2000,
+        promisedCurrency: 'USD',
+        promisedDate: '2026-09-12',
+      ),
+    );
+
+    final promise = await (database.select(database.collectionPromises)
+          ..where((row) => row.runId.equals('calle-run-status')))
+        .getSingle();
+
+    final updated = await local.writePromiseStatus(
+      promiseId: promise.id,
+      status: CollectionPromiseStatus.kept,
+      updatedAt: DateTime.utc(2026, 9, 8),
+    );
+    expect(updated.status, CollectionPromiseStatus.kept);
+    expect(updated.syncVersion, promise.syncVersion + 1);
+
+    final pendingStream = local.watchPendingPromisesByContact('contact-status');
+    expect(await pendingStream.first, isEmpty);
+  });
+
+  test('persistTerminalWrite does not revert kept promise to pending', () async {
+    final now = DateTime.utc(2026, 9, 4, 12);
+    await _seedContact(database, now, 'contact-kept', 'ledger-kept');
+    await local.persistQueuedBatch(
+      const CollectionCallBatchSeed(
+        batchId: 'batch-kept',
+        correlationId: 'corr-kept',
+        trigger: CallBatchTrigger.closeDay,
+        status: CallBatchStatus.running,
+        runs: [
+          CollectionCallRunSeed(
+            contactId: 'contact-kept',
+            region: 'US',
+            locale: 'en',
+            runId: 'calle-run-kept',
+          ),
+        ],
+      ),
+    );
+    await local.persistTerminalWrite(
+      const CollectionCallTerminalWrite(
+        runId: 'calle-run-kept',
+        contactId: 'contact-kept',
+        rawStatus: 'completed',
+        needsHuman: false,
+        outcome: CallRunOutcome.promised,
+        promisedAmountMinor: 1500,
+        promisedCurrency: 'USD',
+        promisedDate: '2026-09-10',
+      ),
+    );
+
+    final promise = await (database.select(database.collectionPromises)
+          ..where((row) => row.runId.equals('calle-run-kept')))
+        .getSingle();
+    await local.writePromiseStatus(
+      promiseId: promise.id,
+      status: CollectionPromiseStatus.kept,
+      updatedAt: DateTime.utc(2026, 9, 8),
+    );
+
+    await local.persistTerminalWrite(
+      const CollectionCallTerminalWrite(
+        runId: 'calle-run-kept',
+        contactId: 'contact-kept',
+        rawStatus: 'completed',
+        needsHuman: false,
+        outcome: CallRunOutcome.promised,
+        promisedAmountMinor: 1600,
+        promisedCurrency: 'USD',
+        promisedDate: '2026-09-11',
+      ),
+    );
+
+    final after = await (database.select(database.collectionPromises)
+          ..where((row) => row.runId.equals('calle-run-kept')))
+        .getSingle();
+    expect(after.status, CollectionPromiseStatus.kept);
+    expect(after.amountMinor, 1600);
+  });
+
   test('does not upsert promise when amount has remainder flag', () async {
     final now = DateTime.utc(2026, 9, 4, 12);
     await database.into(database.ledgers).insert(

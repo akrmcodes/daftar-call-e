@@ -55,6 +55,8 @@ Future<bool?> showAddTransactionDialog(
   required String contactName,
   String? defaultCurrency,
   Transaction? existingTransaction,
+  TransactionType? initialType,
+  int? initialAmountMinor,
 }) {
   return showGeneralDialog<bool>(
     context: context,
@@ -85,6 +87,8 @@ Future<bool?> showAddTransactionDialog(
         contactName: contactName,
         defaultCurrency: defaultCurrency ?? DbConstants.currencyYer,
         existingTransaction: existingTransaction,
+        initialType: initialType,
+        initialAmountMinor: initialAmountMinor,
       );
     },
   );
@@ -96,12 +100,16 @@ class _AddTransactionDialog extends ConsumerStatefulWidget {
     required this.contactName,
     required this.defaultCurrency,
     this.existingTransaction,
+    this.initialType,
+    this.initialAmountMinor,
   });
 
   final String contactId;
   final String contactName;
   final String defaultCurrency;
   final Transaction? existingTransaction;
+  final TransactionType? initialType;
+  final int? initialAmountMinor;
 
   @override
   ConsumerState<_AddTransactionDialog> createState() =>
@@ -153,6 +161,12 @@ class _AddTransactionDialogState extends ConsumerState<_AddTransactionDialog>
       );
       _itemNameController.text = existingTransaction.itemName ?? '';
       _descriptionController.text = existingTransaction.description ?? '';
+    } else if (widget.initialType != null && widget.initialAmountMinor != null) {
+      _type = widget.initialType!;
+      _amountController.text = MoneyUtil.formatMinorUnitsForCode(
+        widget.initialAmountMinor!,
+        widget.defaultCurrency,
+      );
     }
 
     _colorAnimController = AnimationController(

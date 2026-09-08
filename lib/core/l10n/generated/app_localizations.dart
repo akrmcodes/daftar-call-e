@@ -7012,6 +7012,66 @@ abstract class AppLocalizations {
   /// **'وعد معلّق: {amount} في {date}'**
   String contactPendingPromiseSemantics(String amount, String date);
 
+  /// No description provided for @contactPromiseStatusPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلّق'**
+  String get contactPromiseStatusPending;
+
+  /// No description provided for @contactPromiseUpdateStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث الحالة'**
+  String get contactPromiseUpdateStatus;
+
+  /// No description provided for @contactPromiseStatusActionSheetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حالة الوعد'**
+  String get contactPromiseStatusActionSheetTitle;
+
+  /// No description provided for @contactPromiseStatusKept.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الوفاء'**
+  String get contactPromiseStatusKept;
+
+  /// No description provided for @contactPromiseStatusBroken.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُوفَ'**
+  String get contactPromiseStatusBroken;
+
+  /// No description provided for @contactPromiseStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغى'**
+  String get contactPromiseStatusCancelled;
+
+  /// No description provided for @contactPromiseMarkBrokenConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الوعد بأنه لم يُوفَ؟'**
+  String get contactPromiseMarkBrokenConfirmTitle;
+
+  /// No description provided for @contactPromiseMarkBrokenConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.'**
+  String get contactPromiseMarkBrokenConfirmBody;
+
+  /// No description provided for @contactPromiseMarkCancelledConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء هذا الوعد؟'**
+  String get contactPromiseMarkCancelledConfirmTitle;
+
+  /// No description provided for @contactPromiseMarkCancelledConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.'**
+  String get contactPromiseMarkCancelledConfirmBody;
+
   /// No description provided for @collectionsDeskCallPreviewTitle.
   ///
   /// In ar, this message translates to:

@@ -1,3 +1,4 @@
+import 'package:daftar/core/errors/exceptions.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
 import 'package:daftar/data/datasources/local/drift_database.dart' as db;
 import 'package:daftar/domain/enums/call_batch_status.dart';
@@ -149,9 +150,14 @@ class CollectionCallLocalDataSource {
             amountMinor: Value(write.promisedAmountMinor!),
             currencyCode: Value(write.promisedCurrency!),
             promisedDate: Value(write.promisedDate!),
-            status: const Value(CollectionPromiseStatus.pending),
+            status: Value(
+              existingPromise.status == CollectionPromiseStatus.pending
+                  ? CollectionPromiseStatus.pending
+                  : existingPromise.status,
+            ),
             updatedAt: Value(now),
             isDeleted: const Value(false),
+            syncVersion: Value(existingPromise.syncVersion + 1),
           ),
         );
         return;
@@ -191,6 +197,42 @@ class CollectionCallLocalDataSource {
             ),
           ]))
         .watch();
+  }
+
+  /// Loads a non-deleted promise row by primary key.
+  Future<db.CollectionPromise?> getPromiseById(String promiseId) {
+    return (database.select(database.collectionPromises)
+          ..where(
+            (row) =>
+                row.id.equals(promiseId) & row.isDeleted.equals(false),
+          ))
+        .getSingleOrNull();
+  }
+
+  /// Writes merchant-resolved [status] and bumps sync version.
+  Future<db.CollectionPromise> writePromiseStatus({
+    required String promiseId,
+    required CollectionPromiseStatus status,
+    required DateTime updatedAt,
+  }) async {
+    final existing = await getPromiseById(promiseId);
+    if (existing == null) {
+      throw DatabaseException('Collection promise not found: $promiseId');
+    }
+    await (database.update(database.collectionPromises)
+          ..where((row) => row.id.equals(promiseId)))
+        .write(
+      db.CollectionPromisesCompanion(
+        status: Value(status),
+        updatedAt: Value(updatedAt),
+        syncVersion: Value(existing.syncVersion + 1),
+      ),
+    );
+    final updated = await getPromiseById(promiseId);
+    if (updated == null) {
+      throw DatabaseException('Collection promise not found after update');
+    }
+    return updated;
   }
 
   Future<void> _maybeFinalizeBatchStatus(
