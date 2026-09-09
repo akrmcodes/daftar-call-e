@@ -12,7 +12,7 @@ Related SOPs (do not substitute this file for them):
 
 ```mermaid
 flowchart TD
-  checkpoint["checkpoint: 00009 cold freeze OK"]
+  checkpoint["checkpoint: 00010 armed freeze OK"]
   passA["Pass A/B device QA dial off"]
   arm["arm dial true min 1"]
   live["one Confirm and Call"]
@@ -43,21 +43,21 @@ Legal mutate target is service **`daftar-call-e` only**, via [`agent/scripts/dep
 
 ## Checkpoint (2026-09-09)
 
-Paused mid-rehearsal. Stack is **cold**. Resume from **Pass A**, not from another deploy, unless `agent/` changed after revision `daftar-call-e-00009-659`.
+Pass A/B on device are **green** (kill-switch copy + SMTP). Live window is **armed for this session** on revision **`daftar-call-e-00010-qrp`**. Do **not** leave dial true overnight. Owner will ask to disarm. Frozen Agentic service is describe-only. Do not tick §5.5.
 
 | Step | Status | Evidence |
 | --- | --- | --- |
 | Identity + freeze | **Done** | Account `akrm.codes@gmail.com`; project `daftar-closing-agent`; `tool/check_agentic_freeze.sh` → Freeze OK; frozen rev **`daftar-closing-agent-00055-pbm`** |
-| Overlay lockstep | **Done** | Last-4 **`7244`** + length agree across `$HOME/.daftar-owner-ops/test-did`, `calle-allowlist`, and gitignored overlay keys `DAFTAR_SEED_US_DID` / `CALLE_ALLOWLIST`. Region **`US`**. Overlay `CALLE_ALLOW_DIAL` is **empty** |
-| Deploy dial off, min 0 | **Done** | Wrapper: `DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL` unset, min default 0. Revision **`daftar-call-e-00009-659`**. Post-verify: `calle_allow_dial=false`, scale **0/2**, `freeze=ok`, SA `call-e-runner` |
+| Overlay lockstep | **Done** | Last-4 **`7244`** + length agree across `$HOME/.daftar-owner-ops/test-did`, `calle-allowlist`, and gitignored overlay keys `DAFTAR_SEED_US_DID` / `CALLE_ALLOWLIST`. Region **`US`**. Overlay `CALLE_ALLOW_DIAL` is exact **`true`** (gitignored; not committed) |
+| Deploy dial off, min 0 | **Done** | Prior cold revision **`daftar-call-e-00009-659`**. Pass A/B used this |
 | Warm `/list-apps` | **Done** | ID-token curl of owner-ops `daftar-call-e-url` → `["closing_agent"]`. Never the frozen hostname |
 | Laptop no-PSTN smoke | **Done** | `python3 agent/scripts/smoke_calls_plan_run.py` → `overall_pass=True` (unauth 403, dry-run plan, YE unsupported region, kill-switch plan + run 403) |
-| Pass A/B on device | **Remaining** | Overlay empty. Last `flutter run` **Lost connection**. Treat the APK as **stale** — full rebuild required |
-| Arm live (dial true, min 1) | **Remaining** | Do not arm until Pass A is green |
-| One Confirm & Call | **Remaining** | One credit. Linphone ready **before** the tap |
-| Shutdown | **Remaining** | Mandatory within minutes of terminal GET (or immediately if no ring) |
+| Pass A/B on device | **Done** | Kill-switch HUD: “Calls are paused… Email still works…”. SMTP statements succeeded. Overlay was empty for that pass |
+| Arm live (dial true, min 1) | **Done** | Wrapper: `DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL=true`, `DAFTAR_CALL_E_MIN_INSTANCES=1`. Revision **`daftar-call-e-00010-qrp`**. Post-verify: `calle_allow_dial=true`, scale **1/2**, `freeze=ok`, SA `call-e-runner` |
+| Confirm & Call | **Remaining** | Owner taps after full rebuild + Linphone ready. Each tap on a new close-day burns one credit |
+| Shutdown | **Remaining** | Do not disarm until the owner asks. Then dial false, min 0, overlay empty |
 
-**Overnight state (current):** Cloud Run dial **false**, min **0**. Device overlay dial **empty**. Frozen Agentic service untouched.
+**Session state (current):** Cloud Run dial **true**, min **1**. Device overlay exact `true`. Frozen Agentic service untouched. **Not** the overnight default.
 
 ---
 

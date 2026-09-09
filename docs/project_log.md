@@ -5231,3 +5231,26 @@ Keep NANPA reserved `555-01xx` only. YE refuse is ISO region (and calling-code *
 ### Status
 PR tip is `9b12a7c` on [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385). Owner can reply to Ray.
 
+## 2026-09-09 — Live window armed (`daftar-call-e-00010-qrp`)
+
+### Context
+Owner finished Pass A/B on `R5CT10G3LXH` (kill-switch copy + SMTP). Arm Cloud Run `daftar-call-e` only for a live session: `CALLE_ALLOW_DIAL=true`, min 1. Leave armed until the owner asks to disarm. Do not tick §5.5.
+
+### Done
+- Identity: `akrm.codes@gmail.com` / project `daftar-closing-agent`; `tool/check_agentic_freeze.sh` Freeze OK; frozen rev still **`daftar-closing-agent-00055-pbm`**
+- Gitignored overlay [`tool/demo_seed_emails.local.json`](../tool/demo_seed_emails.local.json): `CALLE_ALLOW_DIAL` exact `true`. DID/allowlist last-4 `7244` lockstep; not committed
+- Wrapper deploy **`daftar-call-e` only**: `DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL=true`, `DAFTAR_CALL_E_MIN_INSTANCES=1` → revision **`daftar-call-e-00010-qrp`**. Post-verify: `calle_allow_dial=true`, scale **1/2**, SA `call-e-runner`, `freeze=ok`
+- Warm `/list-apps` → `["closing_agent"]`. `.env` `CLOSING_AGENT_BASE_URL` still matches owner-ops `daftar-call-e-url` (not the frozen Agentic hostname)
+- Checkpoint in [`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md) updated
+
+### Architecture / decisions
+PSTN is GlowPill AND dart-define exact `true` AND Cloud Run `true`. Confirm handles are process-local → min **1** while armed (do not copy the film SOP min-0 env snippet). Frozen service describe-only. No `allUsers`. No laptop `create_and_wait`.
+
+### Ops / verification
+- Wrapper post-verify printed `calle_allow_dial=true` / scale `1/2` / `freeze=ok`
+- ID-token `list-apps` HTTP 200
+- Roadmap §5.5 / Gate 5 left `[ ]`
+
+### Status
+**Armed for this session.** Owner must full-rebuild Flutter (hot restart is not enough), confirm GlowPill on, Linphone ready, then Confirm & Call. Each new close-day tap burns one CALL-E credit. Ask before disarming (dial false, min 0, overlay empty). Do not leave overnight.
+
