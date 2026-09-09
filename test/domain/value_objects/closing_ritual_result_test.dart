@@ -1,11 +1,15 @@
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
+import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collections_call_progress.dart';
+import 'package:daftar/domain/value_objects/collections_call_report.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
+import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -146,5 +150,26 @@ void main() {
       '3',
       '4',
     ]);
+  });
+
+  test('withCallReport attaches rows and survives queue metrics', () {
+    final report = CollectionsCallReport.fromProgress(
+      progress: const CollectionsCallProgress(
+        results: [
+          CollectionsCallProgressRow(
+            contactId: '0',
+            status: CollectionsCallRowStatus.completed,
+          ),
+        ],
+      ),
+      shortlist: shortlist,
+    );
+    final result = base()
+        .withCallReport(report)
+        .withQueueMetrics(
+          const CollectionsQueueMetrics(prepared: 1, opened: 0, skipped: 0),
+        );
+    expect(result.callReport?.rows, hasLength(1));
+    expect(result.queueMetrics?.prepared, 1);
   });
 }

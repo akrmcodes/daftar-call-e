@@ -5254,3 +5254,26 @@ PSTN is GlowPill AND dart-define exact `true` AND Cloud Run `true`. Confirm hand
 ### Status
 **Armed for this session.** Owner must full-rebuild Flutter (hot restart is not enough), confirm GlowPill on, Linphone ready, then Confirm & Call. Each new close-day tap burns one CALL-E credit. Ask before disarming (dial false, min 0, overlay empty). Do not leave overnight.
 
+## 2026-09-09 — Closing report call summary (device-only)
+
+### Context
+Live Confirm & Call succeeded (Mohamed promised an integer amount on a calendar day). The promise card on the contact/operations surface was correct; the sealed daily Closing Agent report still showed only books, Drive, overdue, and email queue metrics. Add a professional call summary on that report without changing Cloud Run or making TTS narrate the call.
+
+### Done
+- Domain [`CollectionsCallReport`](../lib/domain/value_objects/collections_call_report.dart) + [`CollectionsCallReportStatus`](../lib/domain/enums/collections_call_report_status.dart); optional integer promise fields on [`CollectionsCallProgressRow`](../lib/domain/value_objects/collections_call_progress.dart)
+- [`ClosingRitualResult.withCallReport`](../lib/domain/value_objects/closing_ritual_result.dart); `_showRitualReport` attaches from `callProgress` + shortlist
+- Poll path copies promised amount/currency/date onto progress rows
+- Khazna inset [`ClosingRitualCallReportSection`](../lib/presentation/screens/closing_agent/widgets/closing_ritual_call_report.dart) on [`ClosingRitualReportCard`](../lib/presentation/screens/closing_agent/widgets/closing_ritual_report_card.dart): name, status, integer promise + ISO date, HUD last-8; lapis stroke/glow only
+- EN/AR ARB; [`closingReportSpeakable`](../lib/core/utils/closing_report_speakable.dart) unchanged
+
+### Architecture / decisions
+Flutter-only. Promise ≠ payment (no ledger write, no “paid”/“delivered”). Gemini does not read the call section. No `agent/` or Cloud Run mutate. Frozen Agentic service describe-only.
+
+### Ops / verification
+- `flutter test` on call-report domain/widget/speakable + `finishDesk attaches call report`
+- `dart analyze` on touched libraries — clean
+- Roadmap §5.5 / Gate 5 left `[ ]`
+
+### Status
+Close the day again to see the call report on the sealed dashboard. Live dial window still armed until the owner asks to disarm.
+

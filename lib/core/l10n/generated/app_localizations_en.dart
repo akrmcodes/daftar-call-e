@@ -3817,6 +3817,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get closingRitualCallReportTitle => 'Call report';
+
+  @override
+  String closingRitualCallPromiseLine(String amount, String date) {
+    return 'Promised $amount on $date';
+  }
+
+  @override
+  String closingRitualCallRowSemantics(String name, String status) {
+    return 'Call $name, $status';
+  }
+
+  @override
   String get closingRitualRetry => 'Continue closing the day';
 
   @override

@@ -18,6 +18,7 @@ import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/closing_agent_vault_seal.dart';
+import 'package:daftar/presentation/screens/closing_agent/widgets/closing_ritual_call_report.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_brand_mark.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_permission_banner.dart';
@@ -74,7 +75,10 @@ class _ClosingRitualReportCardState extends State<ClosingRitualReportCard>
 
   bool get _reduceMotion =>
       MediaQuery.disableAnimationsOf(context) ||
-      SchedulerBinding.instance.platformDispatcher.accessibilityFeatures
+      SchedulerBinding
+          .instance
+          .platformDispatcher
+          .accessibilityFeatures
           .disableAnimations;
 
   @override
@@ -148,7 +152,8 @@ class _ClosingRitualReportCardState extends State<ClosingRitualReportCard>
   }
 
   void _maybeStartMarkHandoff() {
-    if (_markHandoffStarted || _checkController.status != AnimationStatus.reverse) {
+    if (_markHandoffStarted ||
+        _checkController.status != AnimationStatus.reverse) {
       return;
     }
     if (_checkController.value <= 0.2) {
@@ -394,28 +399,24 @@ class _ClosingRitualReportCardState extends State<ClosingRitualReportCard>
               const Gap(AppDimensions.spacingMd),
               stage(
                 switch (result.backupStatus) {
-                  ClosingBackupStatus.skippedUnsigned =>
-                    DaftarPermissionBanner(
-                      message: l10n.closingRitualBackupUnsigned,
-                      actionLabel: l10n.backupDriveSignInWithGoogle,
-                      onAction: widget.onSignInToDrive,
-                      semanticsLabel:
-                          l10n.closingAgentPermissionBannerSemantics,
-                    ),
-                  ClosingBackupStatus.grantRequired =>
-                    DaftarPermissionBanner(
-                      message: l10n.closingRitualBackupGrantMissing,
-                      actionLabel: l10n.backupDriveOfflineGrantAction,
-                      onAction: widget.onGrantDrive,
-                      semanticsLabel:
-                          l10n.closingAgentPermissionBannerSemantics,
-                    ),
+                  ClosingBackupStatus.skippedUnsigned => DaftarPermissionBanner(
+                    message: l10n.closingRitualBackupUnsigned,
+                    actionLabel: l10n.backupDriveSignInWithGoogle,
+                    onAction: widget.onSignInToDrive,
+                    semanticsLabel: l10n.closingAgentPermissionBannerSemantics,
+                  ),
+                  ClosingBackupStatus.grantRequired => DaftarPermissionBanner(
+                    message: l10n.closingRitualBackupGrantMissing,
+                    actionLabel: l10n.backupDriveOfflineGrantAction,
+                    onAction: widget.onGrantDrive,
+                    semanticsLabel: l10n.closingAgentPermissionBannerSemantics,
+                  ),
                   _ => Text(
-                      _backupLine(l10n, result.backupStatus),
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: result.needsHuman ? warning : payment,
-                      ),
+                    _backupLine(l10n, result.backupStatus),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: result.needsHuman ? warning : payment,
                     ),
+                  ),
                 },
                 delay: const Duration(milliseconds: 700),
               ),
@@ -463,9 +464,19 @@ class _ClosingRitualReportCardState extends State<ClosingRitualReportCard>
                 stage(
                   Text(
                     l10n.closingRitualQueueSkipped(metrics.skipped),
-                    style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: inkSecondary,
+                    ),
                   ),
                   delay: const Duration(milliseconds: 1100),
+                ),
+              ],
+              if (result.callReport case final callReport?
+                  when callReport.isNotEmpty) ...[
+                const Gap(AppDimensions.spacingMd),
+                stage(
+                  ClosingRitualCallReportSection(report: callReport),
+                  delay: const Duration(milliseconds: 1140),
                 ),
               ],
               const Gap(AppDimensions.spacingSm),
@@ -576,9 +587,7 @@ class _CountRow extends StatelessWidget {
       children: [
         AnimatedFlipCounter(
           value: count.toDouble(),
-          duration: reduceMotion
-              ? Duration.zero
-              : AppDimensions.animationXSlow,
+          duration: reduceMotion ? Duration.zero : AppDimensions.animationXSlow,
           curve: AppMotion.curveEmphasized,
           textStyle: AppTextStyles.bodyMedium.copyWith(color: inkPrimary),
           wholeDigits: 4,
@@ -629,8 +638,7 @@ class _VerifiedSealCheckPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _VerifiedSealCheckPainter oldDelegate) {
-    return oldDelegate.isDark != isDark ||
-        oldDelegate.progress != progress;
+    return oldDelegate.isDark != isDark || oldDelegate.progress != progress;
   }
 }
 
@@ -663,7 +671,6 @@ class _HeroCatchPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _HeroCatchPainter oldDelegate) {
-    return oldDelegate.isDark != isDark ||
-        oldDelegate.progress != progress;
+    return oldDelegate.isDark != isDark || oldDelegate.progress != progress;
   }
 }

@@ -6766,6 +6766,24 @@ abstract class AppLocalizations {
   /// **'{count} متأخرون'**
   String closingRitualOverdueCount(int count);
 
+  /// No description provided for @closingRitualCallReportTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقرير المكالمات'**
+  String get closingRitualCallReportTitle;
+
+  /// No description provided for @closingRitualCallPromiseLine.
+  ///
+  /// In ar, this message translates to:
+  /// **'وعد بـ {amount} في {date}'**
+  String closingRitualCallPromiseLine(String amount, String date);
+
+  /// No description provided for @closingRitualCallRowSemantics.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكالمة {name}، {status}'**
+  String closingRitualCallRowSemantics(String name, String status);
+
   /// No description provided for @closingRitualRetry.
   ///
   /// In ar, this message translates to:

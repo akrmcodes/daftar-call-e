@@ -1696,6 +1696,21 @@
       "count": { "type": "int", "example": "4" }
     }
   },
+  "closingRitualCallReportTitle": "تقرير المكالمات",
+  "closingRitualCallPromiseLine": "وعد بـ {amount} في {date}",
+  "@closingRitualCallPromiseLine": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "500.00 $" },
+      "date": { "type": "String", "example": "2026-09-15" }
+    }
+  },
+  "closingRitualCallRowSemantics": "مكالمة {name}، {status}",
+  "@closingRitualCallRowSemantics": {
+    "placeholders": {
+      "name": { "type": "String", "example": "محمد" },
+      "status": { "type": "String", "example": "اكتمل" }
+    }
+  },
   "closingRitualRetry": "متابعة إقفال اليوم",
   "collectionsDeskTitle": "التحصيل",
   "collectionsDeskCount": "{count} تذكيرات",

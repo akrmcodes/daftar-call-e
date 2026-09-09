@@ -49,6 +49,7 @@ import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
+import 'package:daftar/domain/value_objects/collections_call_report.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/domain/value_objects/collections_send_queue.dart';
@@ -340,7 +341,9 @@ class ClosingAgentController extends _$ClosingAgentController {
       final l10n = lookupAppLocalizations(
         Locale(normalizeSpeechLocale(locale)),
       );
-      unawaited(AgentSpeech.speak(l10n.closingAgentSpeakPlanReady, locale: locale));
+      unawaited(
+        AgentSpeech.speak(l10n.closingAgentSpeakPlanReady, locale: locale),
+      );
       return;
     }
     final text = narrative?.trim();
@@ -542,7 +545,8 @@ class ClosingAgentController extends _$ClosingAgentController {
             nameOverride: state.nameByProposal[proposal.proposalId],
             phoneOverride: state.phoneByProposal[proposal.proposalId],
             ledgerNameOverride: state.ledgerNameByProposal[proposal.proposalId],
-            amountMinorOverride: state.amountMinorByProposal[proposal.proposalId],
+            amountMinorOverride:
+                state.amountMinorByProposal[proposal.proposalId],
             createIfMissing: createIfMissing,
           );
       final failure = result.getLeft().toNullable();
@@ -1244,14 +1248,16 @@ class ClosingAgentController extends _$ClosingAgentController {
       return const Left(_calleNeedsHuman);
     }
 
-    final ran = await ref.read(runCallBatchUseCaseProvider).execute(
-      CallRunBatchRequest(
-        batchId: planRequest.batchId,
-        correlationId: planRequest.correlationId,
-        recipients: handles,
-        attempt: attempt,
-      ),
-    );
+    final ran = await ref
+        .read(runCallBatchUseCaseProvider)
+        .execute(
+          CallRunBatchRequest(
+            batchId: planRequest.batchId,
+            correlationId: planRequest.correlationId,
+            recipients: handles,
+            attempt: attempt,
+          ),
+        );
     final runFailure = ran.getLeft().toNullable();
     if (runFailure != null) {
       return Left(runFailure);
@@ -1310,6 +1316,9 @@ class ClosingAgentController extends _$ClosingAgentController {
           pollEpoch: pollEpoch,
           runId: item.runId,
           outcome: structured?.outcome,
+          promisedAmountMinor: structured?.promisedAmountMinor,
+          promisedCurrency: structured?.promisedCurrency,
+          promisedDate: structured?.promisedDate,
         );
         if (!result.terminal && !result.needsHuman) {
           continue;
@@ -1317,7 +1326,8 @@ class ClosingAgentController extends _$ClosingAgentController {
         pending.remove(item.contactId);
         final amountInvalid = structured?.amountInvalid ?? false;
         final dateInvalid = structured?.dateInvalid ?? false;
-        final review = amountInvalid ||
+        final review =
+            amountInvalid ||
             dateInvalid ||
             (result.needsHuman && result.status != 'completed');
         await _surfacePersistTerminal(
@@ -1416,6 +1426,9 @@ class ClosingAgentController extends _$ClosingAgentController {
     CollectionsCallRowStatus status, {
     String? runId,
     CallRunOutcome? outcome,
+    int? promisedAmountMinor,
+    String? promisedCurrency,
+    String? promisedDate,
     int? pollEpoch,
   }) {
     if (pollEpoch != null && !_pollEpochMatches(pollEpoch)) {
@@ -1436,6 +1449,9 @@ class ClosingAgentController extends _$ClosingAgentController {
                 status,
                 trimmedRunId,
                 outcome: outcome,
+                promisedAmountMinor: promisedAmountMinor,
+                promisedCurrency: promisedCurrency,
+                promisedDate: promisedDate,
               )
             else
               row,
@@ -1449,6 +1465,9 @@ class ClosingAgentController extends _$ClosingAgentController {
     CollectionsCallRowStatus status,
     String? runId, {
     CallRunOutcome? outcome,
+    int? promisedAmountMinor,
+    String? promisedCurrency,
+    String? promisedDate,
   }) {
     var updated = row.copyWith(status: status);
     if (runId != null && runId.isNotEmpty) {
@@ -1456,6 +1475,17 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
     if (outcome != null) {
       updated = updated.copyWith(outcome: outcome);
+    }
+    if (promisedAmountMinor != null) {
+      updated = updated.copyWith(promisedAmountMinor: promisedAmountMinor);
+    }
+    final currency = promisedCurrency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      updated = updated.copyWith(promisedCurrency: currency);
+    }
+    final date = promisedDate?.trim();
+    if (date != null && date.isNotEmpty) {
+      updated = updated.copyWith(promisedDate: date);
     }
     return updated;
   }
@@ -1508,7 +1538,10 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
 
     if (call && send) {
-      state = state.copyWith(pendingSendAfterCall: true, callRetryDismissed: false);
+      state = state.copyWith(
+        pendingSendAfterCall: true,
+        callRetryDismissed: false,
+      );
       await confirmAndCall();
       await _maybeDispatchPendingSendAfterCall();
       return;
@@ -2070,10 +2103,10 @@ class ClosingAgentController extends _$ClosingAgentController {
         state.phase == ClosingAgentPhase.ritualRunning) {
       return;
     }
-    final result =
-        await ref.read(checkCreditLimitUseCaseProvider).execute(trimmed);
-    final level =
-        result.getRight().toNullable() ?? CreditWarningLevel.none;
+    final result = await ref
+        .read(checkCreditLimitUseCaseProvider)
+        .execute(trimmed);
+    final level = result.getRight().toNullable() ?? CreditWarningLevel.none;
     if (level != CreditWarningLevel.exceeded) {
       return;
     }
@@ -2429,7 +2462,8 @@ class ClosingAgentController extends _$ClosingAgentController {
         sendConsented: false,
         callProgress: null,
         callBatchTrigger: trigger,
-        sendOutreachEnabled: trigger == CallBatchTrigger.creditLimit ||
+        sendOutreachEnabled:
+            trigger == CallBatchTrigger.creditLimit ||
             state.sendOutreachEnabled ||
             _sendOutreach,
         actionFailure: null,
@@ -2444,9 +2478,15 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (!ref.mounted) {
       return;
     }
+    final reported = result.withCallReport(
+      CollectionsCallReport.fromProgress(
+        progress: state.callProgress,
+        shortlist: result.shortlist,
+      ),
+    );
     state = state.copyWith(
       phase: ClosingAgentPhase.ritualReport,
-      ritualResult: result,
+      ritualResult: reported,
       ritualPromptKind: null,
       ritualRetryAvailable: false,
       ritualTaskCurrent: null,

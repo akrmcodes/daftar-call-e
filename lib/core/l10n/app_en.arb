@@ -1720,6 +1720,21 @@
       "count": { "type": "int", "example": "4" }
     }
   },
+  "closingRitualCallReportTitle": "Call report",
+  "closingRitualCallPromiseLine": "Promised {amount} on {date}",
+  "@closingRitualCallPromiseLine": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "500.00 $" },
+      "date": { "type": "String", "example": "2026-09-15" }
+    }
+  },
+  "closingRitualCallRowSemantics": "Call {name}, {status}",
+  "@closingRitualCallRowSemantics": {
+    "placeholders": {
+      "name": { "type": "String", "example": "Mohamed" },
+      "status": { "type": "String", "example": "completed" }
+    }
+  },
   "closingRitualRetry": "Continue closing the day",
   "collectionsDeskTitle": "Collections",
   "collectionsDeskCount": "{count} reminders",

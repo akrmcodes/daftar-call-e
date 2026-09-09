@@ -5,6 +5,7 @@ import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
+import 'package:daftar/domain/value_objects/collections_call_report.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:equatable/equatable.dart';
@@ -20,6 +21,7 @@ class ClosingRitualResult extends Equatable {
     this.pdfPolicy = ClosingPdfPolicy.none,
     this.needsHuman = false,
     this.queueMetrics,
+    this.callReport,
     this.overdueTotal,
   });
 
@@ -44,6 +46,9 @@ class ClosingRitualResult extends Equatable {
   /// Desk/queue counts after the merchant leaves the Desk (null if Desk skipped).
   final CollectionsQueueMetrics? queueMetrics;
 
+  /// Device call summary for the hero report (null until the desk seals).
+  final CollectionsCallReport? callReport;
+
   /// Original shortlist length. Used after process-death restore.
   final int? overdueTotal;
 
@@ -52,19 +57,18 @@ class ClosingRitualResult extends Equatable {
 
   /// Email-rail rows in rank order (send set before merchant policy cap).
   List<CollectionsCandidate> get emailRailShortlist => [
-        for (final row in shortlist)
-          if (row.rail == OutreachRail.email ||
-              row.rail == OutreachRail.both ||
-              row.rail == OutreachRail.callUnavailable)
-            row,
-      ];
+    for (final row in shortlist)
+      if (row.rail == OutreachRail.email ||
+          row.rail == OutreachRail.both ||
+          row.rail == OutreachRail.callUnavailable)
+        row,
+  ];
 
   /// CALL-E call set in rank order.
   List<CollectionsCandidate> get callSet => [
-        for (final row in shortlist)
-          if (row.rail == OutreachRail.call || row.rail == OutreachRail.both)
-            row,
-      ];
+    for (final row in shortlist)
+      if (row.rail == OutreachRail.call || row.rail == OutreachRail.both) row,
+  ];
 
   /// Contacts that will receive reminder drafts (4.2).
   List<CollectionsCandidate> get reminderSet {
@@ -92,9 +96,7 @@ class ClosingRitualResult extends Equatable {
       case ClosingPdfPolicy.selective:
         return [
           for (final row in set)
-            if (row.ageDays >= 30 ||
-                row.toneBand == ReminderToneBand.firm)
-              row,
+            if (row.ageDays >= 30 || row.toneBand == ReminderToneBand.firm) row,
         ];
       case ClosingPdfPolicy.allInSet:
         return set;
@@ -117,6 +119,7 @@ class ClosingRitualResult extends Equatable {
           : pdfPolicy,
       needsHuman: needsHuman,
       queueMetrics: queueMetrics,
+      callReport: callReport,
       overdueTotal: overdueTotal,
     );
   }
@@ -131,6 +134,7 @@ class ClosingRitualResult extends Equatable {
       pdfPolicy: policy,
       needsHuman: needsHuman,
       queueMetrics: queueMetrics,
+      callReport: callReport,
       overdueTotal: overdueTotal,
     );
   }
@@ -145,6 +149,22 @@ class ClosingRitualResult extends Equatable {
       pdfPolicy: pdfPolicy,
       needsHuman: needsHuman,
       queueMetrics: metrics,
+      callReport: callReport,
+      overdueTotal: overdueTotal ?? shortlist.length,
+    );
+  }
+
+  /// Attaches the device call summary for the hero report.
+  ClosingRitualResult withCallReport(CollectionsCallReport report) {
+    return ClosingRitualResult(
+      summary: summary,
+      backupStatus: backupStatus,
+      shortlist: shortlist,
+      reminderPolicy: reminderPolicy,
+      pdfPolicy: pdfPolicy,
+      needsHuman: needsHuman,
+      queueMetrics: queueMetrics,
+      callReport: report,
       overdueTotal: overdueTotal ?? shortlist.length,
     );
   }
@@ -158,6 +178,7 @@ class ClosingRitualResult extends Equatable {
     pdfPolicy,
     needsHuman,
     queueMetrics,
+    callReport,
     overdueTotal,
   ];
 }

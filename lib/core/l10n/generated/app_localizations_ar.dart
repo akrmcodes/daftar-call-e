@@ -3782,6 +3782,19 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get closingRitualCallReportTitle => 'تقرير المكالمات';
+
+  @override
+  String closingRitualCallPromiseLine(String amount, String date) {
+    return 'وعد بـ $amount في $date';
+  }
+
+  @override
+  String closingRitualCallRowSemantics(String name, String status) {
+    return 'مكالمة $name، $status';
+  }
+
+  @override
   String get closingRitualRetry => 'متابعة إقفال اليوم';
 
   @override

@@ -1,3 +1,4 @@
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,5 +66,24 @@ void main() {
     final updated = row.copyWith(status: CollectionsCallRowStatus.ringing);
     expect(updated.runId, 'run-abc-123');
     expect(updated.status, CollectionsCallRowStatus.ringing);
+  });
+
+  test('copyWith keeps integer promise fields', () {
+    const row = CollectionsCallProgressRow(
+      contactId: 'a',
+      status: CollectionsCallRowStatus.ringing,
+      runId: 'run-abc-123',
+    );
+
+    final updated = row.copyWith(
+      status: CollectionsCallRowStatus.completed,
+      outcome: CallRunOutcome.promised,
+      promisedAmountMinor: 50000,
+      promisedCurrency: 'USD',
+      promisedDate: '2026-09-15',
+    );
+    expect(updated.promisedAmountMinor, 50000);
+    expect(updated.promisedCurrency, 'USD');
+    expect(updated.promisedDate, '2026-09-15');
   });
 }

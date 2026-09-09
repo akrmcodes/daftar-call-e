@@ -11,6 +11,9 @@ class CollectionsCallProgressRow extends Equatable {
     this.runId,
     this.outcome,
     this.retryCount = 0,
+    this.promisedAmountMinor,
+    this.promisedCurrency,
+    this.promisedDate,
   });
 
   /// Drift contact id.
@@ -28,11 +31,23 @@ class CollectionsCallProgressRow extends Equatable {
   /// 0 = first create; 1 = one no-answer/voicemail retry.
   final int retryCount;
 
+  /// Integer minor units from a terminal promised result.
+  final int? promisedAmountMinor;
+
+  /// ISO currency for [promisedAmountMinor].
+  final String? promisedCurrency;
+
+  /// Merchant calendar day `YYYY-MM-DD`.
+  final String? promisedDate;
+
   CollectionsCallProgressRow copyWith({
     CollectionsCallRowStatus? status,
     String? runId,
     CallRunOutcome? outcome,
     int? retryCount,
+    int? promisedAmountMinor,
+    String? promisedCurrency,
+    String? promisedDate,
   }) {
     return CollectionsCallProgressRow(
       contactId: contactId,
@@ -40,11 +55,23 @@ class CollectionsCallProgressRow extends Equatable {
       runId: runId ?? this.runId,
       outcome: outcome ?? this.outcome,
       retryCount: retryCount ?? this.retryCount,
+      promisedAmountMinor: promisedAmountMinor ?? this.promisedAmountMinor,
+      promisedCurrency: promisedCurrency ?? this.promisedCurrency,
+      promisedDate: promisedDate ?? this.promisedDate,
     );
   }
 
   @override
-  List<Object?> get props => [contactId, status, runId, outcome, retryCount];
+  List<Object?> get props => [
+    contactId,
+    status,
+    runId,
+    outcome,
+    retryCount,
+    promisedAmountMinor,
+    promisedCurrency,
+    promisedDate,
+  ];
 }
 
 /// Device-side call progress from server per-row results (no fake spinner).
