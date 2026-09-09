@@ -5188,3 +5188,22 @@ Skill still complements `kept`; dry-run only; YE still `unsupportedRegion`. Unic
 ### Status
 Owner must force-push `feat/ledger-collections-call` on `akrmcodes/awesome-phone-call-agents` (`--force-with-lease`), then reply on PR #385.
 
+## 2026-09-09 — Roadmap v3.5 destination lock (Callcentric + Linphone)
+
+### Context
+CALL-E Support (2026-09-09) confirmed the owner US Callcentric number answered in Linphone is supported for development **and** the submission demo. Disclose that the owner owns and answers the number. No second destination. Update the binding contract so film and live QA do not wait on a friend mobile.
+
+### Done
+- [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.5**: film/QA = owner Callcentric US DID + Linphone; §6.2 disclosure; §6.3 beat 0:40–2:10; J.10 test-number policy; risk row closed
+- No E.164 in the roadmap. §5.5 / Gate 5 left `[ ]`. No Cloud Run mutate
+
+### Architecture / decisions
+Product still supports AE/SA/EG in J.10; they are **not filmed**. YE remains email-only. KYC and contest rules still apply.
+
+### Ops / verification
+- Grep: no friend-mobile film path left as the primary take
+- Rehearsal runbook already assumed Callcentric + Linphone
+
+### Status
+Next: disclose owner-answered DID in README / contest disclosure (Stage 6.2); film per [`docs/qa/calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md) and [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md).
+

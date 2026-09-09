@@ -1,10 +1,10 @@
 # Daftar Closing Agent — CALL-E Contest Execution Roadmap (v3)
 
-> **Version:** 3.4 · **Date:** 2026-09-08 · **Submission Period:** 23 Jul 2026 – 14 Sep 2026 11:45pm SGT
+> **Version:** 3.5 · **Date:** 2026-09-09 · **Submission Period:** 23 Jul 2026 – 14 Sep 2026 11:45pm SGT
 >
 > **Derived from:** Locked Confirm & Call catalog (brainstorm Aug–Sep 2026) · [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) [Official Rules](https://call-e.devpost.com/rules) · [CALL-E integrations](https://github.com/CALLE-AI/call-e-integrations) region table · Developer API `POST /v1/calls` + `GET /v1/calls/{id}` (`calle-ai` 0.7.0) · MCP/CLI `plan_call` / `run_call` / `get_call_run` is a **separate** surface (owner-ops only) · disclosed Daftar ledger + All Things Agentic Closing Agent already in this repository ([`roadmap_v2.md`](roadmap_v2.md) v2.8, **frozen heritage**)
 >
-> **v3.1 headline:** This fork ships **Daftar Closing Agent — Confirm & Call** for CALL-E. After the merchant taps **Confirm & Call**, Cloud Run **`POST /v1/calls`** (`calle-ai` `calls.create`) phones the device-ranked, allowlisted, **region-eligible** overdue contacts. CALL-E negotiates a **promise** in Arabic or English and returns a **structured result**. The device writes **integer** `promised_amount_minor` into Drift. **Gemini never dials and never cashiers.** Money still commits **on confirm** (Model C). Gmail SMTP remains the rail for Yemen / missing phone / unsupported region / Confirm without calling. Stack: existing **Gemini 3.5 + ADK + Cloud Run** (eight frozen FunctionTools) plus a **sibling** CALL-E FastAPI route using the **Python `calle-ai==0.7.0` SDK** — **not** an ADK tool, mirroring [`agent/email_send/router.py`](../agent/email_send/router.py). New Cloud Run service **`daftar-call-e`**. Do **not** redeploy the frozen Agentic URL. Demo **Architecture HUD** adds a call chip (`runId` last-8 = CALL-E `call.id`). Test destination: owner **US DID** (Zadarma or equivalent) first; consented **SA/AE/EG** mobile last. Prize aim: **Most Practical**.
+> **v3.1 headline:** This fork ships **Daftar Closing Agent — Confirm & Call** for CALL-E. After the merchant taps **Confirm & Call**, Cloud Run **`POST /v1/calls`** (`calle-ai` `calls.create`) phones the device-ranked, allowlisted, **region-eligible** overdue contacts. CALL-E negotiates a **promise** in Arabic or English and returns a **structured result**. The device writes **integer** `promised_amount_minor` into Drift. **Gemini never dials and never cashiers.** Money still commits **on confirm** (Model C). Gmail SMTP remains the rail for Yemen / missing phone / unsupported region / Confirm without calling. Stack: existing **Gemini 3.5 + ADK + Cloud Run** (eight frozen FunctionTools) plus a **sibling** CALL-E FastAPI route using the **Python `calle-ai==0.7.0` SDK** — **not** an ADK tool, mirroring [`agent/email_send/router.py`](../agent/email_send/router.py). New Cloud Run service **`daftar-call-e`**. Do **not** redeploy the frozen Agentic URL. Demo **Architecture HUD** adds a call chip (`runId` last-8 = CALL-E `call.id`). Test **and film** destination: owner **Callcentric US DID**, answered in **Linphone** (CALL-E Support 2026-09-09; disclose owner answers it; no second destination). Prize aim: **Most Practical**.
 >
 > **v3.0 changelog:** New binding contract. Dual outreach rail. Device HITL Confirm Gate then sibling `plan-batch` / `run-batch`. Poll-first (no public webhook). YE not supported. Allowlist + kill switch. B-trigger. Portable `ledger-collections-call` skill. Stages 0–7 unchecked.
 >
@@ -15,6 +15,8 @@
 > **v3.3 changelog:** Close-the-day **plan confirm starts the ritual only**. Dual-rail consent is a **dedicated Collections Desk** after aging — not a paused “Dispatch collection emails” task and not four buttons on the plan. Device **Confirm & Call** = `plan-batch` then `run-batch` then poll `GET /v1/calls/{runId}`. Cloud Run kill switch `true` is a **demo-window opt-in** on service `daftar-call-e` only (default remains false). Handle store is process-local — live dial uses min-instances **1** for that window. CALL-E `recipient_result_schema` uses optional scalar JSON types (no `["integer","null"]` unions). Credits: laptop smoke + device live each burn the pool; stay inside **200**.
 >
 > **v3.4 changelog:** §5.4 is the awesome-list **merge contract** (not a thin checkbox). `ledger-collections-call` is complementary to [`apps/python/kept`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/apps/python/kept): HITL outbound call + integer display-only promise; never cashiers; never clones capture/reconcile. Product, J.9, and calendar unchanged from v3.3.
+>
+> **v3.5 changelog:** Destination lock only. CALL-E Support (2026-09-09) confirmed the owner **Callcentric US DID** answered in **Linphone** is supported for **development and the submission demo**; disclose that the owner owns and answers the number; **no different destination**. Live QA, rehearsal, and §6.3 film that DID only — not a friend SA/AE/EG mobile, not a second purchased number. KYC and contest rules still apply. J.9, calendar, and product dual rail unchanged from v3.4. **No E.164 in this file.**
 
 **Binding contract:** `docs/roadmap_v3.md` is the **sole implementation contract** for this CALL-E submission. [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its Gates. Product Phase 2 (`docs/product/roadmap.md` stub + `docs/archive/`) remains **deferred**.
 
@@ -63,7 +65,7 @@ Source: [CALL-E Devpost judging criteria](https://call-e.devpost.com/) · [Offic
 
 | Official question | Locked answer |
 | --- | --- |
-| **Real World Impact** — specific phone-work problem; credible for real users; **worth building further after the hackathon**; not generic “AI that makes phone calls” | Close-of-day collections for shops that still keep paper books. Dual rail is honest coverage (CALL-E cannot dial YE). First **0:00–0:25** of the video names the shop and the forgotten calls. **After submit:** Confirm & Call **stays in the product**; dual rail remains how Daftar covers shops CALL-E cannot dial. Phase 2 (sync / RevenueCat) stays deferred — that is not this feature. Demo destinations are consented (owner DID / friend), **never real debtors** |
+| **Real World Impact** — specific phone-work problem; credible for real users; **worth building further after the hackathon**; not generic “AI that makes phone calls” | Close-of-day collections for shops that still keep paper books. Dual rail is honest coverage (CALL-E cannot dial YE). First **0:00–0:25** of the video names the shop and the forgotten calls. **After submit:** Confirm & Call **stays in the product**; dual rail remains how Daftar covers shops CALL-E cannot dial. Phase 2 (sync / RevenueCat) stays deferred — that is not this feature. Demo destination is the **owner Callcentric US DID** (Linphone; disclose owner answers it), **never real debtors**, not a friend mobile |
 | **Quality of the Idea** — creative, non-obvious; understands the problem; contribution clear, well-scoped, reusable | Do **not** claim we invented collections promises ([`apps/python/kept`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/apps/python/kept) exists). Non-obvious vs that: (1) device-ranked aging — Gemini **does not** pick who is called; (2) region gate **refuses** unsupported numbers instead of failing PSTN; (3) dual rail (call + SMTP); (4) integer `promised_amount_minor` — promise **never** writes a ledger txn (Model C); (5) Arabic-first offline Drift as SoT. Reusable contribution: Agent Skill `ledger-collections-call` (one-liner in §5.4). B-trigger is README / ≤10 s or skip — **not** the climax |
 | **Technical Implementation** — thorough, skillful CALL-E use; working, non-trivial; **imported and actually called at runtime**, not just referenced | Cloud Run: `from calle import CalleClient`; `POST /v1/calls` with `recipients[]`, `region`, `locale`; both `result_schema` and `recipient_result_schema`; `Idempotency-Key`; poll `GET /v1/calls/{id}` to terminal (**no** `create_and_wait` on the request); integer coercion of `promised_amount_minor`. Catalog freeze forbids an ADK dial tool. HUD `call.id` last-8. **Runtime proof is the Flutter Gate 4 live call**, not the skill dry-run (dry-run is no-call by design). **Do not** open the film on Gemini / ADK / Cloud Run — judges score CALL-E; HUD in-frame is enough GCP proof |
 | **Product Experience & Demo** — complete, coherent experience; video clearly says what it does and **why it matters** | One workflow, one climax: Confirm & Call. Beat sheet §6.3. **On-device** Flutter footage of the live ring (rules: device for which it was built). English VO or EN subtitles; Devpost text **English**. ≤3:00. Promise card + HUD. Do **not** climax on mid-day capture, Drive, SMTP inbox, WhatsApp, or Gemini |
@@ -143,7 +145,7 @@ Must be **capable by end of Stage 4** (device QA with dial off). **Filming** is 
 
 1. Merchant **Confirm & Call** on the **Collections Desk** after aging (HITL — not the plan-review pair)
 2. Cloud Run **`plan-batch` (Daftar-local) then `run-batch` (`calls.create`)** using `calle-ai` (not an ADK tool)
-3. **One** allowlisted **US** destination rings (owner DID)
+3. **One** allowlisted **US** destination rings (owner **Callcentric DID** / **Linphone**; disclose owner answers)
 4. Structured outcome on device (`outcome` + integer promise fields) + HUD **`runId` last-8** (= CALL-E `call.id`)
 5. Cloud Logging **`daftar.agent.call`**
 6. A **YE-seeded** overdue row stays on **email** (region gate), never a failed CALL-E dial
@@ -163,7 +165,7 @@ Must be **capable by end of Stage 4** (device QA with dial off). **Filming** is 
 | **Completion proof** | SMTP `250` + inbox on camera | CALL-E terminal status + structured result + HUD `call.id` (**poll-first**) | `task_completed` ≠ paid; no public webhook |
 | **Cloud Run** | `daftar-closing-agent` URL | **New** `daftar-call-e`; Agentic URL **frozen** | Do not disturb Agentic judging |
 | **ADK catalog** | Eight `propose_*` tools; SMTP is sibling | **Same eight**; CALL-E is **another sibling** | Model must not dial |
-| **Test destination** | Owner Gmail plus-aliases | Owner **US DID** first; consented **SA/AE/EG** last | YE PSTN unsupported |
+| **Test destination** | Owner Gmail plus-aliases | Owner **Callcentric US DID** + **Linphone** (Support 2026-09-09). No friend mobile for film | YE PSTN unsupported |
 | **Reusable contribution** | App + SMTP | App + **Agent Skill** PR (`skills/ledger-collections-call/`) | Quality of Idea / community |
 
 ---
@@ -279,7 +281,7 @@ If Cloud Run or CALL-E unreachable: clear localized message; **manual ledger + q
 | Allowlist | Only E.164 in owner-ops allowlist (gitignored) may be passed to `run-batch`. Public demo stays dry-run |
 | DNC | Per-contact `doNotCall` → omit from call set |
 | Idempotency | `batchId` UUID; same batch must not double-dial (J.9) |
-| Consent | Owner plus-aliases / owned DID / written consented friend. **No real debtors** |
+| Consent | Owner plus-aliases / owned Callcentric DID (owner answers in Linphone). **No real debtors.** Do **not** film a friend mobile |
 | Disclose AI | C.3 task tells CALL-E to identify as the store’s assistant, not a human pretending otherwise |
 
 ---
@@ -405,13 +407,13 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 | **Sat 12 – Sun 13 Sep** | 6 | Video ≤3 min · README · awesome-list PR · Devpost · **video lock 13** | Gate 6 |
 | **Mon 14 Sep** | 7 | Submit by **official 23:45 SGT** (owner buffer ≤ **18:00 AST**) | Gate 7 |
 
-> **As-of note (v3.3 / v3.4):** This repository is a duplicate of the Agentic submission. Stages 0–7 **above** are CALL-E work. Do **not** rewrite v2.8 calendar history. v3.1 locked the Developer API surface. v3.2 locks judge-facing claims. v3.3 locks Collections Desk as the dual-rail confirm gate and device J.9 live path. **v3.4** locks §5.4 as the awesome-list merge contract (skill complementary to `kept`; product/J.9 unchanged).
+> **As-of note (v3.3 / v3.5):** This repository is a duplicate of the Agentic submission. Stages 0–7 **above** are CALL-E work. Do **not** rewrite v2.8 calendar history. v3.1 locked the Developer API surface. v3.2 locks judge-facing claims. v3.3 locks Collections Desk as the dual-rail confirm gate and device J.9 live path. **v3.4** locks §5.4 as the awesome-list merge contract (skill complementary to `kept`; product/J.9 unchanged). **v3.5** locks film/QA to the owner Callcentric DID + Linphone (Support 2026-09-09).
 
 ---
 
 ## Stage 0: CALL-E Foundation + Hygiene + Test Destination
 
-**Goal:** CALL-E can place **one** consented outbound call to an owner **US DID** answered in a provider app/webphone. Eligibility disclosure exists. New Cloud Run service is named and must not collide with the frozen Agentic URL. Secrets never land in git. `CALLE_ALLOW_DIAL` disk default remains **false**; Gate 0 smoke passed with a one-shot process env `true`.
+**Goal:** CALL-E can place **one** consented outbound call to an owner **Callcentric US DID** answered in **Linphone**. Eligibility disclosure exists. New Cloud Run service is named and must not collide with the frozen Agentic URL. Secrets never land in git. `CALLE_ALLOW_DIAL` disk default remains **false**; Gate 0 smoke passed with a one-shot process env `true`.
 
 **Prerequisites:** This fork at `/Users/aq/Work/01_Projects/daftar-call-e` is linked to a **new** git remote. Frozen Agentic `main` is not this repo. `.env` is gitignored.
 
@@ -420,13 +422,13 @@ Invariants: UUID PKs · integer money · UTC · masked E.164 in logs (last-4 onl
 **Integration / Architecture Notes:**
 
 - CALL-E is the **caller**. You buy a **destination** DID (US local), not a “from” number.
-- **Zadarma (recommended) or Sonetel (backup):** US geographic/mobile, inbound voice, **no SMS/10DLC**. Docs: passport/ID + **Yemen address** is enough — no US SSN/EIN. Answer **in the provider app/webphone over Wi‑Fi**. Do **not** forward to +967 as the primary path.
-- **If they reject +967 SMS at signup:** do not use a friend number yet. Next: Callcentric (email signup) → DIDWW (US geographic, no registration) → VoIP.ms. Details: [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.2.
+- **Locked film/QA destination (2026-09-09):** owner **Callcentric** US DID (Pay Per Minute, NY 347), answered in **Linphone** over Wi‑Fi. CALL-E Support confirmed this for **development and the submission demo**; **disclose** that the owner owns and answers the number; **no different destination**. KYC and contest rules still apply. The call alone does not guarantee a judging outcome.
+- **How we got here (heritage):** Zadarma/Sonetel rejected +967 SMS at signup. Callcentric (email signup) was the working path. DIDWW / VoIP.ms remain unused backups. Details: [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contest/CALLE_STAGE0_OWNER_OPS.md) §0.2.
 - **Do not** start with Twilio trial from Yemen (YE is not on Twilio’s trial-country list; trial inbound requires a **verified Caller ID** CALL-E does not have).
 - Skype Numbers are **dead** (May 2025).
-- Friend **SA/AE/EG** mobile is the **last** Arabic film take, not a forwarder.
+- Do **not** film a consented friend **SA/AE/EG** mobile. Support: you do not need a different destination. Arabic locale on the US DID is optional; YE remains email-only.
 - Optional owner-ops: [CALL-E installation guide](https://open.heycall-e.com/document/mcp-archive/CALL-E-installation-guide.md) installs CLI/MCP (`plan_call` / `run_call` / `get_call_run`). **Not** the production path. **Chat or MCP ringing does not prove Developer API KYC.**
-- Privacy: CALL-E / AIRUDDER API traffic is **Singapore-hosted**. Names and amounts leave the device. Test destinations only; disclose in README (Stage 6).
+- Privacy: CALL-E / AIRUDDER API traffic is **Singapore-hosted**. Names and amounts leave the device. Test destinations only; disclose owner-answered DID in README (Stage 6). **No E.164 in git.**
 
 ### Task Checklist
 
@@ -454,9 +456,9 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 - [x] Purchase **one** US local/mobile DID (Callcentric Pay Per Minute, NY 347 — 2026-09-02)
 - [x] Voice inbound only — **no** SMS enable, **no** 10DLC (confirm **Activate SMS** was not clicked)
-- [x] Confirm webphone/app rings from a **human** test call
+- [x] Confirm Linphone rings from a **human** test call (Wi‑Fi; extension SIP password; UDP)
 - [x] Put E.164 **only** in gitignored owner-ops / `.env` — **never this file, never git**
-- [x] Do **not** buy SA/AE/EG virtual numbers for development (expensive, heavier KYC). Arabic take = consented real mobile **last**
+- [x] Do **not** buy SA/AE/EG virtual numbers. **Do not** film a friend mobile. Support 2026-09-09: this Callcentric + Linphone setup is enough for the demo
 
 **0.3 Google Cloud (new service, same project)**
 
@@ -866,11 +868,11 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 
 **6.2 README / disclosure**
 
-- [ ] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E
-- [ ] Link v3.3 as **binding**; v2.8 as heritage
+- [ ] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E; one sentence that the demo destination is the **owner’s Callcentric US DID answered in Linphone** (no E.164)
+- [ ] Link v3.5 as **binding**; v2.8 as heritage
 - [ ] [`docs/README.md`](README.md) judge order updated
 - [x] [`docs/contest/README.md`](contest/README.md) execution pointer flipped to v3.3 (if not done in Stage 0)
-- [ ] Disclosure finalized (Stage 0 draft → final)
+- [ ] Disclosure finalized (Stage 0 draft → final): owner **owns and answers** the Callcentric US DID (CALL-E Support 2026-09-09). No live number in git
 
 **6.3 Video (Must)**
 
@@ -880,7 +882,7 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 - [ ] **Do not** open on Gemini / ADK / Cloud Run. **Do not** climax on mid-day capture, Drive, SMTP inbox, WhatsApp, Live API, inbound, “we invented collections promises,” or All Things Agentic 4:00 pacing
 - [ ] SMTP YE row: one `callUnavailable` badge + one line, or narrate
 - [ ] film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
-- [ ] **Owner film-day (moved from Stage 4.5):** warm `daftar-call-e` once per [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md); Confirm & Call → US DID rings → short consented script (“I’ll pay {integer} on {date}”); device shows outcome + promise card + HUD last-8; optional Cloud Logging screenshot; no real debtors; disarm dial immediately after terminal GET
+- [ ] **Owner film-day (moved from Stage 4.5):** warm `daftar-call-e` once per [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md); Confirm & Call → **Callcentric US DID rings Linphone** → short consented script (“I’ll pay {integer} on {date}”); device shows outcome + promise card + HUD last-8; optional Cloud Logging screenshot; no real debtors; **no friend mobile**; disarm dial immediately after terminal GET
 
 - [ ] **Beat sheet (lock):**
 
@@ -888,7 +890,7 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 | --- | --- | --- |
 | 0:00–0:25 | Paper book / forgotten close-of-day calls. Name the user (shop). | Impact — why it matters |
 | 0:25–0:40 | Confirm & Call on device (HITL). YE row `callUnavailable`. | Idea + coherent UX |
-| 0:40–2:10 | **Live** CALL-E ring on camera (US DID or consented SA). Say `calle-ai` / `POST /v1/calls`. | Technical — on-device, not laptop smoke |
+| 0:40–2:10 | **Live** CALL-E ring on camera (**owner Callcentric US DID** / Linphone). Say `calle-ai` / `POST /v1/calls`. Disclose owner answers. | Technical — on-device, not laptop smoke |
 | 2:10–2:40 | Promise card + HUD `call.id` last-8. Narrate **promise ≠ paid**. | Complete loop |
 | 2:40–3:00 | Dual rail / Confirm & Call stays in the product. Cut. | Impact tie-break |
 
@@ -1097,7 +1099,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 - Warm **`daftar-call-e`** once before recording; scale to zero after (min 0)
 - Watch budget alerts ($50 / $100 / $140)
 - Contest GCP on `akrm.codes@gmail.com` — do not mix product Drive OAuth clients
-- US DID: Callcentric PPM ~$1.95/mo + $3.95 setup if Zadarma/Sonetel reject +967 SMS; cancel if unused after contest
+- US DID: Callcentric PPM (bought 2026-09-02). Film and QA this DID only. Cancel if unused after contest
 - Gmail SMTP secret remains; CALL-E secret is additional
 - `https://test-api.heycall-e.com` is **not** the filmed path unless it is proven to ring the DID without burning prod credits
 
@@ -1111,7 +1113,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | Twilio/Bland/Live/WhatsApp as dialer | Explicit non-goals; C.3 + J.9 only |
 | YE not supported | Dual rail; never POST +967; MVF survey |
 | Gate 0 ring fails | Stop; do not build UI on hope |
-| Zadarma/Sonetel reject +967 SMS | Callcentric (email signup) → DIDWW → VoIP.ms; friend SA/AE/EG last; see owner-ops §0.2 |
+| Zadarma/Sonetel reject +967 SMS | **Closed:** Callcentric US DID + Linphone. Support 2026-09-09: no second destination. Do **not** film a friend SA/AE/EG mobile |
 | Twilio trial inbound verified-CallerID trap | Do not use Twilio trial as destination |
 | Looks like generic “AI calls” | Film close-the-day + aging rank + HITL + integer write-back |
 | Looks like `kept` / generic collections | Film close-the-day + dual rail + integer promise ≠ payment; do not claim invented the category |
@@ -1166,7 +1168,7 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 
 | Doc | Role |
 | --- | --- |
-| **`docs/roadmap_v3.md` v3.4** | **Binding** CALL-E implementation contract |
+| **`docs/roadmap_v3.md` v3.5** | **Binding** CALL-E implementation contract |
 | [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 | Frozen All Things Agentic heritage — **not** the live checklist |
 | [`docs/product/roadmap.md`](product/roadmap.md) | Phase 2 **deferred** after contest submit |
 | `docs/archive/product_roadmap_phase2_v3.6.md` | Archived full product plan (not binding) |
@@ -1345,10 +1347,10 @@ Snapshot used for planning (Sep 2026):
 
 | Use | Country | Code | Calling | Languages | Line |
 | --- | --- | --- | --- | --- | --- |
-| **Default demo** | United States | `US` | +1 | English | Local |
-| Arabic demo (last) | United Arab Emirates | `AE` | +971 | English, Arabic | Local |
-| Arabic demo (last) | Saudi Arabia | `SA` | +966 | English, Arabic | International (testing) |
-| Arabic demo (last) | Egypt | `EG` | +20 | English, Arabic | International |
+| **Default demo (locked)** | United States | `US` | +1 | English | Local — owner Callcentric DID / Linphone |
+| Supported (not filmed) | United Arab Emirates | `AE` | +971 | English, Arabic | Local |
+| Supported (not filmed) | Saudi Arabia | `SA` | +966 | English, Arabic | International (testing) |
+| Supported (not filmed) | Egypt | `EG` | +20 | English, Arabic | International |
 | Arabic option | Oman | `OM` | +968 | English, Arabic | International |
 | **Not supported** | Yemen | `YE` | +967 | — | **Email only** |
 
@@ -1361,8 +1363,8 @@ Snapshot used for planning (Sep 2026):
 - Do not invent `region: YE` to “see if it works” in production code paths.
 - **NANP:** `+1` is not uniquely `US`. Set `region` from allowlist/config (demo DID = `US`).
 
-**Test-number policy:** owner US DID (Zadarma/Sonetel) for development; consented SA/AE/EG mobile for the optional Arabic take; **no real debtors**; **no numbers in git**.
+**Test-number policy (locked 2026-09-09):** owner **Callcentric US DID** answered in **Linphone** for development, rehearsal ([`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md)), and the §6.3 video. CALL-E Support: disclose that the owner owns and answers the number; **no different destination**. **No friend mobile. No real debtors. No numbers in git.**
 
 ---
 
-*End of Contest Execution Roadmap v3.4 — implement top → bottom; check Validation Gates; do not mutate the Agentic Cloud Run URL; submit Stage 7.*
+*End of Contest Execution Roadmap v3.5 — implement top → bottom; check Validation Gates; do not mutate the Agentic Cloud Run URL; submit Stage 7. Film the owner Callcentric DID on Linphone.*
