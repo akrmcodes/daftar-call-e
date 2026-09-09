@@ -199,7 +199,10 @@ void main() {
     );
 
     expect(result.getRight().toNullable()?.storeName, 'Khazna Shop');
-    expect(result.getRight().toNullable()?.rows.single.body, contains('Khazna Shop'));
+    expect(
+      result.getRight().toNullable()?.rows.single.body,
+      contains('Khazna Shop'),
+    );
   });
 
   test('settings failure still builds with Arabic fallback', () async {
@@ -287,5 +290,60 @@ void main() {
 
     expect(row.callTask, contains('new goods are on hold'));
     expect(row.callTask, contains('acknowledged_hold'));
+  });
+
+  test(
+    'Arabic UI + US call row uses English C.3; email stays Arabic',
+    () async {
+      when(() => settings.get()).thenAnswer(
+        (_) async => const Right(AppSettings(locale: 'ar')),
+      );
+      const usPhone = '+15555550100';
+      final result = await useCase.execute(
+        ritual(
+          shortlist: [
+            candidate(
+              id: 'us',
+              ageDays: 40,
+              tone: ReminderToneBand.firm,
+              rail: OutreachRail.both,
+              email: 'us@example.com',
+              phone: usPhone,
+            ),
+          ],
+          reminders: ClosingReminderPolicy.all,
+          pdfs: ClosingPdfPolicy.none,
+        ),
+      );
+      final row = result.getRight().toNullable()!.rows.single;
+      expect(result.getRight().toNullable()?.locale, 'ar');
+      expect(row.callTask, contains('Call nus on behalf of'));
+      expect(row.callTask, isNot(contains('اتصل')));
+      expect(row.body, contains('مرحباً'));
+    },
+  );
+
+  test('Arabic UI + AE call row uses Arabic C.3', () async {
+    when(() => settings.get()).thenAnswer(
+      (_) async => const Right(AppSettings(locale: 'ar')),
+    );
+    final result = await useCase.execute(
+      ritual(
+        shortlist: [
+          candidate(
+            id: 'ae',
+            ageDays: 12,
+            tone: ReminderToneBand.reminder,
+            rail: OutreachRail.call,
+            email: null,
+            phone: '+971501234567',
+          ),
+        ],
+        reminders: ClosingReminderPolicy.none,
+        pdfs: ClosingPdfPolicy.none,
+      ),
+    );
+    final row = result.getRight().toNullable()!.rows.single;
+    expect(row.callTask, contains('اتصل بـnae'));
   });
 }

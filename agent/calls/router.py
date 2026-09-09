@@ -43,6 +43,7 @@ from calls.schemas import (
     Trigger,
 )
 from calls.settings import CallSettings
+from calls.spoken_locale import canonicalize_locale
 
 router = APIRouter(tags=["calls"])
 _log = logging.getLogger("daftar.calls")
@@ -326,7 +327,10 @@ async def _run_row(
                 task=snapshot.task,
                 phone=snapshot.phone_e164,
                 region=snapshot.region,
-                locale=snapshot.locale,
+                locale=canonicalize_locale(
+                    region=snapshot.region,
+                    locale=snapshot.locale,
+                ),
                 metadata=metadata,
                 idempotency_key=idempotency_key,
             )

@@ -17,6 +17,7 @@ import 'package:daftar/core/utils/haptic_service.dart';
 import 'package:daftar/core/utils/native_contact_picker_service.dart';
 import 'package:daftar/core/utils/tts_sanitize.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
+import 'package:daftar/domain/constants/calle_spoken_locale.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
@@ -1054,7 +1055,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
-    final locale = CollectionsReminderDraftComposer.normalizeLocale(
+    final uiLocale = CollectionsReminderDraftComposer.normalizeLocale(
       state.deskLocale,
     );
     final batchId = UuidUtil.generate();
@@ -1084,12 +1085,12 @@ class ClosingAgentController extends _$ClosingAgentController {
       correlationId: correlationId,
       trigger: state.callBatchTrigger,
       dryRun: false,
-      locale: locale,
+      locale: uiLocale,
       recipients: [
         for (final recipient in guard.recipients)
           _planRecipient(
             guard: recipient,
-            locale: locale,
+            uiLocale: uiLocale,
             storeName: state.deskStoreName,
           ),
       ],
@@ -1130,7 +1131,10 @@ class ClosingAgentController extends _$ClosingAgentController {
           contactId: row.contactId,
           runId: runId,
           region: region,
-          locale: locale,
+          locale: CalleSpokenLocale.bcp47(
+            region: region,
+            uiLocale: uiLocale,
+          ),
         ),
       );
       _setCallRowStatus(
@@ -1174,7 +1178,7 @@ class ClosingAgentController extends _$ClosingAgentController {
 
   CallPlanRecipient _planRecipient({
     required RunBatchRecipient guard,
-    required String locale,
+    required String uiLocale,
     required String storeName,
   }) {
     CollectionsDeskRow? desk;
@@ -1184,8 +1188,15 @@ class ClosingAgentController extends _$ClosingAgentController {
         break;
       }
     }
+    final spokenBcp47 = CalleSpokenLocale.bcp47(
+      region: guard.region,
+      uiLocale: uiLocale,
+    );
     final composed = CollectionsCallTaskComposer.compose(
-      locale: locale,
+      locale: CalleSpokenLocale.taskLanguage(
+        region: guard.region,
+        uiLocale: uiLocale,
+      ),
       storeName: desk != null && desk.storeName.isNotEmpty
           ? desk.storeName
           : storeName,
@@ -1196,24 +1207,19 @@ class ClosingAgentController extends _$ClosingAgentController {
       currencyCode: desk?.candidate.currencyCode ?? '',
       trigger: state.callBatchTrigger,
     );
-    final task = desk != null && desk.callTask.isNotEmpty
-        ? desk.callTask
-        : composed.task;
     return CallPlanRecipient(
       contactId: guard.contactId,
       phoneE164: guard.phoneE164,
       region: guard.region,
-      locale: locale,
-      task: task,
+      locale: spokenBcp47,
+      task: composed.task,
       customerName: desk != null && desk.customerName.isNotEmpty
           ? desk.customerName
           : composed.customerName,
       storeName: desk != null && desk.storeName.isNotEmpty
           ? desk.storeName
           : composed.storeName,
-      amountLine: desk != null && desk.amountLine.isNotEmpty
-          ? desk.amountLine
-          : composed.amountLine,
+      amountLine: composed.amountLine,
       doNotCall: desk?.candidate.doNotCall ?? false,
     );
   }
@@ -1676,7 +1682,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
-    final locale = CollectionsReminderDraftComposer.normalizeLocale(
+    final uiLocale = CollectionsReminderDraftComposer.normalizeLocale(
       state.deskLocale,
     );
     final correlationId =
@@ -1712,12 +1718,12 @@ class ClosingAgentController extends _$ClosingAgentController {
       correlationId: correlationId,
       trigger: state.callBatchTrigger,
       dryRun: false,
-      locale: locale,
+      locale: uiLocale,
       recipients: [
         for (final recipient in guard.recipients)
           _planRecipient(
             guard: recipient,
-            locale: locale,
+            uiLocale: uiLocale,
             storeName: state.deskStoreName,
           ),
       ],
@@ -1752,7 +1758,10 @@ class ClosingAgentController extends _$ClosingAgentController {
           contactId: row.contactId,
           runId: runId,
           region: region,
-          locale: locale,
+          locale: CalleSpokenLocale.bcp47(
+            region: region,
+            uiLocale: uiLocale,
+          ),
           retryCount: 1,
         ),
       );
@@ -2425,7 +2434,13 @@ class ClosingAgentController extends _$ClosingAgentController {
     try {
       final built = await ref
           .read(buildCollectionsDeskUseCaseProvider)
-          .execute(next, trigger: trigger);
+          .execute(
+            next,
+            trigger: trigger,
+            allowlistRegion: ref
+                .read(calleDevicePolicyProvider)
+                .allowlistRegion,
+          );
       final failure = built.getLeft().toNullable();
       if (failure != null) {
         state = state.copyWith(

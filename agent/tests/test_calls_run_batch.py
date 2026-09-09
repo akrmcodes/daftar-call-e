@@ -219,6 +219,20 @@ def test_happy_path_queues_without_logging_secrets(
     assert FAKE_RUN_ID in combined
 
 
+def test_arabic_locale_on_us_create_is_en_us() -> None:
+    client, _, fake = _app(_settings())
+    response, payload = _plan_then_run(
+        client,
+        plan=_plan_body(
+            recipients=[_plan_recipient(locale="ar")],
+        ),
+    )
+    assert response.status_code == 200
+    assert response.json()["results"][0]["status"] == "queued"
+    assert fake.calls[0]["locale"] == "en-US"
+    assert fake.calls[0]["task"] == C3_TASK
+
+
 def test_second_run_is_skipped_duplicate() -> None:
     client, _, fake = _app(_settings())
     first, payload = _plan_then_run(client)

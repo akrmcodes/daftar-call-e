@@ -411,6 +411,7 @@ void main() {
       () => buildDesk.execute(
         any(),
         trigger: any(named: 'trigger'),
+        allowlistRegion: any(named: 'allowlistRegion'),
       ),
     ).thenAnswer((invocation) async {
       final ritualResult =
@@ -1583,6 +1584,89 @@ void main() {
     expect(request.recipients, hasLength(1));
     expect(request.recipients.single.contactId, 'us');
   });
+
+  test(
+    'Arabic deskLocale on US Confirm and Call sends en-US and English C.3',
+    () async {
+      const usPhone = '+15555550100';
+      when(
+        () => buildDesk.execute(
+          any(),
+          trigger: any(named: 'trigger'),
+          allowlistRegion: any(named: 'allowlistRegion'),
+        ),
+      ).thenAnswer((invocation) async {
+        final ritualResult =
+            invocation.positionalArguments.first as ClosingRitualResult;
+        return Right(
+          CollectionsDeskBuildResult(
+            rows: [
+              for (final candidate in ritualResult.shortlist)
+                CollectionsDeskRow(
+                  candidate: candidate,
+                  body: 'body-${candidate.contactId}',
+                  customerName: candidate.name,
+                  storeName: 'Daftar',
+                  amountLine: '1.00 \$',
+                  callTask: 'اتصل بـ${candidate.name} نيابةً عن Daftar.',
+                  toneBand: candidate.toneBand,
+                  attachPdf: false,
+                ),
+            ],
+            locale: 'ar',
+            storeName: 'Daftar',
+          ),
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'Mohamed',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
+
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
+
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.deskLocale, 'ar');
+      expect(state.actionFailure, isNull);
+      final planCaptured = verify(
+        () => planCall.execute(captureAny()),
+      ).captured;
+      final request = planCaptured.single as CallPlanBatchRequest;
+      expect(request.locale, 'ar');
+      expect(request.recipients.single.locale, 'en-US');
+      expect(request.recipients.single.task, contains('Call Mohamed'));
+      expect(request.recipients.single.task, isNot(contains('اتصل')));
+    },
+  );
 
   test(
     'approveAndSend still dispatches YE after Confirm and Call omits YE',

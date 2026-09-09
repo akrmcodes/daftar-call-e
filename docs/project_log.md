@@ -5277,3 +5277,25 @@ Flutter-only. Promise ≠ payment (no ledger write, no “paid”/“delivered�
 ### Status
 Close the day again to see the call report on the sealed dashboard. Live dial window still armed until the owner asks to disarm.
 
+## 2026-09-10 — Arabic UI Confirm & Call (US DID locale)
+
+### Context
+Switching the app to Arabic then Confirm & Call showed the needs-human error card (“Call needs a look” / books unchanged) with **no ring**. Merchant UI `ar` was copied onto CALL-E `recipients[].locale` with an Arabic C.3 task. Mohamed’s destination is `region: US`; CALL-E lists English only (`en-US`) for US.
+
+### Done
+- Domain mapper [`CalleSpokenLocale`](../lib/domain/constants/calle_spoken_locale.dart): US (and non-Arabic J.10) → `en-US` + English C.3 even when UI is `ar`; AE/SA/EG/OM → `ar-{ISO}` when UI is Arabic
+- Desk C.3 preview matches the wire: [`BuildCollectionsDeskUseCase`](../lib/application/agent/build_collections_desk_use_case.dart) composes call tasks from spoken language; C.2 email stays Arabic
+- [`confirmAndCall`](../lib/presentation/providers/closing_agent_controller.dart) (close-day and credit-limit) sends BCP-47 on each recipient and always recomposes the task (stale Arabic `desk.callTask` is not forwarded)
+- Cloud Run safety net [`agent/calls/spoken_locale.py`](../agent/calls/spoken_locale.py) canonicalizes locale before `create`; task is not rewritten. **Not deployed**
+
+### Architecture / decisions
+UI locale ≠ PSTN locale. Batch `locale` remains `ar`|`en` for desk chrome and email. Frozen Agentic service untouched. No §5.5 tick.
+
+### Ops / verification
+- `flutter test` spoken-locale + desk UC + controller — including “Arabic deskLocale on US Confirm and Call sends en-US and English C.3” (72 controller tests passed)
+- `agent/.venv` pytest `test_spoken_locale.py` + `test_calls_run_batch.py` — 21 passed
+- `dart analyze` on touched libraries — clean
+
+### Status
+Hot-restart the Arabic UI session and Confirm & Call Mohamed again — Linphone should ring. Cloud Run coerce is in git only until a `daftar-call-e` deploy is requested.
+
