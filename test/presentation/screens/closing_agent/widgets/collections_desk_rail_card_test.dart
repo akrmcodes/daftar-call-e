@@ -1,6 +1,5 @@
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,23 +27,32 @@ void main() {
     expect(find.byType(Switch), findsOneWidget);
   });
 
-  testWidgets('selected card uses DaftarCard isSelected', (tester) async {
+  testWidgets('skipped subtitle is fully visible when rail is off', (tester) async {
+    const skipped =
+        'Skipped — No outbound calls will be placed';
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: CollectionsDeskRailCard(
-            title: 'Voice calls',
-            subtitle: 'On',
-            value: true,
-            enabled: true,
-            onChanged: (_) {},
+          body: SizedBox(
+            width: 320,
+            child: CollectionsDeskRailCard(
+              title: 'Voice calls',
+              subtitle: skipped,
+              value: false,
+              enabled: true,
+              onChanged: (_) {},
+            ),
           ),
         ),
       ),
     );
 
-    final card = tester.widget<DaftarCard>(find.byType(DaftarCard));
-    expect(card.isSelected, isTrue);
+    expect(find.text(skipped), findsOneWidget);
+    final subtitleFinder = find.text(skipped);
+    final subtitleBox = tester.getRect(subtitleFinder);
+    expect(subtitleBox.height, greaterThan(16));
+    expect(tester.getSize(find.byType(CollectionsDeskRailCard)).height,
+        greaterThan(subtitleBox.height + 24));
   });
 
   testWidgets('toggle invokes onChanged', (tester) async {

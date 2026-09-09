@@ -5321,3 +5321,18 @@ Presentation-only; `commitDeskOutreach({call, send})` contract unchanged. No Clo
 ### Status
 Hot-restart to see rail cards on the Collections Desk. Roadmap §5.5 unchanged.
 
+## 2026-09-10 — Collections Desk rail card layout polish
+
+### Context
+Toggling a rail off showed “Skipped — …” copy partially clipped; bordered `DaftarCard` chrome felt heavy.
+
+### Done
+- [`collections_desk_rail_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart): borderless stepped surface + `haloXs` when active only; fixed 56dp switch column; subtitle wraps up to 3 lines; text tap vs switch tap split
+- Widget test: skipped subtitle fully visible at 320dp width
+
+### Ops / verification
+- `flutter test` rail card + consent — 17 passed
+
+### Status
+Hot-restart to verify skipped-state copy on device.
+

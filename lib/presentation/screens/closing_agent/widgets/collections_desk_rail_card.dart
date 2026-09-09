@@ -3,18 +3,18 @@ import 'dart:async' show unawaited;
 import 'package:daftar/app/theme/app_colors.dart';
 import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_glows.dart';
+import 'package:daftar/app/theme/app_motion.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/core/utils/haptic_service.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_tap_target.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-/// Khazna outreach rail card — title, human subtitle, and adaptive switch.
+/// Khazna outreach rail row — borderless surface, title, subtitle, switch.
 ///
-/// Lapis appears as hairline border + [AppGlows.haloXs] when [value] is true;
-/// never as card fill or switch track paint (§8.10).
+/// Active rails use a stepped surface tint + [AppGlows.haloXs] only (no stroke).
+/// Lapis never fills the card or switch track (§8.10).
 class CollectionsDeskRailCard extends StatelessWidget {
   /// Creates a rail card.
   const CollectionsDeskRailCard({
@@ -41,9 +41,13 @@ class CollectionsDeskRailCard extends StatelessWidget {
   /// Toggles local intent before the merchant commits.
   final ValueChanged<bool> onChanged;
 
+  /// Trailing column width — keeps the switch off the subtitle text.
+  static const double switchSlotWidth = 56;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final active = value && enabled;
     final inkPrimary =
         isDark ? AppColors.inkPrimary : AppColors.inkPrimaryLight;
     final inkMuted = isDark ? AppColors.inkMuted : AppColors.inkMutedLight;
@@ -54,6 +58,10 @@ class CollectionsDeskRailCard extends StatelessWidget {
     final thumbOn = isDark ? AppColors.inkPrimary : AppColors.inkPrimaryLight;
     final thumbOff =
         isDark ? AppColors.inkSecondary : AppColors.inkSecondaryLight;
+    final surfaceActive = isDark ? AppColors.surface4 : AppColors.surface3Light;
+    final surfaceIdle = isDark
+        ? AppColors.surface3.withValues(alpha: 0.35)
+        : AppColors.surface2Light.withValues(alpha: 0.55);
 
     void toggle() {
       if (!enabled) {
@@ -69,25 +77,34 @@ class CollectionsDeskRailCard extends StatelessWidget {
       label: '$title. $subtitle',
       child: AnimatedContainer(
         duration: AppDimensions.animationFast,
-        curve: Curves.easeOutCubic,
+        curve: AppMotion.curveEnter,
+        clipBehavior: Clip.none,
         decoration: BoxDecoration(
+          color: active ? surfaceActive : surfaceIdle,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          boxShadow: value && enabled ? AppGlows.haloXs : null,
+          boxShadow: active ? AppGlows.haloXs : null,
         ),
-        child: DaftarCard(
-          variant: DaftarCardVariant.compact,
-          isSelected: value && enabled,
-          margin: EdgeInsets.zero,
-          onTap: enabled ? toggle : null,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          AppDimensions.spacingMd,
+          AppDimensions.spacingMd,
+          AppDimensions.spacingXs,
+          AppDimensions.spacingMd,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: enabled ? toggle : null,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.titleSmall.copyWith(
                         color: enabled
                             ? inkPrimary
@@ -100,60 +117,69 @@ class CollectionsDeskRailCard extends StatelessWidget {
                     const Gap(AppDimensions.spacingXxs),
                     Text(
                       subtitle,
+                      maxLines: 3,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: value && enabled ? inkSecondary : inkMuted,
-                        height: 1.4,
+                        color: active ? inkSecondary : inkMuted,
+                        height: 1.45,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Gap(AppDimensions.spacingSm),
-              DaftarTapTarget(
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    switchTheme: SwitchThemeData(
-                      thumbColor: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return thumbOn;
-                        }
-                        return thumbOff;
-                      }),
-                      trackColor: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return trackOn;
-                        }
-                        return trackOff;
-                      }),
-                      trackOutlineColor: WidgetStateProperty.resolveWith(
-                        (states) {
+            ),
+            SizedBox(
+              width: switchSlotWidth,
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: DaftarTapTarget(
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      switchTheme: SwitchThemeData(
+                        thumbColor: WidgetStateProperty.resolveWith((states) {
                           if (states.contains(WidgetState.selected)) {
-                            return isDark
-                                ? AppColors.lapis400
-                                : AppColors.lapis500;
+                            return thumbOn;
                           }
-                          return Colors.transparent;
-                        },
+                          return thumbOff;
+                        }),
+                        trackColor: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return trackOn;
+                          }
+                          return trackOff;
+                        }),
+                        trackOutlineColor: WidgetStateProperty.resolveWith(
+                          (states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return isDark
+                                  ? AppColors.lapis400
+                                  : AppColors.lapis500;
+                            }
+                            return Colors.transparent;
+                          },
+                        ),
+                      ),
+                      cupertinoOverrideTheme: CupertinoThemeData(
+                        primaryColor: thumbOn,
+                        applyThemeToAll: true,
                       ),
                     ),
-                    cupertinoOverrideTheme: CupertinoThemeData(
-                      primaryColor: thumbOn,
-                      applyThemeToAll: true,
+                    child: Switch.adaptive(
+                      value: value,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      onChanged: enabled
+                          ? (next) {
+                              unawaited(HapticService.selection());
+                              onChanged(next);
+                            }
+                          : null,
                     ),
-                  ),
-                  child: Switch.adaptive(
-                    value: value,
-                    onChanged: enabled
-                        ? (next) {
-                            unawaited(HapticService.selection());
-                            onChanged(next);
-                          }
-                        : null,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
