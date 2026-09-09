@@ -1756,38 +1756,77 @@
   "collectionsDeskConfirmWithoutCalling": "تأكيد دون اتصال",
   "collectionsDeskWithoutCalling": "دون اتصال",
   "collectionsDeskWithoutSending": "دون إرسال",
-  "collectionsDeskRailChipVoiceCalls": "مكالمات · {count}",
-  "@collectionsDeskRailChipVoiceCalls": {
+  "collectionsDeskRailTitleVoiceCalls": "مكالمات صوتية",
+  "collectionsDeskRailTitleEmailStatements": "كشوفات البريد",
+  "collectionsDeskRailCallOnSingle": "{count} مكالمة مجدولة ({name})",
+  "@collectionsDeskRailCallOnSingle": {
     "placeholders": {
-      "count": { "type": "int", "example": "2" }
+      "count": { "type": "int", "example": "1" },
+      "name": { "type": "String", "example": "محمد" }
     }
   },
-  "collectionsDeskRailChipEmail": "بريد · {count}",
-  "@collectionsDeskRailChipEmail": {
+  "collectionsDeskRailCallOnMultiple": "{count} مكالمات مجدولة · {name} و{othersCount} آخرين",
+  "@collectionsDeskRailCallOnMultiple": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "name": { "type": "String", "example": "محمد" },
+      "othersCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailCallOff": "تم التخطي — لن تُجرى أي مكالمات صادرة",
+  "collectionsDeskRailEmailOnMixed": "{count} كشوف ({pdfCount} مع مرفق PDF + {textCount} تذكيرات نصية)",
+  "@collectionsDeskRailEmailOnMixed": {
+    "placeholders": {
+      "count": { "type": "int", "example": "7" },
+      "pdfCount": { "type": "int", "example": "5" },
+      "textCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailEmailOnAllPdf": "{count} كشوف مع مرفق PDF",
+  "@collectionsDeskRailEmailOnAllPdf": {
     "placeholders": {
       "count": { "type": "int", "example": "5" }
     }
   },
-  "collectionsDeskCommitOutreachBoth": "تأكيد التواصل — {callCount} مكالمات + {emailCount} رسائل",
+  "collectionsDeskRailEmailOnAllText": "{count} تذكيرات نصية",
+  "@collectionsDeskRailEmailOnAllText": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskRailEmailOff": "تم التخطي — لن يُرسل أي بريد",
+  "collectionsDeskCommitCallPhrase": "{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}",
+  "@collectionsDeskCommitCallPhrase": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskCommitStatementPhrase": "{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}",
+  "@collectionsDeskCommitStatementPhrase": {
+    "placeholders": {
+      "count": { "type": "int", "example": "7" }
+    }
+  },
+  "collectionsDeskCommitOutreachBoth": "تأكيد ({callPhrase} + {emailPhrase})",
   "@collectionsDeskCommitOutreachBoth": {
     "placeholders": {
-      "callCount": { "type": "int", "example": "2" },
-      "emailCount": { "type": "int", "example": "5" }
+      "callPhrase": { "type": "String", "example": "مكالمة واحدة" },
+      "emailPhrase": { "type": "String", "example": "7 كشوف" }
     }
   },
-  "collectionsDeskCommitCallsOnly": "بدء المكالمات فقط — {count}",
+  "collectionsDeskCommitCallsOnly": "تأكيد ({callPhrase})",
   "@collectionsDeskCommitCallsOnly": {
     "placeholders": {
-      "count": { "type": "int", "example": "2" }
+      "callPhrase": { "type": "String", "example": "مكالمتان" }
     }
   },
-  "collectionsDeskCommitEmailOnly": "إرسال البريد فقط — {count}",
+  "collectionsDeskCommitEmailOnly": "إرسال الكشوفات فقط ({emailPhrase})",
   "@collectionsDeskCommitEmailOnly": {
     "placeholders": {
-      "count": { "type": "int", "example": "5" }
+      "emailPhrase": { "type": "String", "example": "7 كشوف" }
     }
   },
-  "collectionsDeskCommitSeal": "تخطي التواصل وإغلاق اليوم",
+  "collectionsDeskCommitSeal": "إغلاق اليوم دون تواصل",
   "collectionsDeskRetryUnanswered": "إعادة الاتصال بمن لم يرد — {count}",
   "@collectionsDeskRetryUnanswered": {
     "placeholders": {

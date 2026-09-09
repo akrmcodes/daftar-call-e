@@ -3934,32 +3934,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskWithoutSending => 'Without sending';
 
   @override
-  String collectionsDeskRailChipVoiceCalls(int count) {
-    return 'Voice calls · $count';
+  String get collectionsDeskRailTitleVoiceCalls => 'Voice calls';
+
+  @override
+  String get collectionsDeskRailTitleEmailStatements => 'Email statements';
+
+  @override
+  String collectionsDeskRailCallOnSingle(int count, String name) {
+    return '$count scheduled call ($name)';
   }
 
   @override
-  String collectionsDeskRailChipEmail(int count) {
-    return 'Email · $count';
+  String collectionsDeskRailCallOnMultiple(
+    int count,
+    String name,
+    int othersCount,
+  ) {
+    return '$count scheduled calls · $name and $othersCount more';
   }
 
   @override
-  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
-    return 'Confirm outreach — $callCount calls + $emailCount emails';
+  String get collectionsDeskRailCallOff =>
+      'Skipped — No outbound calls will be placed';
+
+  @override
+  String collectionsDeskRailEmailOnMixed(
+    int count,
+    int pdfCount,
+    int textCount,
+  ) {
+    return '$count statements ($pdfCount with PDF attachment + $textCount text reminders)';
   }
 
   @override
-  String collectionsDeskCommitCallsOnly(int count) {
-    return 'Start calls only — $count';
+  String collectionsDeskRailEmailOnAllPdf(int count) {
+    return '$count statements with PDF attachment';
   }
 
   @override
-  String collectionsDeskCommitEmailOnly(int count) {
-    return 'Send email only — $count';
+  String collectionsDeskRailEmailOnAllText(int count) {
+    return '$count text reminders';
   }
 
   @override
-  String get collectionsDeskCommitSeal => 'Skip outreach and seal the day';
+  String get collectionsDeskRailEmailOff => 'Skipped — No emails will be sent';
+
+  @override
+  String collectionsDeskCommitCallPhrase(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calls',
+      one: '1 call',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskCommitStatementPhrase(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count statements',
+      one: '1 statement',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(
+    String callPhrase,
+    String emailPhrase,
+  ) {
+    return 'Confirm ($callPhrase + $emailPhrase)';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(String callPhrase) {
+    return 'Confirm ($callPhrase)';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(String emailPhrase) {
+    return 'Send statements only ($emailPhrase)';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'Close day without outreach';
 
   @override
   String collectionsDeskRetryUnanswered(int count) {

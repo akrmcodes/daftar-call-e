@@ -5299,3 +5299,25 @@ UI locale ≠ PSTN locale. Batch `locale` remains `ar`|`en` for desk chrome and 
 ### Status
 Hot-restart the Arabic UI session and Confirm & Call Mohamed again — Linphone should ring. Cloud Run coerce is in git only until a `daftar-call-e` deploy is requested.
 
+## 2026-09-10 — Collections Desk rail cards (HITL dock polish)
+
+### Context
+The Collections Desk outreach dock used compact filter chips (`Voice calls · 1`) that read like debug math. Merchants needed executive-grade rail selection with human microcopy and a contextual confirm CTA.
+
+### Done
+- New [`collections_desk_rail_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart): `DaftarCard` compact + `Switch.adaptive`, lapis hairline/`haloXs` when on, muted skip copy when off
+- Rewrote [`collections_desk_consent_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): vertical rail stack, call lead name + PDF/text tiering subtitles, ICU-plural CTA (`Confirm (1 call + 7 statements)`, etc.)
+- [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): derives `callLeadName`, `pdfCount`, `textCount` from desk rows
+- EN/AR ARB keys in `app_en.arb` / `app_ar.arb`; removed `collections_desk_rail_chip.dart`
+- Widget tests: consent, rail card, panel — 24 passed
+
+### Architecture / decisions
+Presentation-only; `commitDeskOutreach({call, send})` contract unchanged. No Cloud Run / agent changes. Promises remain display-only.
+
+### Ops / verification
+- `flutter test test/presentation/screens/closing_agent/widgets/collections_desk_{consent,rail_card,panel}_test.dart` — 24 passed
+- `dart analyze` on touched closing_agent widgets — clean
+
+### Status
+Hot-restart to see rail cards on the Collections Desk. Roadmap §5.5 unchanged.
+

@@ -3,6 +3,7 @@ import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
@@ -162,6 +163,9 @@ class CollectionsDeskPanel extends StatelessWidget {
       (row) => row.status == CollectionsDeskRowStatus.pending,
     );
     final busy = busyContactId != null;
+    final callLeadName = _callLeadName(rows);
+    final pdfCount = _emailPdfCount(rows);
+    final textCount = emailCount - pdfCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -238,6 +242,9 @@ class CollectionsDeskPanel extends StatelessWidget {
             child: CollectionsDeskConsentCard(
               callCount: callCount,
               emailCount: emailCount,
+              callLeadName: callLeadName,
+              pdfCount: pdfCount,
+              textCount: textCount < 0 ? 0 : textCount,
               callConsented: callConsented,
               sendOutreachEnabled: sendOutreachEnabled,
               busy: busy,
@@ -331,3 +338,32 @@ class CollectionsDeskPanel extends StatelessWidget {
 }
 
 void _collectionsDeskQueueNoop() {}
+
+bool _isCallRail(OutreachRail rail) {
+  return rail == OutreachRail.call || rail == OutreachRail.both;
+}
+
+bool _isEmailRail(OutreachRail rail) {
+  return rail == OutreachRail.email ||
+      rail == OutreachRail.both ||
+      rail == OutreachRail.callUnavailable;
+}
+
+String _callLeadName(List<CollectionsDeskRow> rows) {
+  for (final row in rows) {
+    if (_isCallRail(row.candidate.rail)) {
+      return row.candidate.name;
+    }
+  }
+  return '';
+}
+
+int _emailPdfCount(List<CollectionsDeskRow> rows) {
+  var count = 0;
+  for (final row in rows) {
+    if (_isEmailRail(row.candidate.rail) && row.attachPdf) {
+      count += 1;
+    }
+  }
+  return count;
+}

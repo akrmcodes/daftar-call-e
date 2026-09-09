@@ -6964,40 +6964,105 @@ abstract class AppLocalizations {
   /// **'دون إرسال'**
   String get collectionsDeskWithoutSending;
 
-  /// No description provided for @collectionsDeskRailChipVoiceCalls.
+  /// No description provided for @collectionsDeskRailTitleVoiceCalls.
   ///
   /// In ar, this message translates to:
-  /// **'مكالمات · {count}'**
-  String collectionsDeskRailChipVoiceCalls(int count);
+  /// **'مكالمات صوتية'**
+  String get collectionsDeskRailTitleVoiceCalls;
 
-  /// No description provided for @collectionsDeskRailChipEmail.
+  /// No description provided for @collectionsDeskRailTitleEmailStatements.
   ///
   /// In ar, this message translates to:
-  /// **'بريد · {count}'**
-  String collectionsDeskRailChipEmail(int count);
+  /// **'كشوفات البريد'**
+  String get collectionsDeskRailTitleEmailStatements;
+
+  /// No description provided for @collectionsDeskRailCallOnSingle.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مكالمة مجدولة ({name})'**
+  String collectionsDeskRailCallOnSingle(int count, String name);
+
+  /// No description provided for @collectionsDeskRailCallOnMultiple.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مكالمات مجدولة · {name} و{othersCount} آخرين'**
+  String collectionsDeskRailCallOnMultiple(
+    int count,
+    String name,
+    int othersCount,
+  );
+
+  /// No description provided for @collectionsDeskRailCallOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التخطي — لن تُجرى أي مكالمات صادرة'**
+  String get collectionsDeskRailCallOff;
+
+  /// No description provided for @collectionsDeskRailEmailOnMixed.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} كشوف ({pdfCount} مع مرفق PDF + {textCount} تذكيرات نصية)'**
+  String collectionsDeskRailEmailOnMixed(
+    int count,
+    int pdfCount,
+    int textCount,
+  );
+
+  /// No description provided for @collectionsDeskRailEmailOnAllPdf.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} كشوف مع مرفق PDF'**
+  String collectionsDeskRailEmailOnAllPdf(int count);
+
+  /// No description provided for @collectionsDeskRailEmailOnAllText.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} تذكيرات نصية'**
+  String collectionsDeskRailEmailOnAllText(int count);
+
+  /// No description provided for @collectionsDeskRailEmailOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التخطي — لن يُرسل أي بريد'**
+  String get collectionsDeskRailEmailOff;
+
+  /// No description provided for @collectionsDeskCommitCallPhrase.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}'**
+  String collectionsDeskCommitCallPhrase(int count);
+
+  /// No description provided for @collectionsDeskCommitStatementPhrase.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}'**
+  String collectionsDeskCommitStatementPhrase(int count);
 
   /// No description provided for @collectionsDeskCommitOutreachBoth.
   ///
   /// In ar, this message translates to:
-  /// **'تأكيد التواصل — {callCount} مكالمات + {emailCount} رسائل'**
-  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount);
+  /// **'تأكيد ({callPhrase} + {emailPhrase})'**
+  String collectionsDeskCommitOutreachBoth(
+    String callPhrase,
+    String emailPhrase,
+  );
 
   /// No description provided for @collectionsDeskCommitCallsOnly.
   ///
   /// In ar, this message translates to:
-  /// **'بدء المكالمات فقط — {count}'**
-  String collectionsDeskCommitCallsOnly(int count);
+  /// **'تأكيد ({callPhrase})'**
+  String collectionsDeskCommitCallsOnly(String callPhrase);
 
   /// No description provided for @collectionsDeskCommitEmailOnly.
   ///
   /// In ar, this message translates to:
-  /// **'إرسال البريد فقط — {count}'**
-  String collectionsDeskCommitEmailOnly(int count);
+  /// **'إرسال الكشوفات فقط ({emailPhrase})'**
+  String collectionsDeskCommitEmailOnly(String emailPhrase);
 
   /// No description provided for @collectionsDeskCommitSeal.
   ///
   /// In ar, this message translates to:
-  /// **'تخطي التواصل وإغلاق اليوم'**
+  /// **'إغلاق اليوم دون تواصل'**
   String get collectionsDeskCommitSeal;
 
   /// No description provided for @collectionsDeskRetryUnanswered.

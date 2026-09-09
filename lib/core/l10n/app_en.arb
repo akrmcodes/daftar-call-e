@@ -1780,38 +1780,77 @@
   "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
   "collectionsDeskWithoutCalling": "Without calling",
   "collectionsDeskWithoutSending": "Without sending",
-  "collectionsDeskRailChipVoiceCalls": "Voice calls · {count}",
-  "@collectionsDeskRailChipVoiceCalls": {
+  "collectionsDeskRailTitleVoiceCalls": "Voice calls",
+  "collectionsDeskRailTitleEmailStatements": "Email statements",
+  "collectionsDeskRailCallOnSingle": "{count} scheduled call ({name})",
+  "@collectionsDeskRailCallOnSingle": {
     "placeholders": {
-      "count": { "type": "int", "example": "2" }
+      "count": { "type": "int", "example": "1" },
+      "name": { "type": "String", "example": "Mohamed" }
     }
   },
-  "collectionsDeskRailChipEmail": "Email · {count}",
-  "@collectionsDeskRailChipEmail": {
+  "collectionsDeskRailCallOnMultiple": "{count} scheduled calls · {name} and {othersCount} more",
+  "@collectionsDeskRailCallOnMultiple": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "name": { "type": "String", "example": "Mohamed" },
+      "othersCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailCallOff": "Skipped — No outbound calls will be placed",
+  "collectionsDeskRailEmailOnMixed": "{count} statements ({pdfCount} with PDF attachment + {textCount} text reminders)",
+  "@collectionsDeskRailEmailOnMixed": {
+    "placeholders": {
+      "count": { "type": "int", "example": "7" },
+      "pdfCount": { "type": "int", "example": "5" },
+      "textCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailEmailOnAllPdf": "{count} statements with PDF attachment",
+  "@collectionsDeskRailEmailOnAllPdf": {
     "placeholders": {
       "count": { "type": "int", "example": "5" }
     }
   },
-  "collectionsDeskCommitOutreachBoth": "Confirm outreach — {callCount} calls + {emailCount} emails",
+  "collectionsDeskRailEmailOnAllText": "{count} text reminders",
+  "@collectionsDeskRailEmailOnAllText": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+  "collectionsDeskRailEmailOff": "Skipped — No emails will be sent",
+  "collectionsDeskCommitCallPhrase": "{count, plural, =1{1 call} other{{count} calls}}",
+  "@collectionsDeskCommitCallPhrase": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskCommitStatementPhrase": "{count, plural, =1{1 statement} other{{count} statements}}",
+  "@collectionsDeskCommitStatementPhrase": {
+    "placeholders": {
+      "count": { "type": "int", "example": "7" }
+    }
+  },
+  "collectionsDeskCommitOutreachBoth": "Confirm ({callPhrase} + {emailPhrase})",
   "@collectionsDeskCommitOutreachBoth": {
     "placeholders": {
-      "callCount": { "type": "int", "example": "2" },
-      "emailCount": { "type": "int", "example": "5" }
+      "callPhrase": { "type": "String", "example": "1 call" },
+      "emailPhrase": { "type": "String", "example": "7 statements" }
     }
   },
-  "collectionsDeskCommitCallsOnly": "Start calls only — {count}",
+  "collectionsDeskCommitCallsOnly": "Confirm ({callPhrase})",
   "@collectionsDeskCommitCallsOnly": {
     "placeholders": {
-      "count": { "type": "int", "example": "2" }
+      "callPhrase": { "type": "String", "example": "2 calls" }
     }
   },
-  "collectionsDeskCommitEmailOnly": "Send email only — {count}",
+  "collectionsDeskCommitEmailOnly": "Send statements only ({emailPhrase})",
   "@collectionsDeskCommitEmailOnly": {
     "placeholders": {
-      "count": { "type": "int", "example": "5" }
+      "emailPhrase": { "type": "String", "example": "7 statements" }
     }
   },
-  "collectionsDeskCommitSeal": "Skip outreach and seal the day",
+  "collectionsDeskCommitSeal": "Close day without outreach",
   "collectionsDeskRetryUnanswered": "Retry unanswered — {count}",
   "@collectionsDeskRetryUnanswered": {
     "placeholders": {

@@ -103,10 +103,10 @@ void main() {
 
     expect(find.byType(CollectionsDeskRowCard), findsNWidgets(5));
     expect(
-      find.text('Confirm outreach — 1 calls + 5 emails'),
+      find.text('Confirm (1 call + 5 statements)'),
       findsOneWidget,
     );
-    expect(find.text('Voice calls · 1'), findsOneWidget);
+    expect(find.text('Voice calls'), findsOneWidget);
     expect(find.text('Dispatch collection emails'), findsNothing);
     expect(find.text('Open collections desk'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
@@ -214,7 +214,7 @@ void main() {
     expect(find.text('Open WhatsApp'), findsNothing);
     expect(find.text('Pause'), findsNothing);
     expect(
-      find.text('Confirm outreach — 1 calls + 2 emails'),
+      find.text('Confirm (1 call + 2 statements)'),
       findsOneWidget,
     );
     expect(find.text('Skip outreach'), findsNothing);
@@ -328,7 +328,7 @@ void main() {
 
     expect(find.text('Retry sending'), findsOneWidget);
     expect(
-      find.text('Confirm outreach — 1 calls + 2 emails'),
+      find.text('Confirm (1 call + 2 statements)'),
       findsOneWidget,
     );
     await tester.tap(find.text('Retry sending'));
