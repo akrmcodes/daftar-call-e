@@ -83,7 +83,6 @@ class ClosingRitualCallReportSection extends StatelessWidget {
                   child: _CallReportRow(
                     row: row,
                     l10n: l10n,
-                    isDark: isDark,
                     inkPrimary: inkPrimary,
                     inkMuted: inkMuted,
                     warning: warning,
@@ -113,7 +112,6 @@ class _CallReportRow extends StatelessWidget {
   const _CallReportRow({
     required this.row,
     required this.l10n,
-    required this.isDark,
     required this.inkPrimary,
     required this.inkMuted,
     required this.warning,
@@ -122,7 +120,6 @@ class _CallReportRow extends StatelessWidget {
 
   final CollectionsCallReportRow row;
   final AppLocalizations l10n;
-  final bool isDark;
   final Color inkPrimary;
   final Color inkMuted;
   final Color warning;
@@ -184,7 +181,6 @@ class _CallReportRow extends StatelessWidget {
     if (status == CollectionsCallReportStatus.completed) {
       return _CallCompletedSeal(
         label: label,
-        isDark: isDark,
         inkPrimary: inkPrimary,
         lapis: lapis,
       );
@@ -242,50 +238,28 @@ class _CallReportRow extends StatelessWidget {
   }
 }
 
-/// Lapis verification seal for a successfully dialed contact.
+/// Lapis verification mark for a successfully dialed contact.
 class _CallCompletedSeal extends StatelessWidget {
   const _CallCompletedSeal({
     required this.label,
-    required this.isDark,
     required this.inkPrimary,
     required this.lapis,
   });
 
   final String label;
-  final bool isDark;
   final Color inkPrimary;
   final Color lapis;
 
-  static const double _sealSize = 18;
-  static const double _iconSize = 14;
-
   @override
   Widget build(BuildContext context) {
-    final fill = isDark ? AppColors.surface5 : AppColors.surface3Light;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ExcludeSemantics(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: fill,
-              border: Border.all(
-                color: lapis,
-                width: AppDimensions.dividerThickness,
-              ),
-              boxShadow: const [AppGlows.glowXs],
-            ),
-            child: SizedBox(
-              width: _sealSize,
-              height: _sealSize,
-              child: Icon(
-                Icons.verified_rounded,
-                size: _iconSize,
-                color: lapis,
-              ),
-            ),
+          child: Icon(
+            Icons.verified_rounded,
+            size: AppDimensions.iconSmall,
+            color: lapis,
           ),
         ),
         const Gap(AppDimensions.spacingXxs),
