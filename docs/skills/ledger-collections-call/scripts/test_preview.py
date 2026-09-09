@@ -43,7 +43,7 @@ class PreviewDryRunTest(unittest.TestCase):
         self.assertIn("status: not_called", text)
         self.assertIn("blocker: dryRunDefault", text)
         self.assertIn("+*******0100", text)
-        self.assertNotIn("+15555550100", text)
+        self.assertNotIn("+12025550100", text)
         self.assertIn("USD 15.00", text)
         self.assertIn("idempotencyKey:", text)
         self.assertIn("promised / refused", text)
@@ -52,7 +52,7 @@ class PreviewDryRunTest(unittest.TestCase):
     def test_ye_region_refused(self) -> None:
         payload = _sample()
         payload["region"] = "YE"
-        payload["phoneE164"] = "+967771234567"
+        payload["phoneE164"] = "+96755501000"
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
             json.dump(payload, handle)
             path = Path(handle.name)
@@ -63,6 +63,21 @@ class PreviewDryRunTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("status: not_called", text)
         self.assertIn("blocker: unsupportedRegion", text)
+        self.assertNotIn("Call Alex", text)
+
+    def test_unicode_digits_are_not_e164(self) -> None:
+        payload = _sample()
+        payload["phoneE164"] = "+1202555014\u0667"
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            json.dump(payload, handle)
+            path = Path(handle.name)
+        try:
+            code, text = preview_file(path, live=False, utc_day="2026-09-08")
+        finally:
+            path.unlink(missing_ok=True)
+        self.assertEqual(code, 0)
+        self.assertIn("status: not_called", text)
+        self.assertIn("blocker: invalidPhone", text)
         self.assertNotIn("Call Alex", text)
 
     def test_dnc_refused(self) -> None:

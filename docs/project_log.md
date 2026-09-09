@@ -5165,3 +5165,26 @@ Owner ops only — not §5.5 freeze, not film. Resume from Pass A unless `agent/
 ### Status
 Stack **cold**. Remaining: Pass A/B on `R5CT10G3LXH` (full rebuild), arm dial true min 1, one Confirm & Call, immediate disarm. Next: execute [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md) when Linphone and the demo device are ready.
 
+## 2026-09-09 — PR #385 review: reserved numbers + ASCII E.164
+
+### Context
+Ray-56 required two merge blockers on [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385): replace the plausible YE mobile fixture, and reject Unicode digits in E.164 validation. Rewrite the PR commit so the old number is not in history.
+
+### Done
+- Source [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/): US fixture `+12025550100` (NANP 202-555-0100); YE refuse `+96755501000`; `_E164_RE` is `^\+[1-9][0-9]{7,14}$` with `fullmatch`; Unicode-digit test (`\u0667`)
+- Safety/examples copy: ASCII digits; NANP reserved `555-01xx`; no `+96777…`
+- Byte-identical copy into clone `skills/ledger-collections-call/`
+- Clone commit **amended** locally: `c1396c9` (was `5f77698`). Same title; body records reserved `555-01xx` and ASCII E.164. **Not force-pushed**
+
+### Architecture / decisions
+Skill still complements `kept`; dry-run only; YE still `unsupportedRegion`. Unicode Nd must not pass as E.164. daftar-call-e history is a new commit (not rewritten). Frozen Cloud Run untouched.
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 7 passed
+- Clone: 7 tests; `python3 scripts/validate_repository.py` → `Repository validation passed.`
+- `git grep` on clone HEAD: no `+967771234567`, no `+15555550100` in the skill
+- No deploy; no `CALLE_ALLOW_DIAL=true`; §5.5 / Gate 5 left `[ ]`
+
+### Status
+Owner must force-push `feat/ledger-collections-call` on `akrmcodes/awesome-phone-call-agents` (`--force-with-lease`), then reply on PR #385.
+

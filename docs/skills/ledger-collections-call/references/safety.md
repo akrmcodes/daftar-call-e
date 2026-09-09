@@ -10,9 +10,9 @@ Phone calls cost money and a person's attention. This skill places **zero** call
 
 ## Phone numbers
 
-- Destination must be E.164 (`+` then 8–15 digits, first digit 1–9).
+- Destination must be E.164 (`+` then 8–15 **ASCII** digits `[0-9]`, first digit 1–9). Unicode digits are not E.164.
 - Mask to last four digits in every preview, log, and example.
-- Use fictional `+1555…` numbers in samples. Never commit a real person's number.
+- Samples use the NANP-reserved `555-01xx` block (fixture `+12025550100`). Never commit a real person's number.
 
 ## Financial boundary
 

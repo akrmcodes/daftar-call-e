@@ -62,7 +62,7 @@ SUPPORTED_REGIONS: frozenset[str] = frozenset(
 )
 
 _NANP_REGIONS: frozenset[str] = frozenset({"US", "CA"})
-_E164_RE = re.compile(r"^\+[1-9]\d{7,14}$")
+_E164_RE = re.compile(r"^\+[1-9][0-9]{7,14}$")
 _UUID_RE = re.compile(
     r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 )
@@ -110,7 +110,7 @@ GOAL_TEMPLATE = (
 
 
 def is_valid_e164(phone: str) -> bool:
-    return bool(_E164_RE.match(phone))
+    return bool(_E164_RE.fullmatch(phone))
 
 
 def mask_e164(phone: str) -> str:

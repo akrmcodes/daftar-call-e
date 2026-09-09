@@ -790,7 +790,7 @@ skills/ledger-collections-call/          # awesome-list copy — same bytes
 ├── scripts/
 │   └── preview.py                       # stdlib; default no network
 └── assets/
-    └── sample-overdue.json              # +15555550100; integer amountMinor
+    └── sample-overdue.json              # +12025550100 (NANP 555-0100); integer amountMinor
 ```
 
 - [x] Source copy lands at [`docs/skills/ledger-collections-call/`](skills/ledger-collections-call/)

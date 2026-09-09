@@ -1,12 +1,12 @@
 # Examples
 
-Every phone number below is fictional (`+1555…` or a documented YE example used only to show a refuse). No emails except `@example.com` if present.
+Every phone number below is fictional. The US fixture is the NANP-reserved `555-01xx` block (`+12025550100`). The YE example is a non-assigned `+967555…` row used only to show a refuse. No emails except `@example.com` if present.
 
 ## Safe
 
 ### Dry-run of an authorized US overdue row
 
-Intake: `assets/sample-overdue.json` (`+15555550100`, `region: US`, integer `amountMinor`).
+Intake: `assets/sample-overdue.json` (`+12025550100`, `region: US`, integer `amountMinor`).
 
 If the skill lives under `docs/skills/` (originating product repo):
 
@@ -26,7 +26,7 @@ Expected: `status: not_called`, masked phone, printed CALL-E task and schema, de
 
 ### YE refused before dial
 
-Same JSON with `"region": "YE"` and `"phoneE164": "+967155555010"`.
+Same JSON with `"region": "YE"` and `"phoneE164": "+96755501000"`.
 
 Expected: `status: not_called`, `blocker: unsupportedRegion`. No POST.
 
