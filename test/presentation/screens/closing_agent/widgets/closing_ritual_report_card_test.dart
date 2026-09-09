@@ -247,6 +247,7 @@ void main() {
     expect(find.text('Call report'), findsOneWidget);
     expect(find.text('Mohamed'), findsOneWidget);
     expect(find.text('completed'), findsOneWidget);
+    expect(find.byIcon(Icons.verified_rounded), findsOneWidget);
     expect(find.textContaining('500.00'), findsOneWidget);
     expect(find.textContaining('2026-09-15'), findsOneWidget);
     expect(find.textContaining('kgSfxdIw'), findsOneWidget);

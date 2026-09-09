@@ -83,9 +83,11 @@ class ClosingRitualCallReportSection extends StatelessWidget {
                   child: _CallReportRow(
                     row: row,
                     l10n: l10n,
+                    isDark: isDark,
                     inkPrimary: inkPrimary,
                     inkMuted: inkMuted,
                     warning: warning,
+                    lapis: lapis,
                   ),
                 );
               },
@@ -111,16 +113,20 @@ class _CallReportRow extends StatelessWidget {
   const _CallReportRow({
     required this.row,
     required this.l10n,
+    required this.isDark,
     required this.inkPrimary,
     required this.inkMuted,
     required this.warning,
+    required this.lapis,
   });
 
   final CollectionsCallReportRow row;
   final AppLocalizations l10n;
+  final bool isDark;
   final Color inkPrimary;
   final Color inkMuted;
   final Color warning;
+  final Color lapis;
 
   @override
   Widget build(BuildContext context) {
@@ -147,12 +153,7 @@ class _CallReportRow extends StatelessWidget {
                 constraints: const BoxConstraints(minHeight: 32),
                 child: Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: Text(
-                    statusLabel,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: _statusColor(row.status),
-                    ),
-                  ),
+                  child: _buildStatusLabel(row.status, statusLabel),
                 ),
               ),
             ],
@@ -176,15 +177,31 @@ class _CallReportRow extends StatelessWidget {
     );
   }
 
-  Color _statusColor(CollectionsCallReportStatus status) {
+  Widget _buildStatusLabel(
+    CollectionsCallReportStatus status,
+    String label,
+  ) {
+    if (status == CollectionsCallReportStatus.completed) {
+      return _CallCompletedSeal(
+        label: label,
+        isDark: isDark,
+        inkPrimary: inkPrimary,
+        lapis: lapis,
+      );
+    }
+    return Text(label, style: _statusStyle(status));
+  }
+
+  TextStyle _statusStyle(CollectionsCallReportStatus status) {
+    const base = AppTextStyles.labelSmall;
     return switch (status) {
-      CollectionsCallReportStatus.failed => warning,
+      CollectionsCallReportStatus.failed => base.copyWith(color: warning),
       CollectionsCallReportStatus.callUnavailable ||
       CollectionsCallReportStatus.skipped ||
-      CollectionsCallReportStatus.completed ||
       CollectionsCallReportStatus.planned ||
-      CollectionsCallReportStatus.ringing =>
-        inkMuted,
+      CollectionsCallReportStatus.ringing ||
+      CollectionsCallReportStatus.completed =>
+        base.copyWith(color: inkMuted),
     };
   }
 
@@ -222,5 +239,64 @@ class _CallReportRow extends StatelessWidget {
       CollectionsCallReportStatus.callUnavailable =>
         l10n.collectionsDeskRailCallUnavailable,
     };
+  }
+}
+
+/// Lapis verification seal for a successfully dialed contact.
+class _CallCompletedSeal extends StatelessWidget {
+  const _CallCompletedSeal({
+    required this.label,
+    required this.isDark,
+    required this.inkPrimary,
+    required this.lapis,
+  });
+
+  final String label;
+  final bool isDark;
+  final Color inkPrimary;
+  final Color lapis;
+
+  static const double _sealSize = 18;
+  static const double _iconSize = 14;
+
+  @override
+  Widget build(BuildContext context) {
+    final fill = isDark ? AppColors.surface5 : AppColors.surface3Light;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ExcludeSemantics(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: fill,
+              border: Border.all(
+                color: lapis,
+                width: AppDimensions.dividerThickness,
+              ),
+              boxShadow: const [AppGlows.glowXs],
+            ),
+            child: SizedBox(
+              width: _sealSize,
+              height: _sealSize,
+              child: Icon(
+                Icons.verified_rounded,
+                size: _iconSize,
+                color: lapis,
+              ),
+            ),
+          ),
+        ),
+        const Gap(AppDimensions.spacingXxs),
+        Text(
+          label,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: inkPrimary,
+            letterSpacing: 0.2,
+          ),
+        ),
+      ],
+    );
   }
 }
