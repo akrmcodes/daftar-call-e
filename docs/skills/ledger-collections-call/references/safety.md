@@ -12,7 +12,7 @@ Phone calls cost money and a person's attention. This skill places **zero** call
 
 - Destination must be E.164 (`+` then 8–15 **ASCII** digits `[0-9]`, first digit 1–9). Unicode digits are not E.164.
 - Mask to last four digits in every preview, log, and example.
-- Samples use the NANP-reserved `555-01xx` block (fixture `+12025550100`). Never commit a real person's number.
+- Samples use only the NANP-reserved `555-01xx` block (fixture `+12025550100`). Never commit a real person's number or a full non-reserved E.164.
 
 ## Financial boundary
 
@@ -26,7 +26,7 @@ The skill name does **not** mean a money write.
 
 ## Region
 
-Refuse **before** `POST /v1/calls` when the ISO region is unsupported, including **YE**, or when the E.164 calling code maps to YE (`+967`). See `references/regions.md`.
+Refuse **before** `POST /v1/calls` when the ISO region is unsupported, including **YE**, or when the E.164 calling-code **prefix** is YE (`+967`). Published fixtures still use the reserved NANP number; do not put a full YE subscriber number in this skill. See `references/regions.md`.
 
 ## Retries and cancellation
 

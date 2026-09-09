@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from preview import main, preview_file
+from preview import calling_is_ye, main, preview_file
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE = ROOT / "assets" / "sample-overdue.json"
@@ -52,7 +52,6 @@ class PreviewDryRunTest(unittest.TestCase):
     def test_ye_region_refused(self) -> None:
         payload = _sample()
         payload["region"] = "YE"
-        payload["phoneE164"] = "+96755501000"
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
             json.dump(payload, handle)
             path = Path(handle.name)
@@ -64,6 +63,10 @@ class PreviewDryRunTest(unittest.TestCase):
         self.assertIn("status: not_called", text)
         self.assertIn("blocker: unsupportedRegion", text)
         self.assertNotIn("Call Alex", text)
+
+    def test_ye_calling_code_prefix_only(self) -> None:
+        self.assertTrue(calling_is_ye("+967"))
+        self.assertFalse(calling_is_ye("+12025550100"))
 
     def test_unicode_digits_are_not_e164(self) -> None:
         payload = _sample()

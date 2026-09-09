@@ -5207,3 +5207,27 @@ Product still supports AE/SA/EG in J.10; they are **not filmed**. YE remains ema
 ### Status
 Next: disclose owner-answered DID in README / contest disclosure (Stage 6.2); film per [`docs/qa/calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md) and [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md).
 
+## 2026-09-09 — PR #385: reserved NANP fixtures only (rewrite history)
+
+### Context
+Ray-56 at `da77bce` accepted ASCII E.164. The remaining privacy blocker was the full YE fixture `+96755501000` (not NANPA `555-01xx`). It was still in the tree and in commit `c1396c9`; a follow-up commit would not have been enough.
+
+### Done
+- Source [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/): YE refuse keeps `phoneE164` = `+12025550100` and sets `"region": "YE"`; `calling_is_ye("+967")` prefix-only test; examples/safety drop full `+967` subscriber wording
+- Lockstep clone `skills/ledger-collections-call/` (byte-identical). Locked README one-liner unchanged; both Skills bullets (`ledger-collections-call` then `rdn-intake-referral`) after `concord-policy-audit`
+- Recreated linear PR branch from CALLE-AI `main` `d2e7a4f`; one commit `9b12a7c` `feat(ledger-collections-call): add HITL integer-promise collections skill`. `c1396c9` is not an ancestor
+- `git push --force-with-lease origin feat/ledger-collections-call` on fork `akrmcodes/awesome-phone-call-agents` only (`da77bce` → `9b12a7c`)
+
+### Architecture / decisions
+Keep NANPA reserved `555-01xx` only. YE refuse is ISO region (and calling-code **prefix** `+967` in prose/runtime). No complete non-reserved E.164 in the skill tree. daftar-call-e history is a new commit (not rewritten). Frozen Cloud Run untouched. No live DID.
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 8 passed
+- Clone: 8 tests; `python3 scripts/validate_repository.py` → `Repository validation passed.`
+- `rg '\+967[0-9]{6,}'` on both skill folders — zero matches
+- `git grep` on clone HEAD: no `+96755501000`, no `+967771234567`, no `+15555550100` under `skills/ledger-collections-call/`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; §5.5 / Gate 5 left `[ ]`
+
+### Status
+PR tip is `9b12a7c` on [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385). Owner can reply to Ray.
+

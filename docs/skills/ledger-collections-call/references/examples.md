@@ -1,6 +1,6 @@
 # Examples
 
-Every phone number below is fictional. The US fixture is the NANP-reserved `555-01xx` block (`+12025550100`). The YE example is a non-assigned `+967555…` row used only to show a refuse. No emails except `@example.com` if present.
+Every phone number below is fictional. The only published E.164 is the NANP-reserved `555-01xx` block (`+12025550100`). YE refuse uses that same fixture with `"region": "YE"`. No emails except `@example.com` if present.
 
 ## Safe
 
@@ -26,7 +26,7 @@ Expected: `status: not_called`, masked phone, printed CALL-E task and schema, de
 
 ### YE refused before dial
 
-Same JSON with `"region": "YE"` and `"phoneE164": "+96755501000"`.
+Same JSON with `"region": "YE"` (keep the reserved `+12025550100` fixture).
 
 Expected: `status: not_called`, `blocker: unsupportedRegion`. No POST.
 
