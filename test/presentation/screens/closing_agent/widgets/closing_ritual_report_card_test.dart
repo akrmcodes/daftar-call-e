@@ -231,6 +231,11 @@ void main() {
                   promisedCurrency: 'USD',
                   promisedDate: '2026-09-15',
                 ),
+                CollectionsCallReportRow(
+                  contactId: 'ye',
+                  name: 'Ahmed',
+                  status: CollectionsCallReportStatus.callUnavailable,
+                ),
               ],
             ),
           ),
@@ -245,6 +250,8 @@ void main() {
     expect(find.textContaining('500.00'), findsOneWidget);
     expect(find.textContaining('2026-09-15'), findsOneWidget);
     expect(find.textContaining('kgSfxdIw'), findsOneWidget);
+    expect(find.text('Ahmed'), findsOneWidget);
+    expect(find.text("Can't call"), findsOneWidget);
     expect(find.text('A promise is not a payment'), findsOneWidget);
     expect(find.text('paid'), findsNothing);
     expect(find.text('delivered'), findsNothing);

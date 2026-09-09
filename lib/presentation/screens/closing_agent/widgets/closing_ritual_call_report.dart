@@ -86,7 +86,6 @@ class ClosingRitualCallReportSection extends StatelessWidget {
                     inkPrimary: inkPrimary,
                     inkMuted: inkMuted,
                     warning: warning,
-                    isDark: isDark,
                   ),
                 );
               },
@@ -115,7 +114,6 @@ class _CallReportRow extends StatelessWidget {
     required this.inkPrimary,
     required this.inkMuted,
     required this.warning,
-    required this.isDark,
   });
 
   final CollectionsCallReportRow row;
@@ -123,14 +121,12 @@ class _CallReportRow extends StatelessWidget {
   final Color inkPrimary;
   final Color inkMuted;
   final Color warning;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final statusLabel = _statusLabel(l10n, row.status);
     final runTail = ArchitectureHudSnapshot.tail8(row.runId);
     final promiseLine = _promiseLine(l10n);
-    final failed = row.status == CollectionsCallReportStatus.failed;
 
     return Semantics(
       container: true,
@@ -139,7 +135,6 @@ class _CallReportRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
@@ -148,10 +143,17 @@ class _CallReportRow extends StatelessWidget {
                 ),
               ),
               const Gap(AppDimensions.spacingSm),
-              _StatusChip(
-                label: statusLabel,
-                isDark: isDark,
-                inkPrimary: failed ? warning : inkPrimary,
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 32),
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    statusLabel,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: _statusColor(row.status),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -172,6 +174,18 @@ class _CallReportRow extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _statusColor(CollectionsCallReportStatus status) {
+    return switch (status) {
+      CollectionsCallReportStatus.failed => warning,
+      CollectionsCallReportStatus.callUnavailable ||
+      CollectionsCallReportStatus.skipped ||
+      CollectionsCallReportStatus.completed ||
+      CollectionsCallReportStatus.planned ||
+      CollectionsCallReportStatus.ringing =>
+        inkMuted,
+    };
   }
 
   String? _promiseLine(AppLocalizations l10n) {
@@ -208,43 +222,5 @@ class _CallReportRow extends StatelessWidget {
       CollectionsCallReportStatus.callUnavailable =>
         l10n.collectionsDeskRailCallUnavailable,
     };
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-    required this.isDark,
-    required this.inkPrimary,
-  });
-
-  final String label;
-  final bool isDark;
-  final Color inkPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    final fill = isDark ? AppColors.surface5 : AppColors.surface3Light;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 32),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXs),
-        ),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimensions.spacingSm,
-            vertical: 6,
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: AppTextStyles.labelSmall.copyWith(color: inkPrimary),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
