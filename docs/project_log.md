@@ -5142,3 +5142,26 @@ Unchanged: skill complements `kept`; display-only integer promise; dry-run defau
 ### Status
 §5.4 merge-contract work is complete pending maintainer review. Next: paste this PR URL on Devpost (§6.4), answer review comments, then Stage 5.5 freeze / Stage 6 packaging.
 
+## 2026-09-09 — Pre–Stage 5.5 rehearsal paused (runbook)
+
+### Context
+Owner rehearsal before Stage 5.5 (dry device QA, then one live US DID ring, then shut down) was started then paused. Capture the checkpoint and remaining steps in a QA runbook so execution can resume later without re-deploying or leaving dial armed overnight.
+
+### Done
+- Deploy **`daftar-call-e` only** (`DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL` unset, min default **0**): revision **`daftar-call-e-00009-659`**. Post-verify: `CALLE_ALLOW_DIAL=false`, scale **0/2**, SA `call-e-runner`
+- Warm `/list-apps` on owner-ops `daftar-call-e-url` → `["closing_agent"]`
+- Laptop no-PSTN smoke [`agent/scripts/smoke_calls_plan_run.py`](../agent/scripts/smoke_calls_plan_run.py): `overall_pass=True` (kill switch, YE, dry-run). Dest last-4 `7244` only
+- Overlay `CALLE_ALLOW_DIAL` empty (gitignored). Device `flutter run` **Lost connection** — Pass A on-phone QA not finished
+- Runbook [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md); index in [`docs/qa/README.md`](docs/qa/README.md); pointers from [`stage4_phone_qa.md`](docs/qa/stage4_phone_qa.md) and [`calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md)
+
+### Architecture / decisions
+Owner ops only — not §5.5 freeze, not film. Resume from Pass A unless `agent/` changed after `00009-659`. Live window still requires **min 1** (process-local confirm handle). Do not copy the film SOP env-only snippet that arms dial with min 0. Frozen Agentic service remains describe-only.
+
+### Ops / verification
+- `tool/check_agentic_freeze.sh` → Freeze OK: **`daftar-closing-agent-00055-pbm`**
+- No `CALLE_ALLOW_DIAL=true` left on Cloud Run; overlay empty; no overnight arm
+- Roadmap §5.5 / Gate 5 left `[ ]`
+
+### Status
+Stack **cold**. Remaining: Pass A/B on `R5CT10G3LXH` (full rebuild), arm dial true min 1, one Confirm & Call, immediate disarm. Next: execute [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md) when Linphone and the demo device are ready.
+

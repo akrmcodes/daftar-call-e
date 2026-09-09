@@ -1,6 +1,6 @@
 # CALL-E live dial window (Stage 6 film only)
 
-**Do not run this SOP during Stage 4 device QA.** Use [`stage4_phone_qa.md`](stage4_phone_qa.md) with dial **off** before Stage 5.
+**Do not run this SOP during Stage 4 device QA.** Use [`stage4_phone_qa.md`](stage4_phone_qa.md) with dial **off** before Stage 5. Pre–Stage 5.5 owner rehearsal (not filming): [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md).
 
 This document is the **credit-safe** procedure for the one consented live ring filmed in §6.3 Video.
 

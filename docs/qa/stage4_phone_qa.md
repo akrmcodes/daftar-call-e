@@ -4,7 +4,7 @@ Owner phone pass **before Stage 5**. This is **not** filming. PSTN must stay off
 
 **Binding contract:** [`docs/roadmap_v3.md`](../roadmap_v3.md) §4.5 + Stage 4 Validation Gate.
 
-**Live ring (Stage 6 film only):** [`calle_live_dial_window.md`](calle_live_dial_window.md) — do **not** run that SOP during this pass.
+**Live ring (Stage 6 film only):** [`calle_live_dial_window.md`](calle_live_dial_window.md) — do **not** run that SOP during this pass. Pre–Stage 5.5 owner rehearsal (dry QA then one ring then shut down): [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md).
 
 Full scenario regression (optional, longer): [`closing_agent_scenario_checklist.md`](closing_agent_scenario_checklist.md).
 
