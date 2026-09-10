@@ -45,6 +45,7 @@ void main() {
     bool showHybridELeftover = false,
     bool showRetrySend = false,
     bool sendOutreachEnabled = true,
+    double paddingBottom = 0,
     VoidCallback? onApproveAndSend,
   }) {
     return CollectionsDeskPanel(
@@ -75,6 +76,7 @@ void main() {
       onQueueSkip: onQueueSkip,
       showHybridELeftover: showHybridELeftover,
       showRetrySend: showRetrySend,
+      paddingBottom: paddingBottom,
     );
   }
 
@@ -334,5 +336,35 @@ void main() {
     await tester.tap(find.text('Retry sending'));
     await tester.pump();
     expect(retryCount, 1);
+  });
+
+  testWidgets('keyboard inset does not overflow the desk Column', (tester) async {
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SizedBox(
+            width: 360,
+            height: 386,
+            child: panel(
+              rows: [row(0), row(1)],
+              startSendingIsPrimary: true,
+              paddingBottom: 156,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Voice calls'), findsOneWidget);
   });
 }

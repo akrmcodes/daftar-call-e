@@ -9,7 +9,6 @@ import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -226,11 +225,10 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
           top: BorderSide(color: hairline, width: 0.5),
         ),
       ),
-      child: DaftarCard(
-        variant: DaftarCardVariant.premium,
-        margin: const EdgeInsetsDirectional.fromSTEB(
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
           AppDimensions.pagePaddingH,
-          AppDimensions.spacingXs,
+          AppDimensions.spacingSm,
           AppDimensions.pagePaddingH,
           AppDimensions.spacingXs,
         ),

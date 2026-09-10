@@ -59,9 +59,6 @@ class CollectionsDeskRailCard extends StatelessWidget {
     final trackOff = isDark ? AppColors.surface5 : AppColors.surface3Light;
     final thumbOn = isDark ? AppColors.inkPrimary : AppColors.inkPrimaryLight;
     final surfaceActive = isDark ? AppColors.surface4 : AppColors.surface3Light;
-    final surfaceIdle = isDark
-        ? AppColors.surface3.withValues(alpha: 0.35)
-        : AppColors.surface2Light.withValues(alpha: 0.55);
     final semanticsBody = detail == null ? subtitle : '$subtitle. $detail';
 
     void toggle() {
@@ -81,7 +78,7 @@ class CollectionsDeskRailCard extends StatelessWidget {
         curve: AppMotion.curveEnter,
         clipBehavior: Clip.none,
         decoration: BoxDecoration(
-          color: active ? surfaceActive : surfaceIdle,
+          color: active ? surfaceActive : Colors.transparent,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
           boxShadow: active ? AppGlows.haloXs : null,
         ),
