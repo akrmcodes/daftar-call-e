@@ -5431,3 +5431,25 @@ No E.164 / allowlist values printed. Device `flutter run` was already stopped.
 ### Status
 Stack **cold**. Confirm & Call on a fresh desk should refuse PSTN. Next: Stage 6 packaging; re-arm only when filming.
 
+## 2026-09-10 — Stage 6.1 contest architecture (markdown + mermaid)
+
+### Context
+Gate 5 is green. Judge-facing [`contest_architecture.md`](architecture/contest_architecture.md) still described All Things Agentic Taskmaster / SMTP climax / service `daftar-closing-agent`. CALL-E Stage Two has no “Architectural Discipline 30%” prize — the page must show sibling SDK, poll-first, dual rail, and HITL Validate / Create / Poll.
+
+### Done
+- Rewrote [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md): CALL-E header, judge glance, TB mermaid on **`daftar-call-e`**, HITL LR rail, locked captions (not an ADK tool; Agentic URL not this service; Developer API not MCP). PNG embed kept; owner-replace note. No PNG generated.
+- [`test/core/contest/contest_architecture_png_test.dart`](../test/core/contest/contest_architecture_png_test.dart): caption/service locks; existing PNG path/size checks unchanged
+- [`docs/architecture/README.md`](architecture/README.md): mermaid is source; PNG is owner export
+- Roadmap §6.1 HITL + Caption `[x]`; **(and PNG)** left `[ ]` until owner overwrite. §6.2–6.6 untouched
+
+### Architecture / decisions
+`plan-batch` never dials; device confirm handle then `run-batch` → `CalleClient.calls.create`. Poll is GET only. Promise display-only. Frozen Agentic hostname is caption-only, not the runtime box. No E.164.
+
+### Ops / verification
+```bash
+flutter test test/core/contest/contest_architecture_png_test.dart   # 6 passed
+```
+
+### Status
+Owner: export the TB mermaid to [`docs/architecture/contest_architecture.png`](architecture/contest_architecture.png), then tick the remaining §6.1 PNG box. Next: §6.2 README / disclosure. Do not film until §6.3 SOP.
+

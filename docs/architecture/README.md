@@ -4,8 +4,8 @@
 
 | Document | Role |
 | --- | --- |
-| [`contest_architecture.md`](contest_architecture.md) | One-glance flow, PNG, HITL, frozen tools |
-| [`contest_architecture.png`](contest_architecture.png) | Judge-facing diagram (Devpost upload) |
+| [`contest_architecture.md`](contest_architecture.md) | CALL-E judge glance, mermaid **source**, HITL Validate / Create / Poll, locked captions |
+| [`contest_architecture.png`](contest_architecture.png) | Owner export of the TB mermaid for Devpost (overwrite heritage PNG; do not generate in-agent) |
 
 Judges: start at the root [`README.md`](../../README.md).
 

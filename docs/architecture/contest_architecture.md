@@ -1,100 +1,110 @@
-# Daftar Closing Agent — Contest Architecture (Taskmaster)
+# Daftar Closing Agent — Confirm & Call (CALL-E architecture)
 
-> **Track:** Taskmaster · **Stack:** Flutter + Drift · Cloud Run (ADK) · Gemini 3.5 · Gmail SMTP  
-> **Binding contract:** [`docs/roadmap_v2.md`](../roadmap_v2.md) · **Wire:** [`agent/openapi.yaml`](../../agent/openapi.yaml)
+> **Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · prize aim **Most Practical**  
+> **Runtime:** Flutter + Drift · Cloud Run **`daftar-call-e`** · `calle-ai==0.7.0` · Gemini 3.5 (proposals only) · Gmail SMTP (email rail)  
+> **Binding contract:** [`docs/roadmap_v3.md`](../roadmap_v3.md) v3.5 · **Wire:** [`agent/openapi.yaml`](../../agent/openapi.yaml)  
+> **Heritage (do not execute):** [`docs/roadmap_v2.md`](../roadmap_v2.md) v2.8
 
-Best Architectural Design is awarded to top scorers on **Architectural Discipline (30%)** — not a separate rubric.
+CALL-E Stage Two is four equal scores (Impact, Idea, Technical, Experience). This page is the judge glance for **Technical Implementation**: the Python SDK is **imported and actually called at runtime** on `daftar-call-e`. It is not an All Things Agentic Taskmaster brief.
 
 ## Judge glance
 
 ```
-Merchant → Flutter (HITL, Drift SoT) → Cloud Run POST /run (ADK, 8 tools) → Vertex Gemini 3.5
-Close: Confirm & Send Statements → ritual (localDay → Drive → aging) → desk → send-batch
-       → smtp.gmail.com → inbox + Cloud Logging Message-ID → Architecture HUD observes
+Merchant → Flutter (HITL, Drift SoT) → Cloud Run daftar-call-e (sibling FastAPI)
+Close: aging rank (device; Gemini does not pick IDs)
+  Call rail:  Confirm & Call → plan-batch (local, no PSTN) → run-batch
+              → calle-ai calls.create / POST /v1/calls → poll GET /v1/calls/{runId}
+  Email rail: Confirm & Send Statements → send-batch → smtp.gmail.com
+HUD observes CALL-E call.id last-8. Gemini never dials and never cashiers.
+Promise ≠ payment. YE / unsupported region → email / callUnavailable.
 ```
 
 ## System diagram
 
 ![Daftar Closing Agent architecture](contest_architecture.png)
 
-HITL confirm gate calls `POST /run`. Drift → Drive is **backup upload only** — it does not invoke the agent. Desk → `send-batch` only after **Confirm & Send Statements**. HUD observes SMTP; it does not parent the confirm gate.
+**Owner PNG:** the file above is the Agentic-era export until you replace it. Source of truth is the mermaid **below** (TB system diagram, not the HITL strip). Export ~1400px wide, overwrite this PNG. No E.164, no API keys, no frozen Agentic hostname as the live service box. Devpost uploads PNG (not Markdown). Keep size 10 KB–5 MB.
 
-One Cloud Run service (`closing_agent`). No webhook service. No second agent runtime.
+HITL confirm gate calls `POST /run` for **proposals only**. After aging rank, **Confirm & Call** runs Daftar-local `plan-batch` (allowlist / J.10 / DNC / C.3 echo — **zero PSTN**, **zero** CALL-E). The device holds the opaque confirm handle, then `run-batch` calls `CalleClient.calls.create` / `POST https://api.heycall-e.com/v1/calls`. The device **polls** `GET /v1/calls/{runId}` (`runId` := CALL-E `call.id`). Email rail is `send-batch` only after **Confirm & Send Statements**. HUD observes; it does not parent the confirm gate.
 
-`POST /v1/tts` is a sibling FastAPI route on the same service (Chirp, not an ADK tool) — **not drawn**. Day Journal is an AI **audit** trail; closing totals come from Drift `localDay`, not the journal.
+**Not drawn:** Chirp `POST /v1/tts`, Drive backup, Hybrid E WhatsApp leftover, portable skill dry-run, frozen Agentic URL.
 
 Editable source (same edges):
 
 ```mermaid
 flowchart TB
   subgraph device [Flutter device]
-    flutterApp[HITL confirm gate]
+    hitl[HITL Confirm Gate]
     drift[(Drift SoT)]
-    drive[Drive backup]
     desk[Aging rank desk]
     hud[Architecture HUD]
-    flutterApp --> drift
-    drift --> drive
+    hitl --> drift
     drift --> desk
   end
-
-  subgraph cloud [Cloud Run daftar-closing-agent]
-    run["POST /run ADK"]
-    agent["closing_agent gemini-3.5-flash"]
-    tools["8 frozen tools"]
+  subgraph cloud [Cloud Run daftar-call-e]
+    run["POST /run ADK 8 tools"]
+    plan["POST /v1/calls/plan-batch local"]
+    create["POST /v1/calls/run-batch"]
+    poll["GET /v1/calls/runId"]
     send["POST /v1/email/send-batch"]
-    run --> agent
-    agent --> tools
   end
-
-  gemini[Vertex Gemini 3.5 Flash]
+  calle["CALL-E Developer API"]
   smtp[smtp.gmail.com]
-
-  merchant[Merchant]
-  merchant --> flutterApp
-  flutterApp --> run
-  agent --> gemini
-  tools -->|"Appendix J proposals"| flutterApp
-  desk -->|"after Confirm and Send"| send
+  merchant[Merchant] --> hitl
+  hitl --> run
+  desk -->|"Confirm and Call"| plan
+  plan -->|"confirm handle no PSTN"| create
+  create --> calle
+  poll --> calle
+  poll --> hud
+  desk -->|"Confirm and Send"| send
   send --> smtp
-  smtp --> hud
 ```
 
-| Caption | Fact |
-| --- | --- |
-| **Decouple** | `/run` emits proposals only. Drift commits money. `send-batch` is sibling FastAPI — not a FunctionTool. `tools → Flutter` = proposals. `desk → send` = auto-dispatch only after **Confirm & Send Statements**. |
-| **State** | Drift is SoT. `ClosingAgentPhase` on device. Scoped `daftarContext` — the ledger is not dumped into Gemini. Cloud Run may scale to zero. |
-| **Credentials** | Cloud Run IAM + ID tokens (**custom audiences**). Gmail App Password = Secret Manager file mount `/secrets/gmail-smtp-app-password` — never Flutter, git, or chat. No `allUsers`. |
-| **Failures** | Confirm-gate single-flight per `proposalId`. Drive fail does not abort close. SMTP rows `failed` / `skipped`. Auth 535 halts the batch. Cloud Run down → ledger intact. Durable send key is device `batchId` / Drift (process-local Cloud Run idempotency is wiped on scale-to-zero). |
-| **Integer money** | `amountMinor: int` only. Never `double` / `num` on the wire or in Drift. |
-| **Day Journal** | Contest AI audit. **Not** the money SoT. Closing totals = Drift `localDay`. |
-| **Send set** | Device aging ranks. `min(shortlist, 20)` emailed. MIME PDF on ranked **Top 5** only (device statement isolate). Remainder C.2 text-only. Gemini does not pick recipients. |
-| **Confirm without sending** | First-class. Ritual runs; `send-batch` is never called. |
-| **HUD** | Observes `/run` echo + last SMTP Message-ID. Does **not** feed the confirm gate. |
-| **Drive** | Close path is Drift **→** Drive **upload**. Restore is recovery, not the filmed climax. |
+`plan-batch` **never dials**. `run-batch` is the only path that creates a CALL-E call. Poll is **GET** only — no `create_and_wait` on Cloud Run, no public webhook.
 
-**Continuous Action (lens):** eight frozen, scoped FunctionTools — [`agent/tests/test_tool_catalog_freeze.py`](../../agent/tests/test_tool_catalog_freeze.py). No send-email tool.
+## HITL rail
 
-**Evolving Knowledge (lens):** integer money schema + Drift `localDay` + scoped `daftarContext`. **No vector embeddings** — a debt ledger is a financial source of truth, not a RAG corpus.
+Propose → Confirm → Commit → Rank → **Validate** (`plan-batch`) → **Create** (`run-batch` / `calls.create`) → **Poll** (`GET /v1/calls/{runId}`).
 
-**Multi-Agent Nexus (lens):** Taskmaster, not Fortified. Separation of concerns is **planner (one `LlmAgent`) / device ritual / SMTP worker** — not extra ADK agents. See below.
+Money **Commit** is on the device after Confirm (Model C). A structured promise write-back is **display-only** — never `AddTransaction`.
 
-## Human-in-the-loop (Model C)
-
-Gemini **proposes**; the merchant **confirms**; the device **commits** to Drift. Outreach is **Gmail SMTP** only after **Confirm & Send Statements** on the closing plan — never an ADK send tool. Cloud Run invokers use Google **ID tokens** with custom OAuth audiences (not public `allUsers`).
+```mermaid
+flowchart LR
+  propose[Propose]
+  confirm[Confirm]
+  commit[Commit]
+  rank[Rank]
+  validate[Validate]
+  createNode[Create]
+  pollNode[Poll]
+  propose --> confirm --> commit --> rank --> validate --> createNode --> pollNode
+```
 
 | Path | Stations |
 | --- | --- |
 | **Mid-day capture** | Propose → Confirm → Drift commit |
-| **Close-the-day** | Propose (`propose_closing_plan`) → **Confirm & Send Statements** → ritual (`localDay` summary → Drive upload → aging rank) → Collections Desk → auto-dispatch `send-batch` → SMTP **250** + Message-ID |
+| **Close-the-day call** | Propose (`propose_closing_plan`) → plan confirm starts ritual → Rank → **Confirm & Call** → Validate → Create → Poll → integer promise card |
+| **Close-the-day email** | Same ritual → **Confirm & Send Statements** → `send-batch` → SMTP **250** + Message-ID |
+| **Confirm without calling / sending** | First-class. Ritual runs; `run-batch` / `send-batch` are never called |
 
-**Confirm without sending** skips desk dispatch and `send-batch`; the ritual still runs.
+## Captions
 
-The §5.6 **Architecture HUD** (debug toggle) shows routing, tool scope (Capture / Close / Ask), the HITL rail, and `Sent ·` Message-ID last-8 after SMTP — not a product tour.
+| Caption | Fact |
+| --- | --- |
+| **CALL-E is not an ADK tool** | Sibling FastAPI on `daftar-call-e`, same pattern as SMTP `send-batch`. Catalog freeze forbids a dial FunctionTool. |
+| **Agentic URL is not this service** | Frozen hostname `daftar-closing-agent-1487285471` is All Things Agentic production — describe-only through 13 Oct 2026. This submission’s runtime is **`daftar-call-e`**. |
+| **Production = Developer API not MCP** | Python SDK `from calle import CalleClient` at runtime. Not MCP `plan_call` / `run_call`. `create_and_wait` is Gate 0 laptop smoke only. |
+| **Dual rail** | Device aging ranks. Call set: J.10 + allowlist + DNC, cap **5**. YE / unsupported → email / `callUnavailable`, never a failed dial. Send set ≤20; MIME PDF on ranked **Top 5**. Gemini does not pick recipients. |
+| **Proof of Action** | Integer `promised_amount_minor`. `task_completed` ≠ paid. SMTP **250** ≠ delivered. Poll ≠ webhook theater. |
+| **Credentials** | Cloud Run IAM + ID tokens (custom audiences). Secret Manager `calle-api-key` and `gmail-smtp-app-password`. Never Flutter, git, or chat. No `allUsers`. |
+| **Demo destination** | Owner Callcentric US DID answered in Linphone (disclose owner answers). No live E.164 in git. Never real debtors. |
+| **State** | Drift is SoT. Confirm handles are process-local — live dial window uses min instances **1**, then min **0**. Cloud Run down → ledger intact. |
+| **Integer money** | `amountMinor: int` only. Never `double` / `num` on the wire or in Drift. |
 
-## Frozen tool catalog (Gate 5)
+## Frozen tool catalog
 
-Eight ADK FunctionTools on `root_agent` (`Agent` name `closing_agent`) — no ninth tool, no send-email tool:
+Eight ADK FunctionTools on `root_agent` (`Agent` name `closing_agent`) — no ninth tool, no send-email tool, **no dial tool**:
 
 | Wire name | Role |
 | --- | --- |
@@ -109,32 +119,22 @@ Eight ADK FunctionTools on `root_agent` (`Agent` name `closing_agent`) — no ni
 
 Enforced by [`agent/tests/test_tool_catalog_freeze.py`](../../agent/tests/test_tool_catalog_freeze.py) and Flutter `ProposalTool`.
 
-## Why not SequentialAgent or B-Prime?
-
-**Taskmaster** judges score a complete workflow (40%), engineering discipline (30%), and live demo + GCP proof (30%). Multi-agent routing bullets in the official rules target **other** categories (Fortified Enterprise Fleet / Multi-Agent Nexus) — not Taskmaster.
-
-Nexus-style **separation of concerns** in this submission is planner vs device vs SMTP — **one** ADK `LlmAgent` (`closing_agent`) with instruction-based routing and a frozen eight-tool catalog:
-
-- **Mid-day** is intent-dependent (one hop, parallel `propose_*` in one turn) — not a fixed pipeline. `SequentialAgent` would run every sub-agent in order or add latency without utility.
-- **Close-the-day** ritual (summary → Drive → aging → send-batch) is **device-deterministic** after one plan confirm; the agent emits `propose_closing_plan` only.
-- **HITL** is the architecture story: Cloud Run plans, Drift commits, SMTP is a sibling FastAPI route — stronger for this product than a coordinator + scoped sub-agents that risk empty Confirm cards and extra Vertex hops.
-
-Coordinator + scoped sub-agents (B-Prime) remain a **post-contest** option only if a local ADK harness proves Appendix J envelopes still parse from `/run` events.
+Reusable contribution **outside** this runtime diagram: Agent Skill [`ledger-collections-call`](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (dry-run default; never posts without `--live`). Complementary to `kept` — display-only promise, never cashiers.
 
 ## Observability (demo + judges)
 
 | Surface | What to show |
 | --- | --- |
-| Device HUD | `Cloud Run · gemini-3.5-flash`, tool scope, HITL step, correlation last-8, `Sent ·` Message-ID last-8 |
-| Cloud Logging | `daftar.agent.model`, `daftar.agent.tool`, `daftar.agent.email` (SMTP **250** + **Message-ID**), `daftar.agent.call` (`plan` / `run` / terminal `action=terminal` with masked phone + `runId` + `outcome`) |
-| Inbox | Proof of Action — PDF on ranked Top 5; text-only remainder intentional |
-
-SMTP **250** is server **accept**, not mailbox-delivered. Gmail has no delivery webhook — do not fake `delivered`.
+| Device HUD | `Call ·` + `runId` last-8 (= CALL-E `call.id`) + terminal status — not delivered/paid |
+| Cloud Logging | `daftar.agent.call` on service **`daftar-call-e`** (`plan` / `run` / `action=terminal`; masked phone; `outcome`) |
+| Inbox | Email-rail Proof of Action — PDF on ranked Top 5; text-only remainder intentional |
 
 ## Related docs
 
-- [`README.md`](../../README.md) — claims, folder map, spin-up
+- [`docs/roadmap_v3.md`](../roadmap_v3.md) — binding CALL-E contract
+- [`docs/contest/AGENTIC_CLOUD_RUN_FREEZE.md`](../contest/AGENTIC_CLOUD_RUN_FREEZE.md) — frozen Agentic snapshot
+- [`README.md`](../../README.md) — claims, folder map, spin-up (§6.2 will retarget this from heritage)
 - [`docs/README.md`](../README.md) — documentation index
 - [`docs/CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md) — substrate vs contest-new
-- [`docs/contest_demo.md`](../contest_demo.md) — ≤4 min film script
+- [`docs/qa/calle_live_dial_window.md`](../qa/calle_live_dial_window.md) — film-day arm / disarm
 - [`agent/README.md`](../../agent/README.md) — deploy, smoke, observability
