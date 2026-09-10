@@ -220,6 +220,7 @@ class DemoStoreSeeder {
       const AppSettingsTableCompanion(
         defaultCurrency: Value(demoCurrencyCode),
         isMultiCurrencyEnabled: Value(false),
+        calleAllowDial: Value(kDebugMode),
       ),
     );
   }

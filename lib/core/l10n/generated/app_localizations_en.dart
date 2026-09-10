@@ -127,11 +127,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCalleAllowDialSubtitle =>
-      'Compiled kill switch for Confirm & Call. Server still enforces the same flag.';
-
-  @override
-  String get settingsCalleAllowDialStubHint =>
-      'Outbound calls are configured at build time until Stage 5. Rebuild with dart-define to change.';
+      'On-device gate for Confirm & Call. The APK build flag and Cloud Run must also be on.';
 
   @override
   String architectureHudSemantics(String step) {
@@ -3821,6 +3817,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get closingRitualCallReportTitle => 'Call report';
+
+  @override
+  String closingRitualCallPromiseLine(String amount, String date) {
+    return 'Promised $amount on $date';
+  }
+
+  @override
+  String closingRitualCallRowSemantics(String name, String status) {
+    return 'Call $name, $status';
+  }
+
+  @override
   String get closingRitualRetry => 'Continue closing the day';
 
   @override
@@ -3925,32 +3934,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionsDeskWithoutSending => 'Without sending';
 
   @override
-  String collectionsDeskRailChipVoiceCalls(int count) {
-    return 'Voice calls · $count';
+  String get collectionsDeskRailTitleVoiceCalls => 'Voice calls';
+
+  @override
+  String get collectionsDeskRailTitleEmailStatements => 'Email statements';
+
+  @override
+  String collectionsDeskRailCallOnSingle(int count, String name) {
+    return '$count scheduled call ($name)';
   }
 
   @override
-  String collectionsDeskRailChipEmail(int count) {
-    return 'Email · $count';
+  String collectionsDeskRailCallOnMultiple(
+    int count,
+    String name,
+    int othersCount,
+  ) {
+    return '$count scheduled calls · $name and $othersCount more';
   }
 
   @override
-  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
-    return 'Confirm outreach — $callCount calls + $emailCount emails';
+  String get collectionsDeskRailCallOff =>
+      'Skipped — No outbound calls will be placed';
+
+  @override
+  String collectionsDeskRailEmailOnLead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count statements',
+      one: '1 statement',
+    );
+    return '$_temp0';
   }
 
   @override
-  String collectionsDeskCommitCallsOnly(int count) {
-    return 'Start calls only — $count';
+  String collectionsDeskRailEmailTierMixed(int pdfCount, int textCount) {
+    return '$pdfCount with PDF · $textCount text only';
   }
 
   @override
-  String collectionsDeskCommitEmailOnly(int count) {
-    return 'Send email only — $count';
+  String get collectionsDeskRailEmailTierAllPdf => 'All with PDF';
+
+  @override
+  String get collectionsDeskRailEmailTierAllText => 'Text reminders only';
+
+  @override
+  String get collectionsDeskRailEmailOff => 'Skipped — No emails will be sent';
+
+  @override
+  String collectionsDeskCommitCallPhrase(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calls',
+      one: '1 call',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get collectionsDeskCommitSeal => 'Skip outreach and seal the day';
+  String collectionsDeskCommitStatementPhrase(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count statements',
+      one: '1 statement',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(
+    String callPhrase,
+    String emailPhrase,
+  ) {
+    return 'Confirm ($callPhrase + $emailPhrase)';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(String callPhrase) {
+    return 'Confirm ($callPhrase)';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(String emailPhrase) {
+    return 'Send statements only ($emailPhrase)';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'Close day without outreach';
+
+  @override
+  String collectionsDeskRetryUnanswered(int count) {
+    return 'Retry unanswered — $count';
+  }
 
   @override
   String get collectionsDeskPromiseNotPayment => 'A promise is not a payment';
@@ -3968,6 +4046,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String contactPendingPromiseSemantics(String amount, String date) {
     return 'Pending promise: $amount on $date';
   }
+
+  @override
+  String get contactPromiseStatusPending => 'Pending';
+
+  @override
+  String get contactPromiseUpdateStatus => 'Update status';
+
+  @override
+  String get contactPromiseStatusActionSheetTitle => 'Promise status';
+
+  @override
+  String get contactPromiseStatusKept => 'Kept';
+
+  @override
+  String get contactPromiseStatusBroken => 'Broken';
+
+  @override
+  String get contactPromiseStatusCancelled => 'Cancelled';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmTitle => 'Mark promise broken?';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmBody =>
+      'This updates the promise card only. It does not write money to your ledger.';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmTitle => 'Cancel this promise?';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmBody =>
+      'This updates the promise card only. It does not write money to your ledger.';
 
   @override
   String get collectionsDeskCallPreviewTitle => 'What CALL-E will say';

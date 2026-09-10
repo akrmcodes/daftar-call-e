@@ -47,7 +47,7 @@ The Gmail **App Password** lives in Secret Manager `gmail-smtp-app-password` on 
 
 ## CALL-E device policy (dart-define — not `.env`)
 
-`CALLE_ALLOW_DIAL`, `CALLE_ALLOWLIST`, and `CALLE_ALLOWLIST_REGION` may be set in the gitignored `tool/demo_seed_emails.local.json` overlay for **device** defense in depth. Parse rules match Cloud Run ([`agent/calls/settings.py`](../../agent/calls/settings.py)). Settings shows a read-only stub until Stage 5.2.
+`CALLE_ALLOW_DIAL`, `CALLE_ALLOWLIST`, and `CALLE_ALLOWLIST_REGION` may be set in the gitignored `tool/demo_seed_emails.local.json` overlay for **device** defense in depth. Parse rules match Cloud Run ([`agent/calls/settings.py`](../../agent/calls/settings.py)). Settings **Allow CALL-E outbound** GlowPill persists merchant intent in Drift; effective dial also requires compile-time `CALLE_ALLOW_DIAL=true` and Cloud Run.
 
 `CALLE_API_KEY` / Secret Manager `calle-api-key` is **not** an Envied key and **never** belongs in Flutter dart-defines. Laptop Gate 0 smoke uses a shell export; production mounts the API key on **`daftar-call-e`**. Owner-ops (no values): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](../contest/CALLE_STAGE0_OWNER_OPS.md) §0.4.
 

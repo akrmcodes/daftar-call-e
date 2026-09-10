@@ -454,7 +454,10 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
               child: CreditLimitCallResumeChip(contactId: contactId),
             ),
           ),
-          ContactPendingPromiseBanner(contactId: contactId),
+          ContactPendingPromiseBanner(
+            contactId: contactId,
+            contactName: displayContact.name,
+          ),
           if (balances.isNotEmpty) ...[
             const SliverToBoxAdapter(
               child: SizedBox(height: AppDimensions.spacingXl),

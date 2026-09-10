@@ -1,6 +1,6 @@
 # CALL-E live dial window (Stage 6 film only)
 
-**Do not run this SOP during Stage 4 device QA.** Use [`stage4_phone_qa.md`](stage4_phone_qa.md) with dial **off** before Stage 5.
+**Do not run this SOP during Stage 4 device QA.** Use [`stage4_phone_qa.md`](stage4_phone_qa.md) with dial **off** before Stage 5. Pre–Stage 5.5 owner rehearsal (not filming): [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md).
 
 This document is the **credit-safe** procedure for the one consented live ring filmed in §6.3 Video.
 
@@ -57,7 +57,7 @@ Rebuild/run with owner-ops overlay that sets **exact** `CALLE_ALLOW_DIAL=true`, 
 1. Close the day → Collections Desk → **Confirm & Call** (**one tap** — `callConsented` blocks a second tap in the same desk).
 2. Answer on the US DID; deliver the short consented script (“I’ll pay {integer} on {date}”).
 3. Wait for terminal GET (~60s initial delay, then ~7s polls). HUD shows `runId` last-8 + status.
-4. Promise card on contact; narrate **promise ≠ paid**.
+4. Promise card on contact; mark status if needed (Kept opens payment entry — Save still required). Narrate **promise ≠ paid**.
 5. Optional: Logs Explorer `daftar.agent.call` with `action=terminal` on service `daftar-call-e`.
 
 ---

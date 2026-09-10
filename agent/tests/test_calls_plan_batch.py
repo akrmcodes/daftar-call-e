@@ -364,7 +364,7 @@ def test_openapi_has_plan_run_and_get() -> None:
     import yaml
 
     spec = yaml.safe_load(OPENAPI_PATH.read_text(encoding="utf-8"))
-    assert spec["info"]["version"] == "2.7.0"
+    assert spec["info"]["version"] == "2.8.0"
     paths = spec["paths"]
     assert "/v1/calls/plan-batch" in paths
     assert "/v1/calls/run-batch" in paths

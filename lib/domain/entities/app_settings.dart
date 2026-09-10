@@ -34,6 +34,7 @@ part 'app_settings.freezed.dart';
 /// - [hasSeenAgentFabTip]: When true, the FAB tap/hold coach has been shown.
 /// - [ttsMuted]: When true, skip on-device TTS for confirm and closing report.
 /// - [demoArchitectureHud]: When true, show the contest Architecture HUD overlay.
+/// - [calleAllowDial]: When true, merchant allows CALL-E outbound on device.
 @freezed
 abstract class AppSettings with _$AppSettings {
   const factory AppSettings({
@@ -58,5 +59,6 @@ abstract class AppSettings with _$AppSettings {
     @Default(false) bool hasSeenAgentFabTip,
     @Default(false) bool ttsMuted,
     @Default(false) bool demoArchitectureHud,
+    @Default(false) bool calleAllowDial,
   }) = _AppSettings;
 }

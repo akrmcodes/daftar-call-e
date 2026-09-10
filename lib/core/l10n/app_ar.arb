@@ -37,8 +37,7 @@
   "settingsDemoArchitectureHud": "عرض هيكل الوكيل",
   "settingsDemoArchitectureHudSubtitle": "للتجربة: النموذج والأدوات ومسار التأكيد البشري وزمن الاستجابة. ليس جولة في المنتج.",
   "settingsCalleAllowDial": "السماح بالاتصال عبر CALL-E",
-  "settingsCalleAllowDialSubtitle": "مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.",
-  "settingsCalleAllowDialStubHint": "المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.",
+  "settingsCalleAllowDialSubtitle": "بوابة على الجهاز لـ Confirm & Call. يجب تفعيل علم البناء في التطبيق والخادم أيضاً.",
   "architectureHudSemantics": "أداة هيكل الوكيل، المرحلة {step}",
   "@architectureHudSemantics": {
     "placeholders": {
@@ -1697,6 +1696,21 @@
       "count": { "type": "int", "example": "4" }
     }
   },
+  "closingRitualCallReportTitle": "تقرير المكالمات",
+  "closingRitualCallPromiseLine": "وعد بـ {amount} في {date}",
+  "@closingRitualCallPromiseLine": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "500.00 $" },
+      "date": { "type": "String", "example": "2026-09-15" }
+    }
+  },
+  "closingRitualCallRowSemantics": "مكالمة {name}، {status}",
+  "@closingRitualCallRowSemantics": {
+    "placeholders": {
+      "name": { "type": "String", "example": "محمد" },
+      "status": { "type": "String", "example": "اكتمل" }
+    }
+  },
   "closingRitualRetry": "متابعة إقفال اليوم",
   "collectionsDeskTitle": "التحصيل",
   "collectionsDeskCount": "{count} تذكيرات",
@@ -1742,38 +1756,78 @@
   "collectionsDeskConfirmWithoutCalling": "تأكيد دون اتصال",
   "collectionsDeskWithoutCalling": "دون اتصال",
   "collectionsDeskWithoutSending": "دون إرسال",
-  "collectionsDeskRailChipVoiceCalls": "مكالمات · {count}",
-  "@collectionsDeskRailChipVoiceCalls": {
+  "collectionsDeskRailTitleVoiceCalls": "مكالمات صوتية",
+  "collectionsDeskRailTitleEmailStatements": "كشوفات البريد",
+  "collectionsDeskRailCallOnSingle": "{count} مكالمة مجدولة ({name})",
+  "@collectionsDeskRailCallOnSingle": {
+    "placeholders": {
+      "count": { "type": "int", "example": "1" },
+      "name": { "type": "String", "example": "محمد" }
+    }
+  },
+  "collectionsDeskRailCallOnMultiple": "{count} مكالمات مجدولة · {name} و{othersCount} آخرين",
+  "@collectionsDeskRailCallOnMultiple": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "name": { "type": "String", "example": "محمد" },
+      "othersCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailCallOff": "تم التخطي — لن تُجرى أي مكالمات صادرة",
+  "collectionsDeskRailEmailOnLead": "{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}",
+  "@collectionsDeskRailEmailOnLead": {
+    "placeholders": {
+      "count": { "type": "int", "example": "7" }
+    }
+  },
+  "collectionsDeskRailEmailTierMixed": "{pdfCount} مع PDF · {textCount} نصي فقط",
+  "@collectionsDeskRailEmailTierMixed": {
+    "placeholders": {
+      "pdfCount": { "type": "int", "example": "5" },
+      "textCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailEmailTierAllPdf": "جميعها مع PDF",
+  "collectionsDeskRailEmailTierAllText": "تذكيرات نصية فقط",
+  "collectionsDeskRailEmailOff": "تم التخطي — لن يُرسل أي بريد",
+  "collectionsDeskCommitCallPhrase": "{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}",
+  "@collectionsDeskCommitCallPhrase": {
     "placeholders": {
       "count": { "type": "int", "example": "2" }
     }
   },
-  "collectionsDeskRailChipEmail": "بريد · {count}",
-  "@collectionsDeskRailChipEmail": {
+  "collectionsDeskCommitStatementPhrase": "{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}",
+  "@collectionsDeskCommitStatementPhrase": {
     "placeholders": {
-      "count": { "type": "int", "example": "5" }
+      "count": { "type": "int", "example": "7" }
     }
   },
-  "collectionsDeskCommitOutreachBoth": "تأكيد التواصل — {callCount} مكالمات + {emailCount} رسائل",
+  "collectionsDeskCommitOutreachBoth": "تأكيد ({callPhrase} + {emailPhrase})",
   "@collectionsDeskCommitOutreachBoth": {
     "placeholders": {
-      "callCount": { "type": "int", "example": "2" },
-      "emailCount": { "type": "int", "example": "5" }
+      "callPhrase": { "type": "String", "example": "مكالمة واحدة" },
+      "emailPhrase": { "type": "String", "example": "7 كشوف" }
     }
   },
-  "collectionsDeskCommitCallsOnly": "بدء المكالمات فقط — {count}",
+  "collectionsDeskCommitCallsOnly": "تأكيد ({callPhrase})",
   "@collectionsDeskCommitCallsOnly": {
+    "placeholders": {
+      "callPhrase": { "type": "String", "example": "مكالمتان" }
+    }
+  },
+  "collectionsDeskCommitEmailOnly": "إرسال الكشوفات فقط ({emailPhrase})",
+  "@collectionsDeskCommitEmailOnly": {
+    "placeholders": {
+      "emailPhrase": { "type": "String", "example": "7 كشوف" }
+    }
+  },
+  "collectionsDeskCommitSeal": "إغلاق اليوم دون تواصل",
+  "collectionsDeskRetryUnanswered": "إعادة الاتصال بمن لم يرد — {count}",
+  "@collectionsDeskRetryUnanswered": {
     "placeholders": {
       "count": { "type": "int", "example": "2" }
     }
   },
-  "collectionsDeskCommitEmailOnly": "إرسال البريد فقط — {count}",
-  "@collectionsDeskCommitEmailOnly": {
-    "placeholders": {
-      "count": { "type": "int", "example": "5" }
-    }
-  },
-  "collectionsDeskCommitSeal": "تخطي التواصل وإغلاق اليوم",
   "collectionsDeskPromiseNotPayment": "الوعد ليس دفعة",
   "collectionsDeskPromiseNotPaymentSubtitle": "يسجّل CALL-E ما قاله العميل أنه سيدفع. لا يُدخل المال إلى دفترك.",
   "contactPendingPromiseBody": "وعد بـ {amount} في {date}",
@@ -1790,6 +1844,16 @@
       "date": { "type": "String", "example": "10 سبتمبر 2026" }
     }
   },
+  "contactPromiseStatusPending": "معلّق",
+  "contactPromiseUpdateStatus": "تحديث الحالة",
+  "contactPromiseStatusActionSheetTitle": "حالة الوعد",
+  "contactPromiseStatusKept": "تم الوفاء",
+  "contactPromiseStatusBroken": "لم يُوفَ",
+  "contactPromiseStatusCancelled": "ملغى",
+  "contactPromiseMarkBrokenConfirmTitle": "تعليم الوعد بأنه لم يُوفَ؟",
+  "contactPromiseMarkBrokenConfirmBody": "يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.",
+  "contactPromiseMarkCancelledConfirmTitle": "إلغاء هذا الوعد؟",
+  "contactPromiseMarkCancelledConfirmBody": "يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.",
   "collectionsDeskCallPreviewTitle": "ما سيقوله CALL-E",
   "collectionsDeskCallingProgress": "جاري الاتصال {index} من {total}",
   "@collectionsDeskCallingProgress": {

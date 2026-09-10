@@ -323,14 +323,8 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCalleAllowDialSubtitle.
   ///
   /// In ar, this message translates to:
-  /// **'مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.'**
+  /// **'بوابة على الجهاز لـ Confirm & Call. يجب تفعيل علم البناء في التطبيق والخادم أيضاً.'**
   String get settingsCalleAllowDialSubtitle;
-
-  /// No description provided for @settingsCalleAllowDialStubHint.
-  ///
-  /// In ar, this message translates to:
-  /// **'المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.'**
-  String get settingsCalleAllowDialStubHint;
 
   /// No description provided for @architectureHudSemantics.
   ///
@@ -6772,6 +6766,24 @@ abstract class AppLocalizations {
   /// **'{count} متأخرون'**
   String closingRitualOverdueCount(int count);
 
+  /// No description provided for @closingRitualCallReportTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقرير المكالمات'**
+  String get closingRitualCallReportTitle;
+
+  /// No description provided for @closingRitualCallPromiseLine.
+  ///
+  /// In ar, this message translates to:
+  /// **'وعد بـ {amount} في {date}'**
+  String closingRitualCallPromiseLine(String amount, String date);
+
+  /// No description provided for @closingRitualCallRowSemantics.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكالمة {name}، {status}'**
+  String closingRitualCallRowSemantics(String name, String status);
+
   /// No description provided for @closingRitualRetry.
   ///
   /// In ar, this message translates to:
@@ -6952,41 +6964,114 @@ abstract class AppLocalizations {
   /// **'دون إرسال'**
   String get collectionsDeskWithoutSending;
 
-  /// No description provided for @collectionsDeskRailChipVoiceCalls.
+  /// No description provided for @collectionsDeskRailTitleVoiceCalls.
   ///
   /// In ar, this message translates to:
-  /// **'مكالمات · {count}'**
-  String collectionsDeskRailChipVoiceCalls(int count);
+  /// **'مكالمات صوتية'**
+  String get collectionsDeskRailTitleVoiceCalls;
 
-  /// No description provided for @collectionsDeskRailChipEmail.
+  /// No description provided for @collectionsDeskRailTitleEmailStatements.
   ///
   /// In ar, this message translates to:
-  /// **'بريد · {count}'**
-  String collectionsDeskRailChipEmail(int count);
+  /// **'كشوفات البريد'**
+  String get collectionsDeskRailTitleEmailStatements;
+
+  /// No description provided for @collectionsDeskRailCallOnSingle.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مكالمة مجدولة ({name})'**
+  String collectionsDeskRailCallOnSingle(int count, String name);
+
+  /// No description provided for @collectionsDeskRailCallOnMultiple.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مكالمات مجدولة · {name} و{othersCount} آخرين'**
+  String collectionsDeskRailCallOnMultiple(
+    int count,
+    String name,
+    int othersCount,
+  );
+
+  /// No description provided for @collectionsDeskRailCallOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التخطي — لن تُجرى أي مكالمات صادرة'**
+  String get collectionsDeskRailCallOff;
+
+  /// No description provided for @collectionsDeskRailEmailOnLead.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}'**
+  String collectionsDeskRailEmailOnLead(int count);
+
+  /// No description provided for @collectionsDeskRailEmailTierMixed.
+  ///
+  /// In ar, this message translates to:
+  /// **'{pdfCount} مع PDF · {textCount} نصي فقط'**
+  String collectionsDeskRailEmailTierMixed(int pdfCount, int textCount);
+
+  /// No description provided for @collectionsDeskRailEmailTierAllPdf.
+  ///
+  /// In ar, this message translates to:
+  /// **'جميعها مع PDF'**
+  String get collectionsDeskRailEmailTierAllPdf;
+
+  /// No description provided for @collectionsDeskRailEmailTierAllText.
+  ///
+  /// In ar, this message translates to:
+  /// **'تذكيرات نصية فقط'**
+  String get collectionsDeskRailEmailTierAllText;
+
+  /// No description provided for @collectionsDeskRailEmailOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التخطي — لن يُرسل أي بريد'**
+  String get collectionsDeskRailEmailOff;
+
+  /// No description provided for @collectionsDeskCommitCallPhrase.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}'**
+  String collectionsDeskCommitCallPhrase(int count);
+
+  /// No description provided for @collectionsDeskCommitStatementPhrase.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}'**
+  String collectionsDeskCommitStatementPhrase(int count);
 
   /// No description provided for @collectionsDeskCommitOutreachBoth.
   ///
   /// In ar, this message translates to:
-  /// **'تأكيد التواصل — {callCount} مكالمات + {emailCount} رسائل'**
-  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount);
+  /// **'تأكيد ({callPhrase} + {emailPhrase})'**
+  String collectionsDeskCommitOutreachBoth(
+    String callPhrase,
+    String emailPhrase,
+  );
 
   /// No description provided for @collectionsDeskCommitCallsOnly.
   ///
   /// In ar, this message translates to:
-  /// **'بدء المكالمات فقط — {count}'**
-  String collectionsDeskCommitCallsOnly(int count);
+  /// **'تأكيد ({callPhrase})'**
+  String collectionsDeskCommitCallsOnly(String callPhrase);
 
   /// No description provided for @collectionsDeskCommitEmailOnly.
   ///
   /// In ar, this message translates to:
-  /// **'إرسال البريد فقط — {count}'**
-  String collectionsDeskCommitEmailOnly(int count);
+  /// **'إرسال الكشوفات فقط ({emailPhrase})'**
+  String collectionsDeskCommitEmailOnly(String emailPhrase);
 
   /// No description provided for @collectionsDeskCommitSeal.
   ///
   /// In ar, this message translates to:
-  /// **'تخطي التواصل وإغلاق اليوم'**
+  /// **'إغلاق اليوم دون تواصل'**
   String get collectionsDeskCommitSeal;
+
+  /// No description provided for @collectionsDeskRetryUnanswered.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الاتصال بمن لم يرد — {count}'**
+  String collectionsDeskRetryUnanswered(int count);
 
   /// No description provided for @collectionsDeskPromiseNotPayment.
   ///
@@ -7011,6 +7096,66 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'وعد معلّق: {amount} في {date}'**
   String contactPendingPromiseSemantics(String amount, String date);
+
+  /// No description provided for @contactPromiseStatusPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلّق'**
+  String get contactPromiseStatusPending;
+
+  /// No description provided for @contactPromiseUpdateStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث الحالة'**
+  String get contactPromiseUpdateStatus;
+
+  /// No description provided for @contactPromiseStatusActionSheetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حالة الوعد'**
+  String get contactPromiseStatusActionSheetTitle;
+
+  /// No description provided for @contactPromiseStatusKept.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الوفاء'**
+  String get contactPromiseStatusKept;
+
+  /// No description provided for @contactPromiseStatusBroken.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُوفَ'**
+  String get contactPromiseStatusBroken;
+
+  /// No description provided for @contactPromiseStatusCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغى'**
+  String get contactPromiseStatusCancelled;
+
+  /// No description provided for @contactPromiseMarkBrokenConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الوعد بأنه لم يُوفَ؟'**
+  String get contactPromiseMarkBrokenConfirmTitle;
+
+  /// No description provided for @contactPromiseMarkBrokenConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.'**
+  String get contactPromiseMarkBrokenConfirmBody;
+
+  /// No description provided for @contactPromiseMarkCancelledConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء هذا الوعد؟'**
+  String get contactPromiseMarkCancelledConfirmTitle;
+
+  /// No description provided for @contactPromiseMarkCancelledConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.'**
+  String get contactPromiseMarkCancelledConfirmBody;
 
   /// No description provided for @collectionsDeskCallPreviewTitle.
   ///

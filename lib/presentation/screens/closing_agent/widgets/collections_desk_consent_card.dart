@@ -7,24 +7,28 @@ import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/utils/haptic_service.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_call_progress_bar.dart';
-import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_rail_chip.dart';
+import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_button.dart';
-import 'package:daftar/presentation/shared/widgets/daftar_card.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-/// Compact HITL dock: two rail chips + one dynamic primary CTA.
+/// HITL dock: outreach rail cards + one dynamic primary CTA.
 class CollectionsDeskConsentCard extends StatefulWidget {
   /// Creates the consent dock.
   const CollectionsDeskConsentCard({
     required this.callCount,
     required this.emailCount,
+    required this.callLeadName,
+    required this.pdfCount,
+    required this.textCount,
     required this.callConsented,
     required this.sendOutreachEnabled,
     required this.busy,
     required this.isDispatching,
     required this.onCommit,
     this.callProgress,
+    this.retryOfferCount = 0,
+    this.onRetryUnanswered,
     super.key,
   });
 
@@ -33,6 +37,15 @@ class CollectionsDeskConsentCard extends StatefulWidget {
 
   /// Email-rail size (controls send enablement).
   final int emailCount;
+
+  /// First call-rail contact name for microcopy.
+  final String callLeadName;
+
+  /// Email-rail rows with PDF attachment.
+  final int pdfCount;
+
+  /// Email-rail rows without PDF (text-only reminders).
+  final int textCount;
 
   /// Merchant already consented to outbound calls.
   final bool callConsented;
@@ -46,11 +59,17 @@ class CollectionsDeskConsentCard extends StatefulWidget {
   /// SMTP send-batch in flight.
   final bool isDispatching;
 
-  /// Commits chip selection: call and/or send, or seal when both off.
+  /// Commits rail selection: call and/or send, or seal when both off.
   final void Function({required bool call, required bool send}) onCommit;
 
   /// Seeded after Confirm & Call.
   final CollectionsCallProgress? callProgress;
+
+  /// Contacts eligible for one no-answer/voicemail retry.
+  final int retryOfferCount;
+
+  /// Merchant consents to retry unanswered calls.
+  final VoidCallback? onRetryUnanswered;
 
   @override
   State<CollectionsDeskConsentCard> createState() =>
@@ -79,23 +98,23 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
   }
 
   void _syncChipDefaults() {
-    final showCall = _showCallChip;
-    final showSend = _showSendChip;
+    final showCall = _showCallCard;
+    final showSend = _showSendCard;
     _callSelected = showCall;
     _sendSelected = showSend && widget.emailCount > 0;
   }
 
-  bool get _showCallChip => !widget.callConsented && widget.callCount > 0;
+  bool get _showCallCard => !widget.callConsented && widget.callCount > 0;
 
-  bool get _showSendChip => widget.sendOutreachEnabled;
+  bool get _showSendCard => widget.sendOutreachEnabled;
 
-  bool get _callChipLocked =>
+  bool get _callCardLocked =>
       widget.callConsented ||
       widget.busy ||
       widget.isDispatching ||
       (widget.callProgress != null && !widget.callProgress!.isTerminal);
 
-  bool get _sendChipLocked =>
+  bool get _sendCardLocked =>
       widget.busy ||
       widget.isDispatching ||
       (widget.callProgress != null && !widget.callProgress!.isTerminal);
@@ -112,8 +131,8 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
           !widget.callProgress!.isTerminal);
 
   _DeskCommitMode get _commitMode {
-    final call = _showCallChip && _callSelected;
-    final send = _showSendChip && _sendSelected && widget.emailCount > 0;
+    final call = _showCallCard && _callSelected;
+    final send = _showSendCard && _sendSelected && widget.emailCount > 0;
     if (call && send) {
       return _DeskCommitMode.both;
     }
@@ -126,17 +145,59 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
     return _DeskCommitMode.seal;
   }
 
+  String _callSubtitle(AppLocalizations l10n) {
+    if (!_callSelected) {
+      return l10n.collectionsDeskRailCallOff;
+    }
+    final lead = widget.callLeadName.trim();
+    if (widget.callCount <= 1) {
+      return l10n.collectionsDeskRailCallOnSingle(
+        widget.callCount,
+        lead.isEmpty ? '—' : lead,
+      );
+    }
+    return l10n.collectionsDeskRailCallOnMultiple(
+      widget.callCount,
+      lead.isEmpty ? '—' : lead,
+      widget.callCount - 1,
+    );
+  }
+
+  ({String subtitle, String? detail}) _emailCopy(AppLocalizations l10n) {
+    if (!_sendSelected) {
+      return (subtitle: l10n.collectionsDeskRailEmailOff, detail: null);
+    }
+    final total = widget.emailCount;
+    final pdf = widget.pdfCount;
+    final text = widget.textCount;
+    final lead = l10n.collectionsDeskRailEmailOnLead(total);
+    if (pdf > 0 && text > 0) {
+      return (
+        subtitle: lead,
+        detail: l10n.collectionsDeskRailEmailTierMixed(pdf, text),
+      );
+    }
+    if (pdf > 0) {
+      return (subtitle: lead, detail: l10n.collectionsDeskRailEmailTierAllPdf);
+    }
+    return (subtitle: lead, detail: l10n.collectionsDeskRailEmailTierAllText);
+  }
+
   String _ctaLabel(AppLocalizations l10n) {
     switch (_commitMode) {
       case _DeskCommitMode.both:
         return l10n.collectionsDeskCommitOutreachBoth(
-          widget.callCount,
-          widget.emailCount,
+          l10n.collectionsDeskCommitCallPhrase(widget.callCount),
+          l10n.collectionsDeskCommitStatementPhrase(widget.emailCount),
         );
       case _DeskCommitMode.callOnly:
-        return l10n.collectionsDeskCommitCallsOnly(widget.callCount);
+        return l10n.collectionsDeskCommitCallsOnly(
+          l10n.collectionsDeskCommitCallPhrase(widget.callCount),
+        );
       case _DeskCommitMode.emailOnly:
-        return l10n.collectionsDeskCommitEmailOnly(widget.emailCount);
+        return l10n.collectionsDeskCommitEmailOnly(
+          l10n.collectionsDeskCommitStatementPhrase(widget.emailCount),
+        );
       case _DeskCommitMode.seal:
         return l10n.collectionsDeskCommitSeal;
     }
@@ -149,9 +210,14 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
     final hairline = isDark
         ? AppColors.borderSubtle.withValues(alpha: 0.8)
         : AppColors.borderSubtleLight.withValues(alpha: 0.9);
-    final showChips = _showCallChip || _showSendChip;
+    final showRails = _showCallCard || _showSendCard;
+    final emailCopy = _emailCopy(l10n);
     final ctaLabel = _ctaLabel(l10n);
     final ctaPrimary = _commitMode != _DeskCommitMode.seal;
+    final showRetry =
+        widget.retryOfferCount > 0 &&
+        widget.onRetryUnanswered != null &&
+        !_ctaLoading;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -159,13 +225,12 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
           top: BorderSide(color: hairline, width: 0.5),
         ),
       ),
-      child: DaftarCard(
-        variant: DaftarCardVariant.premium,
-        margin: const EdgeInsetsDirectional.fromSTEB(
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
           AppDimensions.pagePaddingH,
           AppDimensions.spacingSm,
           AppDimensions.pagePaddingH,
-          AppDimensions.spacingMd,
+          AppDimensions.spacingXs,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -174,41 +239,41 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
               CollectionsCallProgressBar(progress: widget.callProgress!),
               const Gap(AppDimensions.spacingSm),
             ],
-            if (showChips) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_showCallChip)
-                    Expanded(
-                      child: CollectionsDeskRailChip(
-                        label: l10n.collectionsDeskRailChipVoiceCalls(
-                          widget.callCount,
-                        ),
-                        selected: _callSelected,
-                        enabled: !_callChipLocked,
-                        onToggle: () {
-                          setState(() => _callSelected = !_callSelected);
-                        },
-                      ),
-                    ),
-                  if (_showCallChip && _showSendChip)
-                    const Gap(AppDimensions.spacingSm),
-                  if (_showSendChip)
-                    Expanded(
-                      child: CollectionsDeskRailChip(
-                        label: l10n.collectionsDeskRailChipEmail(
-                          widget.emailCount,
-                        ),
-                        selected: _sendSelected,
-                        enabled: !_sendChipLocked && widget.emailCount > 0,
-                        onToggle: () {
-                          setState(() => _sendSelected = !_sendSelected);
-                        },
-                      ),
-                    ),
-                ],
+            if (showRetry) ...[
+              DaftarButton(
+                label: l10n.collectionsDeskRetryUnanswered(widget.retryOfferCount),
+                isExpanded: true,
+                onPressed: widget.busy || widget.isDispatching
+                    ? null
+                    : () {
+                        unawaited(HapticService.selection());
+                        widget.onRetryUnanswered!();
+                      },
               ),
               const Gap(AppDimensions.spacingSm),
+            ],
+            if (showRails) ...[
+              if (_showCallCard) ...[
+                CollectionsDeskRailCard(
+                  title: l10n.collectionsDeskRailTitleVoiceCalls,
+                  subtitle: _callSubtitle(l10n),
+                  value: _callSelected,
+                  enabled: !_callCardLocked,
+                  onChanged: (next) => setState(() => _callSelected = next),
+                ),
+                const Gap(AppDimensions.spacingSm),
+              ],
+              if (_showSendCard) ...[
+                CollectionsDeskRailCard(
+                  title: l10n.collectionsDeskRailTitleEmailStatements,
+                  subtitle: emailCopy.subtitle,
+                  detail: emailCopy.detail,
+                  value: _sendSelected,
+                  enabled: !_sendCardLocked && widget.emailCount > 0,
+                  onChanged: (next) => setState(() => _sendSelected = next),
+                ),
+                const Gap(AppDimensions.spacingMd),
+              ],
             ],
             AnimatedSwitcher(
               duration: AppDimensions.animationMedium,
@@ -238,9 +303,9 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
                         if (ctaPrimary) {
                           unawaited(HapticService.medium());
                         }
-                        final call = _showCallChip && _callSelected;
+                        final call = _showCallCard && _callSelected;
                         final send =
-                            _showSendChip &&
+                            _showSendCard &&
                             _sendSelected &&
                             widget.emailCount > 0;
                         widget.onCommit(call: call, send: send);

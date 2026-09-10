@@ -25,14 +25,20 @@ void main() {
       await database.close();
     });
 
-    test('DbConstants and DriveBackupConstants schemaVersion are 26', () {
-      expect(DbConstants.schemaVersion, 26);
-      expect(DriveBackupConstants.schemaVersion, 26);
-      expect(database.schemaVersion, 26);
+    test('DbConstants and DriveBackupConstants schemaVersion are 28', () {
+      expect(DbConstants.schemaVersion, 28);
+      expect(DriveBackupConstants.schemaVersion, 28);
+      expect(database.schemaVersion, 28);
       expect(
         DbConstants.schemaVersion,
         DriveBackupConstants.schemaVersion,
       );
+    });
+
+    test('app_settings calleAllowDial defaults false on fresh database', () async {
+      final settings =
+          await database.select(database.appSettingsTable).getSingle();
+      expect(settings.calleAllowDial, isFalse);
     });
 
     test('collection batch, run, and promise persist integer money', () async {
@@ -122,6 +128,7 @@ void main() {
           .getSingle();
       expect(run.promisedAmountMinor, 500);
       expect(run.promisedAmountMinor, isA<int>());
+      expect(run.retryCount, 0);
 
       final promise = await (database.select(database.collectionPromises)
             ..where((row) => row.runId.equals(runId)))

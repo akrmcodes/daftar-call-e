@@ -8,7 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('shows pending promise amount and date', (tester) async {
+  testWidgets('shows pending promise amount, date, and update status', (
+    tester,
+  ) async {
     const contactId = 'contact-promise';
     final promise = CollectionPromise(
       id: 'promise-1',
@@ -34,7 +36,10 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           home: CustomScrollView(
             slivers: [
-              ContactPendingPromiseBanner(contactId: contactId),
+              ContactPendingPromiseBanner(
+                contactId: contactId,
+                contactName: 'Mohamed',
+              ),
             ],
           ),
         ),
@@ -44,6 +49,9 @@ void main() {
 
     expect(find.textContaining('Promised'), findsOneWidget);
     expect(find.textContaining('15.00'), findsOneWidget);
+    expect(find.text('Update status'), findsOneWidget);
+    expect(find.text('Pending'), findsOneWidget);
+    expect(find.textContaining('does not write money'), findsOneWidget);
     expect(find.textContaining('delivered'), findsNothing);
     expect(find.textContaining('paid'), findsNothing);
   });
@@ -64,7 +72,10 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           home: CustomScrollView(
             slivers: [
-              ContactPendingPromiseBanner(contactId: contactId),
+              ContactPendingPromiseBanner(
+                contactId: contactId,
+                contactName: 'Mohamed',
+              ),
             ],
           ),
         ),
@@ -73,5 +84,6 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('Promised'), findsNothing);
+    expect(find.text('Update status'), findsNothing);
   });
 }

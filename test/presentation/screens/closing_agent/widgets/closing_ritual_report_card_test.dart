@@ -1,10 +1,13 @@
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/utils/agent_speech.dart';
 import 'package:daftar/core/utils/device_tts.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
+import 'package:daftar/domain/enums/collections_call_report_status.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collections_call_report.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/closing_ritual_report_card.dart';
 import 'package:daftar/presentation/shared/widgets/daftar_brand_mark.dart';
@@ -198,5 +201,84 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     expect(find.byType(DaftarBrandMark), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('call report shows promised amount, date, and last-8', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const ClosingRitualReportCard(
+          ttsMuted: true,
+          result: ClosingRitualResult(
+            summary: ClosingDaySummary(
+              localDay: '2026-08-15',
+              debtCount: 1,
+              paymentCount: 0,
+              totals: [],
+            ),
+            backupStatus: ClosingBackupStatus.uploaded,
+            shortlist: [],
+            callReport: CollectionsCallReport(
+              rows: [
+                CollectionsCallReportRow(
+                  contactId: 'us',
+                  name: 'Mohamed',
+                  status: CollectionsCallReportStatus.completed,
+                  outcome: CallRunOutcome.promised,
+                  runId: 'call_GfN-BQcGMORm2NkgSfxdIw',
+                  promisedAmountMinor: 50000,
+                  promisedCurrency: 'USD',
+                  promisedDate: '2026-09-15',
+                ),
+                CollectionsCallReportRow(
+                  contactId: 'ye',
+                  name: 'Ahmed',
+                  status: CollectionsCallReportStatus.callUnavailable,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Call report'), findsOneWidget);
+    expect(find.text('Mohamed'), findsOneWidget);
+    expect(find.text('completed'), findsOneWidget);
+    expect(find.byIcon(Icons.verified_rounded), findsOneWidget);
+    expect(find.textContaining('500.00'), findsOneWidget);
+    expect(find.textContaining('2026-09-15'), findsOneWidget);
+    expect(find.textContaining('kgSfxdIw'), findsOneWidget);
+    expect(find.text('Ahmed'), findsOneWidget);
+    expect(find.text("Can't call"), findsOneWidget);
+    expect(find.text('A promise is not a payment'), findsOneWidget);
+    expect(find.text('paid'), findsNothing);
+    expect(find.text('delivered'), findsNothing);
+  });
+
+  testWidgets('empty call report is omitted', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const ClosingRitualReportCard(
+          ttsMuted: true,
+          result: ClosingRitualResult(
+            summary: ClosingDaySummary(
+              localDay: '2026-08-15',
+              debtCount: 0,
+              paymentCount: 0,
+              totals: [],
+            ),
+            backupStatus: ClosingBackupStatus.uploaded,
+            shortlist: [],
+            callReport: CollectionsCallReport(rows: []),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Call report'), findsNothing);
   });
 }

@@ -88,6 +88,10 @@ class AppSettingsTable extends Table {
   BoolColumn get demoArchitectureHud =>
       boolean().withDefault(const Constant(false))();
 
+  /// Merchant CALL-E outbound kill switch (AND with compile-time CALLE_ALLOW_DIAL).
+  BoolColumn get calleAllowDial =>
+      boolean().withDefault(const Constant(false))();
+
   /// Outcome of the last automatic Drive backup (`success`, `failed`, `skipped`).
   TextColumn get lastAutoBackupOutcome => text().nullable()();
 

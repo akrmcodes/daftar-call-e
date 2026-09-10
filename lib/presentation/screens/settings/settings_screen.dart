@@ -167,7 +167,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final swipeToDeleteEnabled = settings?.isSwipeToDeleteEnabled ?? false;
     final ttsMuted = settings?.ttsMuted ?? false;
     final demoArchitectureHud = settings?.demoArchitectureHud ?? false;
-    final calleAllowDial = ref.watch(calleDevicePolicyProvider).allowDial;
+    final calleAllowDial = settings?.calleAllowDial ?? false;
 
     final session = authAsync.asData?.value;
     final accountSubtitle = _resolveAccountSubtitle(
@@ -370,10 +370,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       label: l10n.settingsCalleAllowDial,
                                       sublabel: l10n.settingsCalleAllowDialSubtitle,
                                       value: calleAllowDial,
-                                      enabled: false,
-                                      onChanged: (_) {},
-                                      onDisabledTap: () =>
-                                          _showCalleAllowDialStubHint(context),
+                                      onChanged: (enabled) =>
+                                          _setCalleAllowDial(context, enabled),
                                     ),
                                   ],
                                 ),
@@ -853,16 +851,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  void _showCalleAllowDialStubHint(BuildContext context) {
+  Future<void> _setCalleAllowDial(BuildContext context, bool enabled) async {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.settingsCalleAllowDialStubHint),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: isDark ? AppColors.surface4 : AppColors.surface2Light,
-      ),
-    );
+    final ok = await ref
+        .read(settingsPreferencesProvider.notifier)
+        .setCalleAllowDial(enabled: enabled);
+    if (!context.mounted) return;
+    if (!ok) {
+      unawaited(
+        AppBottomSheet.showError(
+          context,
+          error: l10n.settingsSaveFailed,
+        ),
+      );
+    }
   }
 
   Future<void> _setDemoArchitectureHud(

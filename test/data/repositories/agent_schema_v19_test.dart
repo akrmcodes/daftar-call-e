@@ -65,13 +65,14 @@ void main() {
       await database.close();
     });
 
-    test('schemaVersion is 26 and session → turn → journal persist', () async {
+    test('schemaVersion is 28 and session → turn → journal persist', () async {
       expect(database.schemaVersion, DbConstants.schemaVersion);
-      expect(database.schemaVersion, 26);
+      expect(database.schemaVersion, 28);
 
       final settings = await database.select(database.appSettingsTable).getSingle();
       expect(settings.ttsMuted, isFalse);
       expect(settings.demoArchitectureHud, isFalse);
+      expect(settings.calleAllowDial, isFalse);
 
       final now = DateTime.utc(2026, 8, 13, 18);
       final session = await expectRight(

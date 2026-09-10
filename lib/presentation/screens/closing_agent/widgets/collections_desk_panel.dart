@@ -3,6 +3,7 @@ import 'package:daftar/app/theme/app_dimensions.dart';
 import 'package:daftar/app/theme/app_text_styles.dart';
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
+import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
@@ -45,6 +46,8 @@ class CollectionsDeskPanel extends StatelessWidget {
     this.showHybridELeftover = false,
     this.showRetrySend = false,
     this.callProgress,
+    this.retryOfferCount = 0,
+    this.onRetryUnanswered,
     this.paddingBottom = 0,
     this.deskSubtitle,
     super.key,
@@ -76,6 +79,12 @@ class CollectionsDeskPanel extends StatelessWidget {
 
   /// Seeded call progress after Confirm & Call.
   final CollectionsCallProgress? callProgress;
+
+  /// Contacts eligible for one no-answer/voicemail retry.
+  final int retryOfferCount;
+
+  /// Merchant consents to retry unanswered calls.
+  final VoidCallback? onRetryUnanswered;
 
   /// Skip a pending row.
   final ValueChanged<String> onSkip;
@@ -154,170 +163,243 @@ class CollectionsDeskPanel extends StatelessWidget {
       (row) => row.status == CollectionsDeskRowStatus.pending,
     );
     final busy = busyContactId != null;
+    final callLeadName = _callLeadName(rows);
+    final pdfCount = _emailPdfCount(rows);
+    final textCount = emailCount - pdfCount;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            AppDimensions.pagePaddingH,
-            AppDimensions.spacingSm,
-            AppDimensions.pagePaddingH,
-            AppDimensions.spacingSm,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l10n.collectionsDeskTitle,
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: inkPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Gap(AppDimensions.spacingXxs),
-              Text(
-                l10n.collectionsDeskCount(rows.length),
-                style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
-              ),
-              if (deskSubtitle != null && deskSubtitle!.trim().isNotEmpty) ...[
-                const Gap(AppDimensions.spacingXxs),
-                Text(
-                  deskSubtitle!,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: inkSecondary,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ],
-          ),
+    Widget rowAt(int index) {
+      final row = rows[index];
+      final contactId = row.candidate.contactId;
+      return Padding(
+        padding: const EdgeInsetsDirectional.only(
+          bottom: AppDimensions.spacingMd,
         ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              AppDimensions.pagePaddingH,
-              0,
-              AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd,
-            ),
-            itemCount: rows.length,
-            itemBuilder: (context, index) {
-              final row = rows[index];
-              final contactId = row.candidate.contactId;
-              return Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  bottom: AppDimensions.spacingMd,
-                ),
-                child: CollectionsDeskRowCard(
-                  row: row,
-                  isOpening: busyContactId == contactId,
-                  leftoverActionsEnabled: !isDispatching,
-                  showHybridELeftover: showHybridELeftover,
-                  onSkip: () => onSkip(contactId),
-                  onCopy: () => onCopy(contactId),
-                  onOpen: () => onOpen(contactId),
-                  onTone: (tone) => onTone(contactId, tone),
-                  onTogglePdf: () => onTogglePdf(contactId),
-                ),
-              );
-            },
-          ),
+        child: CollectionsDeskRowCard(
+          row: row,
+          isOpening: busyContactId == contactId,
+          leftoverActionsEnabled: !isDispatching,
+          showHybridELeftover: showHybridELeftover,
+          onSkip: () => onSkip(contactId),
+          onCopy: () => onCopy(contactId),
+          onOpen: () => onOpen(contactId),
+          onTone: (tone) => onTone(contactId, tone),
+          onTogglePdf: () => onTogglePdf(contactId),
         ),
-        if (!showHybridELeftover)
-          Padding(
-            padding: EdgeInsets.only(bottom: paddingBottom),
-            child: CollectionsDeskConsentCard(
-              callCount: callCount,
-              emailCount: emailCount,
-              callConsented: callConsented,
-              sendOutreachEnabled: sendOutreachEnabled,
-              busy: busy,
-              isDispatching: isDispatching,
-              callProgress: callProgress,
-              onCommit: onCommitOutreach,
-            ),
-          ),
-        if (showHybridELeftover || isDispatching || showRetrySend)
-          Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(
-              AppDimensions.pagePaddingH,
-              0,
-              AppDimensions.pagePaddingH,
-              AppDimensions.spacingMd + paddingBottom,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (showHybridELeftover && isQueueInFlight)
-                  CollectionsSendQueueBar(
-                    index: queueIndex,
-                    total: queueTotal,
-                    contactName: queueContactName,
-                    isPaused: isQueuePaused,
-                    openIsPrimary: startSendingIsPrimary,
-                    isBusy: busy,
-                    onOpen: onStartSending,
-                    onSkip: onQueueSkip ?? onDone,
-                    onPause: onQueuePause ?? _collectionsDeskQueueNoop,
-                    onResume: onQueueResume ?? _collectionsDeskQueueNoop,
-                  )
-                else if (showHybridELeftover && isDispatching)
-                  DaftarButton(
-                    label: queueTotal > 0
-                        ? l10n.collectionsQueueSending(
-                            queueIndex < 1 ? 1 : queueIndex,
-                            queueTotal,
-                          )
-                        : l10n.collectionsDeskSending,
-                    isExpanded: true,
-                    isLoading: true,
-                    onPressed: null,
-                  )
-                else if (showHybridELeftover)
-                  DaftarButton(
-                    label: l10n.collectionsDeskApproveSend,
-                    variant: startSendingIsPrimary
-                        ? DaftarButtonVariant.primary
-                        : DaftarButtonVariant.secondary,
-                    isExpanded: true,
-                    onPressed: hasPending && !busy ? onApproveAndSend : null,
-                  )
-                else if (isDispatching)
-                  DaftarButton(
-                    label: queueTotal > 0
-                        ? l10n.collectionsQueueSending(
-                            queueIndex < 1 ? 1 : queueIndex,
-                            queueTotal,
-                          )
-                        : l10n.collectionsDeskSending,
-                    variant: DaftarButtonVariant.secondary,
-                    isExpanded: true,
-                    isLoading: true,
-                    onPressed: null,
-                  )
-                else if (showRetrySend)
-                  DaftarButton(
-                    label: l10n.collectionsDeskRetrySend,
-                    variant: DaftarButtonVariant.secondary,
-                    isExpanded: true,
-                    onPressed: hasPending && !busy ? onApproveAndSend : null,
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tight = constraints.maxHeight < 480;
+        final deskBottomInset = tight
+            ? AppDimensions.spacingSm
+            : _deskComposerClearance(paddingBottom);
+        final maxDockHeight = (constraints.maxHeight -
+                96 -
+                AppDimensions.minTapTarget)
+            .clamp(96.0, constraints.maxHeight);
+
+        final hitlDock = !showHybridELeftover
+            ? Padding(
+                padding: EdgeInsets.only(bottom: deskBottomInset),
+                child: CollectionsDeskConsentCard(
+                  callCount: callCount,
+                  emailCount: emailCount,
+                  callLeadName: callLeadName,
+                  pdfCount: pdfCount,
+                  textCount: textCount < 0 ? 0 : textCount,
+                  callConsented: callConsented,
+                  sendOutreachEnabled: sendOutreachEnabled,
+                  busy: busy,
+                  isDispatching: isDispatching,
+                  callProgress: callProgress,
+                  retryOfferCount: retryOfferCount,
+                  onRetryUnanswered: onRetryUnanswered,
+                  onCommit: onCommitOutreach,
+                ),
+              )
+            : null;
+
+        // SMTP lead: in-flight loading lives on the HITL CTA. leftoverDock is
+        // Hybrid E chrome, plus Retry sending after a failed SMTP dispatch.
+        final leftoverDock = (showHybridELeftover || showRetrySend)
+            ? Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  AppDimensions.pagePaddingH,
+                  0,
+                  AppDimensions.pagePaddingH,
+                  AppDimensions.spacingMd + deskBottomInset,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (showHybridELeftover && isQueueInFlight)
+                      CollectionsSendQueueBar(
+                        index: queueIndex,
+                        total: queueTotal,
+                        contactName: queueContactName,
+                        isPaused: isQueuePaused,
+                        openIsPrimary: startSendingIsPrimary,
+                        isBusy: busy,
+                        onOpen: onStartSending,
+                        onSkip: onQueueSkip ?? onDone,
+                        onPause: onQueuePause ?? _collectionsDeskQueueNoop,
+                        onResume: onQueueResume ?? _collectionsDeskQueueNoop,
+                      )
+                    else if (showHybridELeftover && isDispatching)
+                      DaftarButton(
+                        label: queueTotal > 0
+                            ? l10n.collectionsQueueSending(
+                                queueIndex < 1 ? 1 : queueIndex,
+                                queueTotal,
+                              )
+                            : l10n.collectionsDeskSending,
+                        isExpanded: true,
+                        isLoading: true,
+                        onPressed: null,
+                      )
+                    else if (showHybridELeftover)
+                      DaftarButton(
+                        label: l10n.collectionsDeskApproveSend,
+                        variant: startSendingIsPrimary
+                            ? DaftarButtonVariant.primary
+                            : DaftarButtonVariant.secondary,
+                        isExpanded: true,
+                        onPressed:
+                            hasPending && !busy ? onApproveAndSend : null,
+                      )
+                    else if (showRetrySend)
+                      DaftarButton(
+                        label: l10n.collectionsDeskRetrySend,
+                        variant: DaftarButtonVariant.secondary,
+                        isExpanded: true,
+                        onPressed:
+                            hasPending && !busy ? onApproveAndSend : null,
+                      ),
+                    if (showHybridELeftover) ...[
+                      const Gap(AppDimensions.spacingSm),
+                      DaftarButton(
+                        label: l10n.collectionsDeskSkipOutreach,
+                        variant: DaftarButtonVariant.tertiary,
+                        isExpanded: true,
+                        onPressed: busy || isDispatching ? null : onDone,
+                      ),
+                    ],
+                  ],
+                ),
+              )
+            : null;
+
+        Widget dockSlot(Widget dock) {
+          if (!tight) {
+            return dock;
+          }
+          return ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxDockHeight),
+            child: SingleChildScrollView(child: dock),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppDimensions.pagePaddingH,
+                AppDimensions.spacingSm,
+                AppDimensions.pagePaddingH,
+                AppDimensions.spacingSm,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.collectionsDeskTitle,
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: inkPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                if (showHybridELeftover) ...[
-                  const Gap(AppDimensions.spacingSm),
-                  DaftarButton(
-                    label: l10n.collectionsDeskSkipOutreach,
-                    variant: DaftarButtonVariant.tertiary,
-                    isExpanded: true,
-                    onPressed: busy || isDispatching ? null : onDone,
+                  const Gap(AppDimensions.spacingXxs),
+                  Text(
+                    l10n.collectionsDeskCount(rows.length),
+                    style: AppTextStyles.bodySmall.copyWith(color: inkSecondary),
                   ),
+                  if (deskSubtitle != null &&
+                      deskSubtitle!.trim().isNotEmpty) ...[
+                    const Gap(AppDimensions.spacingXxs),
+                    Text(
+                      deskSubtitle!,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: inkSecondary,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-      ],
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppDimensions.pagePaddingH,
+                  0,
+                  AppDimensions.pagePaddingH,
+                  AppDimensions.spacingMd,
+                ),
+                itemCount: rows.length,
+                itemBuilder: (context, index) => rowAt(index),
+              ),
+            ),
+            if (hitlDock != null) dockSlot(hitlDock),
+            if (leftoverDock != null) dockSlot(leftoverDock),
+          ],
+        );
+      },
     );
   }
 }
 
 void _collectionsDeskQueueNoop() {}
+
+/// Composer overlay inset for the pinned HITL dock.
+///
+/// [paddingBottom] already includes composer height + safe area + spacing.
+/// The extra [AppDimensions.spacing3xl] slack is for scrolling lists, not
+/// this pinned dock. Tight viewports (keyboard) use a smaller inset in
+/// [CollectionsDeskPanel.build] so the Column cannot overflow.
+double _deskComposerClearance(double paddingBottom) {
+  const slack = AppDimensions.spacing3xl;
+  if (paddingBottom <= slack) {
+    return paddingBottom;
+  }
+  return paddingBottom - slack;
+}
+bool _isCallRail(OutreachRail rail) {
+  return rail == OutreachRail.call || rail == OutreachRail.both;
+}
+
+bool _isEmailRail(OutreachRail rail) {
+  return rail == OutreachRail.email ||
+      rail == OutreachRail.both ||
+      rail == OutreachRail.callUnavailable;
+}
+
+String _callLeadName(List<CollectionsDeskRow> rows) {
+  for (final row in rows) {
+    if (_isCallRail(row.candidate.rail)) {
+      return row.candidate.name;
+    }
+  }
+  return '';
+}
+
+int _emailPdfCount(List<CollectionsDeskRow> rows) {
+  var count = 0;
+  for (final row in rows) {
+    if (_isEmailRail(row.candidate.rail) && row.attachPdf) {
+      count += 1;
+    }
+  }
+  return count;
+}

@@ -29,6 +29,7 @@ class SettingsModel {
     this.hasSeenAgentFabTip = false,
     this.ttsMuted = false,
     this.demoArchitectureHud = false,
+    this.calleAllowDial = false,
     this.syncPullWatermarkOpSeq = 0,
   });
 
@@ -60,6 +61,7 @@ class SettingsModel {
       hasSeenAgentFabTip: settings.hasSeenAgentFabTip,
       ttsMuted: settings.ttsMuted,
       demoArchitectureHud: settings.demoArchitectureHud,
+      calleAllowDial: settings.calleAllowDial,
     );
   }
 
@@ -129,6 +131,9 @@ class SettingsModel {
   /// When true, show the contest Architecture HUD overlay.
   final bool demoArchitectureHud;
 
+  /// When true, merchant allows CALL-E outbound on device.
+  final bool calleAllowDial;
+
   /// Device-local pull cursor. Sync bookkeeping — not a user preference and
   /// never mapped into [domain.AppSettings].
   final int syncPullWatermarkOpSeq;
@@ -157,6 +162,7 @@ class SettingsModel {
       hasSeenAgentFabTip: hasSeenAgentFabTip,
       ttsMuted: ttsMuted,
       demoArchitectureHud: demoArchitectureHud,
+      calleAllowDial: calleAllowDial,
     );
   }
 
@@ -185,6 +191,7 @@ class SettingsModel {
       hasSeenAgentFabTip: hasSeenAgentFabTip,
       ttsMuted: ttsMuted,
       demoArchitectureHud: demoArchitectureHud,
+      calleAllowDial: calleAllowDial,
       syncPullWatermarkOpSeq: syncPullWatermarkOpSeq,
     );
   }
@@ -215,6 +222,7 @@ class SettingsModel {
       hasSeenAgentFabTip: Value(hasSeenAgentFabTip),
       ttsMuted: Value(ttsMuted),
       demoArchitectureHud: Value(demoArchitectureHud),
+      calleAllowDial: Value(calleAllowDial),
     );
   }
 }

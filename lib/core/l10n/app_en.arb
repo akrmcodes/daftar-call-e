@@ -37,8 +37,7 @@
   "settingsDemoArchitectureHud": "Show agent architecture",
   "settingsDemoArchitectureHudSubtitle": "For demos: model, tools, HITL path, and round-trip time. Not a product tour.",
   "settingsCalleAllowDial": "Allow CALL-E outbound",
-  "settingsCalleAllowDialSubtitle": "Compiled kill switch for Confirm & Call. Server still enforces the same flag.",
-  "settingsCalleAllowDialStubHint": "Outbound calls are configured at build time until Stage 5. Rebuild with dart-define to change.",
+  "settingsCalleAllowDialSubtitle": "On-device gate for Confirm & Call. The APK build flag and Cloud Run must also be on.",
   "architectureHudSemantics": "Agent architecture instrument, step {step}",
   "@architectureHudSemantics": {
     "placeholders": {
@@ -1721,6 +1720,21 @@
       "count": { "type": "int", "example": "4" }
     }
   },
+  "closingRitualCallReportTitle": "Call report",
+  "closingRitualCallPromiseLine": "Promised {amount} on {date}",
+  "@closingRitualCallPromiseLine": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "500.00 $" },
+      "date": { "type": "String", "example": "2026-09-15" }
+    }
+  },
+  "closingRitualCallRowSemantics": "Call {name}, {status}",
+  "@closingRitualCallRowSemantics": {
+    "placeholders": {
+      "name": { "type": "String", "example": "Mohamed" },
+      "status": { "type": "String", "example": "completed" }
+    }
+  },
   "closingRitualRetry": "Continue closing the day",
   "collectionsDeskTitle": "Collections",
   "collectionsDeskCount": "{count} reminders",
@@ -1766,38 +1780,78 @@
   "collectionsDeskConfirmWithoutCalling": "Confirm without calling",
   "collectionsDeskWithoutCalling": "Without calling",
   "collectionsDeskWithoutSending": "Without sending",
-  "collectionsDeskRailChipVoiceCalls": "Voice calls · {count}",
-  "@collectionsDeskRailChipVoiceCalls": {
+  "collectionsDeskRailTitleVoiceCalls": "Voice calls",
+  "collectionsDeskRailTitleEmailStatements": "Email statements",
+  "collectionsDeskRailCallOnSingle": "{count} scheduled call ({name})",
+  "@collectionsDeskRailCallOnSingle": {
+    "placeholders": {
+      "count": { "type": "int", "example": "1" },
+      "name": { "type": "String", "example": "Mohamed" }
+    }
+  },
+  "collectionsDeskRailCallOnMultiple": "{count} scheduled calls · {name} and {othersCount} more",
+  "@collectionsDeskRailCallOnMultiple": {
+    "placeholders": {
+      "count": { "type": "int", "example": "3" },
+      "name": { "type": "String", "example": "Mohamed" },
+      "othersCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailCallOff": "Skipped — No outbound calls will be placed",
+  "collectionsDeskRailEmailOnLead": "{count, plural, =1{1 statement} other{{count} statements}}",
+  "@collectionsDeskRailEmailOnLead": {
+    "placeholders": {
+      "count": { "type": "int", "example": "7" }
+    }
+  },
+  "collectionsDeskRailEmailTierMixed": "{pdfCount} with PDF · {textCount} text only",
+  "@collectionsDeskRailEmailTierMixed": {
+    "placeholders": {
+      "pdfCount": { "type": "int", "example": "5" },
+      "textCount": { "type": "int", "example": "2" }
+    }
+  },
+  "collectionsDeskRailEmailTierAllPdf": "All with PDF",
+  "collectionsDeskRailEmailTierAllText": "Text reminders only",
+  "collectionsDeskRailEmailOff": "Skipped — No emails will be sent",
+  "collectionsDeskCommitCallPhrase": "{count, plural, =1{1 call} other{{count} calls}}",
+  "@collectionsDeskCommitCallPhrase": {
     "placeholders": {
       "count": { "type": "int", "example": "2" }
     }
   },
-  "collectionsDeskRailChipEmail": "Email · {count}",
-  "@collectionsDeskRailChipEmail": {
+  "collectionsDeskCommitStatementPhrase": "{count, plural, =1{1 statement} other{{count} statements}}",
+  "@collectionsDeskCommitStatementPhrase": {
     "placeholders": {
-      "count": { "type": "int", "example": "5" }
+      "count": { "type": "int", "example": "7" }
     }
   },
-  "collectionsDeskCommitOutreachBoth": "Confirm outreach — {callCount} calls + {emailCount} emails",
+  "collectionsDeskCommitOutreachBoth": "Confirm ({callPhrase} + {emailPhrase})",
   "@collectionsDeskCommitOutreachBoth": {
     "placeholders": {
-      "callCount": { "type": "int", "example": "2" },
-      "emailCount": { "type": "int", "example": "5" }
+      "callPhrase": { "type": "String", "example": "1 call" },
+      "emailPhrase": { "type": "String", "example": "7 statements" }
     }
   },
-  "collectionsDeskCommitCallsOnly": "Start calls only — {count}",
+  "collectionsDeskCommitCallsOnly": "Confirm ({callPhrase})",
   "@collectionsDeskCommitCallsOnly": {
+    "placeholders": {
+      "callPhrase": { "type": "String", "example": "2 calls" }
+    }
+  },
+  "collectionsDeskCommitEmailOnly": "Send statements only ({emailPhrase})",
+  "@collectionsDeskCommitEmailOnly": {
+    "placeholders": {
+      "emailPhrase": { "type": "String", "example": "7 statements" }
+    }
+  },
+  "collectionsDeskCommitSeal": "Close day without outreach",
+  "collectionsDeskRetryUnanswered": "Retry unanswered — {count}",
+  "@collectionsDeskRetryUnanswered": {
     "placeholders": {
       "count": { "type": "int", "example": "2" }
     }
   },
-  "collectionsDeskCommitEmailOnly": "Send email only — {count}",
-  "@collectionsDeskCommitEmailOnly": {
-    "placeholders": {
-      "count": { "type": "int", "example": "5" }
-    }
-  },
-  "collectionsDeskCommitSeal": "Skip outreach and seal the day",
   "collectionsDeskPromiseNotPayment": "A promise is not a payment",
   "collectionsDeskPromiseNotPaymentSubtitle": "CALL-E records what the customer said they will pay. It does not write money to your ledger.",
   "contactPendingPromiseBody": "Promised {amount} on {date}",
@@ -1814,6 +1868,16 @@
       "date": { "type": "String", "example": "Sep 10, 2026" }
     }
   },
+  "contactPromiseStatusPending": "Pending",
+  "contactPromiseUpdateStatus": "Update status",
+  "contactPromiseStatusActionSheetTitle": "Promise status",
+  "contactPromiseStatusKept": "Kept",
+  "contactPromiseStatusBroken": "Broken",
+  "contactPromiseStatusCancelled": "Cancelled",
+  "contactPromiseMarkBrokenConfirmTitle": "Mark promise broken?",
+  "contactPromiseMarkBrokenConfirmBody": "This updates the promise card only. It does not write money to your ledger.",
+  "contactPromiseMarkCancelledConfirmTitle": "Cancel this promise?",
+  "contactPromiseMarkCancelledConfirmBody": "This updates the promise card only. It does not write money to your ledger.",
   "collectionsDeskCallPreviewTitle": "What CALL-E will say",
   "collectionsDeskCallingProgress": "Calling {index} of {total}",
   "@collectionsDeskCallingProgress": {

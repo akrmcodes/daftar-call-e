@@ -64,6 +64,7 @@ class UpdateSettingsParams {
     this.hasSeenAgentFabTip,
     this.ttsMuted,
     this.demoArchitectureHud,
+    this.calleAllowDial,
   });
   final String? locale;
   final String? themeMode;
@@ -121,4 +122,7 @@ class UpdateSettingsParams {
 
   /// When non-null, shows or hides the contest Architecture HUD overlay.
   final bool? demoArchitectureHud;
+
+  /// When non-null, toggles merchant CALL-E outbound on device.
+  final bool? calleAllowDial;
 }

@@ -313,6 +313,14 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(collectionPromises);
         await m.addColumn(contacts, contacts.doNotCall);
       }
+      // v27: per-run retry count for one no-answer/voicemail HITL retry.
+      if (from < 27) {
+        await m.addColumn(collectionCallRuns, collectionCallRuns.retryCount);
+      }
+      // v28: merchant CALL-E outbound kill switch in app settings.
+      if (from < 28) {
+        await m.addColumn(appSettingsTable, appSettingsTable.calleAllowDial);
+      }
     },
     beforeOpen: (details) async {
       // Idempotent for installs already on v22 before the composite index.

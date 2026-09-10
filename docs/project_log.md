@@ -4949,3 +4949,485 @@ HITL preserved: chips are the four-way decision; CTA **names** counts before dia
 ### Status
 Collections Desk consent UX v2 shipped. Stage 5 / live dial unchanged.
 
+## 2026-09-08 — Stage 5.1: HITL no-answer / voicemail retry
+
+### Context
+Roadmap §5.1: one merchant-tapped retry for CALL-E rows whose structured outcome is `no_answer` or `voicemail`. Policy locked to **HITL only** (not auto-dial) to preserve Confirm → Create and contest credit budget.
+
+### Done
+- **Agent J.9:** [`agent/calls/schemas.py`](agent/calls/schemas.py) optional `attempt: 0|1`; [`agent/calls/router.py`](agent/calls/router.py) idempotency `{batchId}:{contactId}:retry1` on attempt 1; [`agent/calls/handles.py`](agent/calls/handles.py) retry run_id slot; OpenAPI **2.8.0**; pytest in [`agent/tests/test_calls_run_batch.py`](agent/tests/test_calls_run_batch.py)
+- **Schema 27:** [`collection_call_runs_table.dart`](lib/data/datasources/local/tables/collection_call_runs_table.dart) `retryCount`; migration in [`drift_database.dart`](lib/data/datasources/local/drift_database.dart); [`DbConstants`](lib/core/constants/db_constants.dart) / [`DriveBackupConstants`](lib/domain/constants/drive_backup_constants.dart) bumped together
+- **Device:** [`collections_call_progress.dart`](lib/domain/value_objects/collections_call_progress.dart) `outcome` + `retryCount`; [`closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart) `retryUnansweredCalls`, SMTP hold via `callRetryOfferCount`, poll fix (`break` + timeout only when pending); desk + credit-limit retry CTA; EN/AR `collectionsDeskRetryUnanswered`
+- Tests: controller retry (`attempt: 1`, promised no-offer, second retry no-op), consent widget, schema v27
+
+### Architecture / decisions
+HITL retry only — merchant taps “Retry unanswered — {n}”. Re-plan same `batchId` then `run-batch` with `attempt: 1`. One retry per contact (`retryCount`); no `scheduled_at`; cap 5 unchanged. Dual-rail `pendingSendAfterCall` held until retry consumed or merchant sends/seals/done.
+
+### Ops / verification
+- `agent/.venv/bin/python -m pytest tests/test_calls_run_batch.py tests/test_calls_openapi_j9.py`
+- `dart run build_runner build --delete-conflicting-outputs`; `flutter gen-l10n`
+- `flutter analyze`; targeted `flutter test` on controller + consent + schema
+- **No Cloud Run deploy**; **no** `CALLE_ALLOW_DIAL=true`
+
+### Status
+§5.1 checklist ticked. Stage 5.2+ (kill switch UI, skill PR) unchanged.
+
+## 2026-09-08 — Stage 5.1 review patches
+
+### Context
+Review found three controller gaps: `invalidHandle` recovery dropped `attempt: 1`, retry HTTP failure left rows `planned` (chips locked, SMTP held, offer spent), and no in-flight lock before hydrate.
+
+### Done
+- [`closing_agent_controller.dart`](lib/presentation/providers/closing_agent_controller.dart): pass `attempt` through `_planThenRun` invalidHandle re-plan; restore prior progress on retry create failure; `_retryUnansweredInFlight` before first await
+- [`app_ar.arb`](lib/core/l10n/app_ar.arb): `إعادة الاتصال بمن لم يرد — {count}`
+- Test: `no_answer holds pending SMTP until HITL retry completes`
+
+### Status
+§5.1 behavior unchanged; retry path no longer silently no-ops or sticks the desk.
+
+## 2026-09-08 — Stage 5.2 Kill switch UI
+
+### Context
+Stage 5.2 adds the merchant-facing **Allow CALL-E outbound** GlowPill in Settings, persisted in Drift. Effective device dial requires GlowPill AND compile-time `CALLE_ALLOW_DIAL=true`; Cloud Run remains authoritative (403). No deploy or live dial in this slice.
+
+### Done
+- Schema **28**: `AppSettings.calleAllowDial` default `false` — [`app_settings_table.dart`](lib/data/datasources/local/tables/app_settings_table.dart), [`drift_database.dart`](lib/data/datasources/local/drift_database.dart), [`db_constants.dart`](lib/core/constants/db_constants.dart), [`drive_backup_constants.dart`](lib/domain/constants/drive_backup_constants.dart)
+- Threaded through entity/model/mapper/repo — [`app_settings.dart`](lib/domain/entities/app_settings.dart), [`settings_model.dart`](lib/data/models/settings_model.dart), [`settings_mapper.dart`](lib/data/mappers/settings_mapper.dart), [`settings_repository_impl.dart`](lib/data/repositories/settings_repository_impl.dart)
+- [`set_calle_allow_dial_use_case.dart`](lib/application/settings/set_calle_allow_dial_use_case.dart); [`calleDevicePolicyProvider`](lib/presentation/providers/core_providers.dart) AND overlay via [`CalleDevicePolicy.effectiveAllowDial`](lib/domain/constants/calle_device_policy.dart)
+- Settings GlowPill enabled — [`settings_screen.dart`](lib/presentation/screens/settings/settings_screen.dart); EN/AR ARB; debug [`demo_store_seeder.dart`](lib/core/utils/demo_store_seeder.dart) arms pill when `kDebugMode`
+- Tests: use case, policy AND matrix, schema 28, seeder `calleAllowDial == kDebugMode`
+- Roadmap §5.2 ticked; QA copy updated — [`stage4_phone_qa.md`](docs/qa/stage4_phone_qa.md), [`flutter_env.template.md`](docs/qa/flutter_env.template.md)
+
+### Architecture / decisions
+- GlowPill **value** = persisted merchant intent (`calleAllowDial`), not effective AND
+- Fail closed when settings not loaded (`persisted ?? false`)
+- Device can only be stricter than server; no Cloud Run changes
+
+### Ops / verification
+- `flutter analyze` + targeted tests (settings/policy/schema/controller)
+- No deploy; no `CALLE_ALLOW_DIAL=true` on Cloud Run
+
+### Status
+Roadmap §5.2 complete. Next bands per [`roadmap_v3.md`](docs/roadmap_v3.md).
+
+## 2026-09-08 — Stage 5.3 Promise card polish
+
+### Context
+Roadmap §5.3: merchants mark pending CALL-E promises kept / broken / cancelled without ledger writes. Optional: Kept opens payment entry prefilled — Save still HITL.
+
+### Done
+- [`update_collection_promise_status_use_case.dart`](lib/application/contact/update_collection_promise_status_use_case.dart); repo/DS `updatePromiseStatus`; `persistTerminalWrite` preserves resolved status
+- Contact [`ContactPendingPromiseBanner`](lib/presentation/screens/contact/widgets/contact_pending_promise_banner.dart) → DaftarCard + action/confirm sheets; EN/AR ARB
+- [`showAddTransactionDialog`](lib/presentation/screens/transaction/widgets/add_transaction_dialog.dart): `initialType` + `initialAmountMinor` prefill after Kept
+- Tests: use case, enum extension, local DS status flip + kept preservation, widget card
+- Roadmap §5.3 ticked; film QA [`calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md) step 4
+
+### Architecture / decisions
+- Promise status change never calls `AddTransactionUseCase`
+- Merchant HITL wins over late terminal GET re-upsert
+- No schema bump (status enum already in v26)
+
+### Ops / verification
+- `flutter analyze` + targeted tests
+- No deploy; no `CALLE_ALLOW_DIAL=true`
+
+### Status
+Roadmap §5.3 complete. Next: §5.4 portable skill per [`roadmap_v3.md`](docs/roadmap_v3.md).
+
+## 2026-09-08 — Stage 5.4 merge-contract rewrite (not implemented)
+
+### Context
+§5.4 was a thin checkbox. After studying [awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents) (`kept`, `appointment-confirm`, `service-dispatch-call`, CONTRIBUTING, `validate_repository.py`), the skill is useful only as a **HITL outbound call + display-only integer promise**, not a `kept` clone or a Flutter dump.
+
+### Done
+- [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.4**: §5.4 merge contract (scope vs `kept`, validator folder tree, SKILL.md/preview.py, locked README one-liner, PR mechanics, reject list)
+- §6.4 now points at the **same** PR (Devpost URL + review replies; no second skill PR)
+- **Did not** author `docs/skills/ledger-collections-call/` or open the awesome-list PR
+
+### Architecture / decisions
+- Skill never cashiers; never writes a ledger; region refuse including YE before `POST /v1/calls`
+- Dual rail / Drift / Cloud Run stay product-only
+- English-only PR copy; `locale: ar` documented in English
+
+### Status
+§5.4 checkboxes remain `[ ]` until the skill + PR land. Next: implement the skill per the new §5.4 contract.
+
+## 2026-09-08 — Stage 5.4 skill source copy (usefulness lock)
+
+### Context
+Author `ledger-collections-call` in this repo only: HITL outbound collections **call** + display-only integer promise. Do not clone `kept`. No awesome-list PR in this slice.
+
+### Done
+- Source of truth: [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/) — `SKILL.md`, `references/{overlap,safety,examples,result-schema,regions}.md`, `scripts/preview.py`, `scripts/test_preview.py`, `assets/sample-overdue.json`
+- No skill-folder `README.md`
+- `preview.py`: stdlib dry-run; YE / float / DNC refuse; E.164 last-4 mask; `--live` rejected; never POSTs
+- Tests: `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 5 passed
+- Roadmap §5.4 **source-copy** and **preview.py** boxes ticked; **awesome-list PR** boxes remain `[ ]`
+
+### Architecture / decisions
+- Complements `kept` (campaign + capture + bank ledger) rather than replacing it
+- J.10 supported-region frozenset copied into the skill; YE never eligible
+- Promise is not a payment; no `AddTransaction`; no Cloud Run / Flutter in the skill
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; no GitHub PR to awesome-phone-call-agents
+
+### Status
+Source copy ready for review. Next: copy into an awesome-list clone and open `feat/ledger-collections-call` per §5.4 PR mechanics.
+
+## 2026-09-08 — Stage 5.4 awesome-list clone prep (no PR)
+
+### Context
+Owner forked/cloned [awesome-phone-call-agents](https://github.com/CALLE-AI/awesome-phone-call-agents) to `/Users/aq/Work/01_Projects/awesome-phone-call-agents`, branch `feat/ledger-collections-call`, `check_branch_name.py` green. This slice copies the skill and README bullet only — no push, no GitHub PR.
+
+### Done
+- Hygiene in source so the clone is merge-ready: [`references/regions.md`](docs/skills/ledger-collections-call/references/regions.md) host-agnostic dual-rail wording; [`references/examples.md`](docs/skills/ledger-collections-call/references/examples.md) both dry-run paths; [`scripts/preview.py`](docs/skills/ledger-collections-call/scripts/preview.py) lockstep comment without a Daftar import path
+- Byte-identical copy into clone `skills/ledger-collections-call/` (no skill `README.md`)
+- Locked Skills one-liner appended to the clone `README.md` after `concord-policy-audit` (`](path/) - ` punctuation; sentence unchanged)
+- Clone verification: dry-run `status: not_called`; `test_preview.py` 5 passed; `python3 scripts/validate_repository.py` → `Repository validation passed.`
+- Roadmap §5.4 clone-prep boxes ticked; **PR title / PR template remain `[ ]`**
+
+### Architecture / decisions
+- Complements `kept`; promise is display-only; `preview.py` still never POSTs
+- Origin on the clone is `akrmcodes/awesome-phone-call-agents` (fork), not `daftar-closing-agent`
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` (source)
+- Clone: preview.py dry-run; `python3 skills/ledger-collections-call/scripts/test_preview.py`; `python3 scripts/validate_repository.py`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; no `git push`; no `gh pr create`; no commit in either repo
+
+### Status
+Clone is ready for owner review, then a local commit + PR. Next: push `feat/ledger-collections-call` and open the awesome-list PR per remaining §5.4 boxes.
+
+## 2026-09-08 — Stage 5.4 clone push (PR open needs GitHub login)
+
+### Context
+Final review of the portable skill, recopy into the awesome-list clone, commit/push the fork, open the CALLE-AI PR. `gh` is not logged in on this machine, so the compare page was opened for the owner.
+
+### Done
+- Source hygiene: layout-based dry-run paths (no `daftar-call-e` label); drop J.9/J.10 and Daftar §5.3 from skill copy; DNC unittest
+- Tests: `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 6 passed
+- Clone recopy byte-identical; `validate_repository.py` green
+- Clone commit `5f77698` `feat(ledger-collections-call): add HITL integer-promise collections skill`
+- Pushed `feat/ledger-collections-call` to `akrmcodes/awesome-phone-call-agents` (fork). Not `daftar-closing-agent`
+
+### Architecture / decisions
+- Skill still complements `kept`; dry-run only; no ledger write
+- `skill-pack` has no upstream tracking — daftar-call-e commit is local only
+
+### Ops / verification
+- Clone: dry-run, 6 tests, `python3 scripts/validate_repository.py`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; daftar-call-e **not** pushed
+
+### Status
+§5.4 PR title / template stay `[ ]` until the upstream PR exists. Owner: submit from the GitHub compare page (browser opened) after `gh auth login` or using the prefilled title.
+
+## 2026-09-08 — Stage 5.4 awesome-list PR opened (#385)
+
+### Context
+Owner opened and verified [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (`feat(ledger-collections-call): add HITL integer-promise collections skill`). Tick the remaining §5.4 PR boxes.
+
+### Done
+- Roadmap §5.4 PR title and template/complementarity-with-`kept` boxes marked `[x]`; PR URL recorded on the title line
+- §5.5 freeze, Gate 5 freeze, §6.4 Devpost URL, and Stage 6 “PR opened” left `[ ]` (Devpost paste and freeze are later bands)
+
+### Architecture / decisions
+Unchanged: skill complements `kept`; display-only integer promise; dry-run default; no ledger write.
+
+### Ops / verification
+- Owner-verified PR: https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385
+- No deploy; no `CALLE_ALLOW_DIAL=true`; `skill-pack` still not pushed
+
+### Status
+§5.4 merge-contract work is complete pending maintainer review. Next: paste this PR URL on Devpost (§6.4), answer review comments, then Stage 5.5 freeze / Stage 6 packaging.
+
+## 2026-09-09 — Pre–Stage 5.5 rehearsal paused (runbook)
+
+### Context
+Owner rehearsal before Stage 5.5 (dry device QA, then one live US DID ring, then shut down) was started then paused. Capture the checkpoint and remaining steps in a QA runbook so execution can resume later without re-deploying or leaving dial armed overnight.
+
+### Done
+- Deploy **`daftar-call-e` only** (`DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL` unset, min default **0**): revision **`daftar-call-e-00009-659`**. Post-verify: `CALLE_ALLOW_DIAL=false`, scale **0/2**, SA `call-e-runner`
+- Warm `/list-apps` on owner-ops `daftar-call-e-url` → `["closing_agent"]`
+- Laptop no-PSTN smoke [`agent/scripts/smoke_calls_plan_run.py`](../agent/scripts/smoke_calls_plan_run.py): `overall_pass=True` (kill switch, YE, dry-run). Dest last-4 `7244` only
+- Overlay `CALLE_ALLOW_DIAL` empty (gitignored). Device `flutter run` **Lost connection** — Pass A on-phone QA not finished
+- Runbook [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md); index in [`docs/qa/README.md`](docs/qa/README.md); pointers from [`stage4_phone_qa.md`](docs/qa/stage4_phone_qa.md) and [`calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md)
+
+### Architecture / decisions
+Owner ops only — not §5.5 freeze, not film. Resume from Pass A unless `agent/` changed after `00009-659`. Live window still requires **min 1** (process-local confirm handle). Do not copy the film SOP env-only snippet that arms dial with min 0. Frozen Agentic service remains describe-only.
+
+### Ops / verification
+- `tool/check_agentic_freeze.sh` → Freeze OK: **`daftar-closing-agent-00055-pbm`**
+- No `CALLE_ALLOW_DIAL=true` left on Cloud Run; overlay empty; no overnight arm
+- Roadmap §5.5 / Gate 5 left `[ ]`
+
+### Status
+Stack **cold**. Remaining: Pass A/B on `R5CT10G3LXH` (full rebuild), arm dial true min 1, one Confirm & Call, immediate disarm. Next: execute [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md) when Linphone and the demo device are ready.
+
+## 2026-09-09 — PR #385 review: reserved numbers + ASCII E.164
+
+### Context
+Ray-56 required two merge blockers on [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385): replace the plausible YE mobile fixture, and reject Unicode digits in E.164 validation. Rewrite the PR commit so the old number is not in history.
+
+### Done
+- Source [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/): US fixture `+12025550100` (NANP 202-555-0100); YE refuse `+96755501000`; `_E164_RE` is `^\+[1-9][0-9]{7,14}$` with `fullmatch`; Unicode-digit test (`\u0667`)
+- Safety/examples copy: ASCII digits; NANP reserved `555-01xx`; no `+96777…`
+- Byte-identical copy into clone `skills/ledger-collections-call/`
+- Clone commit **amended** locally: `c1396c9` (was `5f77698`). Same title; body records reserved `555-01xx` and ASCII E.164. **Not force-pushed**
+
+### Architecture / decisions
+Skill still complements `kept`; dry-run only; YE still `unsupportedRegion`. Unicode Nd must not pass as E.164. daftar-call-e history is a new commit (not rewritten). Frozen Cloud Run untouched.
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 7 passed
+- Clone: 7 tests; `python3 scripts/validate_repository.py` → `Repository validation passed.`
+- `git grep` on clone HEAD: no `+967771234567`, no `+15555550100` in the skill
+- No deploy; no `CALLE_ALLOW_DIAL=true`; §5.5 / Gate 5 left `[ ]`
+
+### Status
+Owner must force-push `feat/ledger-collections-call` on `akrmcodes/awesome-phone-call-agents` (`--force-with-lease`), then reply on PR #385.
+
+## 2026-09-09 — Roadmap v3.5 destination lock (Callcentric + Linphone)
+
+### Context
+CALL-E Support (2026-09-09) confirmed the owner US Callcentric number answered in Linphone is supported for development **and** the submission demo. Disclose that the owner owns and answers the number. No second destination. Update the binding contract so film and live QA do not wait on a friend mobile.
+
+### Done
+- [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.5**: film/QA = owner Callcentric US DID + Linphone; §6.2 disclosure; §6.3 beat 0:40–2:10; J.10 test-number policy; risk row closed
+- No E.164 in the roadmap. §5.5 / Gate 5 left `[ ]`. No Cloud Run mutate
+
+### Architecture / decisions
+Product still supports AE/SA/EG in J.10; they are **not filmed**. YE remains email-only. KYC and contest rules still apply.
+
+### Ops / verification
+- Grep: no friend-mobile film path left as the primary take
+- Rehearsal runbook already assumed Callcentric + Linphone
+
+### Status
+Next: disclose owner-answered DID in README / contest disclosure (Stage 6.2); film per [`docs/qa/calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md) and [`docs/qa/pre_stage_5_5_rehearsal.md`](docs/qa/pre_stage_5_5_rehearsal.md).
+
+## 2026-09-09 — PR #385: reserved NANP fixtures only (rewrite history)
+
+### Context
+Ray-56 at `da77bce` accepted ASCII E.164. The remaining privacy blocker was the full YE fixture `+96755501000` (not NANPA `555-01xx`). It was still in the tree and in commit `c1396c9`; a follow-up commit would not have been enough.
+
+### Done
+- Source [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/): YE refuse keeps `phoneE164` = `+12025550100` and sets `"region": "YE"`; `calling_is_ye("+967")` prefix-only test; examples/safety drop full `+967` subscriber wording
+- Lockstep clone `skills/ledger-collections-call/` (byte-identical). Locked README one-liner unchanged; both Skills bullets (`ledger-collections-call` then `rdn-intake-referral`) after `concord-policy-audit`
+- Recreated linear PR branch from CALLE-AI `main` `d2e7a4f`; one commit `9b12a7c` `feat(ledger-collections-call): add HITL integer-promise collections skill`. `c1396c9` is not an ancestor
+- `git push --force-with-lease origin feat/ledger-collections-call` on fork `akrmcodes/awesome-phone-call-agents` only (`da77bce` → `9b12a7c`)
+
+### Architecture / decisions
+Keep NANPA reserved `555-01xx` only. YE refuse is ISO region (and calling-code **prefix** `+967` in prose/runtime). No complete non-reserved E.164 in the skill tree. daftar-call-e history is a new commit (not rewritten). Frozen Cloud Run untouched. No live DID.
+
+### Ops / verification
+- `python3 docs/skills/ledger-collections-call/scripts/test_preview.py` — 8 passed
+- Clone: 8 tests; `python3 scripts/validate_repository.py` → `Repository validation passed.`
+- `rg '\+967[0-9]{6,}'` on both skill folders — zero matches
+- `git grep` on clone HEAD: no `+96755501000`, no `+967771234567`, no `+15555550100` under `skills/ledger-collections-call/`
+- No deploy; no `CALLE_ALLOW_DIAL=true`; §5.5 / Gate 5 left `[ ]`
+
+### Status
+PR tip is `9b12a7c` on [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385). Owner can reply to Ray.
+
+## 2026-09-09 — Live window armed (`daftar-call-e-00010-qrp`)
+
+### Context
+Owner finished Pass A/B on `R5CT10G3LXH` (kill-switch copy + SMTP). Arm Cloud Run `daftar-call-e` only for a live session: `CALLE_ALLOW_DIAL=true`, min 1. Leave armed until the owner asks to disarm. Do not tick §5.5.
+
+### Done
+- Identity: `akrm.codes@gmail.com` / project `daftar-closing-agent`; `tool/check_agentic_freeze.sh` Freeze OK; frozen rev still **`daftar-closing-agent-00055-pbm`**
+- Gitignored overlay [`tool/demo_seed_emails.local.json`](../tool/demo_seed_emails.local.json): `CALLE_ALLOW_DIAL` exact `true`. DID/allowlist last-4 `7244` lockstep; not committed
+- Wrapper deploy **`daftar-call-e` only**: `DAFTAR_CALL_E_DEPLOY=true`, `DAFTAR_CALL_E_ALLOW_DIAL=true`, `DAFTAR_CALL_E_MIN_INSTANCES=1` → revision **`daftar-call-e-00010-qrp`**. Post-verify: `calle_allow_dial=true`, scale **1/2**, SA `call-e-runner`, `freeze=ok`
+- Warm `/list-apps` → `["closing_agent"]`. `.env` `CLOSING_AGENT_BASE_URL` still matches owner-ops `daftar-call-e-url` (not the frozen Agentic hostname)
+- Checkpoint in [`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md) updated
+
+### Architecture / decisions
+PSTN is GlowPill AND dart-define exact `true` AND Cloud Run `true`. Confirm handles are process-local → min **1** while armed (do not copy the film SOP min-0 env snippet). Frozen service describe-only. No `allUsers`. No laptop `create_and_wait`.
+
+### Ops / verification
+- Wrapper post-verify printed `calle_allow_dial=true` / scale `1/2` / `freeze=ok`
+- ID-token `list-apps` HTTP 200
+- Roadmap §5.5 / Gate 5 left `[ ]`
+
+### Status
+**Armed for this session.** Owner must full-rebuild Flutter (hot restart is not enough), confirm GlowPill on, Linphone ready, then Confirm & Call. Each new close-day tap burns one CALL-E credit. Ask before disarming (dial false, min 0, overlay empty). Do not leave overnight.
+
+## 2026-09-09 — Closing report call summary (device-only)
+
+### Context
+Live Confirm & Call succeeded (Mohamed promised an integer amount on a calendar day). The promise card on the contact/operations surface was correct; the sealed daily Closing Agent report still showed only books, Drive, overdue, and email queue metrics. Add a professional call summary on that report without changing Cloud Run or making TTS narrate the call.
+
+### Done
+- Domain [`CollectionsCallReport`](../lib/domain/value_objects/collections_call_report.dart) + [`CollectionsCallReportStatus`](../lib/domain/enums/collections_call_report_status.dart); optional integer promise fields on [`CollectionsCallProgressRow`](../lib/domain/value_objects/collections_call_progress.dart)
+- [`ClosingRitualResult.withCallReport`](../lib/domain/value_objects/closing_ritual_result.dart); `_showRitualReport` attaches from `callProgress` + shortlist
+- Poll path copies promised amount/currency/date onto progress rows
+- Khazna inset [`ClosingRitualCallReportSection`](../lib/presentation/screens/closing_agent/widgets/closing_ritual_call_report.dart) on [`ClosingRitualReportCard`](../lib/presentation/screens/closing_agent/widgets/closing_ritual_report_card.dart): name, status, integer promise + ISO date, HUD last-8; lapis stroke/glow only
+- EN/AR ARB; [`closingReportSpeakable`](../lib/core/utils/closing_report_speakable.dart) unchanged
+
+### Architecture / decisions
+Flutter-only. Promise ≠ payment (no ledger write, no “paid”/“delivered”). Gemini does not read the call section. No `agent/` or Cloud Run mutate. Frozen Agentic service describe-only.
+
+### Ops / verification
+- `flutter test` on call-report domain/widget/speakable + `finishDesk attaches call report`
+- `dart analyze` on touched libraries — clean
+- Roadmap §5.5 / Gate 5 left `[ ]`
+
+### Status
+Close the day again to see the call report on the sealed dashboard. Live dial window still armed until the owner asks to disarm.
+
+## 2026-09-10 — Arabic UI Confirm & Call (US DID locale)
+
+### Context
+Switching the app to Arabic then Confirm & Call showed the needs-human error card (“Call needs a look” / books unchanged) with **no ring**. Merchant UI `ar` was copied onto CALL-E `recipients[].locale` with an Arabic C.3 task. Mohamed’s destination is `region: US`; CALL-E lists English only (`en-US`) for US.
+
+### Done
+- Domain mapper [`CalleSpokenLocale`](../lib/domain/constants/calle_spoken_locale.dart): US (and non-Arabic J.10) → `en-US` + English C.3 even when UI is `ar`; AE/SA/EG/OM → `ar-{ISO}` when UI is Arabic
+- Desk C.3 preview matches the wire: [`BuildCollectionsDeskUseCase`](../lib/application/agent/build_collections_desk_use_case.dart) composes call tasks from spoken language; C.2 email stays Arabic
+- [`confirmAndCall`](../lib/presentation/providers/closing_agent_controller.dart) (close-day and credit-limit) sends BCP-47 on each recipient and always recomposes the task (stale Arabic `desk.callTask` is not forwarded)
+- Cloud Run safety net [`agent/calls/spoken_locale.py`](../agent/calls/spoken_locale.py) canonicalizes locale before `create`; task is not rewritten. **Not deployed**
+
+### Architecture / decisions
+UI locale ≠ PSTN locale. Batch `locale` remains `ar`|`en` for desk chrome and email. Frozen Agentic service untouched. No §5.5 tick.
+
+### Ops / verification
+- `flutter test` spoken-locale + desk UC + controller — including “Arabic deskLocale on US Confirm and Call sends en-US and English C.3” (72 controller tests passed)
+- `agent/.venv` pytest `test_spoken_locale.py` + `test_calls_run_batch.py` — 21 passed
+- `dart analyze` on touched libraries — clean
+
+### Status
+Hot-restart the Arabic UI session and Confirm & Call Mohamed again — Linphone should ring. Cloud Run coerce is in git only until a `daftar-call-e` deploy is requested.
+
+## 2026-09-10 — Collections Desk rail cards (HITL dock polish)
+
+### Context
+The Collections Desk outreach dock used compact filter chips (`Voice calls · 1`) that read like debug math. Merchants needed executive-grade rail selection with human microcopy and a contextual confirm CTA.
+
+### Done
+- New [`collections_desk_rail_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart): `DaftarCard` compact + `Switch.adaptive`, lapis hairline/`haloXs` when on, muted skip copy when off
+- Rewrote [`collections_desk_consent_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_consent_card.dart): vertical rail stack, call lead name + PDF/text tiering subtitles, ICU-plural CTA (`Confirm (1 call + 7 statements)`, etc.)
+- [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): derives `callLeadName`, `pdfCount`, `textCount` from desk rows
+- EN/AR ARB keys in `app_en.arb` / `app_ar.arb`; removed `collections_desk_rail_chip.dart`
+- Widget tests: consent, rail card, panel — 24 passed
+
+### Architecture / decisions
+Presentation-only; `commitDeskOutreach({call, send})` contract unchanged. No Cloud Run / agent changes. Promises remain display-only.
+
+### Ops / verification
+- `flutter test test/presentation/screens/closing_agent/widgets/collections_desk_{consent,rail_card,panel}_test.dart` — 24 passed
+- `dart analyze` on touched closing_agent widgets — clean
+
+### Status
+Hot-restart to see rail cards on the Collections Desk. Roadmap §5.5 unchanged.
+
+## 2026-09-10 — Collections Desk rail card layout polish
+
+### Context
+Toggling a rail off showed “Skipped — …” copy partially clipped; bordered `DaftarCard` chrome felt heavy.
+
+### Done
+- [`collections_desk_rail_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart): borderless stepped surface + `haloXs` when active only; fixed 56dp switch column; subtitle wraps up to 3 lines; text tap vs switch tap split
+- Widget test: skipped subtitle fully visible at 320dp width
+
+### Ops / verification
+- `flutter test` rail card + consent — 17 passed
+
+### Status
+Hot-restart to verify skipped-state copy on device.
+
+## 2026-09-10 — Collections Desk compact switch + dock clearance
+
+### Context
+Skipped-state switch still crowded the “Skipped — …” line. Empty gap sat between the HITL dock and the glass composer.
+
+### Done
+- [`collections_desk_rail_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart): Settings layout — compact `CupertinoSwitch` (0.82) on the title row; skipped copy is full-width underneath
+- [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): `_deskComposerClearance` drops list-scroll slack so the dock sits closer to the command field
+- Consent card vertical margins tightened (`spacingXs`)
+
+### Ops / verification
+- `flutter test` rail card + consent + panel — 24 passed
+
+### Status
+Hot-restart to verify skipped copy and dock position on device.
+
+## 2026-09-10 — Stage 5.5 feature freeze + Gate 5
+
+### Context
+Declare the Stage 5 product freeze (ahead of EOD 11 Sep) so Stage 6 packaging copy may start while **video stays a later owner session**. Official CALL-E submit freeze remains §7.1 (14 Sep). Not a Cloud Run mutate and not film day.
+
+### Done
+- Freeze-lock tests: [`agent/tests/test_stage5_feature_freeze.py`](../agent/tests/test_stage5_feature_freeze.py) (Trigger enum `closeDay`|`creditLimit`; no `run_live` / BIDI Live needles in `calls/` + `closing_agent/`; OpenAPI paths have no inbound/IVR/WhatsApp/webhook) and [`test/domain/enums/call_batch_trigger_test.dart`](../test/domain/enums/call_batch_trigger_test.dart)
+- Analyzer infos cleared (no behavior change): redundant defaults / `const` / raw string in rail card + desk tests
+- Stale OpenAPI version assert in [`agent/tests/test_calls_plan_batch.py`](../agent/tests/test_calls_plan_batch.py) aligned to **2.8.0** (already locked in `test_calls_openapi_j9.py` from §5.1 retry)
+- Roadmap **§5.5** and **Stage 5 Validation Gate** ticked in [`docs/roadmap_v3.md`](roadmap_v3.md). Stage 6 task boxes left `[ ]`
+- QA pointers: [`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md), [`docs/qa/README.md`](qa/README.md) — freeze lives on the roadmap; rehearsal remaining live-ring / disarm steps stay owner-ops
+
+### Architecture / decisions
+- Two HITL triggers only (`closeDay`, `creditLimit`). Hybrid E WhatsApp leftover stays, not the lead, not filmed. No inbound IVR. No Gemini Live / `run_live` as the call plane. ADK `get_fast_api_app` unused `/run_sse` (if present) is not a product surface.
+- No deploy of `daftar-call-e`. Frozen Agentic service describe-only. No live `calls.create`. No §7.1 submit tag.
+
+### Ops / verification
+```bash
+bash tool/check_agentic_freeze.sh
+# Freeze OK: daftar-closing-agent-00055-pbm
+flutter analyze
+# No issues found
+agent/.venv/bin/python -m pytest tests/ -q
+# 206 passed
+flutter test test/domain/enums/call_batch_trigger_test.dart
+# 1 passed
+env -u CALLE_API_KEY python3 docs/skills/ledger-collections-call/scripts/test_preview.py
+# 8 passed
+env -u CALLE_API_KEY python3 docs/skills/ledger-collections-call/scripts/preview.py \
+  --request docs/skills/ledger-collections-call/assets/sample-overdue.json
+# status: not_called  blocker: dryRunDefault
+```
+Git HEAD at declaration: `c96682a1184c3331dfcf83ca598e2a943c15ca0f` (no annotated tag — §7.1). Freeze-lock + lint/test fixes are uncommitted until the owner asks. Local `agent/.venv` received `requirements.txt` so `pytest tests/` can import `google.adk` (dev machine only; Cloud Run image unchanged).
+
+### Status
+Stage 5 / Gate 5 **green**. Next: Stage 6 packaging copy (README / diagram / disclosure). **Do not** start §6.3 video until the owner film SOP. Rehearsal Confirm & Call / disarm remains owner-ops.
+
+## 2026-09-10 — Collections Desk SMTP dispatch: drop orphan Sending loader
+
+### Context
+During end-of-day email send, the HITL Send button showed a spinner **and** a second unlabeled loading box underneath. Judges/owner saw two loaders at the SMTP step.
+
+### Done
+- [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): leftover dock no longer opens for SMTP `isDispatching`. In-flight loading stays on the consent CTA (`CollectionsDeskConsentCard._ctaLoading`). Retry sending after a failed dispatch is unchanged. Hybrid E leftover chrome still owns its own Sending button.
+- Panel test: SMTP dispatching → exactly one `DaftarButton.isLoading`, no `Sending 1 of 2` / `Sending…` dock
+
+### Architecture / decisions
+SMTP lead uses the HITL dock as the only send chrome. The extra `isLoading` button was leftover from before the consent card owned the CTA. No Cloud Run / seeder / freeze-surface change.
+
+### Ops / verification
+- `flutter test test/presentation/screens/closing_agent/widgets/collections_desk_panel_test.dart` — 8 passed
+- `dart analyze` on touched files — clean
+
+### Status
+Hot-restart the running debug session to see a single Send spinner while statements go out. Roadmap §5.5 unchanged.
+
+## 2026-09-10 — Disarm daftar-call-e (credit / min-instance shutdown)
+
+### Context
+Owner asked to stop the live test window until §6.3 film. Cloud Run was still `CALLE_ALLOW_DIAL=true` / min **1** on `daftar-call-e-00010-qrp`.
+
+### Done
+- Env-only update on **`daftar-call-e` only**: `CALLE_ALLOW_DIAL=false`, `--min=0 --max=2`. New revision **`daftar-call-e-00011-h7z`**
+- Gitignored overlay `CALLE_ALLOW_DIAL` emptied (DID + allowlist keys kept; not committed; values not logged)
+- [`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md) checkpoint: Shutdown **Done**; session state cold
+
+### Architecture / decisions
+Legal mutate target remains `daftar-call-e`. Frozen Agentic service describe-only (`daftar-closing-agent-00055-pbm`). No `allUsers`. No live `calls.create`. Re-arm only for film via [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) (dial true, min 1, overlay exact `true`).
+
+### Ops / verification
+```bash
+# describe: CALLE_ALLOW_DIAL=false, minScale omitted (=0), maxScale=2
+bash tool/check_agentic_freeze.sh   # Freeze OK: daftar-closing-agent-00055-pbm
+```
+No E.164 / allowlist values printed. Device `flutter run` was already stopped.
+
+### Status
+Stack **cold**. Confirm & Call on a fresh desk should refuse PSTN. Next: Stage 6 packaging; re-arm only when filming.
+

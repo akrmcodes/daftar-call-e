@@ -1,8 +1,11 @@
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/core/utils/closing_report_speakable.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
+import 'package:daftar/domain/enums/collections_call_report_status.dart';
 import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
+import 'package:daftar/domain/value_objects/collections_call_report.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -108,6 +111,42 @@ void main() {
     );
     expect(spoken, contains('5 overdue accounts remain'));
     expect(spoken, isNot(contains('prepared')));
+  });
+
+  test('call report is visual only and is not spoken', () {
+    const callReport = CollectionsCallReport(
+      rows: [
+        CollectionsCallReportRow(
+          contactId: 'us',
+          name: 'Mohamed',
+          status: CollectionsCallReportStatus.completed,
+          outcome: CallRunOutcome.promised,
+          runId: 'call_GfN-BQcGMORm2NkgSfxdIw',
+          promisedAmountMinor: 50000,
+          promisedCurrency: 'USD',
+          promisedDate: '2026-09-15',
+        ),
+      ],
+    );
+    final spoken = closingReportSpeakable(
+      l10n: en,
+      result: const ClosingRitualResult(
+        summary: ClosingDaySummary(
+          localDay: '2026-08-15',
+          debtCount: 3,
+          paymentCount: 2,
+          totals: [],
+        ),
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [],
+        callReport: callReport,
+      ),
+    );
+    expect(spoken, isNot(contains('Mohamed')));
+    expect(spoken, isNot(contains('500')));
+    expect(spoken, isNot(contains('2026-09-15')));
+    expect(spoken, isNot(contains('Call report')));
+    expect(spoken, contains('Today you recorded 3 debts and 2 payments'));
   });
 
   test('Arabic grant speech has no Latin Drive', () {

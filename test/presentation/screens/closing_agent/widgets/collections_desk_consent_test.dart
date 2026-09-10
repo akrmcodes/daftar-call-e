@@ -1,5 +1,6 @@
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/enums/reminder_tone_band.dart';
@@ -15,7 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  CollectionsDeskRow usRow() {
+  CollectionsDeskRow usRow({bool attachPdf = false}) {
     final task = CollectionsCallTaskComposer.compose(
       locale: 'en',
       storeName: 'Daftar',
@@ -38,7 +39,7 @@ void main() {
       ),
       body: 'Hello US Contact',
       toneBand: ReminderToneBand.reminder,
-      attachPdf: false,
+      attachPdf: attachPdf,
       callTask: task.task,
     );
   }
@@ -66,6 +67,9 @@ void main() {
   Widget consentHost({
     required int callCount,
     required int emailCount,
+    String callLeadName = 'Mohamed',
+    int pdfCount = 0,
+    int textCount = 0,
     bool callConsented = false,
     bool sendOutreachEnabled = true,
     CollectionsCallProgress? callProgress,
@@ -79,6 +83,9 @@ void main() {
         body: CollectionsDeskConsentCard(
           callCount: callCount,
           emailCount: emailCount,
+          callLeadName: callLeadName,
+          pdfCount: pdfCount,
+          textCount: textCount,
           callConsented: callConsented,
           sendOutreachEnabled: sendOutreachEnabled,
           busy: false,
@@ -91,33 +98,53 @@ void main() {
   }
 
   testWidgets('default both-on shows dual-rail commit CTA', (tester) async {
-    await tester.pumpWidget(consentHost(callCount: 2, emailCount: 5));
-
-    expect(find.text('Voice calls · 2'), findsOneWidget);
-    expect(find.text('Email · 5'), findsOneWidget);
-    expect(
-      find.text('Confirm outreach — 2 calls + 5 emails'),
-      findsOneWidget,
+    await tester.pumpWidget(
+      consentHost(
+        callCount: 2,
+        emailCount: 5,
+        pdfCount: 5,
+      ),
     );
+
+    expect(find.text('Voice calls'), findsOneWidget);
+    expect(find.text('Email statements'), findsOneWidget);
+    expect(find.textContaining('2 scheduled calls'), findsOneWidget);
+    expect(find.textContaining('Mohamed'), findsOneWidget);
+    expect(find.text('Confirm (2 calls + 5 statements)'), findsOneWidget);
     expect(find.text('A promise is not a payment'), findsNothing);
+  });
+
+  testWidgets('email ON shows PDF and text tiering', (tester) async {
+    await tester.pumpWidget(
+      consentHost(
+        callCount: 1,
+        emailCount: 7,
+        pdfCount: 5,
+        textCount: 2,
+      ),
+    );
+
+    expect(find.text('7 statements'), findsOneWidget);
+    expect(find.text('5 with PDF · 2 text only'), findsOneWidget);
   });
 
   testWidgets('toggle call off shows email-only CTA', (tester) async {
     await tester.pumpWidget(consentHost(callCount: 1, emailCount: 3));
-    await tester.tap(find.text('Voice calls · 1'));
+    await tester.tap(find.text('Voice calls'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Send email only — 3'), findsOneWidget);
+    expect(find.text('Send statements only (3 statements)'), findsOneWidget);
+    expect(find.textContaining('Skipped — No outbound calls'), findsOneWidget);
   });
 
   testWidgets('both off shows seal CTA', (tester) async {
     await tester.pumpWidget(consentHost(callCount: 1, emailCount: 2));
-    await tester.tap(find.text('Voice calls · 1'));
+    await tester.tap(find.text('Voice calls'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Email · 2'));
+    await tester.tap(find.text('Email statements'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Skip outreach and seal the day'), findsOneWidget);
+    expect(find.text('Close day without outreach'), findsOneWidget);
   });
 
   testWidgets('commit passes chip selection', (tester) async {
@@ -133,9 +160,9 @@ void main() {
         },
       ),
     );
-    await tester.tap(find.text('Voice calls · 1'));
+    await tester.tap(find.text('Voice calls'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Send email only — 2'));
+    await tester.tap(find.text('Send statements only (2 statements)'));
     await tester.pumpAndSettle();
 
     expect(committedCall, isFalse);
@@ -221,7 +248,7 @@ void main() {
     expect(find.text('Calling 1 of 3'), findsOneWidget);
   });
 
-  testWidgets('SMTP desk shows chip commit dock', (tester) async {
+  testWidgets('SMTP desk shows rail card commit dock', (tester) async {
     tester.view
       ..physicalSize = const Size(400, 4000)
       ..devicePixelRatio = 1;
@@ -256,14 +283,11 @@ void main() {
       ),
     );
 
-    expect(
-      find.text('Confirm outreach — 1 calls + 2 emails'),
-      findsOneWidget,
-    );
+    expect(find.text('Confirm (1 call + 2 statements)'), findsOneWidget);
     expect(find.text('Open WhatsApp'), findsNothing);
   });
 
-  testWidgets('RTL smoke shows Arabic chip and CTA labels', (tester) async {
+  testWidgets('RTL smoke shows Arabic rail titles and CTA', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('ar'),
@@ -273,6 +297,9 @@ void main() {
           body: CollectionsDeskConsentCard(
             callCount: 1,
             emailCount: 1,
+            callLeadName: 'محمد',
+            pdfCount: 1,
+            textCount: 0,
             callConsented: false,
             sendOutreachEnabled: true,
             busy: false,
@@ -283,24 +310,25 @@ void main() {
       ),
     );
 
-    expect(find.text('مكالمات · 1'), findsOneWidget);
-    expect(find.textContaining('تأكيد التواصل'), findsOneWidget);
+    expect(find.text('مكالمات صوتية'), findsOneWidget);
+    expect(find.textContaining('تأكيد'), findsOneWidget);
   });
 
-  testWidgets('YE-only desk hides call chip', (tester) async {
+  testWidgets('YE-only desk hides call card', (tester) async {
     await tester.pumpWidget(
       consentHost(
         callCount: 0,
         emailCount: 2,
+        textCount: 2,
       ),
     );
 
-    expect(find.text('Voice calls · 0'), findsNothing);
-    expect(find.text('Email · 2'), findsOneWidget);
-    expect(find.text('Send email only — 2'), findsOneWidget);
+    expect(find.text('Voice calls'), findsNothing);
+    expect(find.text('Email statements'), findsOneWidget);
+    expect(find.text('Send statements only (2 statements)'), findsOneWidget);
   });
 
-  testWidgets('after call consented email chip remains for follow-up send', (
+  testWidgets('after call consented email card remains for follow-up send', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -311,8 +339,52 @@ void main() {
       ),
     );
 
-    expect(find.text('Voice calls · 1'), findsNothing);
-    expect(find.text('Email · 2'), findsOneWidget);
-    expect(find.text('Send email only — 2'), findsOneWidget);
+    expect(find.text('Voice calls'), findsNothing);
+    expect(find.text('Email statements'), findsOneWidget);
+    expect(find.text('Send statements only (2 statements)'), findsOneWidget);
+  });
+
+  testWidgets('retry unanswered CTA shows when eligible', (tester) async {
+    var retried = false;
+    const progress = CollectionsCallProgress(
+      results: [
+        CollectionsCallProgressRow(
+          contactId: 'us',
+          status: CollectionsCallRowStatus.completed,
+          runId: 'run-us',
+          outcome: CallRunOutcome.noAnswer,
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: CollectionsDeskConsentCard(
+            callCount: 1,
+            emailCount: 2,
+            callLeadName: 'US Contact',
+            pdfCount: 0,
+            textCount: 2,
+            callConsented: true,
+            sendOutreachEnabled: true,
+            busy: false,
+            isDispatching: false,
+            callProgress: progress,
+            retryOfferCount: 1,
+            onRetryUnanswered: () => retried = true,
+            onCommit: ({required call, required send}) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Retry unanswered — 1'), findsOneWidget);
+    await tester.tap(find.text('Retry unanswered — 1'));
+    await tester.pumpAndSettle();
+    expect(retried, isTrue);
   });
 }

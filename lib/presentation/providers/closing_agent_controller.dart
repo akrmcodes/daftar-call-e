@@ -17,6 +17,7 @@ import 'package:daftar/core/utils/haptic_service.dart';
 import 'package:daftar/core/utils/native_contact_picker_service.dart';
 import 'package:daftar/core/utils/tts_sanitize.dart';
 import 'package:daftar/core/utils/uuid_util.dart';
+import 'package:daftar/domain/constants/calle_spoken_locale.dart';
 import 'package:daftar/domain/constants/closing_agent_constants.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
@@ -27,6 +28,7 @@ import 'package:daftar/domain/entities/contact.dart';
 import 'package:daftar/domain/entities/ledger.dart';
 import 'package:daftar/domain/enums/call_batch_status.dart';
 import 'package:daftar/domain/enums/call_batch_trigger.dart';
+import 'package:daftar/domain/enums/call_run_outcome.dart';
 import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
@@ -48,6 +50,7 @@ import 'package:daftar/domain/value_objects/closing_day_summary.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
 import 'package:daftar/domain/value_objects/collection_call_persist.dart';
 import 'package:daftar/domain/value_objects/collections_call_progress.dart';
+import 'package:daftar/domain/value_objects/collections_call_report.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
 import 'package:daftar/domain/value_objects/collections_queue_metrics.dart';
 import 'package:daftar/domain/value_objects/collections_send_queue.dart';
@@ -96,12 +99,14 @@ class _QueuedCallRow {
     required this.runId,
     required this.region,
     required this.locale,
+    this.retryCount = 0,
   });
 
   final String contactId;
   final String runId;
   final String region;
   final String locale;
+  final int retryCount;
 }
 
 /// Riverpod notifier for Closing Agent turns. Calls use cases only.
@@ -112,6 +117,7 @@ class ClosingAgentController extends _$ClosingAgentController {
   bool _autoDispatchOutreach = false;
   Timer? _holdHintDismissTimer;
   int _callPollEpoch = 0;
+  bool _retryUnansweredInFlight = false;
 
   static const Duration holdHintVisible = Duration(milliseconds: 2800);
 
@@ -336,7 +342,9 @@ class ClosingAgentController extends _$ClosingAgentController {
       final l10n = lookupAppLocalizations(
         Locale(normalizeSpeechLocale(locale)),
       );
-      unawaited(AgentSpeech.speak(l10n.closingAgentSpeakPlanReady, locale: locale));
+      unawaited(
+        AgentSpeech.speak(l10n.closingAgentSpeakPlanReady, locale: locale),
+      );
       return;
     }
     final text = narrative?.trim();
@@ -538,7 +546,8 @@ class ClosingAgentController extends _$ClosingAgentController {
             nameOverride: state.nameByProposal[proposal.proposalId],
             phoneOverride: state.phoneByProposal[proposal.proposalId],
             ledgerNameOverride: state.ledgerNameByProposal[proposal.proposalId],
-            amountMinorOverride: state.amountMinorByProposal[proposal.proposalId],
+            amountMinorOverride:
+                state.amountMinorByProposal[proposal.proposalId],
             createIfMissing: createIfMissing,
           );
       final failure = result.getLeft().toNullable();
@@ -1046,7 +1055,7 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
 
-    final locale = CollectionsReminderDraftComposer.normalizeLocale(
+    final uiLocale = CollectionsReminderDraftComposer.normalizeLocale(
       state.deskLocale,
     );
     final batchId = UuidUtil.generate();
@@ -1057,6 +1066,7 @@ class ClosingAgentController extends _$ClosingAgentController {
 
     state = state.copyWith(
       callConsented: true,
+      callRetryDismissed: false,
       collectionsBatchId: batchId,
       callProgress: CollectionsCallProgress(
         results: [
@@ -1075,12 +1085,12 @@ class ClosingAgentController extends _$ClosingAgentController {
       correlationId: correlationId,
       trigger: state.callBatchTrigger,
       dryRun: false,
-      locale: locale,
+      locale: uiLocale,
       recipients: [
         for (final recipient in guard.recipients)
           _planRecipient(
             guard: recipient,
-            locale: locale,
+            uiLocale: uiLocale,
             storeName: state.deskStoreName,
           ),
       ],
@@ -1121,7 +1131,10 @@ class ClosingAgentController extends _$ClosingAgentController {
           contactId: row.contactId,
           runId: runId,
           region: region,
-          locale: locale,
+          locale: CalleSpokenLocale.bcp47(
+            region: region,
+            uiLocale: uiLocale,
+          ),
         ),
       );
       _setCallRowStatus(
@@ -1165,7 +1178,7 @@ class ClosingAgentController extends _$ClosingAgentController {
 
   CallPlanRecipient _planRecipient({
     required RunBatchRecipient guard,
-    required String locale,
+    required String uiLocale,
     required String storeName,
   }) {
     CollectionsDeskRow? desk;
@@ -1175,8 +1188,15 @@ class ClosingAgentController extends _$ClosingAgentController {
         break;
       }
     }
+    final spokenBcp47 = CalleSpokenLocale.bcp47(
+      region: guard.region,
+      uiLocale: uiLocale,
+    );
     final composed = CollectionsCallTaskComposer.compose(
-      locale: locale,
+      locale: CalleSpokenLocale.taskLanguage(
+        region: guard.region,
+        uiLocale: uiLocale,
+      ),
       storeName: desk != null && desk.storeName.isNotEmpty
           ? desk.storeName
           : storeName,
@@ -1187,24 +1207,19 @@ class ClosingAgentController extends _$ClosingAgentController {
       currencyCode: desk?.candidate.currencyCode ?? '',
       trigger: state.callBatchTrigger,
     );
-    final task = desk != null && desk.callTask.isNotEmpty
-        ? desk.callTask
-        : composed.task;
     return CallPlanRecipient(
       contactId: guard.contactId,
       phoneE164: guard.phoneE164,
       region: guard.region,
-      locale: locale,
-      task: task,
+      locale: spokenBcp47,
+      task: composed.task,
       customerName: desk != null && desk.customerName.isNotEmpty
           ? desk.customerName
           : composed.customerName,
       storeName: desk != null && desk.storeName.isNotEmpty
           ? desk.storeName
           : composed.storeName,
-      amountLine: desk != null && desk.amountLine.isNotEmpty
-          ? desk.amountLine
-          : composed.amountLine,
+      amountLine: composed.amountLine,
       doNotCall: desk?.candidate.doNotCall ?? false,
     );
   }
@@ -1212,6 +1227,7 @@ class ClosingAgentController extends _$ClosingAgentController {
   Future<Either<Failure, CallRunBatchResponse>> _planThenRun({
     required CallPlanBatchRequest planRequest,
     bool isRetry = false,
+    int attempt = 0,
   }) async {
     final planned = await ref
         .read(planCallBatchUseCaseProvider)
@@ -1238,13 +1254,16 @@ class ClosingAgentController extends _$ClosingAgentController {
       return const Left(_calleNeedsHuman);
     }
 
-    final ran = await ref.read(runCallBatchUseCaseProvider).execute(
-      CallRunBatchRequest(
-        batchId: planRequest.batchId,
-        correlationId: planRequest.correlationId,
-        recipients: handles,
-      ),
-    );
+    final ran = await ref
+        .read(runCallBatchUseCaseProvider)
+        .execute(
+          CallRunBatchRequest(
+            batchId: planRequest.batchId,
+            correlationId: planRequest.correlationId,
+            recipients: handles,
+            attempt: attempt,
+          ),
+        );
     final runFailure = ran.getLeft().toNullable();
     if (runFailure != null) {
       return Left(runFailure);
@@ -1254,7 +1273,11 @@ class ClosingAgentController extends _$ClosingAgentController {
       (row) => row.reason == CallRejectReason.invalidHandle,
     );
     if (invalidHandle && !isRetry) {
-      return _planThenRun(planRequest: planRequest, isRetry: true);
+      return _planThenRun(
+        planRequest: planRequest,
+        isRetry: true,
+        attempt: attempt,
+      );
     }
     return Right(runResponse);
   }
@@ -1262,7 +1285,7 @@ class ClosingAgentController extends _$ClosingAgentController {
   Future<void> _pollQueuedCalls(List<_QueuedCallRow> queued) async {
     final pollEpoch = ++_callPollEpoch;
     await Future<void>.delayed(callPollInitialDelay);
-    if (!_pollEpochMatches(pollEpoch)) {
+    if (!_pollEpochMatches(pollEpoch) || !ref.mounted) {
       return;
     }
     final stopwatch = Stopwatch()..start();
@@ -1272,9 +1295,15 @@ class ClosingAgentController extends _$ClosingAgentController {
         if (!pending.contains(item.contactId)) {
           continue;
         }
+        if (!ref.mounted) {
+          return;
+        }
         final got = await ref
             .read(getCallRunUseCaseProvider)
             .execute(item.runId);
+        if (!ref.mounted) {
+          return;
+        }
         final getFailure = got.getLeft().toNullable();
         if (getFailure != null) {
           if (_pollEpochMatches(pollEpoch)) {
@@ -1286,19 +1315,25 @@ class ClosingAgentController extends _$ClosingAgentController {
           _clearPollNetworkFailureIfNeeded();
         }
         final result = got.getRight().toNullable()!;
+        final structured = result.structuredResult;
         _setCallRowStatus(
           item.contactId,
           result.deskStatus,
           pollEpoch: pollEpoch,
+          runId: item.runId,
+          outcome: structured?.outcome,
+          promisedAmountMinor: structured?.promisedAmountMinor,
+          promisedCurrency: structured?.promisedCurrency,
+          promisedDate: structured?.promisedDate,
         );
         if (!result.terminal && !result.needsHuman) {
           continue;
         }
         pending.remove(item.contactId);
-        final structured = result.structuredResult;
         final amountInvalid = structured?.amountInvalid ?? false;
         final dateInvalid = structured?.dateInvalid ?? false;
-        final review = amountInvalid ||
+        final review =
+            amountInvalid ||
             dateInvalid ||
             (result.needsHuman && result.status != 'completed');
         await _surfacePersistTerminal(
@@ -1327,14 +1362,20 @@ class ClosingAgentController extends _$ClosingAgentController {
         }
       }
       if (pending.isEmpty) {
-        return;
+        break;
       }
       if (stopwatch.elapsed >= callPollTimeout) {
         break;
       }
       await Future<void>.delayed(callPollInterval);
+      if (!ref.mounted) {
+        return;
+      }
     }
     for (final contactId in pending) {
+      if (!ref.mounted) {
+        return;
+      }
       final item = queued.firstWhere((row) => row.contactId == contactId);
       await _surfacePersistTerminal(
         await ref
@@ -1355,8 +1396,11 @@ class ClosingAgentController extends _$ClosingAgentController {
         pollEpoch: pollEpoch,
       );
     }
-    if (_pollEpochMatches(pollEpoch)) {
+    if (pending.isNotEmpty && _pollEpochMatches(pollEpoch) && ref.mounted) {
       state = state.copyWith(actionFailure: _callePollTimeout);
+    }
+    if (!ref.mounted) {
+      return;
     }
     await _maybeDispatchPendingSendAfterCall();
   }
@@ -1387,6 +1431,10 @@ class ClosingAgentController extends _$ClosingAgentController {
     String contactId,
     CollectionsCallRowStatus status, {
     String? runId,
+    CallRunOutcome? outcome,
+    int? promisedAmountMinor,
+    String? promisedCurrency,
+    String? promisedDate,
     int? pollEpoch,
   }) {
     if (pollEpoch != null && !_pollEpochMatches(pollEpoch)) {
@@ -1402,7 +1450,15 @@ class ClosingAgentController extends _$ClosingAgentController {
         results: [
           for (final row in progress.results)
             if (row.contactId == contactId)
-              _mergeCallProgressRow(row, status, trimmedRunId)
+              _mergeCallProgressRow(
+                row,
+                status,
+                trimmedRunId,
+                outcome: outcome,
+                promisedAmountMinor: promisedAmountMinor,
+                promisedCurrency: promisedCurrency,
+                promisedDate: promisedDate,
+              )
             else
               row,
         ],
@@ -1413,11 +1469,29 @@ class ClosingAgentController extends _$ClosingAgentController {
   CollectionsCallProgressRow _mergeCallProgressRow(
     CollectionsCallProgressRow row,
     CollectionsCallRowStatus status,
-    String? runId,
-  ) {
+    String? runId, {
+    CallRunOutcome? outcome,
+    int? promisedAmountMinor,
+    String? promisedCurrency,
+    String? promisedDate,
+  }) {
     var updated = row.copyWith(status: status);
     if (runId != null && runId.isNotEmpty) {
       updated = updated.copyWith(runId: runId);
+    }
+    if (outcome != null) {
+      updated = updated.copyWith(outcome: outcome);
+    }
+    if (promisedAmountMinor != null) {
+      updated = updated.copyWith(promisedAmountMinor: promisedAmountMinor);
+    }
+    final currency = promisedCurrency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      updated = updated.copyWith(promisedCurrency: currency);
+    }
+    final date = promisedDate?.trim();
+    if (date != null && date.isNotEmpty) {
+      updated = updated.copyWith(promisedDate: date);
     }
     return updated;
   }
@@ -1463,26 +1537,34 @@ class ClosingAgentController extends _$ClosingAgentController {
     }
 
     if (!call && !send) {
+      _dismissCallRetryOffer();
       state = state.copyWith(pendingSendAfterCall: false);
       await finishDesk();
       return;
     }
 
     if (call && send) {
-      state = state.copyWith(pendingSendAfterCall: true);
+      state = state.copyWith(
+        pendingSendAfterCall: true,
+        callRetryDismissed: false,
+      );
       await confirmAndCall();
       await _maybeDispatchPendingSendAfterCall();
       return;
     }
 
+    _dismissCallRetryOffer();
     state = state.copyWith(pendingSendAfterCall: false);
 
     if (call) {
+      state = state.copyWith(callRetryDismissed: false);
       await confirmAndCall();
       return;
     }
 
-    await confirmWithoutCalling();
+    if (!state.callConsented) {
+      await confirmWithoutCalling();
+    }
     await approveAndSend();
   }
 
@@ -1495,11 +1577,232 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (!callsTerminal) {
       return;
     }
+    if (state.callRetryOfferCount > 0) {
+      return;
+    }
     state = state.copyWith(pendingSendAfterCall: false);
     if (!state.sendOutreachEnabled || state.deskEmailCount <= 0) {
       return;
     }
     await approveAndSend();
+  }
+
+  void _dismissCallRetryOffer() {
+    if (!state.callRetryDismissed) {
+      state = state.copyWith(callRetryDismissed: true);
+    }
+  }
+
+  Set<String> _eligibleRetryContactIds(CollectionsCallProgress progress) {
+    final ids = <String>{};
+    for (final row in progress.results) {
+      if (row.retryCount > 0) {
+        continue;
+      }
+      if (row.status != CollectionsCallRowStatus.completed) {
+        continue;
+      }
+      final outcome = row.outcome;
+      if (outcome == CallRunOutcome.noAnswer ||
+          outcome == CallRunOutcome.voicemail) {
+        ids.add(row.contactId);
+      }
+    }
+    return ids;
+  }
+
+  /// One HITL retry for no-answer / voicemail rows (attempt 1, new idempotency key).
+  Future<void> retryUnansweredCalls() async {
+    if (state.phase != ClosingAgentPhase.ritualDesk) {
+      return;
+    }
+    if (_retryUnansweredInFlight) {
+      return;
+    }
+    if (state.callRetryOfferCount <= 0) {
+      return;
+    }
+    final progress = state.callProgress;
+    if (progress == null || !progress.isTerminal) {
+      return;
+    }
+    final eligibleIds = _eligibleRetryContactIds(progress);
+    if (eligibleIds.isEmpty) {
+      return;
+    }
+
+    final ritual = state.ritualResult;
+    final batchId = state.collectionsBatchId?.trim() ?? '';
+    if (ritual == null || batchId.isEmpty) {
+      return;
+    }
+
+    final policy = ref.read(calleDevicePolicyProvider);
+    final candidates = [
+      for (final candidate in ritual.callSet)
+        if (eligibleIds.contains(candidate.contactId)) candidate,
+    ];
+    if (candidates.isEmpty) {
+      return;
+    }
+
+    final guard = RunBatchRecipientGuard.select(
+      candidates: candidates,
+      policy: policy,
+    );
+    if (guard.recipients.isEmpty) {
+      return;
+    }
+
+    _retryUnansweredInFlight = true;
+    try {
+      await _retryUnansweredCallsBody(
+        progress: progress,
+        eligibleIds: eligibleIds,
+        guard: guard,
+        batchId: batchId,
+      );
+    } finally {
+      _retryUnansweredInFlight = false;
+    }
+  }
+
+  Future<void> _retryUnansweredCallsBody({
+    required CollectionsCallProgress progress,
+    required Set<String> eligibleIds,
+    required RunBatchRecipientGuardResult guard,
+    required String batchId,
+  }) async {
+    final tokenResult = await ref
+        .read(hydrateAgentIdTokenUseCaseProvider)
+        .execute();
+    final tokenFailure = tokenResult.getLeft().toNullable();
+    if (tokenFailure != null) {
+      state = state.copyWith(actionFailure: tokenFailure);
+      return;
+    }
+
+    final uiLocale = CollectionsReminderDraftComposer.normalizeLocale(
+      state.deskLocale,
+    );
+    final correlationId =
+        state.turnResult?.correlationId.trim().isNotEmpty == true
+        ? state.turnResult!.correlationId
+        : UuidUtil.generate();
+
+    state = state.copyWith(
+      actionFailure: null,
+      callProgress: progress.copyWith(
+        results: [
+          for (final row in progress.results)
+            if (eligibleIds.contains(row.contactId))
+              row.copyWith(
+                status: CollectionsCallRowStatus.planned,
+                retryCount: 1,
+              )
+            else
+              row,
+        ],
+      ),
+    );
+
+    void restoreProgress(Failure failure) {
+      state = state.copyWith(
+        actionFailure: failure,
+        callProgress: progress,
+      );
+    }
+
+    final planRequest = CallPlanBatchRequest(
+      batchId: batchId,
+      correlationId: correlationId,
+      trigger: state.callBatchTrigger,
+      dryRun: false,
+      locale: uiLocale,
+      recipients: [
+        for (final recipient in guard.recipients)
+          _planRecipient(
+            guard: recipient,
+            uiLocale: uiLocale,
+            storeName: state.deskStoreName,
+          ),
+      ],
+    );
+
+    final ran = await _planThenRun(planRequest: planRequest, attempt: 1);
+    final runFailure = ran.getLeft().toNullable();
+    if (runFailure != null) {
+      restoreProgress(runFailure);
+      return;
+    }
+    final runResponse = ran.getRight().toNullable()!;
+    if (runResponse.needsHuman &&
+        runResponse.results.every((row) => row.runId == null)) {
+      restoreProgress(_calleNeedsHuman);
+      return;
+    }
+
+    final queued = <_QueuedCallRow>[];
+    for (final row in runResponse.results) {
+      final runId = row.runId?.trim() ?? '';
+      if (runId.isEmpty) {
+        _setCallRowStatus(row.contactId, CollectionsCallRowStatus.failed);
+        continue;
+      }
+      final region = guard.recipients
+          .where((item) => item.contactId == row.contactId)
+          .map((item) => item.region)
+          .firstWhere((_) => true, orElse: () => '');
+      queued.add(
+        _QueuedCallRow(
+          contactId: row.contactId,
+          runId: runId,
+          region: region,
+          locale: CalleSpokenLocale.bcp47(
+            region: region,
+            uiLocale: uiLocale,
+          ),
+          retryCount: 1,
+        ),
+      );
+      _setCallRowStatus(
+        row.contactId,
+        CollectionsCallRowStatus.planned,
+        runId: runId,
+      );
+    }
+
+    if (queued.isEmpty) {
+      restoreProgress(_calleNeedsHuman);
+      return;
+    }
+
+    final queuedPersist = await ref
+        .read(persistCollectionCallOutcomeUseCaseProvider)
+        .persistQueued(
+          CollectionCallBatchSeed(
+            batchId: batchId,
+            correlationId: correlationId,
+            trigger: state.callBatchTrigger,
+            status: CallBatchStatus.running,
+            runs: [
+              for (final item in queued)
+                CollectionCallRunSeed(
+                  contactId: item.contactId,
+                  region: item.region,
+                  locale: item.locale,
+                  runId: item.runId,
+                  retryCount: item.retryCount,
+                ),
+            ],
+          ),
+        );
+    final queuedPersistFailure = queuedPersist.getLeft().toNullable();
+    if (queuedPersistFailure != null) {
+      state = state.copyWith(actionFailure: queuedPersistFailure);
+    }
+
+    await _pollQueuedCalls(queued);
   }
 
   static bool _isEmailDispatchRow(CollectionsDeskRow row) {
@@ -1678,7 +1981,10 @@ class ClosingAgentController extends _$ClosingAgentController {
       return;
     }
     _invalidateCallPoll();
-    state = state.copyWith(pendingSendAfterCall: false);
+    state = state.copyWith(
+      pendingSendAfterCall: false,
+      callRetryDismissed: true,
+    );
     final result = state.ritualResult;
     if (result == null) {
       return;
@@ -1806,10 +2112,10 @@ class ClosingAgentController extends _$ClosingAgentController {
         state.phase == ClosingAgentPhase.ritualRunning) {
       return;
     }
-    final result =
-        await ref.read(checkCreditLimitUseCaseProvider).execute(trimmed);
-    final level =
-        result.getRight().toNullable() ?? CreditWarningLevel.none;
+    final result = await ref
+        .read(checkCreditLimitUseCaseProvider)
+        .execute(trimmed);
+    final level = result.getRight().toNullable() ?? CreditWarningLevel.none;
     if (level != CreditWarningLevel.exceeded) {
       return;
     }
@@ -2128,7 +2434,13 @@ class ClosingAgentController extends _$ClosingAgentController {
     try {
       final built = await ref
           .read(buildCollectionsDeskUseCaseProvider)
-          .execute(next, trigger: trigger);
+          .execute(
+            next,
+            trigger: trigger,
+            allowlistRegion: ref
+                .read(calleDevicePolicyProvider)
+                .allowlistRegion,
+          );
       final failure = built.getLeft().toNullable();
       if (failure != null) {
         state = state.copyWith(
@@ -2165,7 +2477,8 @@ class ClosingAgentController extends _$ClosingAgentController {
         sendConsented: false,
         callProgress: null,
         callBatchTrigger: trigger,
-        sendOutreachEnabled: trigger == CallBatchTrigger.creditLimit ||
+        sendOutreachEnabled:
+            trigger == CallBatchTrigger.creditLimit ||
             state.sendOutreachEnabled ||
             _sendOutreach,
         actionFailure: null,
@@ -2180,9 +2493,15 @@ class ClosingAgentController extends _$ClosingAgentController {
     if (!ref.mounted) {
       return;
     }
+    final reported = result.withCallReport(
+      CollectionsCallReport.fromProgress(
+        progress: state.callProgress,
+        shortlist: result.shortlist,
+      ),
+    );
     state = state.copyWith(
       phase: ClosingAgentPhase.ritualReport,
-      ritualResult: result,
+      ritualResult: reported,
       ritualPromptKind: null,
       ritualRetryAvailable: false,
       ritualTaskCurrent: null,

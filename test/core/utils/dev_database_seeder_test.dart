@@ -20,6 +20,7 @@ import 'package:daftar/domain/value_objects/collections_candidate.dart';
 import 'package:daftar/domain/value_objects/phone_number.dart';
 import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -461,6 +462,7 @@ void main() {
       expect(settings.isMultiCurrencyEnabled, isFalse);
       expect(settings.hasSeenOnboarding, isFalse);
       expect(settings.demoArchitectureHud, isFalse);
+      expect(settings.calleAllowDial, kDebugMode);
       expect(settings.googleAccountId, 'drive-user');
       expect(settings.googleAccountEmail, 'akrm.codes@gmail.com');
 

@@ -45,6 +45,7 @@ void main() {
     bool showHybridELeftover = false,
     bool showRetrySend = false,
     bool sendOutreachEnabled = true,
+    double paddingBottom = 0,
     VoidCallback? onApproveAndSend,
   }) {
     return CollectionsDeskPanel(
@@ -75,6 +76,7 @@ void main() {
       onQueueSkip: onQueueSkip,
       showHybridELeftover: showHybridELeftover,
       showRetrySend: showRetrySend,
+      paddingBottom: paddingBottom,
     );
   }
 
@@ -103,10 +105,10 @@ void main() {
 
     expect(find.byType(CollectionsDeskRowCard), findsNWidgets(5));
     expect(
-      find.text('Confirm outreach — 1 calls + 5 emails'),
+      find.text('Confirm (1 call + 5 statements)'),
       findsOneWidget,
     );
-    expect(find.text('Voice calls · 1'), findsOneWidget);
+    expect(find.text('Voice calls'), findsOneWidget);
     expect(find.text('Dispatch collection emails'), findsNothing);
     expect(find.text('Open collections desk'), findsNothing);
     expect(find.text('Open WhatsApp'), findsNothing);
@@ -214,14 +216,14 @@ void main() {
     expect(find.text('Open WhatsApp'), findsNothing);
     expect(find.text('Pause'), findsNothing);
     expect(
-      find.text('Confirm outreach — 1 calls + 2 emails'),
+      find.text('Confirm (1 call + 2 statements)'),
       findsOneWidget,
     );
     expect(find.text('Skip outreach'), findsNothing);
   });
 
   testWidgets(
-    'SMTP dispatching shows Sending, no sticky, no leftover Open',
+    'SMTP dispatching loads the HITL CTA only — no leftover Sending dock',
     (tester) async {
       tester.view
         ..physicalSize = const Size(400, 4000)
@@ -246,10 +248,15 @@ void main() {
         ),
       );
 
-      expect(
-        find.bySemanticsLabel('Sending 1 of 2'),
-        findsOneWidget,
-      );
+      final loadingButtons = tester
+          .widgetList<DaftarButton>(find.byType(DaftarButton))
+          .where((button) => button.isLoading)
+          .toList();
+      expect(loadingButtons, hasLength(1));
+      expect(loadingButtons.single.label, 'Confirm (1 call + 2 statements)');
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.bySemanticsLabel('Sending 1 of 2'), findsNothing);
+      expect(find.text('Sending…'), findsNothing);
       expect(find.text('Start sending'), findsNothing);
       expect(find.text('Pause'), findsNothing);
       expect(find.text('Confirm & Send Statements'), findsNothing);
@@ -328,11 +335,41 @@ void main() {
 
     expect(find.text('Retry sending'), findsOneWidget);
     expect(
-      find.text('Confirm outreach — 1 calls + 2 emails'),
+      find.text('Confirm (1 call + 2 statements)'),
       findsOneWidget,
     );
     await tester.tap(find.text('Retry sending'));
     await tester.pump();
     expect(retryCount, 1);
+  });
+
+  testWidgets('keyboard inset does not overflow the desk Column', (tester) async {
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SizedBox(
+            width: 360,
+            height: 386,
+            child: panel(
+              rows: [row(0), row(1)],
+              startSendingIsPrimary: true,
+              paddingBottom: 156,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Voice calls'), findsOneWidget);
   });
 }

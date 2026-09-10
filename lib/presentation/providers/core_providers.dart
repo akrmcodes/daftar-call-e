@@ -39,6 +39,7 @@ import 'package:daftar/application/contact/get_reminder_eligible_contacts_use_ca
 import 'package:daftar/application/contact/prepare_contact_statement_use_case.dart';
 import 'package:daftar/application/contact/restore_contact_use_case.dart';
 import 'package:daftar/application/contact/search_contacts_use_case.dart';
+import 'package:daftar/application/contact/update_collection_promise_status_use_case.dart';
 import 'package:daftar/application/contact/update_contact_use_case.dart';
 import 'package:daftar/application/contact/watch_contact_count_use_case.dart';
 import 'package:daftar/application/contact/watch_pending_collection_promises_use_case.dart';
@@ -62,6 +63,7 @@ import 'package:daftar/application/merchant/set_merchant_logo_use_case.dart';
 import 'package:daftar/application/merchant/update_merchant_profile_use_case.dart';
 import 'package:daftar/application/settings/complete_onboarding_use_case.dart';
 import 'package:daftar/application/settings/mark_agent_fab_tip_seen_use_case.dart';
+import 'package:daftar/application/settings/set_calle_allow_dial_use_case.dart';
 import 'package:daftar/application/settings/set_demo_architecture_hud_use_case.dart';
 import 'package:daftar/application/transaction/add_transaction_use_case.dart';
 import 'package:daftar/application/transaction/delete_transaction_use_case.dart';
@@ -587,6 +589,12 @@ SetDemoArchitectureHudUseCase setDemoArchitectureHudUseCase(Ref ref) {
   return SetDemoArchitectureHudUseCase(ref.watch(settingsRepositoryProvider));
 }
 
+/// Persists the merchant CALL-E outbound kill switch.
+@Riverpod(keepAlive: true)
+SetCalleAllowDialUseCase setCalleAllowDialUseCase(Ref ref) {
+  return SetCalleAllowDialUseCase(ref.watch(settingsRepositoryProvider));
+}
+
 /// Provides the merchant profile repository.
 @Riverpod(keepAlive: true)
 MerchantProfileRepository merchantProfileRepository(Ref ref) {
@@ -783,7 +791,17 @@ GetCollectionsCandidatesUseCase getCollectionsCandidatesUseCase(Ref ref) {
 /// Compile-time CALL-E kill switch + allowlist (not Envied).
 @Riverpod(keepAlive: true)
 CalleDevicePolicy calleDevicePolicy(Ref ref) {
-  return CalleDevicePolicy.fromCompiled();
+  final compiled = CalleDevicePolicy.fromCompiled();
+  final persisted =
+      ref.watch(appSettingsProvider).asData?.value.calleAllowDial ?? false;
+  return CalleDevicePolicy(
+    allowDial: CalleDevicePolicy.effectiveAllowDial(
+      compiledAllowDial: compiled.allowDial,
+      persistedAllowDial: persisted,
+    ),
+    allowlist: compiled.allowlist,
+    allowlistRegion: compiled.allowlistRegion,
+  );
 }
 
 /// Drift `localDay` snapshot for close-the-day (Appendix J.4).
@@ -1058,6 +1076,16 @@ WatchPendingCollectionPromisesUseCase watchPendingCollectionPromisesUseCase(
   Ref ref,
 ) {
   return WatchPendingCollectionPromisesUseCase(
+    collectionCallRepository: ref.watch(collectionCallRepositoryProvider),
+  );
+}
+
+/// Marks a display-only CALL-E promise kept, broken, or cancelled.
+@Riverpod(keepAlive: true)
+UpdateCollectionPromiseStatusUseCase updateCollectionPromiseStatusUseCase(
+  Ref ref,
+) {
+  return UpdateCollectionPromiseStatusUseCase(
     collectionCallRepository: ref.watch(collectionCallRepositoryProvider),
   );
 }

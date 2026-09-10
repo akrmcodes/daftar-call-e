@@ -72,4 +72,12 @@ class SettingsPreferences extends _$SettingsPreferences {
         .execute(enabled: enabled);
     return result.isRight();
   }
+
+  /// Arms or disarms the merchant CALL-E outbound kill switch.
+  Future<bool> setCalleAllowDial({required bool enabled}) async {
+    final result = await ref
+        .read(setCalleAllowDialUseCaseProvider)
+        .execute(enabled: enabled);
+    return result.isRight();
+  }
 }

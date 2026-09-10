@@ -126,11 +126,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsCalleAllowDialSubtitle =>
-      'مفتاح الإيقاف المُجمَّع لـ Confirm & Call. الخادم يفرض نفس الإعداد.';
-
-  @override
-  String get settingsCalleAllowDialStubHint =>
-      'المكالمات الصادرة تُضبط عند البناء حتى المرحلة 5. أعد البناء بـ dart-define للتغيير.';
+      'بوابة على الجهاز لـ Confirm & Call. يجب تفعيل علم البناء في التطبيق والخادم أيضاً.';
 
   @override
   String architectureHudSemantics(String step) {
@@ -3786,6 +3782,19 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get closingRitualCallReportTitle => 'تقرير المكالمات';
+
+  @override
+  String closingRitualCallPromiseLine(String amount, String date) {
+    return 'وعد بـ $amount في $date';
+  }
+
+  @override
+  String closingRitualCallRowSemantics(String name, String status) {
+    return 'مكالمة $name، $status';
+  }
+
+  @override
   String get closingRitualRetry => 'متابعة إقفال اليوم';
 
   @override
@@ -3890,32 +3899,110 @@ class AppLocalizationsAr extends AppLocalizations {
   String get collectionsDeskWithoutSending => 'دون إرسال';
 
   @override
-  String collectionsDeskRailChipVoiceCalls(int count) {
-    return 'مكالمات · $count';
+  String get collectionsDeskRailTitleVoiceCalls => 'مكالمات صوتية';
+
+  @override
+  String get collectionsDeskRailTitleEmailStatements => 'كشوفات البريد';
+
+  @override
+  String collectionsDeskRailCallOnSingle(int count, String name) {
+    return '$count مكالمة مجدولة ($name)';
   }
 
   @override
-  String collectionsDeskRailChipEmail(int count) {
-    return 'بريد · $count';
+  String collectionsDeskRailCallOnMultiple(
+    int count,
+    String name,
+    int othersCount,
+  ) {
+    return '$count مكالمات مجدولة · $name و$othersCount آخرين';
   }
 
   @override
-  String collectionsDeskCommitOutreachBoth(int callCount, int emailCount) {
-    return 'تأكيد التواصل — $callCount مكالمات + $emailCount رسائل';
+  String get collectionsDeskRailCallOff =>
+      'تم التخطي — لن تُجرى أي مكالمات صادرة';
+
+  @override
+  String collectionsDeskRailEmailOnLead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count كشف',
+      many: '$count كشفاً',
+      few: '$count كشوف',
+      two: 'كشفان',
+      one: 'كشف واحد',
+    );
+    return '$_temp0';
   }
 
   @override
-  String collectionsDeskCommitCallsOnly(int count) {
-    return 'بدء المكالمات فقط — $count';
+  String collectionsDeskRailEmailTierMixed(int pdfCount, int textCount) {
+    return '$pdfCount مع PDF · $textCount نصي فقط';
   }
 
   @override
-  String collectionsDeskCommitEmailOnly(int count) {
-    return 'إرسال البريد فقط — $count';
+  String get collectionsDeskRailEmailTierAllPdf => 'جميعها مع PDF';
+
+  @override
+  String get collectionsDeskRailEmailTierAllText => 'تذكيرات نصية فقط';
+
+  @override
+  String get collectionsDeskRailEmailOff => 'تم التخطي — لن يُرسل أي بريد';
+
+  @override
+  String collectionsDeskCommitCallPhrase(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مكالمة',
+      many: '$count مكالمة',
+      few: '$count مكالمات',
+      two: 'مكالمتان',
+      one: 'مكالمة واحدة',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get collectionsDeskCommitSeal => 'تخطي التواصل وإغلاق اليوم';
+  String collectionsDeskCommitStatementPhrase(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count كشف',
+      many: '$count كشفاً',
+      few: '$count كشوف',
+      two: 'كشفان',
+      one: 'كشف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String collectionsDeskCommitOutreachBoth(
+    String callPhrase,
+    String emailPhrase,
+  ) {
+    return 'تأكيد ($callPhrase + $emailPhrase)';
+  }
+
+  @override
+  String collectionsDeskCommitCallsOnly(String callPhrase) {
+    return 'تأكيد ($callPhrase)';
+  }
+
+  @override
+  String collectionsDeskCommitEmailOnly(String emailPhrase) {
+    return 'إرسال الكشوفات فقط ($emailPhrase)';
+  }
+
+  @override
+  String get collectionsDeskCommitSeal => 'إغلاق اليوم دون تواصل';
+
+  @override
+  String collectionsDeskRetryUnanswered(int count) {
+    return 'إعادة الاتصال بمن لم يرد — $count';
+  }
 
   @override
   String get collectionsDeskPromiseNotPayment => 'الوعد ليس دفعة';
@@ -3933,6 +4020,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String contactPendingPromiseSemantics(String amount, String date) {
     return 'وعد معلّق: $amount في $date';
   }
+
+  @override
+  String get contactPromiseStatusPending => 'معلّق';
+
+  @override
+  String get contactPromiseUpdateStatus => 'تحديث الحالة';
+
+  @override
+  String get contactPromiseStatusActionSheetTitle => 'حالة الوعد';
+
+  @override
+  String get contactPromiseStatusKept => 'تم الوفاء';
+
+  @override
+  String get contactPromiseStatusBroken => 'لم يُوفَ';
+
+  @override
+  String get contactPromiseStatusCancelled => 'ملغى';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmTitle =>
+      'تعليم الوعد بأنه لم يُوفَ؟';
+
+  @override
+  String get contactPromiseMarkBrokenConfirmBody =>
+      'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmTitle => 'إلغاء هذا الوعد؟';
+
+  @override
+  String get contactPromiseMarkCancelledConfirmBody =>
+      'يُحدّث بطاقة الوعد فقط. لا يُدخل مالاً إلى دفترك.';
 
   @override
   String get collectionsDeskCallPreviewTitle => 'ما سيقوله CALL-E';

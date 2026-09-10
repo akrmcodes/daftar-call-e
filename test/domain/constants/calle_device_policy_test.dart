@@ -73,4 +73,37 @@ void main() {
       expect(policy.allowlistRegion, 'US');
     });
   });
+
+  group('CalleDevicePolicy.effectiveAllowDial', () {
+    test('requires compile-time and persisted both true', () {
+      expect(
+        CalleDevicePolicy.effectiveAllowDial(
+          compiledAllowDial: true,
+          persistedAllowDial: true,
+        ),
+        isTrue,
+      );
+      expect(
+        CalleDevicePolicy.effectiveAllowDial(
+          compiledAllowDial: true,
+          persistedAllowDial: false,
+        ),
+        isFalse,
+      );
+      expect(
+        CalleDevicePolicy.effectiveAllowDial(
+          compiledAllowDial: false,
+          persistedAllowDial: true,
+        ),
+        isFalse,
+      );
+      expect(
+        CalleDevicePolicy.effectiveAllowDial(
+          compiledAllowDial: false,
+          persistedAllowDial: false,
+        ),
+        isFalse,
+      );
+    });
+  });
 }

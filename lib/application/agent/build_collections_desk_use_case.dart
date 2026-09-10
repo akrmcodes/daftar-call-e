@@ -1,7 +1,9 @@
 import 'package:daftar/application/agent/compose_collections_reminder_draft_use_case.dart';
 import 'package:daftar/core/errors/failures.dart';
+import 'package:daftar/domain/constants/calle_spoken_locale.dart';
 import 'package:daftar/domain/constants/collections_call_task_composer.dart';
 import 'package:daftar/domain/constants/collections_reminder_draft_composer.dart';
+import 'package:daftar/domain/constants/j10_calle_regions.dart';
 import 'package:daftar/domain/enums/call_batch_trigger.dart';
 import 'package:daftar/domain/enums/outreach_rail.dart';
 import 'package:daftar/domain/repositories/merchant_profile_repository.dart';
@@ -9,6 +11,7 @@ import 'package:daftar/domain/repositories/settings_repository.dart';
 import 'package:daftar/domain/value_objects/closing_ritual_result.dart';
 import 'package:daftar/domain/value_objects/collections_candidate.dart';
 import 'package:daftar/domain/value_objects/collections_desk_row.dart';
+import 'package:daftar/domain/value_objects/phone_number.dart';
 import 'package:fpdart/fpdart.dart';
 
 /// Device-owned Collections Desk rows from a [ClosingRitualResult].
@@ -35,6 +38,7 @@ class BuildCollectionsDeskUseCase {
   Future<Either<Failure, CollectionsDeskBuildResult>> execute(
     ClosingRitualResult ritual, {
     CallBatchTrigger trigger = CallBatchTrigger.closeDay,
+    String allowlistRegion = 'US',
   }) async {
     if (ritual.shortlist.isEmpty) {
       return const Right(
@@ -68,8 +72,10 @@ class BuildCollectionsDeskUseCase {
         _rowFor(
           candidate: candidate,
           locale: locale,
+          allowlistRegion: allowlistRegion,
           storeName: storeName,
-          attachPdf: pdfIds.contains(candidate.contactId) &&
+          attachPdf:
+              pdfIds.contains(candidate.contactId) &&
               _hasEmailRail(candidate.rail),
           includeEmailDraft: _hasEmailRail(candidate.rail),
           trigger: trigger,
@@ -98,6 +104,7 @@ class BuildCollectionsDeskUseCase {
   CollectionsDeskRow _rowFor({
     required CollectionsCandidate candidate,
     required String locale,
+    required String allowlistRegion,
     required String storeName,
     required bool attachPdf,
     required bool includeEmailDraft,
@@ -110,8 +117,9 @@ class BuildCollectionsDeskUseCase {
     var ctaLine = '';
     var note = '';
 
-    final resolvedStore =
-        CollectionsReminderDraftComposer.resolveStoreName(storeName);
+    final resolvedStore = CollectionsReminderDraftComposer.resolveStoreName(
+      storeName,
+    );
 
     if (includeEmailDraft) {
       final draft = _composeDraft.execute(
@@ -130,8 +138,15 @@ class BuildCollectionsDeskUseCase {
 
     var callTask = '';
     if (_hasCallRail(candidate.rail)) {
+      final region = J10CalleRegions.declaredRegionFor(
+        PhoneNumber(candidate.phone ?? '').e164,
+        allowlistRegion,
+      );
       final task = CollectionsCallTaskComposer.compose(
-        locale: locale,
+        locale: CalleSpokenLocale.taskLanguage(
+          region: region,
+          uiLocale: locale,
+        ),
         storeName: resolvedStore,
         contactName: candidate.name,
         amountMinor: candidate.owedMinor,

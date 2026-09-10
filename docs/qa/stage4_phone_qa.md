@@ -4,7 +4,7 @@ Owner phone pass **before Stage 5**. This is **not** filming. PSTN must stay off
 
 **Binding contract:** [`docs/roadmap_v3.md`](../roadmap_v3.md) §4.5 + Stage 4 Validation Gate.
 
-**Live ring (Stage 6 film only):** [`calle_live_dial_window.md`](calle_live_dial_window.md) — do **not** run that SOP during this pass.
+**Live ring (Stage 6 film only):** [`calle_live_dial_window.md`](calle_live_dial_window.md) — do **not** run that SOP during this pass. Pre–Stage 5.5 owner rehearsal (dry QA then one ring then shut down): [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md).
 
 Full scenario regression (optional, longer): [`closing_agent_scenario_checklist.md`](closing_agent_scenario_checklist.md).
 
@@ -19,7 +19,7 @@ Full scenario regression (optional, longer): [`closing_agent_scenario_checklist.
 2. **Flutter `.env`** — `CLOSING_AGENT_BASE_URL` from `$HOME/.daftar-owner-ops/daftar-call-e-url` only. Never the frozen Agentic hostname.
 3. **Dedicated demo profile** — package `com.akrmcodes.daftar`. Do not overwrite the Agentic judging APK.
 4. **Dial off on device** — do **not** pass `--dart-define=CALLE_ALLOW_DIAL=true`. Overlay [`tool/demo_seed_emails.example.json`](../../tool/demo_seed_emails.example.json) keeps `CALLE_ALLOW_DIAL` empty.
-5. **Settings** — Architecture HUD on. GlowPill **Allow CALL-E outbound** should read off (compile-time until §5.2).
+5. **Settings** — Architecture HUD on. GlowPill **Allow CALL-E outbound** defaults off; arm it here for device dial (still requires APK `CALLE_ALLOW_DIAL=true` and Cloud Run).
 6. **Seed** — onboarding **Try with Demo Store** or Settings **Reset sample store data**. Optional email overlay: `flutter run --dart-define-from-file=tool/demo_seed_emails.local.json`.
 7. **Warm `daftar-call-e` once** (cold start ~30s after min 0):
 

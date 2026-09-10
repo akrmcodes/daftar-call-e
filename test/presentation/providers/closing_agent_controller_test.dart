@@ -33,6 +33,7 @@ import 'package:daftar/domain/enums/closing_backup_status.dart';
 import 'package:daftar/domain/enums/closing_pdf_policy.dart';
 import 'package:daftar/domain/enums/closing_reminder_policy.dart';
 import 'package:daftar/domain/enums/closing_task_id.dart';
+import 'package:daftar/domain/enums/collections_call_report_status.dart';
 import 'package:daftar/domain/enums/collections_call_row_status.dart';
 import 'package:daftar/domain/enums/collections_desk_row_status.dart';
 import 'package:daftar/domain/enums/collections_send_queue_status.dart';
@@ -199,7 +200,11 @@ const _terminalCallWriteFallback = CollectionCallTerminalWrite(
   needsHuman: false,
 );
 
-CollectionsCandidate _candidate(String id, {String? email, OutreachRail rail = OutreachRail.email}) {
+CollectionsCandidate _candidate(
+  String id, {
+  String? email,
+  OutreachRail rail = OutreachRail.email,
+}) {
   return CollectionsCandidate(
     contactId: id,
     name: id,
@@ -406,6 +411,7 @@ void main() {
       () => buildDesk.execute(
         any(),
         trigger: any(named: 'trigger'),
+        allowlistRegion: any(named: 'allowlistRegion'),
       ),
     ).thenAnswer((invocation) async {
       final ritualResult =
@@ -881,10 +887,12 @@ void main() {
     );
     final c = container();
     addTearDown(c.dispose);
-    await c.read(closingAgentControllerProvider.notifier).confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
+    await c
+        .read(closingAgentControllerProvider.notifier)
+        .confirm(
+          _planProposal,
+          sendOutreach: true,
+        );
     final state = c.read(closingAgentControllerProvider);
     expect(state.deskRows, hasLength(25));
     expect(state.ritualResult?.reminderSet, hasLength(20));
@@ -1105,6 +1113,64 @@ void main() {
       const CollectionsQueueMetrics(prepared: 2, opened: 1, skipped: 1),
     );
     verify(() => completeQueue.execute(any())).called(1);
+  });
+
+  test('finishDesk attaches call report from progress and shortlist', () async {
+    stubRitual(
+      ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          _candidate(
+            'mohamed',
+            email: 'm@example.com',
+            rail: OutreachRail.both,
+          ),
+          _candidate(
+            'ye',
+            email: 'y@example.com',
+            rail: OutreachRail.callUnavailable,
+          ),
+        ],
+      ),
+    );
+    final c = container();
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    notifier.state = notifier.state.copyWith(
+      callProgress: const CollectionsCallProgress(
+        results: [
+          CollectionsCallProgressRow(
+            contactId: 'mohamed',
+            status: CollectionsCallRowStatus.completed,
+            runId: 'call_GfN-BQcGMORm2NkgSfxdIw',
+            outcome: CallRunOutcome.promised,
+            promisedAmountMinor: 50000,
+            promisedCurrency: 'USD',
+            promisedDate: '2026-09-15',
+          ),
+        ],
+      ),
+    );
+    await notifier.finishDesk();
+
+    final report = c
+        .read(closingAgentControllerProvider)
+        .ritualResult
+        ?.callReport;
+    expect(report?.rows, hasLength(2));
+    expect(report?.rows.first.contactId, 'mohamed');
+    expect(report?.rows.first.hasDisplayPromise, isTrue);
+    expect(report?.rows.first.promisedAmountMinor, 50000);
+    expect(
+      report?.rows.last.status,
+      CollectionsCallReportStatus.callUnavailable,
+    );
   });
 
   test('share-sheet cancel does not mark the row opened', () async {
@@ -1400,64 +1466,67 @@ void main() {
     );
   });
 
-  test('Confirm and Call completed without outcome has no error sheet', () async {
-    const usPhone = '+15555550100';
-    when(() => getCall.execute(any())).thenAnswer((invocation) async {
-      final runId = invocation.positionalArguments.first as String;
-      return Right(
-        CallGetResult(
-          runId: runId,
-          status: 'completed',
-          terminal: true,
-          taskCompleted: true,
-          phoneMasked: '+…0000',
-          needsHuman: true,
+  test(
+    'Confirm and Call completed without outcome has no error sheet',
+    () async {
+      const usPhone = '+15555550100';
+      when(() => getCall.execute(any())).thenAnswer((invocation) async {
+        final runId = invocation.positionalArguments.first as String;
+        return Right(
+          CallGetResult(
+            runId: runId,
+            status: 'completed',
+            terminal: true,
+            taskCompleted: true,
+            phoneMasked: '+…0000',
+            needsHuman: true,
+          ),
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
         ),
       );
-    });
-    stubRitual(
-      const ClosingRitualResult(
-        summary: _emptySummary,
-        backupStatus: ClosingBackupStatus.uploaded,
-        shortlist: [
-          CollectionsCandidate(
-            contactId: 'us',
-            name: 'us',
-            email: 'us@example.com',
-            phone: usPhone,
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'USD',
-            ageDays: 12,
-            toneBand: ReminderToneBand.reminder,
-            rail: OutreachRail.both,
-          ),
-        ],
-      ),
-    );
-    final c = container(
-      callePolicy: const CalleDevicePolicy(
-        allowDial: true,
-        allowlist: {usPhone},
-        allowlistRegion: 'US',
-      ),
-    );
-    addTearDown(c.dispose);
-    final notifier = c.read(closingAgentControllerProvider.notifier);
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
 
-    await notifier.confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
-    await notifier.confirmAndCall();
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
 
-    final state = c.read(closingAgentControllerProvider);
-    expect(state.actionFailure, isNull);
-    expect(
-      state.callProgress?.results.single.status,
-      CollectionsCallRowStatus.completed,
-    );
-  });
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.actionFailure, isNull);
+      expect(
+        state.callProgress?.results.single.status,
+        CollectionsCallRowStatus.completed,
+      );
+    },
+  );
 
   test('Confirm and Call omits YE from plan-batch', () async {
     const usPhone = '+15555550100';
@@ -1516,106 +1585,303 @@ void main() {
     expect(request.recipients.single.contactId, 'us');
   });
 
-  test('approveAndSend still dispatches YE after Confirm and Call omits YE', () async {
-    const usPhone = '+15555550100';
-    late List<CollectionsDeskRow> dispatched;
-    when(
-      () => dispatchEmail.execute(
-        rows: any(named: 'rows'),
-        locale: any(named: 'locale'),
-        storeName: any(named: 'storeName'),
-        batchId: any(named: 'batchId'),
-        correlationId: any(named: 'correlationId'),
-        isRtl: any(named: 'isRtl'),
-        onRows: any(named: 'onRows'),
-      ),
-    ).thenAnswer((invocation) async {
-      dispatched = List<CollectionsDeskRow>.from(
-        invocation.namedArguments[#rows]! as List<CollectionsDeskRow>,
-      );
-      final onRows =
-          invocation.namedArguments[#onRows]
-              as void Function(List<CollectionsDeskRow>)?;
-      final sent = [
-        for (final row in dispatched)
-          row.copyWith(
-            status: CollectionsDeskRowStatus.sent,
-            smtpCode: 250,
-            smtpMessageId: '<mid@gmail.com>',
+  test(
+    'Arabic deskLocale on US Confirm and Call sends en-US and English C.3',
+    () async {
+      const usPhone = '+15555550100';
+      when(
+        () => buildDesk.execute(
+          any(),
+          trigger: any(named: 'trigger'),
+          allowlistRegion: any(named: 'allowlistRegion'),
+        ),
+      ).thenAnswer((invocation) async {
+        final ritualResult =
+            invocation.positionalArguments.first as ClosingRitualResult;
+        return Right(
+          CollectionsDeskBuildResult(
+            rows: [
+              for (final candidate in ritualResult.shortlist)
+                CollectionsDeskRow(
+                  candidate: candidate,
+                  body: 'body-${candidate.contactId}',
+                  customerName: candidate.name,
+                  storeName: 'Daftar',
+                  amountLine: r'1.00 $',
+                  callTask: 'اتصل بـ${candidate.name} نيابةً عن Daftar.',
+                  toneBand: candidate.toneBand,
+                  attachPdf: false,
+                ),
+            ],
+            locale: 'ar',
+            storeName: 'Daftar',
           ),
-      ];
-      onRows?.call(sent);
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'Mohamed',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
+
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
+
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.deskLocale, 'ar');
+      expect(state.actionFailure, isNull);
+      final planCaptured = verify(
+        () => planCall.execute(captureAny()),
+      ).captured;
+      final request = planCaptured.single as CallPlanBatchRequest;
+      expect(request.locale, 'ar');
+      expect(request.recipients.single.locale, 'en-US');
+      expect(request.recipients.single.task, contains('Call Mohamed'));
+      expect(request.recipients.single.task, isNot(contains('اتصل')));
+    },
+  );
+
+  test(
+    'approveAndSend still dispatches YE after Confirm and Call omits YE',
+    () async {
+      const usPhone = '+15555550100';
+      late List<CollectionsDeskRow> dispatched;
+      when(
+        () => dispatchEmail.execute(
+          rows: any(named: 'rows'),
+          locale: any(named: 'locale'),
+          storeName: any(named: 'storeName'),
+          batchId: any(named: 'batchId'),
+          correlationId: any(named: 'correlationId'),
+          isRtl: any(named: 'isRtl'),
+          onRows: any(named: 'onRows'),
+        ),
+      ).thenAnswer((invocation) async {
+        dispatched = List<CollectionsDeskRow>.from(
+          invocation.namedArguments[#rows]! as List<CollectionsDeskRow>,
+        );
+        final onRows =
+            invocation.namedArguments[#onRows]
+                as void Function(List<CollectionsDeskRow>)?;
+        final sent = [
+          for (final row in dispatched)
+            row.copyWith(
+              status: CollectionsDeskRowStatus.sent,
+              smtpCode: 250,
+              smtpMessageId: '<mid@gmail.com>',
+            ),
+        ];
+        onRows?.call(sent);
+        return Right(
+          DispatchCollectionsEmailResult(
+            rows: sent,
+            metrics: CollectionsQueueMetrics.fromRows(sent),
+          ),
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+            CollectionsCandidate(
+              contactId: 'ye',
+              name: 'ye',
+              email: 'ye@example.com',
+              phone: '+967771234567',
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'YER',
+              ageDays: 20,
+              toneBand: ReminderToneBand.firm,
+              rail: OutreachRail.callUnavailable,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
+
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
+
+      final planCaptured = verify(
+        () => planCall.execute(captureAny()),
+      ).captured;
+      final planRequest = planCaptured.last as CallPlanBatchRequest;
+      expect(planRequest.recipients, hasLength(1));
+      expect(planRequest.recipients.single.contactId, 'us');
+
+      await notifier.approveAndSend();
+
+      expect(
+        dispatched.map((row) => row.candidate.contactId),
+        containsAll(['us', 'ye']),
+      );
+    },
+  );
+
+  test(
+    'commitDeskOutreach both queues approveAndSend after call terminal',
+    () async {
+      const usPhone = '+15555550100';
+      var dispatchCount = 0;
+      when(
+        () => dispatchEmail.execute(
+          rows: any(named: 'rows'),
+          locale: any(named: 'locale'),
+          storeName: any(named: 'storeName'),
+          batchId: any(named: 'batchId'),
+          correlationId: any(named: 'correlationId'),
+          isRtl: any(named: 'isRtl'),
+          onRows: any(named: 'onRows'),
+        ),
+      ).thenAnswer((invocation) async {
+        dispatchCount += 1;
+        final rows = List<CollectionsDeskRow>.from(
+          invocation.namedArguments[#rows]! as List<CollectionsDeskRow>,
+        );
+        final onRows =
+            invocation.namedArguments[#onRows]
+                as void Function(List<CollectionsDeskRow>)?;
+        final sent = [
+          for (final row in rows)
+            row.copyWith(
+              status: CollectionsDeskRowStatus.sent,
+              smtpCode: 250,
+              smtpMessageId: '<mid@gmail.com>',
+            ),
+        ];
+        onRows?.call(sent);
+        return Right(
+          DispatchCollectionsEmailResult(
+            rows: sent,
+            metrics: CollectionsQueueMetrics.fromRows(sent),
+          ),
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+            CollectionsCandidate(
+              contactId: 'ye',
+              name: 'ye',
+              email: 'ye@example.com',
+              phone: '+967771234567',
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'YER',
+              ageDays: 20,
+              toneBand: ReminderToneBand.firm,
+              rail: OutreachRail.callUnavailable,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
+
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.commitDeskOutreach(call: true, send: true);
+
+      expect(dispatchCount, 1);
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.pendingSendAfterCall, isFalse);
+      expect(state.phase, ClosingAgentPhase.ritualReport);
+    },
+  );
+
+  test('no_answer holds pending SMTP until HITL retry completes', () async {
+    const usPhone = '+15555550100';
+    var dispatchCount = 0;
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
       return Right(
-        DispatchCollectionsEmailResult(
-          rows: sent,
-          metrics: CollectionsQueueMetrics.fromRows(sent),
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.noAnswer,
+          ),
         ),
       );
     });
-    stubRitual(
-      const ClosingRitualResult(
-        summary: _emptySummary,
-        backupStatus: ClosingBackupStatus.uploaded,
-        shortlist: [
-          CollectionsCandidate(
-            contactId: 'us',
-            name: 'us',
-            email: 'us@example.com',
-            phone: usPhone,
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'USD',
-            ageDays: 12,
-            toneBand: ReminderToneBand.reminder,
-            rail: OutreachRail.both,
-          ),
-          CollectionsCandidate(
-            contactId: 'ye',
-            name: 'ye',
-            email: 'ye@example.com',
-            phone: '+967771234567',
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'YER',
-            ageDays: 20,
-            toneBand: ReminderToneBand.firm,
-            rail: OutreachRail.callUnavailable,
-          ),
-        ],
-      ),
-    );
-    final c = container(
-      callePolicy: const CalleDevicePolicy(
-        allowDial: true,
-        allowlist: {usPhone},
-        allowlistRegion: 'US',
-      ),
-    );
-    addTearDown(c.dispose);
-    final notifier = c.read(closingAgentControllerProvider.notifier);
-
-    await notifier.confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
-    await notifier.confirmAndCall();
-
-    final planCaptured = verify(() => planCall.execute(captureAny())).captured;
-    final planRequest = planCaptured.last as CallPlanBatchRequest;
-    expect(planRequest.recipients, hasLength(1));
-    expect(planRequest.recipients.single.contactId, 'us');
-
-    await notifier.approveAndSend();
-
-    expect(
-      dispatched.map((row) => row.candidate.contactId),
-      containsAll(['us', 'ye']),
-    );
-  });
-
-  test('commitDeskOutreach both queues approveAndSend after call terminal', () async {
-    const usPhone = '+15555550100';
-    var dispatchCount = 0;
     when(
       () => dispatchEmail.execute(
         rows: any(named: 'rows'),
@@ -1667,18 +1933,6 @@ void main() {
             toneBand: ReminderToneBand.reminder,
             rail: OutreachRail.both,
           ),
-          CollectionsCandidate(
-            contactId: 'ye',
-            name: 'ye',
-            email: 'ye@example.com',
-            phone: '+967771234567',
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'YER',
-            ageDays: 20,
-            toneBand: ReminderToneBand.firm,
-            rail: OutreachRail.callUnavailable,
-          ),
         ],
       ),
     );
@@ -1698,9 +1952,20 @@ void main() {
     );
     await notifier.commitDeskOutreach(call: true, send: true);
 
+    expect(dispatchCount, 0);
+    expect(c.read(closingAgentControllerProvider).pendingSendAfterCall, isTrue);
+    expect(c.read(closingAgentControllerProvider).callRetryOfferCount, 1);
+    expect(
+      c.read(closingAgentControllerProvider).phase,
+      ClosingAgentPhase.ritualDesk,
+    );
+
+    await notifier.retryUnansweredCalls();
+
     expect(dispatchCount, 1);
     final state = c.read(closingAgentControllerProvider);
     expect(state.pendingSendAfterCall, isFalse);
+    expect(state.callRetryOfferCount, 0);
     expect(state.phase, ClosingAgentPhase.ritualReport);
   });
 
@@ -1883,10 +2148,204 @@ void main() {
     await notifier.confirmAndCall();
 
     final state = c.read(closingAgentControllerProvider);
-    expect(state.callProgress?.results.single.status, CollectionsCallRowStatus.completed);
+    expect(
+      state.callProgress?.results.single.status,
+      CollectionsCallRowStatus.completed,
+    );
     verify(() => planCall.execute(any())).called(2);
     verify(() => runCall.execute(any())).called(2);
     verify(() => getCall.execute('run-us')).called(1);
+  });
+
+  test(
+    'HITL retry after no_answer runs plan then run with attempt 1',
+    () async {
+      const usPhone = '+15555550100';
+      when(() => getCall.execute(any())).thenAnswer((invocation) async {
+        final runId = invocation.positionalArguments.first as String;
+        return Right(
+          CallGetResult(
+            runId: runId,
+            status: 'completed',
+            terminal: true,
+            phoneMasked: '+…0000',
+            needsHuman: false,
+            structuredResult: const CallStructuredOutcome(
+              outcome: CallRunOutcome.noAnswer,
+            ),
+          ),
+        );
+      });
+      final attempts = <int>[];
+      when(() => runCall.execute(any())).thenAnswer((invocation) async {
+        final request =
+            invocation.positionalArguments.first as CallRunBatchRequest;
+        attempts.add(request.attempt);
+        return Right(
+          CallRunBatchResponse(
+            batchId: request.batchId,
+            needsHuman: false,
+            results: [
+              for (final recipient in request.recipients)
+                CallRunRowResult(
+                  contactId: recipient.contactId,
+                  status: CallRunRemoteStatus.queued,
+                  runId: 'run-${recipient.contactId}',
+                ),
+            ],
+          ),
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
+
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
+
+      expect(c.read(closingAgentControllerProvider).callRetryOfferCount, 1);
+      await notifier.retryUnansweredCalls();
+
+      expect(attempts, [0, 1]);
+      verify(() => planCall.execute(any())).called(2);
+      verify(() => runCall.execute(any())).called(2);
+      verify(() => getCall.execute('run-us')).called(2);
+    },
+  );
+
+  test('promised outcome does not offer HITL retry', () async {
+    const usPhone = '+15555550100';
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+
+    final state = c.read(closingAgentControllerProvider);
+    expect(state.callRetryOfferCount, 0);
+  });
+
+  test('second HITL retry no-ops after one retry', () async {
+    const usPhone = '+15555550100';
+    when(() => getCall.execute(any())).thenAnswer((invocation) async {
+      final runId = invocation.positionalArguments.first as String;
+      return Right(
+        CallGetResult(
+          runId: runId,
+          status: 'completed',
+          terminal: true,
+          phoneMasked: '+…0000',
+          needsHuman: false,
+          structuredResult: const CallStructuredOutcome(
+            outcome: CallRunOutcome.voicemail,
+          ),
+        ),
+      );
+    });
+    stubRitual(
+      const ClosingRitualResult(
+        summary: _emptySummary,
+        backupStatus: ClosingBackupStatus.uploaded,
+        shortlist: [
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ],
+      ),
+    );
+    final c = container(
+      callePolicy: const CalleDevicePolicy(
+        allowDial: true,
+        allowlist: {usPhone},
+        allowlistRegion: 'US',
+      ),
+    );
+    addTearDown(c.dispose);
+    final notifier = c.read(closingAgentControllerProvider.notifier);
+
+    await notifier.confirm(
+      _planProposal,
+      sendOutreach: true,
+    );
+    await notifier.confirmAndCall();
+    await notifier.retryUnansweredCalls();
+
+    expect(c.read(closingAgentControllerProvider).callRetryOfferCount, 0);
+
+    clearInteractions(planCall);
+    clearInteractions(runCall);
+    await notifier.retryUnansweredCalls();
+
+    verifyNever(() => planCall.execute(any()));
+    verifyNever(() => runCall.execute(any()));
   });
 
   test('Confirm and Call poll timeout does not run-batch again', () async {
@@ -1957,125 +2416,131 @@ void main() {
     ).called(1);
   });
 
-  test('Confirm and Call GET network failure clears after terminal GET', () async {
-    const usPhone = '+15555550100';
-    var getCalls = 0;
-    ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
-    when(() => getCall.execute(any())).thenAnswer((invocation) async {
-      getCalls += 1;
-      final runId = invocation.positionalArguments.first as String;
-      if (getCalls == 1) {
-        return const Left(
-          NetworkFailure('offline', code: 'closing_agent_request_failed'),
-        );
-      }
-      return Right(
-        CallGetResult(
-          runId: runId,
-          status: 'completed',
-          terminal: true,
-          phoneMasked: '+…0000',
-          needsHuman: false,
-          structuredResult: const CallStructuredOutcome(
-            outcome: CallRunOutcome.promised,
-            promisedAmountMinor: 100,
-            promisedCurrency: 'USD',
-            promisedDate: '2026-09-10',
+  test(
+    'Confirm and Call GET network failure clears after terminal GET',
+    () async {
+      const usPhone = '+15555550100';
+      var getCalls = 0;
+      ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
+      when(() => getCall.execute(any())).thenAnswer((invocation) async {
+        getCalls += 1;
+        final runId = invocation.positionalArguments.first as String;
+        if (getCalls == 1) {
+          return const Left(
+            NetworkFailure('offline', code: 'closing_agent_request_failed'),
+          );
+        }
+        return Right(
+          CallGetResult(
+            runId: runId,
+            status: 'completed',
+            terminal: true,
+            phoneMasked: '+…0000',
+            needsHuman: false,
+            structuredResult: const CallStructuredOutcome(
+              outcome: CallRunOutcome.promised,
+              promisedAmountMinor: 100,
+              promisedCurrency: 'USD',
+              promisedDate: '2026-09-10',
+            ),
           ),
+        );
+      });
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
         ),
       );
-    });
-    stubRitual(
-      const ClosingRitualResult(
-        summary: _emptySummary,
-        backupStatus: ClosingBackupStatus.uploaded,
-        shortlist: [
-          CollectionsCandidate(
-            contactId: 'us',
-            name: 'us',
-            email: 'us@example.com',
-            phone: usPhone,
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'USD',
-            ageDays: 12,
-            toneBand: ReminderToneBand.reminder,
-            rail: OutreachRail.both,
-          ),
-        ],
-      ),
-    );
-    final c = container(
-      callePolicy: const CalleDevicePolicy(
-        allowDial: true,
-        allowlist: {usPhone},
-        allowlistRegion: 'US',
-      ),
-    );
-    addTearDown(c.dispose);
-    final notifier = c.read(closingAgentControllerProvider.notifier);
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
 
-    await notifier.confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
-    await notifier.confirmAndCall();
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
 
-    final state = c.read(closingAgentControllerProvider);
-    expect(state.actionFailure, isNull);
-    expect(getCalls, greaterThan(1));
-    verify(() => runCall.execute(any())).called(1);
-    verify(() => persistCall.persistQueued(any())).called(1);
-  });
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.actionFailure, isNull);
+      expect(getCalls, greaterThan(1));
+      verify(() => runCall.execute(any())).called(1);
+      verify(() => persistCall.persistQueued(any())).called(1);
+    },
+  );
 
-  test('Confirm and Call persistTerminal Left surfaces database failure', () async {
-    const usPhone = '+15555550100';
-    when(() => persistCall.persistTerminal(any())).thenAnswer(
-      (_) async => const Left(
-        DatabaseFailure('write failed', code: 'database_failure'),
-      ),
-    );
-    stubRitual(
-      const ClosingRitualResult(
-        summary: _emptySummary,
-        backupStatus: ClosingBackupStatus.uploaded,
-        shortlist: [
-          CollectionsCandidate(
-            contactId: 'us',
-            name: 'us',
-            email: 'us@example.com',
-            phone: usPhone,
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'USD',
-            ageDays: 12,
-            toneBand: ReminderToneBand.reminder,
-            rail: OutreachRail.both,
-          ),
-        ],
-      ),
-    );
-    final c = container(
-      callePolicy: const CalleDevicePolicy(
-        allowDial: true,
-        allowlist: {usPhone},
-        allowlistRegion: 'US',
-      ),
-    );
-    addTearDown(c.dispose);
-    final notifier = c.read(closingAgentControllerProvider.notifier);
+  test(
+    'Confirm and Call persistTerminal Left surfaces database failure',
+    () async {
+      const usPhone = '+15555550100';
+      when(() => persistCall.persistTerminal(any())).thenAnswer(
+        (_) async => const Left(
+          DatabaseFailure('write failed', code: 'database_failure'),
+        ),
+      );
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
 
-    await notifier.confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
-    await notifier.confirmAndCall();
+      await notifier.confirm(
+        _planProposal,
+        sendOutreach: true,
+      );
+      await notifier.confirmAndCall();
 
-    final state = c.read(closingAgentControllerProvider);
-    expect(state.actionFailure, isA<DatabaseFailure>());
-    verify(() => runCall.execute(any())).called(1);
-    verify(() => persistCall.persistTerminal(any())).called(1);
-  });
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.actionFailure, isA<DatabaseFailure>());
+      verify(() => runCall.execute(any())).called(1);
+      verify(() => persistCall.persistTerminal(any())).called(1);
+    },
+  );
 
   test('Confirm and Call keeps planned until first GET', () async {
     const usPhone = '+15555550100';
@@ -2158,6 +2623,7 @@ void main() {
   test('finishDesk invalidates stale poll timeout', () async {
     const usPhone = '+15555550100';
     ClosingAgentController.callPollInterval = const Duration(milliseconds: 20);
+    ClosingAgentController.callPollTimeout = const Duration(minutes: 10);
     when(() => getCall.execute(any())).thenAnswer((invocation) async {
       final runId = invocation.positionalArguments.first as String;
       return Right(
@@ -2214,53 +2680,58 @@ void main() {
     expect(state.phase, ClosingAgentPhase.ritualReport);
   });
 
-  test('SMTP preflight failure still opens desk when call set exists', () async {
-    const usPhone = '+15555550100';
-    when(() => hydrate.execute()).thenAnswer(
-      (_) async => const Left(
-        AuthFailure('silent', code: 'silent_sign_in_failed'),
-      ),
-    );
-    stubRitual(
-      const ClosingRitualResult(
-        summary: _emptySummary,
-        backupStatus: ClosingBackupStatus.uploaded,
-        shortlist: [
-          CollectionsCandidate(
-            contactId: 'us',
-            name: 'us',
-            email: 'us@example.com',
-            phone: usPhone,
-            ledgerId: 'ledger',
-            netBalance: -100,
-            currencyCode: 'USD',
-            ageDays: 12,
-            toneBand: ReminderToneBand.reminder,
-            rail: OutreachRail.both,
-          ),
-        ],
-      ),
-    );
-    final c = container(
-      callePolicy: const CalleDevicePolicy(
-        allowDial: false,
-        allowlist: {usPhone},
-        allowlistRegion: 'US',
-      ),
-    );
-    addTearDown(c.dispose);
+  test(
+    'SMTP preflight failure still opens desk when call set exists',
+    () async {
+      const usPhone = '+15555550100';
+      when(() => hydrate.execute()).thenAnswer(
+        (_) async => const Left(
+          AuthFailure('silent', code: 'silent_sign_in_failed'),
+        ),
+      );
+      stubRitual(
+        const ClosingRitualResult(
+          summary: _emptySummary,
+          backupStatus: ClosingBackupStatus.uploaded,
+          shortlist: [
+            CollectionsCandidate(
+              contactId: 'us',
+              name: 'us',
+              email: 'us@example.com',
+              phone: usPhone,
+              ledgerId: 'ledger',
+              netBalance: -100,
+              currencyCode: 'USD',
+              ageDays: 12,
+              toneBand: ReminderToneBand.reminder,
+              rail: OutreachRail.both,
+            ),
+          ],
+        ),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: false,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
 
-    await c.read(closingAgentControllerProvider.notifier).confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
+      await c
+          .read(closingAgentControllerProvider.notifier)
+          .confirm(
+            _planProposal,
+            sendOutreach: true,
+          );
 
-    final state = c.read(closingAgentControllerProvider);
-    expect(state.phase, ClosingAgentPhase.ritualDesk);
-    expect(state.ritualDeskPreflightPending, isFalse);
-    expect(state.actionFailure, isA<AuthFailure>());
-    expect(state.deskCallCount, 1);
-  });
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.phase, ClosingAgentPhase.ritualDesk);
+      expect(state.ritualDeskPreflightPending, isFalse);
+      expect(state.actionFailure, isA<AuthFailure>());
+      expect(state.deskCallCount, 1);
+    },
+  );
 
   test('SMTP preflight failure blocks desk when call set is empty', () async {
     when(() => hydrate.execute()).thenAnswer(
@@ -2278,10 +2749,12 @@ void main() {
     final c = container();
     addTearDown(c.dispose);
 
-    await c.read(closingAgentControllerProvider.notifier).confirm(
-      _planProposal,
-      sendOutreach: true,
-    );
+    await c
+        .read(closingAgentControllerProvider.notifier)
+        .confirm(
+          _planProposal,
+          sendOutreach: true,
+        );
 
     final state = c.read(closingAgentControllerProvider);
     expect(state.phase, ClosingAgentPhase.ritualRunning);
@@ -2984,9 +3457,11 @@ void main() {
   test('hold-hint mic banner auto-dismisses', () async {
     final c = container();
     addTearDown(c.dispose);
-    c.read(closingAgentControllerProvider.notifier).showMicBanner(
-      ClosingMicBannerKind.holdHint,
-    );
+    c
+        .read(closingAgentControllerProvider.notifier)
+        .showMicBanner(
+          ClosingMicBannerKind.holdHint,
+        );
 
     expect(
       c.read(closingAgentControllerProvider).micBannerKind,
@@ -3074,13 +3549,16 @@ void main() {
         ),
       ).thenAnswer((invocation) async {
         final proposal =
-            invocation.namedArguments[const Symbol('proposal')] as AgentProposal;
+            invocation.namedArguments[const Symbol('proposal')]
+                as AgentProposal;
         commits.add(proposal);
         ledgerOverrides.add(
-          invocation.namedArguments[const Symbol('ledgerIdOverride')] as String?,
+          invocation.namedArguments[const Symbol('ledgerIdOverride')]
+              as String?,
         );
         contactOverrides.add(
-          invocation.namedArguments[const Symbol('contactIdOverride')] as String?,
+          invocation.namedArguments[const Symbol('contactIdOverride')]
+              as String?,
         );
         createIfMissingFlags.add(
           invocation.namedArguments[const Symbol('createIfMissing')] as bool,
@@ -3104,9 +3582,11 @@ void main() {
       addTearDown(c.dispose);
       await seedCompoundTurn(c);
 
-      await c.read(closingAgentControllerProvider.notifier).confirmCaptureBundle(
-        const [ledgerProposal, contactProposal, debtProposal],
-      );
+      await c
+          .read(closingAgentControllerProvider.notifier)
+          .confirmCaptureBundle(
+            const [ledgerProposal, contactProposal, debtProposal],
+          );
 
       expect(commits.map((p) => p.proposalId), [
         'ledger-1',
@@ -3142,7 +3622,8 @@ void main() {
       ).thenAnswer((invocation) async {
         callCount += 1;
         final proposal =
-            invocation.namedArguments[const Symbol('proposal')] as AgentProposal;
+            invocation.namedArguments[const Symbol('proposal')]
+                as AgentProposal;
         if (callCount == 1) {
           return Right(
             ConfirmProposalResult(
@@ -3161,31 +3642,17 @@ void main() {
       addTearDown(c.dispose);
       await seedCompoundTurn(c);
 
-      await c.read(closingAgentControllerProvider.notifier).confirmCaptureBundle(
-        const [ledgerProposal, contactProposal, debtProposal],
-      );
+      await c
+          .read(closingAgentControllerProvider.notifier)
+          .confirmCaptureBundle(
+            const [ledgerProposal, contactProposal, debtProposal],
+          );
 
       final state = c.read(closingAgentControllerProvider);
       expect(state.committedIds, {'ledger-1'});
       expect(state.actionFailure?.code, 'currency_required');
       expect(state.confirmingProposalId, isNull);
-      verify(() => commit.execute(
-            proposal: any(named: 'proposal'),
-            ledgerIdOverride: any(named: 'ledgerIdOverride'),
-            currencyCodeOverride: any(named: 'currencyCodeOverride'),
-            contactIdOverride: any(named: 'contactIdOverride'),
-            nameOverride: any(named: 'nameOverride'),
-            phoneOverride: any(named: 'phoneOverride'),
-            ledgerNameOverride: any(named: 'ledgerNameOverride'),
-            amountMinorOverride: any(named: 'amountMinorOverride'),
-            createIfMissing: any(named: 'createIfMissing'),
-          )).called(2);
-    });
-
-    test('ignores stale ledger picks when bundle creates a new ledger', () async {
-      final ledgerOverrides = <String?>[];
-
-      when(
+      verify(
         () => commit.execute(
           proposal: any(named: 'proposal'),
           ledgerIdOverride: any(named: 'ledgerIdOverride'),
@@ -3197,47 +3664,72 @@ void main() {
           amountMinorOverride: any(named: 'amountMinorOverride'),
           createIfMissing: any(named: 'createIfMissing'),
         ),
-      ).thenAnswer((invocation) async {
-        final proposal =
-            invocation.namedArguments[const Symbol('proposal')] as AgentProposal;
-        ledgerOverrides.add(
-          invocation.namedArguments[const Symbol('ledgerIdOverride')] as String?,
-        );
-        final entityId = switch (proposal.tool) {
-          ProposalTool.proposeCreateLedger => 'ledger-new',
-          ProposalTool.proposeCreateContact => 'contact-new',
-          ProposalTool.proposeDebt => 'txn-1',
-          _ => null,
-        };
-        return Right(
-          ConfirmProposalResult(
-            proposalId: proposal.proposalId,
-            status: ConfirmProposalStatus.committed,
-            entityId: entityId,
-          ),
-        );
-      });
-
-      final c = container();
-      addTearDown(c.dispose);
-      await seedCompoundTurn(c);
-      c.read(closingAgentControllerProvider.notifier).state = c
-          .read(closingAgentControllerProvider)
-          .copyWith(
-            ledgerIdByProposal: {
-              'contact-1': 'stale-ledger-id',
-              'debt-1': 'stale-ledger-id',
-            },
-          );
-
-      await c.read(closingAgentControllerProvider.notifier).confirmCaptureBundle(
-        const [ledgerProposal, contactProposal, debtProposal],
-      );
-
-      expect(ledgerOverrides[1], 'ledger-new');
-      expect(ledgerOverrides[2], 'ledger-new');
-      expect(ledgerOverrides, isNot(contains('stale-ledger-id')));
+      ).called(2);
     });
+
+    test(
+      'ignores stale ledger picks when bundle creates a new ledger',
+      () async {
+        final ledgerOverrides = <String?>[];
+
+        when(
+          () => commit.execute(
+            proposal: any(named: 'proposal'),
+            ledgerIdOverride: any(named: 'ledgerIdOverride'),
+            currencyCodeOverride: any(named: 'currencyCodeOverride'),
+            contactIdOverride: any(named: 'contactIdOverride'),
+            nameOverride: any(named: 'nameOverride'),
+            phoneOverride: any(named: 'phoneOverride'),
+            ledgerNameOverride: any(named: 'ledgerNameOverride'),
+            amountMinorOverride: any(named: 'amountMinorOverride'),
+            createIfMissing: any(named: 'createIfMissing'),
+          ),
+        ).thenAnswer((invocation) async {
+          final proposal =
+              invocation.namedArguments[const Symbol('proposal')]
+                  as AgentProposal;
+          ledgerOverrides.add(
+            invocation.namedArguments[const Symbol('ledgerIdOverride')]
+                as String?,
+          );
+          final entityId = switch (proposal.tool) {
+            ProposalTool.proposeCreateLedger => 'ledger-new',
+            ProposalTool.proposeCreateContact => 'contact-new',
+            ProposalTool.proposeDebt => 'txn-1',
+            _ => null,
+          };
+          return Right(
+            ConfirmProposalResult(
+              proposalId: proposal.proposalId,
+              status: ConfirmProposalStatus.committed,
+              entityId: entityId,
+            ),
+          );
+        });
+
+        final c = container();
+        addTearDown(c.dispose);
+        await seedCompoundTurn(c);
+        c.read(closingAgentControllerProvider.notifier).state = c
+            .read(closingAgentControllerProvider)
+            .copyWith(
+              ledgerIdByProposal: {
+                'contact-1': 'stale-ledger-id',
+                'debt-1': 'stale-ledger-id',
+              },
+            );
+
+        await c
+            .read(closingAgentControllerProvider.notifier)
+            .confirmCaptureBundle(
+              const [ledgerProposal, contactProposal, debtProposal],
+            );
+
+        expect(ledgerOverrides[1], 'ledger-new');
+        expect(ledgerOverrides[2], 'ledger-new');
+        expect(ledgerOverrides, isNot(contains('stale-ledger-id')));
+      },
+    );
   });
 
   test('openCreditLimitDesk does not call plan-batch', () async {
@@ -3274,9 +3766,11 @@ void main() {
     );
     addTearDown(c.dispose);
 
-    await c.read(closingAgentControllerProvider.notifier).openCreditLimitDesk(
-      'us',
-    );
+    await c
+        .read(closingAgentControllerProvider.notifier)
+        .openCreditLimitDesk(
+          'us',
+        );
 
     final state = c.read(closingAgentControllerProvider);
     expect(state.phase, ClosingAgentPhase.ritualDesk);
@@ -3286,56 +3780,59 @@ void main() {
     verifyNever(() => runCall.execute(any()));
   });
 
-  test('credit-limit dismissCreditLimitSession returns idle not ritual report',
-      () async {
-    const usPhone = '+15555550100';
-    when(
-      () => collectionsCandidates.execute(
-        asOf: any(named: 'asOf'),
-        allowlist: any(named: 'allowlist'),
-        allowlistRegion: any(named: 'allowlistRegion'),
-        contactId: 'us',
-      ),
-    ).thenAnswer(
-      (_) async => const Right([
-        CollectionsCandidate(
+  test(
+    'credit-limit dismissCreditLimitSession returns idle not ritual report',
+    () async {
+      const usPhone = '+15555550100';
+      when(
+        () => collectionsCandidates.execute(
+          asOf: any(named: 'asOf'),
+          allowlist: any(named: 'allowlist'),
+          allowlistRegion: any(named: 'allowlistRegion'),
           contactId: 'us',
-          name: 'us',
-          email: 'us@example.com',
-          phone: usPhone,
-          ledgerId: 'ledger',
-          netBalance: -100,
-          currencyCode: 'USD',
-          ageDays: 12,
-          toneBand: ReminderToneBand.reminder,
-          rail: OutreachRail.both,
         ),
-      ]),
-    );
-    final c = container(
-      callePolicy: const CalleDevicePolicy(
-        allowDial: true,
-        allowlist: {usPhone},
-        allowlistRegion: 'US',
-      ),
-    );
-    addTearDown(c.dispose);
-    final notifier = c.read(closingAgentControllerProvider.notifier);
+      ).thenAnswer(
+        (_) async => const Right([
+          CollectionsCandidate(
+            contactId: 'us',
+            name: 'us',
+            email: 'us@example.com',
+            phone: usPhone,
+            ledgerId: 'ledger',
+            netBalance: -100,
+            currencyCode: 'USD',
+            ageDays: 12,
+            toneBand: ReminderToneBand.reminder,
+            rail: OutreachRail.both,
+          ),
+        ]),
+      );
+      final c = container(
+        callePolicy: const CalleDevicePolicy(
+          allowDial: true,
+          allowlist: {usPhone},
+          allowlistRegion: 'US',
+        ),
+      );
+      addTearDown(c.dispose);
+      final notifier = c.read(closingAgentControllerProvider.notifier);
 
-    await notifier.openCreditLimitDesk('us');
-    await notifier.dismissCreditLimitSession();
+      await notifier.openCreditLimitDesk('us');
+      await notifier.dismissCreditLimitSession();
 
-    final state = c.read(closingAgentControllerProvider);
-    expect(state.phase, ClosingAgentPhase.idle);
-    expect(state.ritualResult, isNull);
-    expect(state.callBatchTrigger, CallBatchTrigger.closeDay);
-  });
+      final state = c.read(closingAgentControllerProvider);
+      expect(state.phase, ClosingAgentPhase.idle);
+      expect(state.ritualResult, isNull);
+      expect(state.callBatchTrigger, CallBatchTrigger.closeDay);
+    },
+  );
 
   test('credit-limit confirmAndCall sends creditLimit trigger', () async {
     const usPhone = '+15555550100';
     CallPlanBatchRequest? capturedPlan;
     when(() => planCall.execute(any())).thenAnswer((invocation) async {
-      capturedPlan = invocation.positionalArguments.first as CallPlanBatchRequest;
+      capturedPlan =
+          invocation.positionalArguments.first as CallPlanBatchRequest;
       return const Right(
         CallPlanBatchResponse(
           batchId: 'batch-1',
