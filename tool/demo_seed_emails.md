@@ -63,7 +63,7 @@ PDF vs text-only is **not** a seed flag. [`ClosingPdfPolicy.rankedTop5`](../lib/
 Dart-defines are **compile-time**. Hot reload / hot restart does **not** pick up a new overlay. After changing `demo_seed_emails.local.json`:
 
 1. Stop the running app.
-2. Relaunch with the flag below (full rebuild).
+2. Relaunch with the **Daftar (demo overlay)** launch config in [`.vscode/launch.json`](../.vscode/launch.json) (full rebuild), or the CLI flag below. Pick the device in the Flutter device picker — no serial is pinned in the repo.
 3. **Reset sample store data** or **Try with Demo Store** so Mohamed’s phone is rewritten.
 
 ```bash
