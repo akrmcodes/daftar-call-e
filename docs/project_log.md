@@ -5527,3 +5527,27 @@ flutter test test/core/contest/contest_architecture_png_test.dart \
 ### Status
 §6.2 complete. Next: §6.3 video. Do not film until the live-dial SOP.
 
+## 2026-09-10 — PR #385 public-history purge requested (Support #4744420)
+
+### Context
+Ray-56 accepted the one-commit tree on [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (`9b12a7c`) and left a remaining Must Fix: prior sensitive reviewed heads are still publicly resolvable. Force-push dropped them from the branch; GitHub still serves SHA pages. Only Support GC can 404 those URLs. No skill rewrite.
+
+### Done
+- Local clone `/Users/aq/Work/01_Projects/awesome-phone-call-agents`: reflog expire + `git gc --prune=now`. **HEAD stays `9b12a7ca049ad6d4a8d267fe22e8c4c7d27d0d8a`**. Dropped objects pruned locally: `5f77698`, `c1396c9`, `da77bce1`.
+- Owner filed GitHub Support ticket **#4744420** (Repositories, `@akrmcodes`): GC + cached commit views for those SHAs on fork and upstream; **preserve open PR #385**; no LFS. Portal subject: *Purge cached commits / run garbage collection for sensitive data*.
+- Owner-ops (not judging): [`docs/contest/pr385_github_support_purge.md`](contest/pr385_github_support_purge.md) + index row in [`docs/contest/README.md`](contest/README.md). Paste-ready Ray reply includes ticket **#4744420** and the three SHA URLs. **No old E.164.** Cursor did not `gh pr comment` (owner posts).
+- Recheck 2026-09-10: dropped SHA pages still **HTTP 200** on `akrmcodes/awesome-phone-call-agents` and `CALLE-AI/awesome-phone-call-agents`. Keep-head `9b12a7c` also 200. Expected until Support acts.
+
+### Architecture / decisions
+Mergeable tree is already NANPA reserved `555-01xx` only. Do not amend or force-push `9b12a7c`. Do not close #385 or delete the fork. Support’s documented default for affected PRs is dereference **or delete**; preserve #385 is case-by-case — already asked in the ticket. Frozen Cloud Run `daftar-closing-agent` untouched. Roadmap **§6.4 not ticked**; **§6.3 video untouched**.
+
+### Ops / verification
+```bash
+git -C /Users/aq/Work/01_Projects/awesome-phone-call-agents rev-parse HEAD
+# 9b12a7ca049ad6d4a8d267fe22e8c4c7d27d0d8a
+# After Support GC: curl the three dropped SHAs until 404; 9b12a7c must stay 200.
+```
+
+### Status
+Purge **requested**, not complete. SHA pages will stay 200 until GitHub Support GCs. Owner: paste the Ray comment from the owner-ops file. Follow up on #385 only after 404. Do not claim §6.4 merge.
+
