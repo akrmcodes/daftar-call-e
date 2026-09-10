@@ -50,8 +50,14 @@ void main() {
       expect(deployWrapper, contains('gcloud run deploy daftar-call-e'));
       expect(deployWrapper, contains('--no-allow-unauthenticated'));
       expect(deployWrapper, contains('call-e-runner'));
-      expect(deployWrapper, contains('--min=0 --max=2'));
-      expect(deployWrapper, contains('--min-instances=0 --max-instances=2'));
+      expect(deployWrapper, contains('DAFTAR_CALL_E_MIN_INSTANCES'));
+      expect(deployWrapper, contains(r'--min="${_min_instances}" --max=2'));
+      expect(
+        deployWrapper,
+        contains(
+          r'--min-instances="${_min_instances}" --max-instances=2',
+        ),
+      );
       expect(deployWrapper, contains('gmail-smtp-app-password'));
       expect(deployWrapper, contains('calle-api-key'));
       expect(deployWrapper, contains('/calle-secrets/calle-api-key'));
