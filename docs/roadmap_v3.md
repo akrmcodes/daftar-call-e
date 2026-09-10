@@ -840,15 +840,15 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 
 **5.5 Freeze**
 
-- [ ] No new triggers, no inbound, no WhatsApp, no Live API
-- [ ] `flutter analyze` + agent tests green
+- [x] No new triggers, no inbound, no WhatsApp, no Live API
+- [x] `flutter analyze` + agent tests green
 
 #### Stage 5 Validation Gate
 
 - [x] Kill switch off → server refuses dial
-- [ ] Skill folder exists, reusable without the APK, **dry-run** works without `CALLE_API_KEY`
-- [ ] Feature freeze EOD **11 Sep 2026**
-- [ ] **Do not start Stage 6 video until Gate 5** (packaging may draft README in parallel)
+- [x] Skill folder exists, reusable without the APK, **dry-run** works without `CALLE_API_KEY`
+- [x] Feature freeze EOD **11 Sep 2026**
+- [x] **Do not start Stage 6 video until Gate 5** (packaging may draft README in parallel)
 
 ---
 

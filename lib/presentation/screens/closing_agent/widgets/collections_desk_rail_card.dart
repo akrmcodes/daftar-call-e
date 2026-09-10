@@ -76,7 +76,6 @@ class CollectionsDeskRailCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: AppDimensions.animationFast,
         curve: AppMotion.curveEnter,
-        clipBehavior: Clip.none,
         decoration: BoxDecoration(
           color: active ? surfaceActive : Colors.transparent,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),

@@ -130,15 +130,15 @@ void main() {
     );
     final spoken = closingReportSpeakable(
       l10n: en,
-      result: ClosingRitualResult(
-        summary: const ClosingDaySummary(
+      result: const ClosingRitualResult(
+        summary: ClosingDaySummary(
           localDay: '2026-08-15',
           debtCount: 3,
           paymentCount: 2,
           totals: [],
         ),
         backupStatus: ClosingBackupStatus.uploaded,
-        shortlist: const [],
+        shortlist: [],
         callReport: callReport,
       ),
     );

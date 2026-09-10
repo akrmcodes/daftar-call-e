@@ -1,8 +1,8 @@
 # Pre–Stage 5.5 owner rehearsal
 
-Owner-ops runbook: **dry-run device QA**, then **one** consented US DID ring, then **immediate shut down**. This is **not** Stage 5.5 implementation and **not** film day.
+Owner-ops runbook: **dry-run device QA**, then **one** consented US DID ring, then **immediate shut down**. This is **not** film day.
 
-**Do not** tick [`docs/roadmap_v3.md`](../roadmap_v3.md) §5.5 / Gate 5. **Do not** film. Goal: prove Confirm & Call + promise card + HUD on the dedicated demo device, then leave the stack **cold**.
+**Status (2026-09-10):** [`docs/roadmap_v3.md`](../roadmap_v3.md) §5.5 / Gate 5 are **declared** after `flutter analyze` + agent tests + skill dry-run. Remaining rehearsal steps (live ring / disarm) stay owner-ops and are **not** undone by the freeze. **Do not** film until §6.3. Goal: prove Confirm & Call + promise card + HUD on the dedicated demo device, then leave the stack **cold**.
 
 Related SOPs (do not substitute this file for them):
 
@@ -43,7 +43,7 @@ Legal mutate target is service **`daftar-call-e` only**, via [`agent/scripts/dep
 
 ## Checkpoint (2026-09-09)
 
-Pass A/B on device are **green** (kill-switch copy + SMTP). Live window is **armed for this session** on revision **`daftar-call-e-00010-qrp`**. Do **not** leave dial true overnight. Owner will ask to disarm. Frozen Agentic service is describe-only. Do not tick §5.5.
+Pass A/B on device are **green** (kill-switch copy + SMTP). Live window is **armed for this session** on revision **`daftar-call-e-00010-qrp`**. Do **not** leave dial true overnight. Owner will ask to disarm. Frozen Agentic service is describe-only. Roadmap §5.5 / Gate 5 declared 2026-09-10; this checkpoint’s remaining Confirm & Call / shutdown steps are still owner-ops.
 
 | Step | Status | Evidence |
 | --- | --- | --- |
@@ -245,7 +245,7 @@ Same as §3–5, one session, after Stage 5.5 freeze if that gate is still wante
 
 ## Out of this rehearsal
 
-- Implementing §5.5 (`flutter analyze` / freeze checkboxes)
+- §5.5 / Gate 5 product freeze (already declared on the roadmap after analyze + tests)
 - Laptop `create_and_wait` (already Gate 0; extra credit burn)
 - Push `skill-pack`, Devpost, Agentic APK
 - Logging allowlist numbers or keys

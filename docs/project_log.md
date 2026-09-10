@@ -5352,3 +5352,40 @@ Skipped-state switch still crowded the “Skipped — …” line. Empty gap sat
 ### Status
 Hot-restart to verify skipped copy and dock position on device.
 
+## 2026-09-10 — Stage 5.5 feature freeze + Gate 5
+
+### Context
+Declare the Stage 5 product freeze (ahead of EOD 11 Sep) so Stage 6 packaging copy may start while **video stays a later owner session**. Official CALL-E submit freeze remains §7.1 (14 Sep). Not a Cloud Run mutate and not film day.
+
+### Done
+- Freeze-lock tests: [`agent/tests/test_stage5_feature_freeze.py`](../agent/tests/test_stage5_feature_freeze.py) (Trigger enum `closeDay`|`creditLimit`; no `run_live` / BIDI Live needles in `calls/` + `closing_agent/`; OpenAPI paths have no inbound/IVR/WhatsApp/webhook) and [`test/domain/enums/call_batch_trigger_test.dart`](../test/domain/enums/call_batch_trigger_test.dart)
+- Analyzer infos cleared (no behavior change): redundant defaults / `const` / raw string in rail card + desk tests
+- Stale OpenAPI version assert in [`agent/tests/test_calls_plan_batch.py`](../agent/tests/test_calls_plan_batch.py) aligned to **2.8.0** (already locked in `test_calls_openapi_j9.py` from §5.1 retry)
+- Roadmap **§5.5** and **Stage 5 Validation Gate** ticked in [`docs/roadmap_v3.md`](roadmap_v3.md). Stage 6 task boxes left `[ ]`
+- QA pointers: [`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md), [`docs/qa/README.md`](qa/README.md) — freeze lives on the roadmap; rehearsal remaining live-ring / disarm steps stay owner-ops
+
+### Architecture / decisions
+- Two HITL triggers only (`closeDay`, `creditLimit`). Hybrid E WhatsApp leftover stays, not the lead, not filmed. No inbound IVR. No Gemini Live / `run_live` as the call plane. ADK `get_fast_api_app` unused `/run_sse` (if present) is not a product surface.
+- No deploy of `daftar-call-e`. Frozen Agentic service describe-only. No live `calls.create`. No §7.1 submit tag.
+
+### Ops / verification
+```bash
+bash tool/check_agentic_freeze.sh
+# Freeze OK: daftar-closing-agent-00055-pbm
+flutter analyze
+# No issues found
+agent/.venv/bin/python -m pytest tests/ -q
+# 206 passed
+flutter test test/domain/enums/call_batch_trigger_test.dart
+# 1 passed
+env -u CALLE_API_KEY python3 docs/skills/ledger-collections-call/scripts/test_preview.py
+# 8 passed
+env -u CALLE_API_KEY python3 docs/skills/ledger-collections-call/scripts/preview.py \
+  --request docs/skills/ledger-collections-call/assets/sample-overdue.json
+# status: not_called  blocker: dryRunDefault
+```
+Git HEAD at declaration: `c96682a1184c3331dfcf83ca598e2a943c15ca0f` (no annotated tag — §7.1). Freeze-lock + lint/test fixes are uncommitted until the owner asks. Local `agent/.venv` received `requirements.txt` so `pytest tests/` can import `google.adk` (dev machine only; Cloud Run image unchanged).
+
+### Status
+Stage 5 / Gate 5 **green**. Next: Stage 6 packaging copy (README / diagram / disclosure). **Do not** start §6.3 video until the owner film SOP. Rehearsal Confirm & Call / disarm remains owner-ops.
+

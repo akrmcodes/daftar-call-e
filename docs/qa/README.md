@@ -7,7 +7,7 @@ Owner / film notes. **Not** the first-pass judging pack.
 | Document | Role |
 | --- | --- |
 | [`stage4_phone_qa.md`](stage4_phone_qa.md) | **Stage 4 device QA (dial off)** — run before Stage 5 |
-| [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md) | **Pre–Stage 5.5 owner rehearsal** (dial-off QA, then one live ring, then shut down) — not filming, not §5.5 freeze |
+| [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md) | **Pre–Stage 5.5 owner rehearsal** (dial-off QA, then one live ring, then shut down) — not filming. Product freeze is roadmap §5.5 / Gate 5, not this runbook |
 | [`calle_live_dial_window.md`](calle_live_dial_window.md) | Stage 6 live ring SOP (credit-safe; dial on briefly) |
 | [`closing_agent_scenario_checklist.md`](closing_agent_scenario_checklist.md) | Long pre-film regression (Passes 0–13) |
 | [`gate4_device_runbook.md`](gate4_device_runbook.md) | **Heritage** Agentic SMTP film-day archive — do not use for CALL-E warm-up |
@@ -29,7 +29,7 @@ Canonical judge copy is the root [`README.md`](../../README.md) Proof of Action 
 
 - **Default:** Cloud Run `daftar-call-e` + APK keep `CALLE_ALLOW_DIAL=false` (min instances 0).
 - **Stage 4 exit:** [`stage4_phone_qa.md`](stage4_phone_qa.md) — no live ring.
-- **Pre–Stage 5.5 rehearsal:** [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md) — resume from Pass A; one live ring then disarm; do not tick §5.5.
+- **Pre–Stage 5.5 rehearsal:** [`pre_stage_5_5_rehearsal.md`](pre_stage_5_5_rehearsal.md) — resume from Pass A; one live ring then disarm. Product freeze is roadmap §5.5 / Gate 5.
 - **Stage 6 film:** [`calle_live_dial_window.md`](calle_live_dial_window.md) — arm dial only for the take, disarm immediately.
 
 Archived multi-device QA: [`docs/archive/stage_8_5_8_6_android_two_phone.md`](../archive/stage_8_5_8_6_android_two_phone.md).

@@ -1,4 +1,4 @@
-"""Stage 1.4 — OpenAPI 2.7.0 matches J.9 plan / run / get. Catalog stays eight."""
+"""Stage 1.4 / 5.1 — OpenAPI 2.8.0 matches J.9 plan / run / get. Catalog stays eight."""
 
 from __future__ import annotations
 

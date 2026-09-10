@@ -1607,7 +1607,7 @@ void main() {
                   body: 'body-${candidate.contactId}',
                   customerName: candidate.name,
                   storeName: 'Daftar',
-                  amountLine: '1.00 \$',
+                  amountLine: r'1.00 $',
                   callTask: 'اتصل بـ${candidate.name} نيابةً عن Daftar.',
                   toneBand: candidate.toneBand,
                   attachPdf: false,

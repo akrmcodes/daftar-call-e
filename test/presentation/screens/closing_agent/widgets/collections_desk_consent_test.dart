@@ -102,9 +102,7 @@ void main() {
       consentHost(
         callCount: 2,
         emailCount: 5,
-        callLeadName: 'Mohamed',
         pdfCount: 5,
-        textCount: 0,
       ),
     );
 
@@ -321,7 +319,6 @@ void main() {
       consentHost(
         callCount: 0,
         emailCount: 2,
-        pdfCount: 0,
         textCount: 2,
       ),
     );

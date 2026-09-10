@@ -296,7 +296,7 @@ void main() {
     'Arabic UI + US call row uses English C.3; email stays Arabic',
     () async {
       when(() => settings.get()).thenAnswer(
-        (_) async => const Right(AppSettings(locale: 'ar')),
+        (_) async => const Right(AppSettings()),
       );
       const usPhone = '+15555550100';
       final result = await useCase.execute(
@@ -325,7 +325,7 @@ void main() {
 
   test('Arabic UI + AE call row uses Arabic C.3', () async {
     when(() => settings.get()).thenAnswer(
-      (_) async => const Right(AppSettings(locale: 'ar')),
+      (_) async => const Right(AppSettings()),
     );
     final result = await useCase.execute(
       ritual(
