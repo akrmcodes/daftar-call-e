@@ -5408,3 +5408,26 @@ SMTP lead uses the HITL dock as the only send chrome. The extra `isLoading` butt
 ### Status
 Hot-restart the running debug session to see a single Send spinner while statements go out. Roadmap §5.5 unchanged.
 
+## 2026-09-10 — Disarm daftar-call-e (credit / min-instance shutdown)
+
+### Context
+Owner asked to stop the live test window until §6.3 film. Cloud Run was still `CALLE_ALLOW_DIAL=true` / min **1** on `daftar-call-e-00010-qrp`.
+
+### Done
+- Env-only update on **`daftar-call-e` only**: `CALLE_ALLOW_DIAL=false`, `--min=0 --max=2`. New revision **`daftar-call-e-00011-h7z`**
+- Gitignored overlay `CALLE_ALLOW_DIAL` emptied (DID + allowlist keys kept; not committed; values not logged)
+- [`docs/qa/pre_stage_5_5_rehearsal.md`](qa/pre_stage_5_5_rehearsal.md) checkpoint: Shutdown **Done**; session state cold
+
+### Architecture / decisions
+Legal mutate target remains `daftar-call-e`. Frozen Agentic service describe-only (`daftar-closing-agent-00055-pbm`). No `allUsers`. No live `calls.create`. Re-arm only for film via [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) (dial true, min 1, overlay exact `true`).
+
+### Ops / verification
+```bash
+# describe: CALLE_ALLOW_DIAL=false, minScale omitted (=0), maxScale=2
+bash tool/check_agentic_freeze.sh   # Freeze OK: daftar-closing-agent-00055-pbm
+```
+No E.164 / allowlist values printed. Device `flutter run` was already stopped.
+
+### Status
+Stack **cold**. Confirm & Call on a fresh desk should refuse PSTN. Next: Stage 6 packaging; re-arm only when filming.
+
