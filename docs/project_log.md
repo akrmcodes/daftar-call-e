@@ -5499,3 +5499,31 @@ flutter test test/core/contest/contest_architecture_png_test.dart
 ### Status
 §6.1 complete. Next: §6.2 README / disclosure. Do not film until §6.3 SOP.
 
+## 2026-09-10 — Stage 6.2 README / disclosure (CALL-E)
+
+### Context
+Judge-facing README still opened as All Things Agentic / Taskmaster (31 Aug, SMTP climax, frozen Agentic URL as the live service). Disclosure was the Stage 0.0 draft (v3.3, CALL-E-new Planned). §6.2 requires CALL-E identity, dual rail, Proof of Action, Singapore residency, owner-answered Callcentric / Linphone, v3.5 binding.
+
+### Done
+- [`README.md`](../README.md): Confirm & Call; `call-e.devpost.com`; dual rail; `task_completed` ≠ paid; poll ≠ webhook; SMTP `250` ≠ delivered; Singapore-hosted API traffic; owner owns and answers Callcentric US DID in Linphone (no E.164); v3.5 binding / v2.8 heritage; spin-up `daftar-call-e` via [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh); frozen Agentic hostname not the live service
+- [`docs/README.md`](README.md): judge order README → disclosure → architecture → v3.5 → env template; `contest_demo.md` demoted to heritage
+- [`docs/contest/README.md`](contest/README.md): execution **v3.5**; dropped “until Stage 6 Agentic” line
+- [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md): final 2026-09-10; v3.5; CALL-E-new **Landed**; skill PR **Opened** #385; owns and answers DID
+- Tests: [`test/core/contest/contest_readme_disclosure_test.dart`](../test/core/contest/contest_readme_disclosure_test.dart); [`test/core/contest/contest_disclosure_accuracy_test.dart`](../test/core/contest/contest_disclosure_accuracy_test.dart) updated
+- Roadmap §6.2 all `[x]`. §6.3 / Gate 6 untouched
+
+### Architecture / decisions
+Production path remains Developer API on `daftar-call-e`, not MCP. CALL-E is not an ADK tool. Film is still §6.3. No E.164 / secrets. No Cloud Run mutate.
+
+### Ops / verification
+```bash
+flutter test test/core/contest/contest_architecture_png_test.dart \
+  test/core/contest/contest_readme_disclosure_test.dart \
+  test/core/contest/contest_disclosure_accuracy_test.dart \
+  test/core/contest/agentic_cloud_run_freeze_test.dart \
+  test/core/security/repo_secret_scan_test.dart
+```
+
+### Status
+§6.2 complete. Next: §6.3 video. Do not film until the live-dial SOP.
+

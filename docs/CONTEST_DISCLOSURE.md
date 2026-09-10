@@ -3,18 +3,20 @@
 **Project:** Daftar Closing Agent / وكيل إغلاق الدفتر — **Confirm & Call**  
 **Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · individual · prize aim **Most Practical Use Case**  
 **Repository:** `daftar-call-e` (`https://github.com/akrmcodes/daftar-call-e.git`)  
-**Binding contract:** [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.3**  
+**Binding contract:** [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.5**  
 **Submission Period:** 23 Jul 2026 21:30 SGT – 14 Sep 2026 23:45 SGT  
 **Devpost project start:** 1 Sep 2026  
-**Date:** 2026-09-01
+**Date:** 2026-09-10 (final)
 
 Per [Official Rules §4 — New & Existing](https://call-e.devpost.com/rules): a Project may be newly created **or**, if it existed before the Submission Period, **must have been significantly updated after the start of the Submission Period**. Entrants should explain that update. CALL-E is **not** “new projects only.”
 
 **This is an existing project.** The Daftar ledger existed before 23 Jul 2026. The Closing Agent (Gemini 3.5 + ADK + Cloud Run + device HITL + Gmail SMTP) was built in **August 2026** for [All Things Agentic](https://allthingsagentichackathon.devpost.com/). That calendar **overlaps** the CALL-E window; we still **do not claim it as CALL-E-new**.
 
-**Significant update (this submission):** **Confirm & Call** — after merchant HITL, Cloud Run **`POST /v1/calls`** (`calle-ai==0.7.0` `calls.create`) phones allowlisted, region-eligible overdue contacts and returns a structured **promise** (integer `promised_amount_minor`), not a payment. Gmail SMTP remains the rail for Yemen / missing phone / Confirm without calling. Gemini never dials and never cashiers. Runtime proof is the **Gate 4 live call**, not this file.
+**Significant update (this submission):** **Confirm & Call** — after merchant HITL, Cloud Run **`daftar-call-e`** runs `calle-ai==0.7.0` `CalleClient.calls.create` (`POST /v1/calls`) to phone allowlisted, region-eligible overdue contacts and returns a structured **promise** (integer `promised_amount_minor`), not a payment. Gmail SMTP remains the rail for Yemen / missing phone / Confirm without calling. Gemini never dials and never cashiers. The Python SDK is **imported and actually called at runtime** on `daftar-call-e`. The filmed on-device live ring is roadmap **§6.3** — this file is eligibility, not the video.
 
-Heritage Cloud Run `https://daftar-closing-agent-1487285471.us-central1.run.app` is **frozen All Things Agentic production** — not the CALL-E service. Do not redeploy it. Snapshot: [`contest/AGENTIC_CLOUD_RUN_FREEZE.md`](contest/AGENTIC_CLOUD_RUN_FREEZE.md). Intended CALL-E service name: **`daftar-call-e`**.
+Heritage Cloud Run `https://daftar-closing-agent-1487285471.us-central1.run.app` is **frozen All Things Agentic production** — not the CALL-E service. Do not redeploy it. Snapshot: [`contest/AGENTIC_CLOUD_RUN_FREEZE.md`](contest/AGENTIC_CLOUD_RUN_FREEZE.md). CALL-E runtime service: **`daftar-call-e`**.
+
+**Demo destination:** the owner **owns and answers** the Callcentric US DID in **Linphone** (CALL-E Support 2026-09-09). No live number in git. Never real debtors. No friend mobile.
 
 ## Standard tools (not the significant update)
 
@@ -55,18 +57,18 @@ Frozen ADK catalog (eight FunctionTools, no send-email tool, no call tool): `par
 
 ## CALL-E contest-new (this submission)
 
-The August ADK/SMTP closer is **prior work above — not this bucket.** CALL-E-new is **Confirm & Call** plus the sibling Developer API path. **Not landed as of 2026-09-01.** Hygiene (roadmap v3.2, freeze wrappers, this disclosure) is not Stage One runtime proof.
+The August ADK/SMTP closer is **prior work above — not this bucket.** CALL-E-new is **Confirm & Call** plus the sibling Developer API path.
 
 | Area | Description | Status |
 | --- | --- | --- |
-| Confirm & Call | Device HITL on the closing plan, then Daftar-local `plan-batch` and `run-batch` | **Planned** (Stages 1–4) |
-| `agent/calls/` sibling | `calle-ai==0.7.0` `from calle import CalleClient`; `POST /v1/calls` (`calls.create`); poll `GET /v1/calls/{id}`; **not** an ADK tool; **no** API `confirm_token` | **Planned** (Stage 1) |
-| Cloud Run `daftar-call-e` | New service, min 0 / max 2, ID-token only. Must not mutate the frozen Agentic URL | **Planned** (Stage 1) |
-| Dual rail | Call set ≤5 (J.10 + allowlist); email remainder / YE `callUnavailable` via SMTP | **Planned** (Stages 2–3) |
-| Schema 26 | `collection_call_batches` / `collection_call_runs` / `collection_promises`; `contacts.doNotCall`; integer promise only — **no** txn from the call (write-back Stage 4) | **Landed** (Stage 2.1) |
-| HUD call chip | `runId` last-8 = CALL-E `call.id` | **Planned** (Stages 3–4) |
-| Agent Skill PR | `skills/ledger-collections-call/` on awesome-phone-call-agents | **Planned** (Stage 5) |
+| Confirm & Call | Device HITL on the Collections Desk, then Daftar-local `plan-batch` and `run-batch` | **Landed** (Stages 1–5) |
+| `agent/calls/` sibling | `calle-ai==0.7.0` `from calle import CalleClient`; `POST /v1/calls` (`calls.create`); poll `GET /v1/calls/{id}`; **not** an ADK tool; **no** API `confirm_token` | **Landed** (Stage 1) |
+| Cloud Run `daftar-call-e` | New service, min 0 / max 2, ID-token only. Must not mutate the frozen Agentic URL | **Landed** (Stage 1) |
+| Dual rail | Call set ≤5 (J.10 + allowlist); email remainder / YE `callUnavailable` via SMTP | **Landed** (Stages 2–3) |
+| Schema 26 | `collection_call_batches` / `collection_call_runs` / `collection_promises`; `contacts.doNotCall`; integer promise only — **no** txn from the call | **Landed** (Stage 2.1) |
+| HUD call chip | `runId` last-8 = CALL-E `call.id` | **Landed** (Stages 3–4) |
+| Agent Skill PR | `skills/ledger-collections-call/` on awesome-phone-call-agents | **Opened** [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (dry-run default; not claimed merged) |
 
 ## What we are submitting
 
-An **existing** shop ledger plus Agentic closer, **significantly updated** for CALL-E: close-of-day collections that **phone** consented, region-eligible overdue contacts via the CALL-E SDK/API and write an integer **promise** on device. Yemen and other unsupported regions stay on **email**. Money still commits **on confirm** (Model C). Stage One pass/fail is CALL-E **imported and actually called at runtime** — Gate 4 on-device live ring, not this disclosure.
+An **existing** shop ledger plus Agentic closer, **significantly updated** for CALL-E: close-of-day collections that **phone** consented, region-eligible overdue contacts via the CALL-E SDK/API and write an integer **promise** on device. Yemen and other unsupported regions stay on **email**. Money still commits **on confirm** (Model C). Stage One pass/fail is CALL-E **imported and actually called at runtime** on `daftar-call-e`. The public ≤3:00 on-device live ring is **§6.3**.

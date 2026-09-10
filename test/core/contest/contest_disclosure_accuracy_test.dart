@@ -31,8 +31,9 @@ void main() {
   }
 
   group('Stage 0.0 CONTEST_DISCLOSURE.md accuracy', () {
-    test('as-of date is 2026-09-01', () {
-      expect(text, contains('**Date:** 2026-09-01'));
+    test('as-of date is the Stage 6.2 final', () {
+      expect(text, contains('**Date:** 2026-09-10 (final)'));
+      expect(text, contains('**v3.5**'));
     });
 
     test('binds CALL-E Official Rules New & Existing and roadmap v3', () {
@@ -103,7 +104,7 @@ void main() {
       expect(substrate, contains('whatsapp_util'));
     });
 
-    test('CALL-E-new runtime is mostly Planned; Schema 26 is Landed', () {
+    test('CALL-E-new runtime is Landed; skill PR is Opened not merged', () {
       final calleNew = section(
         '## CALL-E contest-new (this submission)',
         '## What we are submitting',
@@ -111,10 +112,20 @@ void main() {
       expect(calleNew, contains('Confirm & Call'));
       expect(calleNew, contains('agent/calls/'));
       expect(calleNew, contains('| Confirm & Call |'));
-      expect(calleNew, contains('**Planned** (Stages 1–4)'));
+      expect(calleNew, contains('**Landed** (Stages 1–5)'));
       expect(calleNew, contains('| Schema 26 |'));
       expect(calleNew, contains('**Landed** (Stage 2.1)'));
       expect(calleNew, contains('not this bucket'));
+      expect(calleNew, isNot(contains('**Planned** (Stages 1–4)')));
+      expect(calleNew, contains('**Opened**'));
+      expect(calleNew.toLowerCase(), isNot(contains('not landed as of')));
+    });
+
+    test('discloses owner-answered Callcentric DID; no live E.164', () {
+      expect(text, contains('owns and answers'));
+      expect(text, contains('Callcentric'));
+      expect(text, contains('Linphone'));
+      expect(RegExp(r'\+1\d{10}').hasMatch(text), isFalse);
     });
   });
 }

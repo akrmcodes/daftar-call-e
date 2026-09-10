@@ -868,11 +868,11 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 
 **6.2 README / disclosure**
 
-- [ ] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E; one sentence that the demo destination is the **owner’s Callcentric US DID answered in Linphone** (no E.164)
-- [ ] Link v3.5 as **binding**; v2.8 as heritage
-- [ ] [`docs/README.md`](README.md) judge order updated
+- [x] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E; one sentence that the demo destination is the **owner’s Callcentric US DID answered in Linphone** (no E.164)
+- [x] Link v3.5 as **binding**; v2.8 as heritage
+- [x] [`docs/README.md`](README.md) judge order updated
 - [x] [`docs/contest/README.md`](contest/README.md) execution pointer flipped to v3.3 (if not done in Stage 0)
-- [ ] Disclosure finalized (Stage 0 draft → final): owner **owns and answers** the Callcentric US DID (CALL-E Support 2026-09-09). No live number in git
+- [x] Disclosure finalized (Stage 0 draft → final): owner **owns and answers** the Callcentric US DID (CALL-E Support 2026-09-09). No live number in git
 
 **6.3 Video (Must)**
 
