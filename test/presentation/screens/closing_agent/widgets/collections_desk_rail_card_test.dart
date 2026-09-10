@@ -1,5 +1,6 @@
 import 'package:daftar/core/l10n/generated/app_localizations.dart';
 import 'package:daftar/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,7 +25,7 @@ void main() {
 
     expect(find.text('Voice calls'), findsOneWidget);
     expect(find.text('1 scheduled call (Mohamed)'), findsOneWidget);
-    expect(find.byType(Switch), findsOneWidget);
+    expect(find.byType(CupertinoSwitch), findsOneWidget);
   });
 
   testWidgets('skipped subtitle is fully visible when rail is off', (tester) async {
@@ -48,11 +49,10 @@ void main() {
     );
 
     expect(find.text(skipped), findsOneWidget);
-    final subtitleFinder = find.text(skipped);
-    final subtitleBox = tester.getRect(subtitleFinder);
+    final subtitleBox = tester.getRect(find.text(skipped));
+    final titleBox = tester.getRect(find.text('Voice calls'));
+    expect(subtitleBox.top, greaterThanOrEqualTo(titleBox.bottom));
     expect(subtitleBox.height, greaterThan(16));
-    expect(tester.getSize(find.byType(CollectionsDeskRailCard)).height,
-        greaterThan(subtitleBox.height + 24));
   });
 
   testWidgets('toggle invokes onChanged', (tester) async {
@@ -71,7 +71,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(CupertinoSwitch));
     await tester.pumpAndSettle();
     expect(toggled, isTrue);
   });
@@ -92,8 +92,8 @@ void main() {
       ),
     );
 
-    final switchFinder = find.byType(Switch);
-    final switchWidget = tester.widget<Switch>(switchFinder);
+    final switchFinder = find.byType(CupertinoSwitch);
+    final switchWidget = tester.widget<CupertinoSwitch>(switchFinder);
     expect(switchWidget.onChanged, isNull);
     expect(toggled, isFalse);
   });

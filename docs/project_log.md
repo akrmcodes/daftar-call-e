@@ -5336,3 +5336,19 @@ Toggling a rail off showed “Skipped — …” copy partially clipped; bordere
 ### Status
 Hot-restart to verify skipped-state copy on device.
 
+## 2026-09-10 — Collections Desk compact switch + dock clearance
+
+### Context
+Skipped-state switch still crowded the “Skipped — …” line. Empty gap sat between the HITL dock and the glass composer.
+
+### Done
+- [`collections_desk_rail_card.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_rail_card.dart): Settings layout — compact `CupertinoSwitch` (0.82) on the title row; skipped copy is full-width underneath
+- [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): `_deskComposerClearance` drops list-scroll slack so the dock sits closer to the command field
+- Consent card vertical margins tightened (`spacingXs`)
+
+### Ops / verification
+- `flutter test` rail card + consent + panel — 24 passed
+
+### Status
+Hot-restart to verify skipped copy and dock position on device.
+

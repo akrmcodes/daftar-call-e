@@ -225,9 +225,9 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
         variant: DaftarCardVariant.premium,
         margin: const EdgeInsetsDirectional.fromSTEB(
           AppDimensions.pagePaddingH,
-          AppDimensions.spacingSm,
+          AppDimensions.spacingXs,
           AppDimensions.pagePaddingH,
-          AppDimensions.spacingMd,
+          AppDimensions.spacingXs,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

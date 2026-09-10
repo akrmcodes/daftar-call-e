@@ -238,7 +238,9 @@ class CollectionsDeskPanel extends StatelessWidget {
         ),
         if (!showHybridELeftover)
           Padding(
-            padding: EdgeInsets.only(bottom: paddingBottom),
+            padding: EdgeInsets.only(
+              bottom: _deskComposerClearance(paddingBottom),
+            ),
             child: CollectionsDeskConsentCard(
               callCount: callCount,
               emailCount: emailCount,
@@ -338,6 +340,19 @@ class CollectionsDeskPanel extends StatelessWidget {
 }
 
 void _collectionsDeskQueueNoop() {}
+
+/// Pulls the HITL dock down toward the glass composer without overlapping it.
+///
+/// [paddingBottom] already includes composer height + safe area + spacing.
+/// The extra [AppDimensions.spacing3xl] slack is for scrolling lists, not
+/// this pinned dock.
+double _deskComposerClearance(double paddingBottom) {
+  const slack = AppDimensions.spacing3xl;
+  if (paddingBottom <= slack) {
+    return paddingBottom;
+  }
+  return paddingBottom - slack;
+}
 
 bool _isCallRail(OutreachRail rail) {
   return rail == OutreachRail.call || rail == OutreachRail.both;
