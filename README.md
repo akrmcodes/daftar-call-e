@@ -13,9 +13,9 @@ Docs index: [`docs/README.md`](docs/README.md).
 
 ## Architecture (judges)
 
-**[Contest architecture](docs/architecture/contest_architecture.md)** — Flutter ↔ Cloud Run (ADK) ↔ Gemini 3.5 ↔ Drift (source of truth) ↔ `smtp.gmail.com`.
+**[Contest architecture](docs/architecture/contest_architecture.md)** — Flutter ↔ Cloud Run **`daftar-call-e`** ↔ CALL-E Developer API (`calls.create` / poll GET) ↔ Drift SoT ↔ dual-rail `smtp.gmail.com`.
 
-![Daftar Closing Agent architecture](docs/architecture/contest_architecture.png)
+![Daftar Closing Agent — Confirm & Call](docs/architecture/contest_architecture.png)
 
 - **HITL (Model C):** Gemini `propose_*` (+ `parse_goal` for ask / ambiguous) → merchant **Confirm** → device **Drift commit**. Close: one **Confirm & Send Statements** on the plan → device ritual (`localDay` → Drive → aging → desk) → `POST /v1/email/send-batch` (not an ADK tool).
 - **§5.6 HUD:** Settings **Show agent architecture** shows model, tool scope, HITL rail (Propose → Confirm → Commit → Rank), correlation last-8, and `Sent ·` Message-ID last-8 after SMTP **250**.

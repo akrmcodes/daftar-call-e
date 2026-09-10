@@ -5474,3 +5474,28 @@ flutter test test/core/contest/contest_architecture_png_test.dart
 ### Status
 Roadmap §6.1 HITL + Caption still `[x]`; **(and PNG)** still `[ ]`. Next: owner export PNG, then §6.2 README / disclosure.
 
+## 2026-09-10 — Stage 6.1 install CALL-E architecture PNG
+
+### Context
+Owner exported the TB mermaid to repo-root `contest_architecture.png`. Canonical path is [`docs/architecture/contest_architecture.png`](architecture/contest_architecture.png); a root duplicate fails the lock test. Heritage Agentic PNG and heritage caption had to go.
+
+### Done
+- `mv -f` owner export over [`docs/architecture/contest_architecture.png`](architecture/contest_architecture.png) (186K); root copy removed
+- [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md): heritage warning replaced; alt **Confirm & Call**
+- [`README.md`](../README.md) Architecture (judges) one-liner + alt: `daftar-call-e` + CALL-E Developer API + dual-rail SMTP. Agentic bullets / §6.2 left untouched
+- [`docs/architecture/README.md`](architecture/README.md): PNG row is owner export, not “overwrite heritage”
+- Roadmap §6.1 **(and PNG)** `[x]`
+
+### Architecture / decisions
+Glance PNG is CALL-E sibling (`plan-batch` / `run-batch` / GET by runId / Developer API / `send-batch`). Mermaid remains source of truth. No E.164. No Cloud Run mutate.
+
+### Ops / verification
+```bash
+test ! -f contest_architecture.png
+ls -lh docs/architecture/contest_architecture.png   # ~186K, 10KB–5MB
+flutter test test/core/contest/contest_architecture_png_test.dart
+```
+
+### Status
+§6.1 complete. Next: §6.2 README / disclosure. Do not film until §6.3 SOP.
+

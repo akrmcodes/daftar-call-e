@@ -57,9 +57,9 @@ flowchart TB
 
 `plan-batch` **never dials**. `run-batch` is the only path that creates a CALL-E call. Poll is **GET** only — no `create_and_wait` on Cloud Run, no public webhook.
 
-**Owner PNG (heritage until replaced):** the embed below is the Agentic-era export (`daftar-closing-agent`, eight tools, Vertex Gemini). Do not use it as the glance. Export the **TB mermaid above** ~1400px wide and overwrite this file. No E.164, no API keys, no frozen Agentic hostname as the live service box. Devpost uploads PNG (not Markdown). Keep size 10 KB–5 MB.
+**PNG:** owner export of the TB mermaid above. Mermaid remains the editable source; Devpost uploads PNG (not Markdown). Keep size 10 KB–5 MB. No E.164, no API keys, no frozen Agentic hostname as the live service box.
 
-![Daftar Closing Agent architecture](contest_architecture.png)
+![Daftar Closing Agent — Confirm & Call](contest_architecture.png)
 
 ## HITL rail
 

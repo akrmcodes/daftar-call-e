@@ -862,7 +862,7 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 
 **6.1 Architecture diagram**
 
-- [ ] Update [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md) (and PNG) for CALL-E sibling + poll + dual rail
+- [x] Update [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md) (and PNG) for CALL-E sibling + poll + dual rail
 - [x] Keep HITL rail: Propose → Confirm → Commit → Rank → **Validate / Create / Poll**
 - [x] Caption: CALL-E is not an ADK tool; Agentic URL is not this service; production = Developer API not MCP
 
