@@ -220,8 +220,9 @@ class CollectionsDeskPanel extends StatelessWidget {
               )
             : null;
 
-        final leftoverDock =
-            (showHybridELeftover || isDispatching || showRetrySend)
+        // SMTP lead: in-flight loading lives on the HITL CTA. leftoverDock is
+        // Hybrid E chrome, plus Retry sending after a failed SMTP dispatch.
+        final leftoverDock = (showHybridELeftover || showRetrySend)
             ? Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(
                   AppDimensions.pagePaddingH,
@@ -266,19 +267,6 @@ class CollectionsDeskPanel extends StatelessWidget {
                         isExpanded: true,
                         onPressed:
                             hasPending && !busy ? onApproveAndSend : null,
-                      )
-                    else if (isDispatching)
-                      DaftarButton(
-                        label: queueTotal > 0
-                            ? l10n.collectionsQueueSending(
-                                queueIndex < 1 ? 1 : queueIndex,
-                                queueTotal,
-                              )
-                            : l10n.collectionsDeskSending,
-                        variant: DaftarButtonVariant.secondary,
-                        isExpanded: true,
-                        isLoading: true,
-                        onPressed: null,
                       )
                     else if (showRetrySend)
                       DaftarButton(

@@ -223,7 +223,7 @@ void main() {
   });
 
   testWidgets(
-    'SMTP dispatching shows Sending, no sticky, no leftover Open',
+    'SMTP dispatching loads the HITL CTA only — no leftover Sending dock',
     (tester) async {
       tester.view
         ..physicalSize = const Size(400, 4000)
@@ -248,10 +248,15 @@ void main() {
         ),
       );
 
-      expect(
-        find.bySemanticsLabel('Sending 1 of 2'),
-        findsOneWidget,
-      );
+      final loadingButtons = tester
+          .widgetList<DaftarButton>(find.byType(DaftarButton))
+          .where((button) => button.isLoading)
+          .toList();
+      expect(loadingButtons, hasLength(1));
+      expect(loadingButtons.single.label, 'Confirm (1 call + 2 statements)');
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.bySemanticsLabel('Sending 1 of 2'), findsNothing);
+      expect(find.text('Sending…'), findsNothing);
       expect(find.text('Start sending'), findsNothing);
       expect(find.text('Pause'), findsNothing);
       expect(find.text('Confirm & Send Statements'), findsNothing);

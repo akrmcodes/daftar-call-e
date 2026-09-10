@@ -5389,3 +5389,22 @@ Git HEAD at declaration: `c96682a1184c3331dfcf83ca598e2a943c15ca0f` (no annotate
 ### Status
 Stage 5 / Gate 5 **green**. Next: Stage 6 packaging copy (README / diagram / disclosure). **Do not** start §6.3 video until the owner film SOP. Rehearsal Confirm & Call / disarm remains owner-ops.
 
+## 2026-09-10 — Collections Desk SMTP dispatch: drop orphan Sending loader
+
+### Context
+During end-of-day email send, the HITL Send button showed a spinner **and** a second unlabeled loading box underneath. Judges/owner saw two loaders at the SMTP step.
+
+### Done
+- [`collections_desk_panel.dart`](../lib/presentation/screens/closing_agent/widgets/collections_desk_panel.dart): leftover dock no longer opens for SMTP `isDispatching`. In-flight loading stays on the consent CTA (`CollectionsDeskConsentCard._ctaLoading`). Retry sending after a failed dispatch is unchanged. Hybrid E leftover chrome still owns its own Sending button.
+- Panel test: SMTP dispatching → exactly one `DaftarButton.isLoading`, no `Sending 1 of 2` / `Sending…` dock
+
+### Architecture / decisions
+SMTP lead uses the HITL dock as the only send chrome. The extra `isLoading` button was leftover from before the consent card owned the CTA. No Cloud Run / seeder / freeze-surface change.
+
+### Ops / verification
+- `flutter test test/presentation/screens/closing_agent/widgets/collections_desk_panel_test.dart` — 8 passed
+- `dart analyze` on touched files — clean
+
+### Status
+Hot-restart the running debug session to see a single Send spinner while statements go out. Roadmap §5.5 unchanged.
+
