@@ -2,13 +2,22 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+String _mermaidBlocks(String markdown) {
+  return RegExp(r'```mermaid\r?\n([\s\S]*?)```')
+      .allMatches(markdown)
+      .map((m) => m.group(1)!)
+      .join('\n');
+}
+
 void main() {
   late String md;
   late String readme;
+  late String mermaid;
 
   setUpAll(() {
     md = File('docs/architecture/contest_architecture.md').readAsStringSync();
     readme = File('README.md').readAsStringSync();
+    mermaid = _mermaidBlocks(md);
   });
 
   group('§7.1 architecture PNG in repo', () {
@@ -42,6 +51,26 @@ void main() {
     test('runtime mermaid is daftar-call-e not the frozen Agentic service', () {
       expect(md, contains('subgraph cloud [Cloud Run daftar-call-e]'));
       expect(md, isNot(contains('subgraph cloud [Cloud Run daftar-closing-agent]')));
+    });
+
+    test('system mermaid is CALL-E sibling create/get plus dual rail', () {
+      expect(mermaid, contains('CALL-E Developer API'));
+      expect(mermaid, contains('plan-batch'));
+      expect(mermaid, contains('run-batch'));
+      expect(mermaid, contains('send-batch'));
+      expect(mermaid, contains('Validate plan-batch'));
+      expect(mermaid, contains('Create calls.create'));
+      expect(mermaid, contains('Poll GET'));
+    });
+
+    test('mermaid does not render the Agentic planner plane', () {
+      expect(mermaid, isNot(contains('POST /run')));
+      expect(mermaid, isNot(contains('ADK 8 tools')));
+      expect(mermaid, isNot(contains('Vertex')));
+      expect(
+        mermaid,
+        isNot(contains('subgraph cloud [Cloud Run daftar-closing-agent]')),
+      );
     });
 
     test('does not frame this submission as Agentic Taskmaster judging', () {

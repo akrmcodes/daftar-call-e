@@ -21,41 +21,35 @@ Promise ≠ payment. YE / unsupported region → email / callUnavailable.
 
 ## System diagram
 
-![Daftar Closing Agent architecture](contest_architecture.png)
+Source of truth is the mermaid below (TB system diagram, not the HITL strip). After aging rank, **Confirm & Call** runs Daftar-local `plan-batch` (allowlist / J.10 / DNC / C.3 echo — **zero PSTN**, **zero** CALL-E). The device holds the opaque confirm handle, then `run-batch` calls `CalleClient.calls.create` / `POST https://api.heycall-e.com/v1/calls`. The device **polls** `GET /v1/calls/{runId}` (`runId` := CALL-E `call.id`). Email rail is `send-batch` only after **Confirm & Send Statements**. HUD observes; it does not parent the confirm gate.
 
-**Owner PNG:** the file above is the Agentic-era export until you replace it. Source of truth is the mermaid **below** (TB system diagram, not the HITL strip). Export ~1400px wide, overwrite this PNG. No E.164, no API keys, no frozen Agentic hostname as the live service box. Devpost uploads PNG (not Markdown). Keep size 10 KB–5 MB.
-
-HITL confirm gate calls `POST /run` for **proposals only**. After aging rank, **Confirm & Call** runs Daftar-local `plan-batch` (allowlist / J.10 / DNC / C.3 echo — **zero PSTN**, **zero** CALL-E). The device holds the opaque confirm handle, then `run-batch` calls `CalleClient.calls.create` / `POST https://api.heycall-e.com/v1/calls`. The device **polls** `GET /v1/calls/{runId}` (`runId` := CALL-E `call.id`). Email rail is `send-batch` only after **Confirm & Send Statements**. HUD observes; it does not parent the confirm gate.
-
-**Not drawn:** Chirp `POST /v1/tts`, Drive backup, Hybrid E WhatsApp leftover, portable skill dry-run, frozen Agentic URL.
-
-Editable source (same edges):
+**Not drawn:** `POST /run` and the eight ADK FunctionTools, Vertex Gemini, Chirp `POST /v1/tts`, Drive backup, Hybrid E WhatsApp leftover, portable skill dry-run, frozen Agentic hostname.
 
 ```mermaid
 flowchart TB
+  merchant[Merchant]
   subgraph device [Flutter device]
     hitl[HITL Confirm Gate]
     drift[(Drift SoT)]
-    desk[Aging rank desk]
+    desk[Collections Desk]
     hud[Architecture HUD]
     hitl --> drift
     drift --> desk
   end
   subgraph cloud [Cloud Run daftar-call-e]
-    run["POST /run ADK 8 tools"]
-    plan["POST /v1/calls/plan-batch local"]
+    plan["POST /v1/calls/plan-batch"]
     create["POST /v1/calls/run-batch"]
     poll["GET /v1/calls/runId"]
     send["POST /v1/email/send-batch"]
   end
   calle["CALL-E Developer API"]
   smtp[smtp.gmail.com]
-  merchant[Merchant] --> hitl
-  hitl --> run
+  merchant --> hitl
   desk -->|"Confirm and Call"| plan
   plan -->|"confirm handle no PSTN"| create
-  create --> calle
-  poll --> calle
+  create -->|"calls.create POST /v1/calls"| calle
+  desk -->|"poll"| poll
+  poll -->|"calls.get GET /v1/calls"| calle
   poll --> hud
   desk -->|"Confirm and Send"| send
   send --> smtp
@@ -63,11 +57,15 @@ flowchart TB
 
 `plan-batch` **never dials**. `run-batch` is the only path that creates a CALL-E call. Poll is **GET** only — no `create_and_wait` on Cloud Run, no public webhook.
 
+**Owner PNG (heritage until replaced):** the embed below is the Agentic-era export (`daftar-closing-agent`, eight tools, Vertex Gemini). Do not use it as the glance. Export the **TB mermaid above** ~1400px wide and overwrite this file. No E.164, no API keys, no frozen Agentic hostname as the live service box. Devpost uploads PNG (not Markdown). Keep size 10 KB–5 MB.
+
+![Daftar Closing Agent architecture](contest_architecture.png)
+
 ## HITL rail
 
 Propose → Confirm → Commit → Rank → **Validate** (`plan-batch`) → **Create** (`run-batch` / `calls.create`) → **Poll** (`GET /v1/calls/{runId}`).
 
-Money **Commit** is on the device after Confirm (Model C). A structured promise write-back is **display-only** — never `AddTransaction`.
+Money **Commit** is on the device after Confirm (Model C). A structured promise write-back is **display-only** — never `AddTransaction`. Mid-day `propose_*` still uses `POST /run`; that planner is **not** the call plane and is not drawn above.
 
 ```mermaid
 flowchart LR
@@ -75,9 +73,9 @@ flowchart LR
   confirm[Confirm]
   commit[Commit]
   rank[Rank]
-  validate[Validate]
-  createNode[Create]
-  pollNode[Poll]
+  validate["Validate plan-batch"]
+  createNode["Create calls.create"]
+  pollNode["Poll GET"]
   propose --> confirm --> commit --> rank --> validate --> createNode --> pollNode
 ```
 

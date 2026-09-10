@@ -5453,3 +5453,24 @@ flutter test test/core/contest/contest_architecture_png_test.dart   # 6 passed
 ### Status
 Owner: export the TB mermaid to [`docs/architecture/contest_architecture.png`](architecture/contest_architecture.png), then tick the remaining §6.1 PNG box. Next: §6.2 README / disclosure. Do not film until §6.3 SOP.
 
+## 2026-09-10 — Stage 6.1 mermaid CALL-E sibling (omit /run)
+
+### Context
+The contest architecture page still *looked* Agentic: PNG sat first (27 Aug `daftar-closing-agent` / eight tools / Vertex Gemini), and the TB mermaid still centered `POST /run ADK 8 tools`. Judges and preview needed the CALL-E sibling glance.
+
+### Done
+- [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md): TB mermaid first on **`daftar-call-e`** — Confirm & Call → `plan-batch` → `run-batch` → `CalleClient.calls.create` / `POST /v1/calls`; poll `GET`; dual-rail `send-batch` → SMTP. **`POST /run` omitted** from mermaid. HITL LR labels Validate plan-batch / Create calls.create / Poll GET. Heritage PNG moved below mermaid with replace note.
+- [`test/core/contest/contest_architecture_png_test.dart`](../test/core/contest/contest_architecture_png_test.dart): mermaid must name Developer API + plan/run/send-batch; must not contain `POST /run`, `ADK 8 tools`, `Vertex`, or `daftar-closing-agent` cloud subgraph.
+- [`docs/architecture/README.md`](architecture/README.md): mermaid is glance; PNG is owner export.
+
+### Architecture / decisions
+Call plane is sibling FastAPI, not an ADK tool. `plan-batch` never dials. Poll is GET only — no `create_and_wait` on Cloud Run, no public webhook. Frozen Agentic hostname stays caption-only. PNG checkbox left open until owner overwrite. No E.164.
+
+### Ops / verification
+```bash
+flutter test test/core/contest/contest_architecture_png_test.dart
+```
+
+### Status
+Roadmap §6.1 HITL + Caption still `[x]`; **(and PNG)** still `[ ]`. Next: owner export PNG, then §6.2 README / disclosure.
+

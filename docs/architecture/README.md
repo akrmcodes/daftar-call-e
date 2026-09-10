@@ -4,8 +4,8 @@
 
 | Document | Role |
 | --- | --- |
-| [`contest_architecture.md`](contest_architecture.md) | CALL-E judge glance, mermaid **source**, HITL Validate / Create / Poll, locked captions |
-| [`contest_architecture.png`](contest_architecture.png) | Owner export of the TB mermaid for Devpost (overwrite heritage PNG; do not generate in-agent) |
+| [`contest_architecture.md`](contest_architecture.md) | CALL-E judge **glance** (TB mermaid first): sibling FastAPI on `daftar-call-e`, plan-batch → run-batch → Developer API create/get, SMTP dual rail, HITL Validate / Create / Poll |
+| [`contest_architecture.png`](contest_architecture.png) | Owner export of the TB mermaid for Devpost (overwrite heritage Agentic PNG; do not generate in-agent) |
 
 Judges: start at the root [`README.md`](../../README.md).
 
