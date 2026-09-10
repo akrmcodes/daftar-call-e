@@ -39,17 +39,17 @@ flowchart TB
   subgraph cloud [Cloud Run daftar-call-e]
     plan["POST /v1/calls/plan-batch"]
     create["POST /v1/calls/run-batch"]
-    poll["GET /v1/calls/runId"]
+    poll["GET /v1/calls by runId"]
     send["POST /v1/email/send-batch"]
   end
   calle["CALL-E Developer API"]
-  smtp[smtp.gmail.com]
+  smtp["smtp.gmail.com"]
   merchant --> hitl
   desk -->|"Confirm and Call"| plan
   plan -->|"confirm handle no PSTN"| create
   create -->|"calls.create POST /v1/calls"| calle
-  desk -->|"poll"| poll
-  poll -->|"calls.get GET /v1/calls"| calle
+  desk -->|"poll after runId"| poll
+  poll -->|"calls.get by id"| calle
   poll --> hud
   desk -->|"Confirm and Send"| send
   send --> smtp
