@@ -6998,27 +6998,29 @@ abstract class AppLocalizations {
   /// **'تم التخطي — لن تُجرى أي مكالمات صادرة'**
   String get collectionsDeskRailCallOff;
 
-  /// No description provided for @collectionsDeskRailEmailOnMixed.
+  /// No description provided for @collectionsDeskRailEmailOnLead.
   ///
   /// In ar, this message translates to:
-  /// **'{count} كشوف ({pdfCount} مع مرفق PDF + {textCount} تذكيرات نصية)'**
-  String collectionsDeskRailEmailOnMixed(
-    int count,
-    int pdfCount,
-    int textCount,
-  );
+  /// **'{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}'**
+  String collectionsDeskRailEmailOnLead(int count);
 
-  /// No description provided for @collectionsDeskRailEmailOnAllPdf.
+  /// No description provided for @collectionsDeskRailEmailTierMixed.
   ///
   /// In ar, this message translates to:
-  /// **'{count} كشوف مع مرفق PDF'**
-  String collectionsDeskRailEmailOnAllPdf(int count);
+  /// **'{pdfCount} مع PDF · {textCount} نصي فقط'**
+  String collectionsDeskRailEmailTierMixed(int pdfCount, int textCount);
 
-  /// No description provided for @collectionsDeskRailEmailOnAllText.
+  /// No description provided for @collectionsDeskRailEmailTierAllPdf.
   ///
   /// In ar, this message translates to:
-  /// **'{count} تذكيرات نصية'**
-  String collectionsDeskRailEmailOnAllText(int count);
+  /// **'جميعها مع PDF'**
+  String get collectionsDeskRailEmailTierAllPdf;
+
+  /// No description provided for @collectionsDeskRailEmailTierAllText.
+  ///
+  /// In ar, this message translates to:
+  /// **'تذكيرات نصية فقط'**
+  String get collectionsDeskRailEmailTierAllText;
 
   /// No description provided for @collectionsDeskRailEmailOff.
   ///

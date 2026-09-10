@@ -1774,26 +1774,21 @@
     }
   },
   "collectionsDeskRailCallOff": "تم التخطي — لن تُجرى أي مكالمات صادرة",
-  "collectionsDeskRailEmailOnMixed": "{count} كشوف ({pdfCount} مع مرفق PDF + {textCount} تذكيرات نصية)",
-  "@collectionsDeskRailEmailOnMixed": {
+  "collectionsDeskRailEmailOnLead": "{count, plural, =1{كشف واحد} =2{كشفان} few{{count} كشوف} many{{count} كشفاً} other{{count} كشف}}",
+  "@collectionsDeskRailEmailOnLead": {
     "placeholders": {
-      "count": { "type": "int", "example": "7" },
+      "count": { "type": "int", "example": "7" }
+    }
+  },
+  "collectionsDeskRailEmailTierMixed": "{pdfCount} مع PDF · {textCount} نصي فقط",
+  "@collectionsDeskRailEmailTierMixed": {
+    "placeholders": {
       "pdfCount": { "type": "int", "example": "5" },
       "textCount": { "type": "int", "example": "2" }
     }
   },
-  "collectionsDeskRailEmailOnAllPdf": "{count} كشوف مع مرفق PDF",
-  "@collectionsDeskRailEmailOnAllPdf": {
-    "placeholders": {
-      "count": { "type": "int", "example": "5" }
-    }
-  },
-  "collectionsDeskRailEmailOnAllText": "{count} تذكيرات نصية",
-  "@collectionsDeskRailEmailOnAllText": {
-    "placeholders": {
-      "count": { "type": "int", "example": "3" }
-    }
-  },
+  "collectionsDeskRailEmailTierAllPdf": "جميعها مع PDF",
+  "collectionsDeskRailEmailTierAllText": "تذكيرات نصية فقط",
   "collectionsDeskRailEmailOff": "تم التخطي — لن يُرسل أي بريد",
   "collectionsDeskCommitCallPhrase": "{count, plural, =1{مكالمة واحدة} =2{مكالمتان} few{{count} مكالمات} many{{count} مكالمة} other{{count} مكالمة}}",
   "@collectionsDeskCommitCallPhrase": {

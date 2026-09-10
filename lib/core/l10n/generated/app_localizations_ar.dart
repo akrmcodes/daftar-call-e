@@ -3923,23 +3923,29 @@ class AppLocalizationsAr extends AppLocalizations {
       'تم التخطي — لن تُجرى أي مكالمات صادرة';
 
   @override
-  String collectionsDeskRailEmailOnMixed(
-    int count,
-    int pdfCount,
-    int textCount,
-  ) {
-    return '$count كشوف ($pdfCount مع مرفق PDF + $textCount تذكيرات نصية)';
+  String collectionsDeskRailEmailOnLead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count كشف',
+      many: '$count كشفاً',
+      few: '$count كشوف',
+      two: 'كشفان',
+      one: 'كشف واحد',
+    );
+    return '$_temp0';
   }
 
   @override
-  String collectionsDeskRailEmailOnAllPdf(int count) {
-    return '$count كشوف مع مرفق PDF';
+  String collectionsDeskRailEmailTierMixed(int pdfCount, int textCount) {
+    return '$pdfCount مع PDF · $textCount نصي فقط';
   }
 
   @override
-  String collectionsDeskRailEmailOnAllText(int count) {
-    return '$count تذكيرات نصية';
-  }
+  String get collectionsDeskRailEmailTierAllPdf => 'جميعها مع PDF';
+
+  @override
+  String get collectionsDeskRailEmailTierAllText => 'تذكيرات نصية فقط';
 
   @override
   String get collectionsDeskRailEmailOff => 'تم التخطي — لن يُرسل أي بريد';

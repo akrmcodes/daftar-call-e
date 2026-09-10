@@ -10,10 +10,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-/// Khazna outreach rail — Settings-style title row + full-width body.
+/// Khazna outreach rail — Settings-style title row + compact body lines.
 ///
 /// Active rails use a stepped surface tint + [AppGlows.haloXs] only (no stroke).
-/// Lapis never fills the card or switch track (§8.10).
+/// Switch ON uses semantic [AppColors.payment] (matches Settings toggles).
 class CollectionsDeskRailCard extends StatelessWidget {
   /// Creates a rail card.
   const CollectionsDeskRailCard({
@@ -22,14 +22,18 @@ class CollectionsDeskRailCard extends StatelessWidget {
     required this.value,
     required this.enabled,
     required this.onChanged,
+    this.detail,
     super.key,
   });
 
   /// Rail title (Voice calls / Email statements).
   final String title;
 
-  /// Human-readable breakdown or skipped copy.
+  /// Primary body line (scheduled calls, statement count, or skipped).
   final String subtitle;
+
+  /// Optional second line (PDF / text tier breakdown).
+  final String? detail;
 
   /// Whether this rail is included in the commit.
   final bool value;
@@ -53,12 +57,12 @@ class CollectionsDeskRailCard extends StatelessWidget {
     final inkSecondary =
         isDark ? AppColors.inkSecondary : AppColors.inkSecondaryLight;
     final trackOff = isDark ? AppColors.surface5 : AppColors.surface3Light;
-    final trackOn = isDark ? AppColors.surface6 : AppColors.surface4Light;
     final thumbOn = isDark ? AppColors.inkPrimary : AppColors.inkPrimaryLight;
     final surfaceActive = isDark ? AppColors.surface4 : AppColors.surface3Light;
     final surfaceIdle = isDark
         ? AppColors.surface3.withValues(alpha: 0.35)
         : AppColors.surface2Light.withValues(alpha: 0.55);
+    final semanticsBody = detail == null ? subtitle : '$subtitle. $detail';
 
     void toggle() {
       if (!enabled) {
@@ -71,7 +75,7 @@ class CollectionsDeskRailCard extends StatelessWidget {
     return Semantics(
       toggled: value,
       enabled: enabled,
-      label: '$title. $subtitle',
+      label: '$title. $semanticsBody',
       child: AnimatedContainer(
         duration: AppDimensions.animationFast,
         curve: AppMotion.curveEnter,
@@ -117,7 +121,7 @@ class CollectionsDeskRailCard extends StatelessWidget {
                   alignment: AlignmentDirectional.centerEnd,
                   child: CupertinoSwitch(
                     value: value,
-                    activeTrackColor: trackOn,
+                    activeTrackColor: AppColors.payment,
                     inactiveTrackColor: trackOff,
                     thumbColor: thumbOn,
                     onChanged: enabled
@@ -134,15 +138,34 @@ class CollectionsDeskRailCard extends StatelessWidget {
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: enabled ? toggle : null,
-              child: Text(
-                subtitle,
-                maxLines: 3,
-                softWrap: true,
-                overflow: TextOverflow.visible,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: active ? inkSecondary : inkMuted,
-                  height: 1.4,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: active ? inkSecondary : inkMuted,
+                      height: 1.35,
+                      fontWeight: active ? FontWeight.w500 : FontWeight.w400,
+                    ),
+                  ),
+                  if (detail != null && detail!.trim().isNotEmpty) ...[
+                    const Gap(AppDimensions.spacingXxs),
+                    Text(
+                      detail!,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: inkMuted,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],

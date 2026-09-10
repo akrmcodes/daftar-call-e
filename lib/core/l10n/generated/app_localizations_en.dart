@@ -3958,23 +3958,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Skipped — No outbound calls will be placed';
 
   @override
-  String collectionsDeskRailEmailOnMixed(
-    int count,
-    int pdfCount,
-    int textCount,
-  ) {
-    return '$count statements ($pdfCount with PDF attachment + $textCount text reminders)';
+  String collectionsDeskRailEmailOnLead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count statements',
+      one: '1 statement',
+    );
+    return '$_temp0';
   }
 
   @override
-  String collectionsDeskRailEmailOnAllPdf(int count) {
-    return '$count statements with PDF attachment';
+  String collectionsDeskRailEmailTierMixed(int pdfCount, int textCount) {
+    return '$pdfCount with PDF · $textCount text only';
   }
 
   @override
-  String collectionsDeskRailEmailOnAllText(int count) {
-    return '$count text reminders';
-  }
+  String get collectionsDeskRailEmailTierAllPdf => 'All with PDF';
+
+  @override
+  String get collectionsDeskRailEmailTierAllText => 'Text reminders only';
 
   @override
   String get collectionsDeskRailEmailOff => 'Skipped — No emails will be sent';

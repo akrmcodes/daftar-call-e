@@ -164,20 +164,24 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
     );
   }
 
-  String _emailSubtitle(AppLocalizations l10n) {
+  ({String subtitle, String? detail}) _emailCopy(AppLocalizations l10n) {
     if (!_sendSelected) {
-      return l10n.collectionsDeskRailEmailOff;
+      return (subtitle: l10n.collectionsDeskRailEmailOff, detail: null);
     }
     final total = widget.emailCount;
     final pdf = widget.pdfCount;
     final text = widget.textCount;
+    final lead = l10n.collectionsDeskRailEmailOnLead(total);
     if (pdf > 0 && text > 0) {
-      return l10n.collectionsDeskRailEmailOnMixed(total, pdf, text);
+      return (
+        subtitle: lead,
+        detail: l10n.collectionsDeskRailEmailTierMixed(pdf, text),
+      );
     }
     if (pdf > 0) {
-      return l10n.collectionsDeskRailEmailOnAllPdf(total);
+      return (subtitle: lead, detail: l10n.collectionsDeskRailEmailTierAllPdf);
     }
-    return l10n.collectionsDeskRailEmailOnAllText(total);
+    return (subtitle: lead, detail: l10n.collectionsDeskRailEmailTierAllText);
   }
 
   String _ctaLabel(AppLocalizations l10n) {
@@ -208,6 +212,7 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
         ? AppColors.borderSubtle.withValues(alpha: 0.8)
         : AppColors.borderSubtleLight.withValues(alpha: 0.9);
     final showRails = _showCallCard || _showSendCard;
+    final emailCopy = _emailCopy(l10n);
     final ctaLabel = _ctaLabel(l10n);
     final ctaPrimary = _commitMode != _DeskCommitMode.seal;
     final showRetry =
@@ -263,7 +268,8 @@ class _CollectionsDeskConsentCardState extends State<CollectionsDeskConsentCard>
               if (_showSendCard) ...[
                 CollectionsDeskRailCard(
                   title: l10n.collectionsDeskRailTitleEmailStatements,
-                  subtitle: _emailSubtitle(l10n),
+                  subtitle: emailCopy.subtitle,
+                  detail: emailCopy.detail,
                   value: _sendSelected,
                   enabled: !_sendCardLocked && widget.emailCount > 0,
                   onChanged: (next) => setState(() => _sendSelected = next),

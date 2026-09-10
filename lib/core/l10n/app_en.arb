@@ -1798,26 +1798,21 @@
     }
   },
   "collectionsDeskRailCallOff": "Skipped — No outbound calls will be placed",
-  "collectionsDeskRailEmailOnMixed": "{count} statements ({pdfCount} with PDF attachment + {textCount} text reminders)",
-  "@collectionsDeskRailEmailOnMixed": {
+  "collectionsDeskRailEmailOnLead": "{count, plural, =1{1 statement} other{{count} statements}}",
+  "@collectionsDeskRailEmailOnLead": {
     "placeholders": {
-      "count": { "type": "int", "example": "7" },
+      "count": { "type": "int", "example": "7" }
+    }
+  },
+  "collectionsDeskRailEmailTierMixed": "{pdfCount} with PDF · {textCount} text only",
+  "@collectionsDeskRailEmailTierMixed": {
+    "placeholders": {
       "pdfCount": { "type": "int", "example": "5" },
       "textCount": { "type": "int", "example": "2" }
     }
   },
-  "collectionsDeskRailEmailOnAllPdf": "{count} statements with PDF attachment",
-  "@collectionsDeskRailEmailOnAllPdf": {
-    "placeholders": {
-      "count": { "type": "int", "example": "5" }
-    }
-  },
-  "collectionsDeskRailEmailOnAllText": "{count} text reminders",
-  "@collectionsDeskRailEmailOnAllText": {
-    "placeholders": {
-      "count": { "type": "int", "example": "3" }
-    }
-  },
+  "collectionsDeskRailEmailTierAllPdf": "All with PDF",
+  "collectionsDeskRailEmailTierAllText": "Text reminders only",
   "collectionsDeskRailEmailOff": "Skipped — No emails will be sent",
   "collectionsDeskCommitCallPhrase": "{count, plural, =1{1 call} other{{count} calls}}",
   "@collectionsDeskCommitCallPhrase": {

@@ -126,10 +126,8 @@ void main() {
       ),
     );
 
-    expect(
-      find.text('7 statements (5 with PDF attachment + 2 text reminders)'),
-      findsOneWidget,
-    );
+    expect(find.text('7 statements'), findsOneWidget);
+    expect(find.text('5 with PDF · 2 text only'), findsOneWidget);
   });
 
   testWidgets('toggle call off shows email-only CTA', (tester) async {
