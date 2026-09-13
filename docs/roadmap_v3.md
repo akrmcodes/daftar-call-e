@@ -760,7 +760,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **5.4 Portable skill (Must for Quality of Idea) — merge contract**
 
-Author the skill **and open the awesome-list PR in this band** (review time before 14 Sep). §6.4 only pastes the PR URL on Devpost and answers review comments — **do not** open a second skill PR.
+Author the skill **and open the awesome-list PR in this band** (review time before 14 Sep). **Done and merged** 2026-09-11. §6.4 only pastes the PR URL on Devpost — **do not** open a second skill PR.
 
 **Usefulness lock (do not clone `kept`)**
 
@@ -833,6 +833,7 @@ Never push to `daftar-closing-agent`. Never put the Flutter app in `apps/` or `s
 - [x] PR title: `feat(ledger-collections-call): add HITL integer-promise collections skill` — [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)
 - [x] Fill `.github/pull_request_template.md`; PR body states complementarity with `kept` (skill stops at display-only promise; `kept` owns capture/reconcile)
 - [x] Fictional `+1555…` only; example emails `@example.com` / `.net` / `.org` only
+- [x] **Merged** 2026-09-11 by Ray-56 (1 commit `9b12a7c` → `CALLE-AI/main`, merge `31808d8`). Superseding review: blanket history-cache purge withdrawn; no remaining Must Fix. Do **not** open a second skill PR
 
 **Forbidden in the PR (maintainer reject list)**
 
@@ -862,29 +863,29 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 
 **6.1 Architecture diagram**
 
-- [ ] Update [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md) (and PNG) for CALL-E sibling + poll + dual rail
-- [ ] Keep HITL rail: Propose → Confirm → Commit → Rank → **Validate / Create / Poll**
-- [ ] Caption: CALL-E is not an ADK tool; Agentic URL is not this service; production = Developer API not MCP
+- [x] Update [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md) (and PNG) for CALL-E sibling + poll + dual rail
+- [x] Keep HITL rail: Propose → Confirm → Commit → Rank → **Validate / Create / Poll**
+- [x] Caption: CALL-E is not an ADK tool; Agentic URL is not this service; production = Developer API not MCP
 
 **6.2 README / disclosure**
 
-- [ ] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E; one sentence that the demo destination is the **owner’s Callcentric US DID answered in Linphone** (no E.164)
-- [ ] Link v3.5 as **binding**; v2.8 as heritage
-- [ ] [`docs/README.md`](README.md) judge order updated
+- [x] Root README: CALL-E hackathon, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered); one sentence on **Singapore** data residency for CALL-E; one sentence that the demo destination is the **owner’s Callcentric US DID answered in Linphone** (no E.164)
+- [x] Link v3.5 as **binding**; v2.8 as heritage
+- [x] [`docs/README.md`](README.md) judge order updated
 - [x] [`docs/contest/README.md`](contest/README.md) execution pointer flipped to v3.3 (if not done in Stage 0)
-- [ ] Disclosure finalized (Stage 0 draft → final): owner **owns and answers** the Callcentric US DID (CALL-E Support 2026-09-09). No live number in git
+- [x] Disclosure finalized (Stage 0 draft → final): owner **owns and answers** the Callcentric US DID (CALL-E Support 2026-09-09). No live number in git
 
 **6.3 Video (Must)**
 
-- [ ] Public YouTube or Vimeo, **≤3:00**, English or EN subtitles
-- [ ] **On-device** Flutter footage of the live ring (rules: functioning on the device for which it was built) — not laptop `create_and_wait` as the climax
-- [ ] Name CALL-E SDK/API on camera (`calle-ai` / `POST /v1/calls`)
-- [ ] **Do not** open on Gemini / ADK / Cloud Run. **Do not** climax on mid-day capture, Drive, SMTP inbox, WhatsApp, Live API, inbound, “we invented collections promises,” or All Things Agentic 4:00 pacing
-- [ ] SMTP YE row: one `callUnavailable` badge + one line, or narrate
-- [ ] film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
-- [ ] **Owner film-day (moved from Stage 4.5):** warm `daftar-call-e` once per [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md); Confirm & Call → **Callcentric US DID rings Linphone** → short consented script (“I’ll pay {integer} on {date}”); device shows outcome + promise card + HUD last-8; optional Cloud Logging screenshot; no real debtors; **no friend mobile**; disarm dial immediately after terminal GET
+- [x] Public YouTube or Vimeo, **≤3:00**, English or EN subtitles — https://youtu.be/wV1QqQgAiLE
+- [x] **On-device** Flutter footage of the live ring (rules: functioning on the device for which it was built) — not laptop `create_and_wait` as the climax
+- [x] Name CALL-E SDK/API on camera (`calle-ai` / `POST /v1/calls`)
+- [x] **Do not** open on Gemini / ADK / Cloud Run. **Do not** climax on mid-day capture, Drive, SMTP inbox, WhatsApp, Live API, inbound, “we invented collections promises,” or All Things Agentic 4:00 pacing
+- [x] SMTP YE row: one `callUnavailable` badge + one line, or narrate
+- [x] film **Should** include a YE row that stayed `callUnavailable` and was emailed (or skipped if owner-ops email off — then narrate)
+- [x] **Owner film-day (moved from Stage 4.5):** warm `daftar-call-e` once per [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md); Confirm & Call → **Callcentric US DID rings Linphone** → short consented script (“I’ll pay {integer} on {date}”); device shows outcome + promise card + HUD last-8; optional Cloud Logging screenshot; no real debtors; **no friend mobile**; disarm dial immediately after terminal GET
 
-- [ ] **Beat sheet (lock):**
+- [x] **Beat sheet (lock):**
 
 | Time | Beat | Criterion |
 | --- | --- | --- |
@@ -894,28 +895,29 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 | 2:10–2:40 | Promise card + HUD `call.id` last-8. Narrate **promise ≠ paid**. | Complete loop |
 | 2:40–3:00 | Dual rail / Confirm & Call stays in the product. Cut. | Impact tie-break |
 
-- [ ] **Video lock 13 Sep 2026**
+- [x] **Video lock 13 Sep 2026**
 
 **6.4 Awesome-list PR (Must)**
 
-§5.4 already **authored and opened** the Agent Skills PR. This band does not open a second skill PR.
+§5.4 already **authored, opened, and merged** the Agent Skills PR ([#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)). This band does not open a second skill PR. Devpost still needs the **PR URL**.
 
 - [ ] Devpost field = **the §5.4 PR URL** (Contribution Area **Agent Skills**: `skills/ledger-collections-call/`)
-- [ ] Address maintainer review comments on that PR; keep the §5.4 locked README sentence
-- [ ] Re-run `python3 scripts/validate_repository.py` after any review fix
+- [x] Address maintainer review comments on that PR; keep the §5.4 locked README sentence — Ray-56 merged 2026-09-11; purge Must Fix withdrawn under community policy of that date
+- [x] Re-run `python3 scripts/validate_repository.py` after any review fix — last content head `9b12a7c` already green; no post-merge skill rewrite
 - [ ] Flutter APK is the Devpost project, **not** the awesome-list contribution
 
 **6.5 Devpost draft**
 
-- [ ] Required **English** text description (Official Rules: features and functionality)
-- [ ] **About** — four short paragraphs, one per criterion (paste-ready; do not write Agentic leftover copy):
+- [x] Required **English** text description (Official Rules: features and functionality) — [`docs/qa/devpost_draft.md`](qa/devpost_draft.md)
+- [x] **About** — four short paragraphs, one per criterion (paste-ready; do not write Agentic leftover copy):
   1. **Impact:** close-of-day collections; shops still phone overdue customers or forget; CALL-E returns a promise; YE stays on email; Confirm & Call stays in the product after the hackathon
   2. **Idea:** device-ranked dual rail; Gemini does not pick IDs; integer promise ≠ payment; reusable `ledger-collections-call` skill (not a claim that we invented collections)
   3. **Technical:** `calle-ai` `POST /v1/calls` at runtime on Cloud Run; poll `GET`; both result schemas; HUD `call.id`
   4. **Experience:** Confirm & Call on device; live ring; promise card; ≤3 min video
-- [ ] CALL-E account email
-- [ ] Optional demo URL — do **not** grant `allUsers` on Cloud Run. Keep service deployable through **13 Oct 2026**
-- [ ] Testing instructions: *Judges: public video + repo + skill dry-run. Cloud Run returns 403 in a browser (ID-token only). No Pro+ codes in git or README.*
+- [x] CALL-E account email (`akrmcodes@gmail.com` in paste sheet)
+- [ ] Optional demo URL — do **not** grant `allUsers` on Cloud Run. Keep service deployable through **13 Oct 2026** — **leave Devpost field blank**
+- [x] Testing instructions: *Judges: public video + repo + skill dry-run. Cloud Run returns 403 in a browser (ID-token only). No Pro+ codes in git or README.*
+- [x] Devpost paste sheet complete — video URL in [`docs/qa/devpost_draft.md`](qa/devpost_draft.md); owner still pastes on Devpost and **Submits**
 
 **6.6 Secret scan**
 
@@ -924,13 +926,13 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 #### Stage 6 Validation Gate
 
 - [ ] Diagram + README + disclosure match v3.3
-- [ ] Video ≤3:00 public; on-device live ring; beat sheet followed
-- [ ] Live CALL-E call from **this** app (not only laptop smoke); structured integer write-back with **no** new txn
-- [ ] HUD `runId` last-8 matches logs (CALL-E `call.id`)
-- [ ] English Devpost About covers all four criteria
-- [ ] Awesome-list PR opened
-- [ ] Devpost draft complete
-- [ ] No secrets in tree
+- [x] Video ≤3:00 public; on-device live ring; beat sheet followed
+- [x] Live CALL-E call from **this** app (not only laptop smoke); structured integer write-back with **no** new txn
+- [x] HUD `runId` last-8 matches logs (CALL-E `call.id`)
+- [x] English Devpost About covers all four criteria — in [`docs/qa/devpost_draft.md`](qa/devpost_draft.md)
+- [x] Awesome-list PR **merged** — [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)
+- [x] Devpost draft complete (paste sheet; **not** Devpost submitted; video URL filled)
+- [x] No secrets in tree
 
 ---
 
@@ -1152,8 +1154,8 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 - [ ] Cloud Run **`daftar-call-e`** + Gemini 3.5 + ADK proof; **eight** tools; CALL-E **not** a tool
 - [ ] Architecture diagram + README spin-up
 - [ ] [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) present and accurate for **this** contest
-- [ ] Video **≤3 min** · English or EN subtitles · public YouTube/Vimeo · **on-device live ring** (not laptop smoke as climax)
-- [ ] English Devpost **About** covers all four judging criteria
+- [x] Video **≤3 min** · English or EN subtitles · public YouTube/Vimeo · **on-device live ring** (not laptop smoke as climax) — https://youtu.be/wV1QqQgAiLE
+- [x] English Devpost **About** covers all four judging criteria — [`docs/qa/devpost_draft.md`](qa/devpost_draft.md)
 - [ ] Awesome-list **PR URL** on Devpost (`skills/ledger-collections-call/` + dry-run + locked one-liner)
 - [ ] CALL-E account email on Devpost
 - [ ] Individual category · no secrets in repo

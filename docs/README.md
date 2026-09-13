@@ -1,7 +1,7 @@
 # Documentation
 
-**Hackathon:** [All Things Agentic](https://allthingsagentichackathon.devpost.com/) · **Track:** Taskmaster  
-**Official deadline:** 31 Aug 2026, **17:00 PDT** (not a second hard time).
+**Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · prize aim **Most Practical Use Case**
+**Official deadline:** **14 Sep 2026 23:45 SGT**. Binding: [`roadmap_v3.md`](roadmap_v3.md) **v3.5**. Heritage (do not execute): [`roadmap_v2.md`](roadmap_v2.md) **v2.8**.
 
 Start at the **root [`README.md`](../README.md)**. This folder holds the judging pack plus owner, product, and archive material — use the lists below.
 
@@ -11,14 +11,13 @@ Read in this order:
 
 | Order | Document | What it proves |
 | --- | --- | --- |
-| 1 | [`README.md`](../README.md) | Claims, folder map, spin-up, SMTP Proof of Action |
-| 2 | [`CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) | Substrate vs contest-new work |
-| 3 | [`architecture/contest_architecture.md`](architecture/contest_architecture.md) | One-glance flow + diagram + HITL + frozen tools |
-| 4 | [`contest_demo.md`](contest_demo.md) | ≤4 min unedited film script |
-| 5 | [`qa/devpost_draft.md`](qa/devpost_draft.md) | Paste-ready Devpost fields (owner submits) |
-| 6 | [`qa/flutter_env.template.md`](qa/flutter_env.template.md) | Gitignored `.env` keys — no secrets in git |
+| 1 | [`README.md`](../README.md) | CALL-E claims, dual rail, Proof of Action (`task_completed` ≠ paid; poll ≠ webhook theater; SMTP `250` ≠ delivered), Singapore residency, Callcentric / Linphone |
+| 2 | [`CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) | Substrate vs Agentic prior work vs CALL-E-new |
+| 3 | [`architecture/contest_architecture.md`](architecture/contest_architecture.md) | Sibling mermaid + PNG + HITL Validate / Create / Poll |
+| 4 | [`roadmap_v3.md`](roadmap_v3.md) | Binding v3.5 execution contract |
+| 5 | [`qa/flutter_env.template.md`](qa/flutter_env.template.md) | Gitignored `.env` keys — no secrets in git |
 
-Wire contract: [`agent/openapi.yaml`](../agent/openapi.yaml) · deploy: [`agent/README.md`](../agent/README.md).
+Wire contract: [`agent/openapi.yaml`](../agent/openapi.yaml) · deploy: [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh) (never `adk deploy`). Skill dry-run: [`docs/skills/ledger-collections-call/`](skills/ledger-collections-call/).
 
 ## Owner / submit
 
@@ -26,9 +25,13 @@ Not required for a first-pass score.
 
 | Document | Role |
 | --- | --- |
-| [`roadmap_v2.md`](roadmap_v2.md) | **Sole execution contract** (Stages 0–7) |
-| [`qa/`](qa/) | Pre-film scenarios, Gate 4 film proofs, Devpost draft, env template |
-| [`contest/`](contest/) | Orientation plan, Christina briefing, completed Gate 0 |
+| [`roadmap_v3.md`](roadmap_v3.md) **v3.5** | **Binding** CALL-E contract |
+| [`roadmap_v2.md`](roadmap_v2.md) **v2.8** | Frozen All Things Agentic heritage — **do not execute** |
+| [`qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) | Film-day arm / disarm on `daftar-call-e` only |
+| [`qa/devpost_draft.md`](qa/devpost_draft.md) | **CALL-E Devpost** field-by-field paste (video URL owner-fill) |
+| [`qa/`](qa/) | Pre-film scenarios, env template, rehearsal |
+| [`contest/`](contest/) | Orientation plan, freeze snapshot, Stage 0 owner-ops |
+| [`contest_demo.md`](contest_demo.md) | **Heritage** Agentic ≤4:00 SMTP bible — not the CALL-E film. Beat sheet is v3.5 §6.3 |
 
 ## Product (deferred)
 

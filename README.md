@@ -1,137 +1,118 @@
-# Daftar (دفتر) — Closing Agent
+# Daftar (دفتر) — Confirm & Call
 
-Arabic-first, offline-first debt ledger for shops that still close the day on paper, plus **Daftar Closing Agent** (وكيل إغلاق الدفتر): a **Taskmaster** workflow that captures the merchant’s **business day** (voice or text) and runs close-the-day — Drift `localDay` summary → Google Drive backup → FIFO aging → **Confirm & Send Statements** → Gmail SMTP send set.
+Arabic-first, offline-first debt ledger for shops that still close the day on paper. **Daftar Closing Agent** (وكيل إغلاق الدفتر) captures the merchant’s business day, then **Confirm & Call** places consented, region-eligible overdue collections calls and writes an integer **promise** — not a payment.
 
-Each Cloud Run `/run` is **fast on purpose**. The long-running task is the **shop’s day**, persisted in Drift; Cloud Run plans on demand and may scale to zero.
+**Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · individual · prize aim **Most Practical Use Case**  
+**Demo (≤3:00):** [Daftar Confirm & Call — close-of-day collections with CALL-E](https://youtu.be/wV1QqQgAiLE)  
+**Submission Period:** 23 Jul 2026 – **14 Sep 2026 23:45 SGT**  
+**Binding contract:** [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.5** · heritage (do not execute): [`docs/roadmap_v2.md`](docs/roadmap_v2.md) **v2.8**
 
-**Hackathon:** [All Things Agentic](https://allthingsagentichackathon.devpost.com/) · **Track:** Taskmaster · **Individual**
-**Submission Period:** 3–31 Aug 2026 · **Official deadline:** 31 Aug 2026, **17:00 PDT**
+At close of day, shops still phone overdue customers themselves — or they forget. After HITL **Confirm & Call**, Cloud Run **`daftar-call-e`** imports `calle-ai==0.7.0` and calls `CalleClient.calls.create` (`POST /v1/calls`). Yemen and other unsupported regions stay on **email** (`callUnavailable`). Dual rail is honest coverage, not a failed dial. Gemini never dials and never cashiers.
 
-The Drift / Khazna debt ledger is **pre-existing substrate** (in this repository before 3 Aug 2026) and is disclosed in [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md). **Daftar Closing Agent** (Google ADK + Gemini 3.5 + Cloud Run + device HITL + Gmail SMTP) was built during the Submission Period.
+This is an **existing** project, significantly updated in the Submission Period. Three-way split: ledger substrate (pre-Aug 2026) · All Things Agentic closer (Aug 2026, **prior work**, not claimed as CALL-E-new) · Confirm & Call (this fork). Details: [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md). Docs index: [`docs/README.md`](docs/README.md).
 
-Docs index: [`docs/README.md`](docs/README.md).
+CALL-E / AIRUDDER API traffic is **Singapore-hosted**. Names and amounts leave the device. The demo destination is the **owner’s Callcentric US DID answered in Linphone**; the owner owns and answers it (CALL-E Support 2026-09-09). No live E.164 in git. Never real debtors. No friend mobile.
 
 ## Architecture (judges)
 
-**[Contest architecture](docs/architecture/contest_architecture.md)** — Flutter ↔ Cloud Run (ADK) ↔ Gemini 3.5 ↔ Drift (source of truth) ↔ `smtp.gmail.com`.
+**[Contest architecture](docs/architecture/contest_architecture.md)** — Flutter ↔ Cloud Run **`daftar-call-e`** ↔ CALL-E Developer API (`calls.create` / poll GET) ↔ Drift SoT ↔ dual-rail `smtp.gmail.com`.
 
-![Daftar Closing Agent architecture](docs/architecture/contest_architecture.png)
+![Daftar Closing Agent — Confirm & Call](docs/architecture/contest_architecture.png)
 
-- **HITL (Model C):** Gemini `propose_*` (+ `parse_goal` for ask / ambiguous) → merchant **Confirm** → device **Drift commit**. Close: one **Confirm & Send Statements** on the plan → device ritual (`localDay` → Drive → aging → desk) → `POST /v1/email/send-batch` (not an ADK tool).
-- **§5.6 HUD:** Settings **Show agent architecture** shows model, tool scope, HITL rail (Propose → Confirm → Commit → Rank), correlation last-8, and `Sent ·` Message-ID last-8 after SMTP **250**.
-- **Frozen catalog:** Eight FunctionTools on one `root_agent` — [`agent/tests/test_tool_catalog_freeze.py`](agent/tests/test_tool_catalog_freeze.py).
-- **No SequentialAgent / B-Prime this submission:** Mid-day capture is one intent-dependent hop (parallel `propose_*`); the close ritual is device-deterministic after plan confirm.
+- **HITL (Model C):** Gemini `propose_*` (+ `parse_goal`) → merchant **Confirm** → device **Drift commit**. Close: plan confirm starts the ritual only → aging rank (device; Gemini does not pick IDs) → Collections Desk. **Confirm & Call** = Daftar-local `plan-batch` (zero PSTN) → `run-batch` (`calls.create`) → poll `GET /v1/calls/{runId}`. **Confirm & Send Statements** = `send-batch` → SMTP. Confirm without calling / sending is first-class.
+- **Rail:** Propose → Confirm → Commit → Rank → **Validate / Create / Poll**. CALL-E is **not** an ADK tool (same sibling pattern as SMTP `send-batch`).
+- **HUD:** Settings **Show agent architecture** — `Call ·` + `runId` last-8 (= CALL-E `call.id`) + terminal status; `Sent ·` Message-ID last-8 after SMTP **250**.
+- **Frozen catalog:** Eight FunctionTools on one `root_agent` — no dial tool — [`agent/tests/test_tool_catalog_freeze.py`](agent/tests/test_tool_catalog_freeze.py). Production is Developer API, not MCP `plan_call` / `run_call`.
 
-Official **Architectural Discipline** (30% — also the Best Architectural Design criterion):
+### Proof of Action
 
-- **Decouple** — Cloud Run plans; Drift commits; SMTP is a sibling route, not a tool.
-- **State** — Drift + `ClosingAgentPhase` on device; scoped `daftarContext` (ledger not dumped into Gemini). No vector DB — financial SoT, not RAG.
-- **Credentials** — ID tokens with Cloud Run custom audiences; Gmail App Password in Secret Manager only.
-- **Failures** — confirm-gate lock; Drive skip; per-row SMTP; Cloud Run down → ledger intact. Durable send key is device `batchId`.
-
-### Proof of Action (SMTP)
-
-Gmail SMTP **250** means the message was **accepted** into Gmail. It is **not** mailbox-delivered, **not** a read receipt, and **not** a DSN. Gmail SMTP has **no** delivery webhook — do not narrate `250` as “delivered.”
-
-| What you should see | Meaning |
-| --- | --- |
-| **Inbox + PDF** | Proof of Action for the ranked **Top 5** (MIME `application/pdf`) |
-| **Text-only remainder** | Intentional. Rest of the send set is Appendix C.2 `text/plain` |
-| Cloud Logging `daftar.agent.email` | **250** + unique **Message-ID** per recipient |
-| Device HUD `Sent ·` | Message-ID last-8 matching logs |
+| Signal | Means | Does **not** mean |
+| --- | --- | --- |
+| CALL-E `task_completed` / integer `promised_amount_minor` | Structured **promise** on device | **Paid.** Never `AddTransaction` |
+| Device poll `GET /v1/calls/{runId}` | Terminal status from Developer API | Webhook theater. No public webhook. No `create_and_wait` on Cloud Run |
+| Gmail SMTP **250** | Gmail **accepted** the message | Delivered, read, or DSN |
 
 ## Where to look
 
 | Path | What |
 | --- | --- |
-| `lib/presentation/` | Flutter UI (Closing Agent, HUD, FAB coach) |
+| `lib/presentation/` | Flutter UI (Closing Agent, Collections Desk, HUD) |
 | `lib/application/` | Use cases (providers call these — never repositories) |
 | `lib/domain/` | Entities, repositories (interfaces), integer money |
 | `lib/data/` | Drift + Dio — not imported from presentation |
-| `lib/presentation/shared/widgets/daftar_architecture_hud.dart` | §5.6 Architecture HUD |
-| `lib/presentation/shared/widgets/daftar_coach_mark.dart` | First-run FAB spotlight (custom overlay) |
-| `agent/closing_agent/` | ADK `root_agent` + eight FunctionTools |
+| `lib/presentation/shared/widgets/daftar_architecture_hud.dart` | Architecture HUD (call + SMTP chips) |
+| `agent/calls/` | Sibling FastAPI `plan-batch` / `run-batch` / GET — **`calle-ai` at runtime** |
 | `agent/email_send/` | Sibling `POST /v1/email/send-batch` — **not** an ADK tool |
-| `agent/tts/` | Sibling `POST /v1/tts` (Chirp) — **not** an ADK tool |
-| `agent/openapi.yaml` | Device ↔ agent wire contract |
-| `supabase/` · `link-hosting/` | Stage 8 sync/deep-link — **quarantined**, not the agent backend |
-| [`docs/architecture/contest_architecture.md`](docs/architecture/contest_architecture.md) | Diagram + HITL + tool freeze |
-| [`docs/contest_demo.md`](docs/contest_demo.md) | ≤4 min film script |
-| [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md) | Substrate vs contest-new |
+| `agent/closing_agent/` | ADK `root_agent` + eight frozen FunctionTools (proposals only) |
+| `agent/tts/` | Sibling `POST /v1/tts` (Chirp) — heritage, not the climax |
+| `agent/openapi.yaml` | Device ↔ agent wire contract (J.9 calls) |
+| `docs/skills/ledger-collections-call/` | Portable Agent Skill (dry-run default) |
+| `supabase/` · `link-hosting/` | Stage 8 sync/deep-link — **quarantined** |
+| [`docs/architecture/contest_architecture.md`](docs/architecture/contest_architecture.md) | Diagram + HITL + captions |
+| [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md) | Substrate vs Agentic prior vs CALL-E-new |
 | [`docs/qa/flutter_env.template.md`](docs/qa/flutter_env.template.md) | Gitignored `.env` keys |
 
 ## Implementation insights
 
-- **One `root_agent`.** Mid-day is intent-dependent; a `SequentialAgent` pipeline would add hops without a better confirm story. Taskmaster scores a complete workflow, not a multi-agent org chart.
-- **Drift is the source of truth**, not Firestore. The merchant’s day must survive Cloud Run scale-to-zero and airplane mode. Drive backup is recovery, not a second ledger.
-- **SMTP is a sibling FastAPI route**, not an ADK tool. Gemini must not send money or email. Outreach consent is **Confirm & Send Statements** on the device.
-- **Scale-to-zero is the design.** Idle always-on agents are a poor implementation. The durable work is on the phone.
-- **Integer money only.** `amountMinor: int`. Spoken **500** on the USD demo fixture is **$500.00** (`50_000` cents).
+- **CALL-E is a sibling route**, not a ninth FunctionTool. Catalog freeze forbids a dial tool.
+- **Drift is the source of truth.** The merchant’s day survives Cloud Run scale-to-zero. Confirm handles are process-local — live dial uses min instances **1**, then min **0**.
+- **Device ranks who is called.** Allowlist + J.10 + DNC; cap **5**. YE / unsupported → email / `callUnavailable`.
+- **Integer money only.** `amountMinor: int`. Coerce `promised_amount_minor` or `needsHuman`.
+- **Hybrid E** (`wa.me`) is a contest-period leftover — not substrate and not the filmed climax.
 
-## Proud, not all in the 4-minute cut
-
-Ask Books (device-local); compound turns with parallel `propose_*`; audit log + soft deletes; Architecture HUD; catalog freeze tests; Arabic-first RTL; offline-first ledger; FAB coach as a custom overlay hole (not a third-party canvas).
+Confirm & Call **stays in the product** after the hackathon. Dual rail remains how Daftar covers shops CALL-E cannot dial. Phase 2 (sync / RevenueCat) stays deferred.
 
 ## Binding docs
 
 | Doc | Role |
 | --- | --- |
+| [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.5** | **Binding** CALL-E execution contract |
+| [`docs/roadmap_v2.md`](docs/roadmap_v2.md) **v2.8** | Frozen All Things Agentic heritage — **do not execute** |
 | [`docs/README.md`](docs/README.md) | Judge vs owner vs not-judging index |
-| [`docs/roadmap_v2.md`](docs/roadmap_v2.md) | **Sole execution contract** (Stages 0–7) |
-| [`docs/architecture/contest_architecture.md`](docs/architecture/contest_architecture.md) | Architecture diagram + HITL |
+| [`docs/architecture/contest_architecture.md`](docs/architecture/contest_architecture.md) | Architecture diagram + HITL Validate / Create / Poll |
+| [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md) | Eligibility split (final) |
 | [`docs/contest/plan.md`](docs/contest/plan.md) | Orientation only — not a second checklist |
-| [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md) | Eligibility split |
-| [`docs/contest_demo.md`](docs/contest_demo.md) | ≤4 min film script |
-| [`docs/qa/closing_agent_scenario_checklist.md`](docs/qa/closing_agent_scenario_checklist.md) | Pre-film QA |
-| [`docs/product/roadmap.md`](docs/product/roadmap.md) | Product Phase 2 — **deferred** after contest |
+| [`docs/qa/calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md) | Film-day arm / disarm (`daftar-call-e` only) |
+| [`docs/product/roadmap.md`](docs/product/roadmap.md) | Product Phase 2 — **deferred** |
 
-## Stack (contest mandate)
+## Stack
 
 - **Client:** Flutter · Drift · Riverpod · go_router · Khazna (Lapis Lux)
-- **Agent:** Google ADK · **Gemini 3.5+** (`gemini-3.5-flash`) · **Cloud Run** (single `closing_agent` LlmAgent)
+- **Planner (proposals only):** Google ADK · `gemini-3.5-flash` · Cloud Run **`daftar-call-e`**
+- **Call rail:** Python **`calle-ai==0.7.0`** · Developer API `https://api.heycall-e.com` · Secret Manager `calle-api-key`
+- **Email rail:** Gmail SMTP after **Confirm & Send Statements** · Secret Manager `gmail-smtp-app-password`
 - **Money:** integer minor units · confirm-before-commit (Model C)
-- **Outreach:** Gmail SMTP after **Confirm & Send Statements**. Hybrid E (`wa.me`) is a **contest-period leftover**, not substrate and not the filmed climax.
 
 ## Spin-up (judges / collaborators)
 
-Judges may score from **video + repo**. A live device build needs owner/collaborator OAuth + AES keys. Never paste live values into issues, Devpost, or chat. There is **no** committed `.env.example` (`.gitignore` matches `.env.*`).
+Judges may score from **public video + this repo + skill dry-run**. They are not required to install the APK. A live device build needs owner/collaborator OAuth + AES keys. Never paste live values into issues, Devpost, or chat. There is **no** committed `.env.example` (`.gitignore` matches `.env.*`).
+
+**Skill dry-run** (no `CALLE_API_KEY`): [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/) — default is dry-run; never posts without `--live`.
 
 **Clone checklist** (Dart SDK `^3.11.4` · Android `minSdk` 26 · package `com.akrmcodes.daftar`):
 
 1. [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md) (substrate honesty).
 2. [`docs/architecture/contest_architecture.md`](docs/architecture/contest_architecture.md) (diagram + HITL).
 3. `flutter pub get`
-4. Copy keys from [`docs/qa/flutter_env.template.md`](docs/qa/flutter_env.template.md) into a **gitignored** repo-root `.env`. Generated `*.g.dart` is not in git — `BACKUP_AES_KEY` and `GOOGLE_SERVER_CLIENT_ID` have no defaults. Android Gradle **fails** without `GOOGLE_OAUTH_CLIENT_ID_ANDROID`. Never commit `.env`.
+4. Copy keys from [`docs/qa/flutter_env.template.md`](docs/qa/flutter_env.template.md) into a **gitignored** repo-root `.env`. `CLOSING_AGENT_BASE_URL` Envied default is **empty** — point it at **`daftar-call-e` only** (`$HOME/.daftar-owner-ops/daftar-call-e-url`). Never the frozen Agentic hostname. Generated `*.g.dart` is not in git — `BACKUP_AES_KEY` and `GOOGLE_SERVER_CLIENT_ID` have no defaults. Android Gradle **fails** without `GOOGLE_OAUTH_CLIENT_ID_ANDROID`. Never commit `.env`.
 5. `dart run build_runner build --delete-conflicting-outputs`
 6. **Flutter run:** emulator **API 34+ with Google Play**. Google sign-in for agent + Drive. Onboarding **Try with Demo Store** (or Settings **Reset sample store data**). Settings **Show agent architecture** ON for the HUD.
    - Confirm & Call overlay (gitignored): `flutter run --dart-define-from-file=tool/demo_seed_emails.local.json` then **Reset sample store**. Without it, demo phones are Yemen-only. See [`tool/demo_seed_emails.md`](tool/demo_seed_emails.md).
-   - **Do not** tap **Confirm & Send Statements** against the live service unless you own the To: addresses. Committed sample-store defaults are the **owner film fixture**; a clone would email those inboxes.
+   - **Do not** tap **Confirm & Call** or **Confirm & Send Statements** against the live service unless you own the destination DID and To: addresses. Committed sample-store defaults are the **owner film fixture**.
+7. **Agent:** runtime service **`daftar-call-e`** (`https://daftar-call-e-1487285471.us-central1.run.app`) — ID-token only. Unauthenticated GET is **403** (expected). No `allUsers`. Deploy **only** via [`agent/scripts/deploy_daftar_call_e.sh`](agent/scripts/deploy_daftar_call_e.sh). **Never** `adk deploy cloud_run`. **Never** deploy, update, or change IAM on frozen All Things Agentic `daftar-closing-agent` (describe-only through 13 Oct 2026).
+   - Secrets (Cloud Run file mounts, **never** Flutter / git / chat): `calle-api-key`, `gmail-smtp-app-password`.
+8. **Film-day arm / disarm** (owner, §6.3): [`docs/qa/calle_live_dial_window.md`](docs/qa/calle_live_dial_window.md). Kill switch default is off. UI follows [`docs/design_system.md`](docs/design_system.md) (Khazna v3 · Lapis Law).
 
-### Judge APK / emulator (no Flutter)
+### Optional APK (not required to score)
 
-Judges may score from **video + repo**. Installing Flutter is optional. The contest artifact is a **release** APK (package `com.akrmcodes.daftar`, `minSdk` 26). It is signed with the **debug keystore** (sideload / emulator only — not Play Store). The binary is **not** in git (`/build/` is ignored).
+Installing Flutter is optional. A **release** APK (package `com.akrmcodes.daftar`, `minSdk` 26, debug-keystore sideload only) may be hosted outside git. The binary is **not** in this repository (`/build/` is ignored). Stage 8 multi-device sync stays quarantined. Do **not** put Pro+ activation codes in git or this README.
 
-**Download:** [Google Drive — `app-release.apk`](https://drive.google.com/file/d/1UZQY6gfxLuL2wN-PnQR2FcfvAibQ7oR6/view?usp=sharing) (anyone-with-link). Do not commit the APK. A GitHub Release of the same file is optional later; Drive is the hosted path unless replaced.
+## License
 
-**Sideload (physical device):**
+Copyright © 2026 **akrmcodes**. All rights reserved. See [`LICENSE`](LICENSE).
 
-```bash
-adb install -r build/app/outputs/flutter-apk/app-release.apk
-```
+Judges and collaborators may clone, read, and run the Agent Skill dry-run. There is **no** grant to republish this app or ship Daftar on a store. Product PRs are not accepted during judging.
 
-**Emulator (Android Studio, no Flutter SDK):** Device Manager → virtual device **API 34+ with Google Play** → drag the APK onto the emulator, or `adb install` the same file.
+The Agent Skill copy at [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/) is **MIT** (same as merged [PR #385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)). CALL-E and Devpost already have the Official Rules non-exclusive license for judging and promotion; this file does not add restrictions on them.
 
-**First run:** Google sign-in until Drive is **linked** → onboarding **Try with Demo Store** (or Settings **Reset sample store data**) → Settings **Show agent architecture** ON (HUD is off in release until toggled).
-
-**Pro+ is optional.** Closing Agent (FAB, close-the-day, Gmail SMTP) works on the **regular / Free** build. To unlock remaining product surfaces (logo / branded PDF, etc.), judges use the activation code in **Devpost Testing instructions** (not on the public project page). In the app: **Settings → Plan & activation → Add activation code**. Stage 8 multi-device sync stays quarantined even after Pro+.
-
-**Do not** tap **Confirm & Send Statements** unless you own the compiled To: addresses (owner film plus-aliases).
-
-**Owner rebuild** (collaborators with `.env` only): `flutter pub get` → `dart run build_runner build --delete-conflicting-outputs` → `flutter build apk --release` → output `build/app/outputs/flutter-apk/app-release.apk`.
-
-7. **Agent:** [`agent/openapi.yaml`](agent/openapi.yaml) · deploy from `agent/` per [`agent/README.md`](agent/README.md) (`gcloud run deploy --source=.`). **Never** `adk deploy cloud_run` — that wipes `POST /v1/email/send-batch` and `POST /v1/tts`. Flags: `--no-allow-unauthenticated`, min **0** / max **2**, ID token + custom audiences. Unauthenticated GET of the `.run.app` URL is **403** (expected).
-   - Gmail App Password: Secret Manager `gmail-smtp-app-password` mounted at `/secrets/gmail-smtp-app-password` on project `daftar-closing-agent` — **never** in Flutter, git, or chat.
-   - Service: `https://daftar-closing-agent-1487285471.us-central1.run.app` (authenticated invokers, ID token).
-8. **Pre-film QA:** [`docs/qa/closing_agent_scenario_checklist.md`](docs/qa/closing_agent_scenario_checklist.md) · warm Cloud Run before recording.
-
-UI follows [`docs/design_system.md`](docs/design_system.md) (Khazna v3 · Lapis Law).
+Third-party packages keep their own licenses ([`NOTICE`](NOTICE)).
