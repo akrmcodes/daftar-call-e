@@ -67,7 +67,7 @@ The August ADK/SMTP closer is **prior work above — not this bucket.** CALL-E-n
 | Dual rail | Call set ≤5 (J.10 + allowlist); email remainder / YE `callUnavailable` via SMTP | **Landed** (Stages 2–3) |
 | Schema 26 | `collection_call_batches` / `collection_call_runs` / `collection_promises`; `contacts.doNotCall`; integer promise only — **no** txn from the call | **Landed** (Stage 2.1) |
 | HUD call chip | `runId` last-8 = CALL-E `call.id` | **Landed** (Stages 3–4) |
-| Agent Skill PR | `skills/ledger-collections-call/` on awesome-phone-call-agents | **Opened** [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (dry-run default; not claimed merged) |
+| Agent Skill PR | `skills/ledger-collections-call/` on awesome-phone-call-agents | **Merged** [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) (2026-09-11, Ray-56; dry-run default) |
 
 ## What we are submitting
 

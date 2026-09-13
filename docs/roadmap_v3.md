@@ -760,7 +760,7 @@ Owner-ops (no secrets in git): [`docs/contest/CALLE_STAGE0_OWNER_OPS.md`](contes
 
 **5.4 Portable skill (Must for Quality of Idea) — merge contract**
 
-Author the skill **and open the awesome-list PR in this band** (review time before 14 Sep). §6.4 only pastes the PR URL on Devpost and answers review comments — **do not** open a second skill PR.
+Author the skill **and open the awesome-list PR in this band** (review time before 14 Sep). **Done and merged** 2026-09-11. §6.4 only pastes the PR URL on Devpost — **do not** open a second skill PR.
 
 **Usefulness lock (do not clone `kept`)**
 
@@ -833,6 +833,7 @@ Never push to `daftar-closing-agent`. Never put the Flutter app in `apps/` or `s
 - [x] PR title: `feat(ledger-collections-call): add HITL integer-promise collections skill` — [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)
 - [x] Fill `.github/pull_request_template.md`; PR body states complementarity with `kept` (skill stops at display-only promise; `kept` owns capture/reconcile)
 - [x] Fictional `+1555…` only; example emails `@example.com` / `.net` / `.org` only
+- [x] **Merged** 2026-09-11 by Ray-56 (1 commit `9b12a7c` → `CALLE-AI/main`, merge `31808d8`). Superseding review: blanket history-cache purge withdrawn; no remaining Must Fix. Do **not** open a second skill PR
 
 **Forbidden in the PR (maintainer reject list)**
 
@@ -898,11 +899,11 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 
 **6.4 Awesome-list PR (Must)**
 
-§5.4 already **authored and opened** the Agent Skills PR. This band does not open a second skill PR.
+§5.4 already **authored, opened, and merged** the Agent Skills PR ([#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)). This band does not open a second skill PR. Devpost still needs the **PR URL**.
 
 - [ ] Devpost field = **the §5.4 PR URL** (Contribution Area **Agent Skills**: `skills/ledger-collections-call/`)
-- [ ] Address maintainer review comments on that PR; keep the §5.4 locked README sentence
-- [ ] Re-run `python3 scripts/validate_repository.py` after any review fix
+- [x] Address maintainer review comments on that PR; keep the §5.4 locked README sentence — Ray-56 merged 2026-09-11; purge Must Fix withdrawn under community policy of that date
+- [x] Re-run `python3 scripts/validate_repository.py` after any review fix — last content head `9b12a7c` already green; no post-merge skill rewrite
 - [ ] Flutter APK is the Devpost project, **not** the awesome-list contribution
 
 **6.5 Devpost draft**
@@ -928,7 +929,7 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
 - [ ] Live CALL-E call from **this** app (not only laptop smoke); structured integer write-back with **no** new txn
 - [ ] HUD `runId` last-8 matches logs (CALL-E `call.id`)
 - [ ] English Devpost About covers all four criteria
-- [ ] Awesome-list PR opened
+- [x] Awesome-list PR **merged** — [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)
 - [ ] Devpost draft complete
 - [ ] No secrets in tree
 

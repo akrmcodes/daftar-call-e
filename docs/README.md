@@ -1,6 +1,6 @@
 # Documentation
 
-**Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · prize aim **Most Practical Use Case**  
+**Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · prize aim **Most Practical Use Case**
 **Official deadline:** **14 Sep 2026 23:45 SGT**. Binding: [`roadmap_v3.md`](roadmap_v3.md) **v3.5**. Heritage (do not execute): [`roadmap_v2.md`](roadmap_v2.md) **v2.8**.
 
 Start at the **root [`README.md`](../README.md)**. This folder holds the judging pack plus owner, product, and archive material — use the lists below.

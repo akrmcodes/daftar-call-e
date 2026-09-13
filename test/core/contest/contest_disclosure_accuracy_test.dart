@@ -104,7 +104,7 @@ void main() {
       expect(substrate, contains('whatsapp_util'));
     });
 
-    test('CALL-E-new runtime is Landed; skill PR is Opened not merged', () {
+    test('CALL-E-new runtime is Landed; skill PR is Merged', () {
       final calleNew = section(
         '## CALL-E contest-new (this submission)',
         '## What we are submitting',
@@ -117,8 +117,10 @@ void main() {
       expect(calleNew, contains('**Landed** (Stage 2.1)'));
       expect(calleNew, contains('not this bucket'));
       expect(calleNew, isNot(contains('**Planned** (Stages 1–4)')));
-      expect(calleNew, contains('**Opened**'));
+      expect(calleNew, contains('**Merged**'));
+      expect(calleNew, contains('awesome-phone-call-agents/pull/385'));
       expect(calleNew.toLowerCase(), isNot(contains('not landed as of')));
+      expect(calleNew, isNot(contains('not claimed merged')));
     });
 
     test('discloses owner-answered Callcentric DID; no live E.164', () {

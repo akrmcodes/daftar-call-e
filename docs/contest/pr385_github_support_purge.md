@@ -2,8 +2,9 @@
 
 **Not** a judging file. **Never** paste old non-reserved E.164, `CALLE_API_KEY`, or App Passwords here.
 
-Contest Must URL: [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385).  
-Keep mergeable head **`9b12a7ca049ad6d4a8d267fe22e8c4c7d27d0d8a`**. Do not amend, force-push, close the PR, or delete the fork.
+Contest Must URL: [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385) — **merged** 2026-09-11 by Ray-56 (head `9b12a7c`, merge `31808d8`). Do not open a second skill PR. Do not amend or force-push the skill clone.
+
+Ray-56 superseding review (community policy 2026-09-11): the blanket synthetic-fixture / history-cache purge is **withdrawn**. No remaining Must Fix. Dropped SHA pages may still return HTTP 200; that is **not** a contest merge blocker.
 
 ## GitHub Support ticket (filed)
 
@@ -13,14 +14,12 @@ Keep mergeable head **`9b12a7ca049ad6d4a8d267fe22e8c4c7d27d0d8a`**. Do not amend
 | Account | `@akrmcodes` |
 | From | `akrm.codes@gmail.com` |
 | Subject | Purge cached commits / run garbage collection for sensitive data |
-| Status | open (created 2026-09-10) |
+| Status | still Open in Support UI as of 2026-09-11; **close, do not delete** (see below) |
 | Portal | [GitHub Support](https://support.github.com/tickets) |
 
-Ask was: GC + cached-view removal of unreachable SHAs after force-push; **preserve open PR #385**; no LFS.
+Ask was: GC + cached-view removal of unreachable SHAs after force-push; **preserve PR #385**; no LFS. The PR is now merged; do not ask Support to unwind it.
 
-GitHub’s documented default for affected PRs is dereference **or delete**. Preserve #385 is case-by-case. If Support replies that they must close/delete the PR, stop and re-read before agreeing.
-
-Dropped reviewed heads (still HTTP **200** until Support GC — expected):
+Dropped reviewed heads (may still be HTTP **200** until Support GC — optional hygiene, not a merge blocker):
 
 - https://github.com/CALLE-AI/awesome-phone-call-agents/commit/5f776982829f0c1371fef347fa2dd2131cea452d
 - https://github.com/CALLE-AI/awesome-phone-call-agents/commit/c1396c9ee4443d46362b7db023646ffbeb6db4ea
@@ -30,9 +29,9 @@ Same SHAs on `akrmcodes/awesome-phone-call-agents`. Keep-head `9b12a7c` must sta
 
 Docs: [Removing sensitive data from a repository](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
 
-## Paste on PR #385 (owner)
+## Historical: paste on PR #385 (already posted)
 
-Cursor is not posting this. Paste as a new conversation comment. Do **not** quote prior comments that contained full non-reserved E.164.
+Owner already posted the Ray comment before merge. Do not paste it again.
 
 ```
 @Ray-56 Public-history purge requested.
@@ -48,9 +47,21 @@ https://github.com/CALLE-AI/awesome-phone-call-agents/commit/da77bce13131f1401b5
 Same SHAs on akrmcodes/awesome-phone-call-agents. Please keep this PR open. We will comment again when those URLs return 404.
 ```
 
-## After Support GC
+## Close the Support ticket (do not delete)
 
-Do **not** claim merge until the dropped URLs return **404** on both repos, then a short follow-up on #385.
+GitHub Support tickets are **closed**, not deleted. Closing is the right move now that #385 is merged and purge is no longer a Must Fix.
+
+Optional one-line comment, then **Close ticket**:
+
+```
+PR CALLE-AI/awesome-phone-call-agents#385 was merged 2026-09-11. Maintainer withdrew the history-cache purge as a merge blocker. Remaining SHA pages (if still 200) are optional hygiene, not a contest issue. Please close this ticket.
+```
+
+If Support still GCs the three dropped SHAs, that is welcome hygiene. Do not reopen a merge fight.
+
+## After Support GC (optional hygiene)
+
+SHA pages staying 200 is expected until GitHub GCs. No further skill commit can fix this. Merge of #385 does **not** depend on 404.
 
 ```bash
 for repo in akrmcodes/awesome-phone-call-agents CALLE-AI/awesome-phone-call-agents; do
@@ -65,6 +76,6 @@ for repo in akrmcodes/awesome-phone-call-agents CALLE-AI/awesome-phone-call-agen
 done
 ```
 
-Expect **404** on the three dropped SHAs and **200** on `9b12a7c`. Until then, SHA pages staying 200 is expected. No further skill commit can fix this.
+Expect **404** on the three dropped SHAs and **200** on `9b12a7c` only if Support GCs. Until then, SHA pages staying 200 is expected.
 
-Roadmap §6.4 / §6.3 stay open until Ray (or confirmed 404) — do not tick merge.
+Roadmap §6.4 review/validate boxes are done. Leave Devpost URL paste and §6.3 video open.

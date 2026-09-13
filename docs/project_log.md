@@ -5551,3 +5551,190 @@ git -C /Users/aq/Work/01_Projects/awesome-phone-call-agents rev-parse HEAD
 ### Status
 Purge **requested**, not complete. SHA pages will stay 200 until GitHub Support GCs. Owner: paste the Ray comment from the owner-ops file. Follow up on #385 only after 404. Do not claim §6.4 merge.
 
+## 2026-09-11 — Stage 6.3 film script (shooting bible)
+
+### Context
+Owner is producing the CALL-E ≤3:00 video. Judges may score from video + repo only; Official Rules stop at three minutes; Stage One requires CALL-E imported and called at runtime. Heritage [`docs/contest_demo.md`](contest_demo.md) is the Agentic 4:00 SMTP cut and must not be filmed.
+
+### Done
+- [`docs/qa/contest_film_script.md`](qa/contest_film_script.md): reserved **0:00–0:40** intro (film later); two-camera shot list (phone Flutter + laptop Linphone / Gmail / Logs); credit-safe order SMTP-while-dial-off then **one** Confirm & Call; B-trigger = HITL **Not now**, never auto-dial; cap 5 narrated on YE rows; no Retry / Kept; VO names `calle-ai` / `POST /v1/calls`; Mohamed seed integer **$801.50** (read on-screen C.3, do not invent $500)
+- Index: [`docs/qa/README.md`](qa/README.md), [`docs/README.md`](README.md) owner table, roadmap §6.3 pointer + Appendix H
+- Heritage banner on [`docs/contest_demo.md`](contest_demo.md)
+
+### Architecture / decisions
+Prize lane Most Practical; ties break on Impact. Climax is on-device ring + Linphone, not laptop `create_and_wait`. SMTP YE inbox is in the cut at 2:40–3:00, not the open. Frozen `daftar-closing-agent` untouched. **§6.3 / Gate 6 not ticked** (no YouTube URL yet).
+
+### Ops / verification
+Follow the script on film day; arm/disarm via [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) (min **1** live). One `calls.create` only.
+
+### Status
+Shooting bible ready. Next: owner films core 0:40–3:00, then intro 0:00–0:40, then public upload. Do not film until the live-dial SOP is armed for that take only.
+
+## 2026-09-11 — §6.3 film window ARMED (`daftar-call-e-00012-665`)
+
+### Context
+Owner asked to start film-day services and leave them running until they say to turn off. Credit-risk window: Cloud Run kill switch on + min 1.
+
+### Done
+- Identity `akrm.codes@gmail.com` / project `daftar-closing-agent`. Origin `daftar-call-e`. Freeze **OK** frozen rev still **`daftar-closing-agent-00055-pbm`**
+- Wrapper deploy (legal service only): `DAFTAR_CALL_E_DEPLOY=true` `DAFTAR_CALL_E_ALLOW_DIAL=true` `DAFTAR_CALL_E_MIN_INSTANCES=1` → [`agent/scripts/deploy_daftar_call_e.sh`](../agent/scripts/deploy_daftar_call_e.sh)
+- Live revision **`daftar-call-e-00012-665`**, scale **1/2**, `calle_allow_dial=true`, SA `call-e-runner`, warm `GET /list-apps` → `["closing_agent"]` (200). Unauth GET **403**
+- Overlay `tool/demo_seed_emails.local.json` `CALLE_ALLOW_DIAL` exact `true` (gitignored). Phone **not** on USB this session — Flutter not launched
+
+### Architecture / decisions
+Did **not** mutate `daftar-closing-agent`. `.env` still points at `daftar-call-e`, not the frozen hostname. **§6.3 not ticked.** Owner must rebuild APK after connecting the demo device, Reset sample store, Linphone ready **before** Confirm & Call. One `calls.create` only. SMTP take: Voice calls chip **off** so an armed service does not get a stray tap.
+
+### Ops / verification
+```bash
+bash tool/check_agentic_freeze.sh   # 00055-pbm
+# daftar-call-e: 00012-665, min 1, CALLE_ALLOW_DIAL=true
+```
+
+### Status
+**Armed and waiting.** Disarm only when the owner says the take is done (or if Linphone never rings). Do not leave dial on overnight.
+
+## 2026-09-11 — §6.3 film window DISARMED (`daftar-call-e-00013-gqw`)
+
+### Context
+Owner is not filming now and asked to turn services off until they say to re-arm.
+
+### Done
+- Env-only update on **`daftar-call-e` only**: `CALLE_ALLOW_DIAL=false`, min **0**, max **2** → revision **`daftar-call-e-00013-gqw`**
+- Overlay `tool/demo_seed_emails.local.json` `CALLE_ALLOW_DIAL` cleared to empty (gitignored)
+- Freeze **OK**: frozen **`daftar-closing-agent-00055-pbm`** unchanged (describe-only)
+
+### Architecture / decisions
+Server kill switch is off, so `run-batch` cannot PSTN even if a debug APK still has a compile-time `true`. Next `flutter run` must use the emptied overlay (hot restart is not enough). **§6.3 not ticked.** Re-arm only when the owner asks.
+
+### Ops / verification
+```bash
+bash tool/check_agentic_freeze.sh
+# daftar-call-e: 00013-gqw, CALLE_ALLOW_DIAL=false, min omitted/0, max 2
+```
+
+### Status
+Overnight default restored. Film window closed until the owner says to turn it back on.
+
+## 2026-09-11 — PR #385 merged; §6.4 review boxes closed
+
+### Context
+Ray-56 merged [CALLE-AI/awesome-phone-call-agents#385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385). Superseding review (community policy 2026-09-11) withdrew the blanket history-cache purge; remaining safety boundaries stay closed; no Must Fix.
+
+### Done
+- [`docs/roadmap_v3.md`](roadmap_v3.md) §5.4 **Merged**; §6.4 review + validate ticked; Gate 6 awesome-list line **merged**. Devpost URL paste, Flutter-APK reminder, §6.3 video, and Gate 6 remainder stay open
+- [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) skill row **Merged**; [`test/core/contest/contest_disclosure_accuracy_test.dart`](../test/core/contest/contest_disclosure_accuracy_test.dart)
+- Owner-ops: [`docs/contest/pr385_github_support_purge.md`](contest/pr385_github_support_purge.md) — **close** Support **#4744420**, do not delete
+
+### Architecture / decisions
+Head remains `9b12a7c` / merge `31808d8`. No second skill PR. No skill rewrite. Dropped SHA pages may still be HTTP 200 — optional hygiene, not a contest blocker. Frozen Cloud Run untouched. Film window stays disarmed.
+
+### Ops / verification
+`gh api` on #385: `state=closed`, `merged_at=2026-09-11T08:56:58Z`, merger Ray-56.
+
+### Status
+Awesome-list Must for merge is done. Next: paste PR URL on Devpost (§6.4), film §6.3, close Support ticket with the owner-ops comment.
+
+## 2026-09-11 — §6.3 film window ARMED (`daftar-call-e-00014-5pt`)
+
+### Context
+Owner asked to start film-day services and leave them running until they say to turn off. Flutter build/run on the phone is owner-owned this pass.
+
+### Done
+- Identity `akrm.codes@gmail.com` / project `daftar-closing-agent`. Origin `daftar-call-e`. Freeze **OK** frozen rev still **`daftar-closing-agent-00055-pbm`**
+- Env-only update on **`daftar-call-e` only**: `CALLE_ALLOW_DIAL=true`, min **1**, max **2** → revision **`daftar-call-e-00014-5pt`** (100% traffic). SA `call-e-runner`
+- Overlay `tool/demo_seed_emails.local.json` `CALLE_ALLOW_DIAL` exact `true` (gitignored). DID + allowlist already present. **No** `flutter run`
+- Warm `GET /list-apps` → `["closing_agent"]` HTTP **200**. Unauth GET **403**. `.env` still points at `daftar-call-e`
+
+### Architecture / decisions
+Did **not** mutate `daftar-closing-agent`. Env-only (image already from this morning’s film revision). min **1** so the plan-batch handle survives. **§6.3 not ticked.**
+
+### Ops / verification
+```bash
+bash tool/check_agentic_freeze.sh   # 00055-pbm
+# daftar-call-e: 00014-5pt, min 1, CALLE_ALLOW_DIAL=true
+```
+
+### Status
+**Armed and waiting.** Disarm only when the owner says the take is done.
+
+## 2026-09-11 — §6.3 film window DISARMED (`daftar-call-e-00015-tdc`)
+
+### Context
+Owner finished filming and asked to stop services.
+
+### Done
+- Env-only update on **`daftar-call-e` only**: `CALLE_ALLOW_DIAL=false`, min **0**, max **2** → revision **`daftar-call-e-00015-tdc`**
+- Overlay `tool/demo_seed_emails.local.json` `CALLE_ALLOW_DIAL` cleared to empty (gitignored). **No** `flutter run`
+- Freeze **OK**: frozen **`daftar-closing-agent-00055-pbm`** unchanged (describe-only)
+
+### Architecture / decisions
+Server kill switch is off, so `run-batch` cannot PSTN even if a debug APK still has a compile-time `true`. Next `flutter run` must use the emptied overlay (hot restart is not enough). **§6.3 not ticked** (no public YouTube/Vimeo URL yet).
+
+### Ops / verification
+```bash
+bash tool/check_agentic_freeze.sh
+# daftar-call-e: 00015-tdc, CALLE_ALLOW_DIAL=false, min 0, max 2
+```
+
+### Status
+Overnight default restored. Film window closed.
+
+## 2026-09-11 — §6.3 Act A intro kit (CALL-E 40s)
+
+### Context
+Live take is in the can. Owner asked for a CALL-E intro kit: merchant paper-ledger + forgotten close-of-day **call**, 40s, ImageFX 16:9, Chirp 3 HD, three real shop photos. Copied Agentic kit in [`docs/qa/contest_intro_kit.md`](qa/contest_intro_kit.md) was still 45s SMTP / Midjourney / ElevenLabs / FAB smash.
+
+### Done
+- Rewrote [`docs/qa/contest_intro_kit.md`](qa/contest_intro_kit.md): locked ~84-word VO; Chirp 3 HD Enceladus 0.95×; ImageFX Landscape 16:9 + seed lock; 2×2 sequential tiles; three PII-killed photos; SRT; smash to **Collections**
+- [`docs/qa/contest_film_script.md`](qa/contest_film_script.md) reserved intro 0:00–0:40 points at the kit; HITL stays 0:40–0:50
+- Index: [`docs/qa/README.md`](qa/README.md), [`docs/README.md`](README.md) owner table, roadmap §6.3 pointer + Appendix H
+
+### Architecture / decisions
+Do not say daftar in Act A. Nightmare is **phone himself / forget**, not messages unsent. ILO spoken “about half” over real photos — no fake chart. Do not `POST /v1/tts` on Cloud Run for this WAV. Frozen `daftar-closing-agent` untouched. **§6.3 not ticked.**
+
+### Ops / verification
+Owner still generates WAV + stills + AE. Public cut must stay ≤3:00; trim live dead air first.
+
+### Status
+Intro kit ready to produce. Next: Chirp WAV, ImageFX stills, crop photos, prepend, upload.
+
+## 2026-09-12 — §6.3 Act B phone kit (this take)
+
+### Context
+Owner finished the live close and asked for an Act B board matching the tape: HUD → close → **Confirm (1 Call + 5 Statements)** → Linphone 32s → logs/Gmail → promise **800** → **Cancelled** → B-trigger preview. Copied [`docs/qa/contest_act_b_phone_kit.md`](qa/contest_act_b_phone_kit.md) was still Agentic paid-500 / Taskmaster / 4:00. Intro WAV on this take landed **~30s**.
+
+### Done
+- Rewrote the Act B kit: Chirp 3 HD Enceladus chunks, AE (side), fail list, 0:30–3:00 clock. Tape locks: chip **`dudTfJWQ`**, Ahmed **Can't call** 600 PDF, one `calls.create`, no second ring
+- [`docs/qa/contest_film_script.md`](qa/contest_film_script.md) edited cut + smash **0:30**; this-take CTA/800/Cancelled; film-day SMTP-first marked as unused
+- [`docs/qa/contest_intro_kit.md`](qa/contest_intro_kit.md) this-take smash ~30s (Act A VO unchanged)
+- Index: [`docs/qa/README.md`](qa/README.md), [`docs/README.md`](README.md), roadmap §6.3 + Appendix H
+
+### Architecture / decisions
+HUD last-8 ≠ DID mask `7244`. Service **`daftar-call-e`**, not frozen Agentic hostname. Duck device TTS on the report. Crop Gmail “Paid” chips and Cloud trial banner. **§6.3 not ticked.**
+
+### Ops / verification
+Owner generates one Chirp WAV per chunk and lays AE labels. Public cut ≤3:00.
+
+### Status
+Act B kit ready to mix. Next: prepend intro, burn SRT, upload.
+
+## 2026-09-12 — §6.3 Act B 15s polish (chunk 8b)
+
+### Context
+Act B mix was ~15s short of 3:00. Kit gaps: clock overlap on chunks 12/13, poll GET unspoken (AE-only on the ring), thin runtime SDK line, no Act B SRT, duplicate “Gemini does not pick IDs” on wait and desk.
+
+### Done
+- [`docs/qa/contest_act_b_phone_kit.md`](qa/contest_act_b_phone_kit.md): header **0:30–3:00**; new **chunk 8b** (2:20–2:35) poll GET / ≠ webhook / runtime `calle-ai` on `daftar-call-e` / promise ≠ ledger write; rebuilt stopwatch (logs hold trimmed so 12–13 still land); wait chunk keeps integer money only; pick-IDs stays on desk; burned-in EN SRT; fail list (Linphone promise, Logs ≠ Agentic, webhook theater)
+- [`docs/qa/contest_film_script.md`](qa/contest_film_script.md) edited-cut: post-ring poll GET beat
+- [`docs/qa/README.md`](qa/README.md) Act B index line
+
+### Architecture / decisions
+15s spent on Technical Implementation, not silence. Skill stays AE (`ledger-collections-call`). No Flutter, no Cloud Run, no second dial. Do not invent $801.50. Do not say last-four / `7244`. **§6.3 not ticked.**
+
+### Ops / verification
+Docs only. Owner generates the new 8b WAV (drop “Not create-and-wait.” if over 15s). Public cut ≤3:00.
+
+### Status
+Act B kit mix-ready with 8b. Next: Chirp 8b, burn SRT, prepend intro, upload.
+
+
