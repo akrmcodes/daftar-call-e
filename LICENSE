@@ -1,0 +1,18 @@
+Copyright (c) 2026 akrmcodes. All rights reserved.
+
+The names Daftar and دفتر, and the contents of this repository except as
+stated below, are reserved. No permission is granted to copy, modify,
+distribute, sublicense, or use this software to republish the Daftar
+application or to ship it on an app store, except:
+
+  1. Viewing and cloning this repository for evaluation in the CALL-E:
+     Your Code Is Calling hackathon (https://call-e.devpost.com/).
+  2. The non-exclusive license granted to the Sponsor and Devpost under
+     that hackathon’s Official Rules for judging and promotion. This
+     file does not add restrictions on that license.
+  3. The Agent Skill subtree at docs/skills/ledger-collections-call/,
+     which is licensed separately under the MIT License (see that
+     directory’s LICENSE file). That MIT grant matches the contribution
+     merged as CALLE-AI/awesome-phone-call-agents#385.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

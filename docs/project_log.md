@@ -5737,4 +5737,43 @@ Docs only. Owner generates the new 8b WAV (drop “Not create-and-wait.” if ov
 ### Status
 Act B kit mix-ready with 8b. Next: Chirp 8b, burn SRT, prepend intro, upload.
 
+## 2026-09-13 — §6.5 CALL-E Devpost paste sheet
+
+### Context
+Owner finishing the ≤3:00 video; upload to YouTube remains. Used the gap to lock Devpost copy for initial filtering — field-by-field paste for pages 1–3 per [Official Rules](https://call-e.devpost.com/rules) and roadmap §6.5.
+
+### Done
+- [`docs/qa/devpost_draft.md`](qa/devpost_draft.md): project name (21/60), elevator pitch (171/200), About (four criteria + standard Devpost H2s), Built with tags, Try-it links, gallery/video checklist, page 3 (Individual, Yemen, pre-existing update, PR #385, `akrmcodes@gmail.com`, customer outreach, testing instructions, attestations)
+- [`docs/README.md`](README.md) owner row for Devpost paste
+- Roadmap §6.5 / Stage 6 gate: draft + About + email + testing **checked**; optional demo URL **left blank**; **§6.3 public video URL not ticked**
+
+### Architecture / decisions
+Most Practical scoring (no track dropdown). CALL-E dashboard email ≠ GCP. No Cloud Run on Try-it. No Pro+ or secrets in paste. Video link `OWNER-FILL` only.
+
+### Ops / verification
+Owner: paste Devpost form, upload architecture PNG, add YouTube URL, Submit before 14 Sep 2026 23:45 SGT.
+
+### Status
+Devpost copy ready. Next: YouTube URL → Devpost Submit → Stage 7 freeze.
+
+## 2026-09-14 — §6.3 YouTube URL + public-repo license
+
+### Context
+Owner published the ≤3:00 demo and will make `daftar-call-e` public before Devpost Submit. Needed a final Devpost paste pass plus All Rights Reserved (Play Store later) without looking closed-off to judges.
+
+### Done
+- [`docs/qa/devpost_draft.md`](qa/devpost_draft.md): video `https://youtu.be/wV1QqQgAiLE`; About professionalism (no MCP theater; Individual voice; no meta Challenges); testing path `docs/skills/ledger-collections-call/`; one-sentence drop “payment promise”
+- [`LICENSE`](../LICENSE) All Rights Reserved © 2026 akrmcodes; [`docs/skills/ledger-collections-call/LICENSE`](skills/ledger-collections-call/LICENSE) MIT; [`NOTICE`](../NOTICE)
+- [`README.md`](../README.md) Demo line + License; [`docs/qa/README.md`](qa/README.md) heritage `contest_demo` off the judge start chain
+- [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) YouTube URL; roadmap §6.3 + Appendix G video **checked**; **Devpost submitted not ticked**
+
+### Architecture / decisions
+Public source ≠ OSI license. Skill stays MIT (PR #385). Sponsor/Devpost Official Rules license unchanged. No `allUsers` on Cloud Run.
+
+### Ops / verification
+Owner before flipping GitHub to Public: `flutter test test/core/security/repo_secret_scan_test.dart` (+ SMTP scan); confirm `.env` / keystores untracked; origin `akrmcodes/daftar-call-e` only; disable Wiki/Pages; protect `main`; private vulnerability reporting. Then paste Devpost and Submit.
+
+### Status
+Paste + license ready. Next: owner goes public → Devpost Submit → Stage 7 freeze.
+
 

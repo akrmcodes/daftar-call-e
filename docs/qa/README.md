@@ -2,7 +2,7 @@
 
 Owner / film notes. **Not** the first-pass judging pack.
 
-**Judges (start here):** root [`README.md`](../../README.md) → [`docs/README.md`](../README.md) → [`CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md) → [`architecture/contest_architecture.md`](../architecture/contest_architecture.md) → [`contest_demo.md`](../contest_demo.md) → [`devpost_draft.md`](devpost_draft.md) → [`flutter_env.template.md`](flutter_env.template.md).
+**Judges (start here):** root [`README.md`](../../README.md) → [`docs/README.md`](../README.md) → [`CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md) → [`architecture/contest_architecture.md`](../architecture/contest_architecture.md) → [`devpost_draft.md`](devpost_draft.md) → [`flutter_env.template.md`](flutter_env.template.md). Heritage Agentic film bible [`contest_demo.md`](../contest_demo.md) is **not** this cut.
 
 | Document | Role |
 | --- | --- |
@@ -11,7 +11,10 @@ Owner / film notes. **Not** the first-pass judging pack.
 | [`calle_live_dial_window.md`](calle_live_dial_window.md) | Stage 6 live ring SOP (credit-safe; dial on briefly) |
 | [`closing_agent_scenario_checklist.md`](closing_agent_scenario_checklist.md) | Long pre-film regression (Passes 0–13) |
 | [`gate4_device_runbook.md`](gate4_device_runbook.md) | **Heritage** Agentic SMTP film-day archive — do not use for CALL-E warm-up |
-| [`devpost_draft.md`](devpost_draft.md) | Paste-ready Devpost fields |
+| [`contest_film_script.md`](contest_film_script.md) | CALL-E §6.3 shooting bible (owner) |
+| [`contest_intro_kit.md`](contest_intro_kit.md) | Act A intro kit |
+| [`contest_act_b_phone_kit.md`](contest_act_b_phone_kit.md) | Act B phone board |
+| [`devpost_draft.md`](devpost_draft.md) | Paste-ready Devpost fields (video URL filled) |
 | [`flutter_env.template.md`](flutter_env.template.md) | Gitignored `.env` keys |
 
 **Binding contract:** [`docs/roadmap_v3.md`](../roadmap_v3.md). Heritage Agentic calendar: [`roadmap_v2.md`](../roadmap_v2.md) (frozen — do not execute).

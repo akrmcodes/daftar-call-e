@@ -3,6 +3,7 @@
 Arabic-first, offline-first debt ledger for shops that still close the day on paper. **Daftar Closing Agent** (وكيل إغلاق الدفتر) captures the merchant’s business day, then **Confirm & Call** places consented, region-eligible overdue collections calls and writes an integer **promise** — not a payment.
 
 **Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · individual · prize aim **Most Practical Use Case**  
+**Demo (≤3:00):** [Daftar Confirm & Call — close-of-day collections with CALL-E](https://youtu.be/wV1QqQgAiLE)  
 **Submission Period:** 23 Jul 2026 – **14 Sep 2026 23:45 SGT**  
 **Binding contract:** [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.5** · heritage (do not execute): [`docs/roadmap_v2.md`](docs/roadmap_v2.md) **v2.8**
 
@@ -105,3 +106,13 @@ Judges may score from **public video + this repo + skill dry-run**. They are not
 ### Optional APK (not required to score)
 
 Installing Flutter is optional. A **release** APK (package `com.akrmcodes.daftar`, `minSdk` 26, debug-keystore sideload only) may be hosted outside git. The binary is **not** in this repository (`/build/` is ignored). Stage 8 multi-device sync stays quarantined. Do **not** put Pro+ activation codes in git or this README.
+
+## License
+
+Copyright © 2026 **akrmcodes**. All rights reserved. See [`LICENSE`](LICENSE).
+
+Judges and collaborators may clone, read, and run the Agent Skill dry-run. There is **no** grant to republish this app or ship Daftar on a store. Product PRs are not accepted during judging.
+
+The Agent Skill copy at [`docs/skills/ledger-collections-call/`](docs/skills/ledger-collections-call/) is **MIT** (same as merged [PR #385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385)). CALL-E and Devpost already have the Official Rules non-exclusive license for judging and promotion; this file does not add restrictions on them.
+
+Third-party packages keep their own licenses ([`NOTICE`](NOTICE)).
