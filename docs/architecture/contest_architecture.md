@@ -55,7 +55,7 @@ flowchart TB
   send --> smtp
 ```
 
-`plan-batch` **never dials**. `run-batch` is the only path that creates a CALL-E call. Poll is **GET** only — no `create_and_wait` on Cloud Run, no public webhook.
+`plan-batch` **never dials**. `run-batch` is the only path that **creates** CALL-E calls (one `calls.create` per allowlisted, region-eligible contact in the call set, cap **5**). Poll is **GET** only — no `create_and_wait` on Cloud Run, no public webhook.
 
 **PNG:** owner export of the TB mermaid above. Mermaid remains the editable source; Devpost uploads PNG (not Markdown). Keep size 10 KB–5 MB. No E.164, no API keys, no frozen Agentic hostname as the live service box.
 
@@ -131,7 +131,7 @@ Reusable contribution **outside** this runtime diagram: Agent Skill [`ledger-col
 
 - [`docs/roadmap_v3.md`](../roadmap_v3.md) — binding CALL-E contract
 - [`docs/contest/AGENTIC_CLOUD_RUN_FREEZE.md`](../contest/AGENTIC_CLOUD_RUN_FREEZE.md) — frozen Agentic snapshot
-- [`README.md`](../../README.md) — claims, folder map, spin-up (§6.2 will retarget this from heritage)
+- [`README.md`](../../README.md) — CALL-E claims, Proof of Action, folder map, spin-up
 - [`docs/README.md`](../README.md) — documentation index
 - [`docs/CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md) — substrate vs contest-new
 - [`docs/qa/calle_live_dial_window.md`](../qa/calle_live_dial_window.md) — film-day arm / disarm

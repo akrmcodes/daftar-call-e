@@ -28,7 +28,7 @@ Not required for a first-pass score.
 | [`roadmap_v3.md`](roadmap_v3.md) **v3.5** | **Binding** CALL-E contract |
 | [`roadmap_v2.md`](roadmap_v2.md) **v2.8** | Frozen All Things Agentic heritage — **do not execute** |
 | [`qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) | Film-day arm / disarm on `daftar-call-e` only |
-| [`qa/devpost_draft.md`](qa/devpost_draft.md) | **CALL-E Devpost** field-by-field paste (video URL owner-fill) |
+| [`qa/devpost_draft.md`](qa/devpost_draft.md) | **CALL-E Devpost** field-by-field paste (video URL filled) |
 | [`qa/`](qa/) | Pre-film scenarios, env template, rehearsal |
 | [`contest/`](contest/) | Orientation plan, freeze snapshot, Stage 0 owner-ops |
 | [`contest_demo.md`](contest_demo.md) | **Heritage** Agentic ≤4:00 SMTP bible — not the CALL-E film. Beat sheet is v3.5 §6.3 |

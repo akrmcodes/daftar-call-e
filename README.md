@@ -7,7 +7,7 @@ Arabic-first, offline-first debt ledger for shops that still close the day on pa
 **Submission Period:** 23 Jul 2026 – **14 Sep 2026 23:45 SGT**  
 **Binding contract:** [`docs/roadmap_v3.md`](docs/roadmap_v3.md) **v3.5** · heritage (do not execute): [`docs/roadmap_v2.md`](docs/roadmap_v2.md) **v2.8**
 
-At close of day, shops still phone overdue customers themselves — or they forget. After HITL **Confirm & Call**, Cloud Run **`daftar-call-e`** imports `calle-ai==0.7.0` and calls `CalleClient.calls.create` (`POST /v1/calls`). Yemen and other unsupported regions stay on **email** (`callUnavailable`). Dual rail is honest coverage, not a failed dial. Gemini never dials and never cashiers.
+At close of day, shops still phone overdue customers themselves — or they forget. After HITL **Confirm & Call**, Cloud Run **`daftar-call-e`** imports `calle-ai==0.7.0` and calls `CalleClient.calls.create` (`POST /v1/calls`) for **each** allowlisted, region-eligible contact in the call set (cap **5**). Yemen and other unsupported regions stay on **email** (`callUnavailable`). Dual rail is honest coverage, not a failed dial. Gemini never dials and never cashiers.
 
 This is an **existing** project, significantly updated in the Submission Period. Three-way split: ledger substrate (pre-Aug 2026) · All Things Agentic closer (Aug 2026, **prior work**, not claimed as CALL-E-new) · Confirm & Call (this fork). Details: [`docs/CONTEST_DISCLOSURE.md`](docs/CONTEST_DISCLOSURE.md). Docs index: [`docs/README.md`](docs/README.md).
 

@@ -14,12 +14,15 @@ void main() {
           expect(phone.normalized, '967$local');
         });
 
-        test('normalizes local 10-digit number with leading 0 and prefix $prefix', () {
-          final local = '0${prefix}1234567';
-          final phone = PhoneNumber(local);
+        test(
+          'normalizes local 10-digit number with leading 0 and prefix $prefix',
+          () {
+            final local = '0${prefix}1234567';
+            final phone = PhoneNumber(local);
 
-          expect(phone.normalized, '967${prefix}1234567');
-        });
+            expect(phone.normalized, '967${prefix}1234567');
+          },
+        );
 
         test('normalizes +967 international format with prefix $prefix', () {
           final formatted = '+967 $prefix 123 4567';
@@ -117,7 +120,11 @@ void main() {
         for (final prefix in ['71', '73', '77', '78']) {
           final phone = PhoneNumber('0${prefix}1234567');
 
-          expect(phone.isValid, isTrue, reason: 'prefix $prefix should be valid');
+          expect(
+            phone.isValid,
+            isTrue,
+            reason: 'prefix $prefix should be valid',
+          );
         }
       });
 
@@ -127,30 +134,42 @@ void main() {
         expect(phone.isValid, isFalse);
       });
 
-      test('rejects Yemen numbers with incorrect length after normalization', () {
-        expect(const PhoneNumber('96777123456').isValid, isFalse);
-        expect(const PhoneNumber('9677712345678').isValid, isFalse);
-      });
+      test(
+        'rejects Yemen numbers with incorrect length after normalization',
+        () {
+          expect(const PhoneNumber('96777123456').isValid, isFalse);
+          expect(const PhoneNumber('9677712345678').isValid, isFalse);
+        },
+      );
 
       test('accepts valid Saudi mobile numbers', () {
         expect(const PhoneNumber('0501234567').isValid, isTrue);
         expect(const PhoneNumber('+966 55 987 6543').isValid, isTrue);
       });
 
-      test('rejects Saudi numbers that do not start with 5 after country code', () {
-        expect(const PhoneNumber('966401234567').isValid, isFalse);
-      });
+      test(
+        'rejects Saudi numbers that do not start with 5 after country code',
+        () {
+          expect(const PhoneNumber('966401234567').isValid, isFalse);
+        },
+      );
 
-      test('rejects Saudi numbers with incorrect length after normalization', () {
-        expect(const PhoneNumber('96650123456').isValid, isFalse);
-        expect(const PhoneNumber('9665012345678').isValid, isFalse);
-      });
+      test(
+        'rejects Saudi numbers with incorrect length after normalization',
+        () {
+          expect(const PhoneNumber('96650123456').isValid, isFalse);
+          expect(const PhoneNumber('9665012345678').isValid, isFalse);
+        },
+      );
 
-      test('rejects empty, too short, and too long numbers per E.164 bounds', () {
-        expect(const PhoneNumber('').isValid, isFalse);
-        expect(const PhoneNumber('123456').isValid, isFalse);
-        expect(PhoneNumber('1' * 16).isValid, isFalse);
-      });
+      test(
+        'rejects empty, too short, and too long numbers per E.164 bounds',
+        () {
+          expect(const PhoneNumber('').isValid, isFalse);
+          expect(const PhoneNumber('123456').isValid, isFalse);
+          expect(PhoneNumber('1' * 16).isValid, isFalse);
+        },
+      );
 
       test('isEmpty and isNotEmpty reflect raw input trimming', () {
         expect(const PhoneNumber('').isEmpty, isTrue);
@@ -167,7 +186,7 @@ void main() {
       });
 
       test('returns null for unrecognized country codes', () {
-        expect(const PhoneNumber('+1 234 567 8900').countryCode, isNull);
+        expect(const PhoneNumber('+1 555 555 0100').countryCode, isNull);
       });
     });
 
@@ -205,13 +224,16 @@ void main() {
     });
 
     group('Equality', () {
-      test('equates different raw inputs that normalize to the same digits', () {
-        const local = PhoneNumber('0771234567');
-        const international = PhoneNumber('+967 77 123 4567');
+      test(
+        'equates different raw inputs that normalize to the same digits',
+        () {
+          const local = PhoneNumber('0771234567');
+          const international = PhoneNumber('+967 77 123 4567');
 
-        expect(local, equals(international));
-        expect(local.hashCode, equals(international.hashCode));
-      });
+          expect(local, equals(international));
+          expect(local.hashCode, equals(international.hashCode));
+        },
+      );
 
       test('differs when normalized digits differ', () {
         const yemen = PhoneNumber('0771234567');
@@ -226,16 +248,22 @@ void main() {
         expect(const PhoneNumber('0721234567').isValid, isFalse);
       });
 
-      test('rejects Yemen landline 01 prefix that slips through as generic international', () {
-        const phone = PhoneNumber('0112345678');
-        expect(phone.normalized, '0112345678');
-        expect(phone.isValid, isTrue);
-        expect(phone.countryCode, isNull);
-      });
+      test(
+        'rejects Yemen landline 01 prefix that slips through as generic international',
+        () {
+          const phone = PhoneNumber('0112345678');
+          expect(phone.normalized, '0112345678');
+          expect(phone.isValid, isTrue);
+          expect(phone.countryCode, isNull);
+        },
+      );
 
-      test('Saudi landline with country code fails Saudi mobile validation', () {
-        expect(const PhoneNumber('966112345678').isValid, isFalse);
-      });
+      test(
+        'Saudi landline with country code fails Saudi mobile validation',
+        () {
+          expect(const PhoneNumber('966112345678').isValid, isFalse);
+        },
+      );
 
       test('collapses duplicated Yemen country code prefixes', () {
         expect(
@@ -263,10 +291,13 @@ void main() {
         expect(garbage.telLink, '');
       });
 
-      test('detects Egypt country code without validating as Yemen or Saudi', () {
-        expect(const PhoneNumber('201012345678').countryCode, '20');
-        expect(const PhoneNumber('201012345678').isValid, isTrue);
-      });
+      test(
+        'detects Egypt country code without validating as Yemen or Saudi',
+        () {
+          expect(const PhoneNumber('201012345678').countryCode, '20');
+          expect(const PhoneNumber('201012345678').isValid, isTrue);
+        },
+      );
 
       test('partial digit strings stay un-prefixed and fail validation', () {
         expect(const PhoneNumber('77').normalized, '77');

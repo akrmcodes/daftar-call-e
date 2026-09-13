@@ -915,17 +915,16 @@ Flutter · Drift · SMTP · Cloud Run URLs · real E.164 · Arabic body copy · 
   3. **Technical:** `calle-ai` `POST /v1/calls` at runtime on Cloud Run; poll `GET`; both result schemas; HUD `call.id`
   4. **Experience:** Confirm & Call on device; live ring; promise card; ≤3 min video
 - [x] CALL-E account email (`akrmcodes@gmail.com` in paste sheet)
-- [ ] Optional demo URL — do **not** grant `allUsers` on Cloud Run. Keep service deployable through **13 Oct 2026** — **leave Devpost field blank**
 - [x] Testing instructions: *Judges: public video + repo + skill dry-run. Cloud Run returns 403 in a browser (ID-token only). No Pro+ codes in git or README.*
 - [x] Devpost paste sheet complete — video URL in [`docs/qa/devpost_draft.md`](qa/devpost_draft.md); owner still pastes on Devpost and **Submits**
 
 **6.6 Secret scan**
 
-- [ ] `git grep` / existing secret-scan test: no `calle_live`, no App Passwords, no E.164 of real people, no extra-calls form filled with secrets
+- [x] `git grep` / existing secret-scan test: no `calle_live` artifact, no App Passwords, no E.164 of real people, no extra-calls form filled with secrets
 
 #### Stage 6 Validation Gate
 
-- [ ] Diagram + README + disclosure match v3.3
+- [x] Diagram + README + disclosure match v3.3
 - [x] Video ≤3:00 public; on-device live ring; beat sheet followed
 - [x] Live CALL-E call from **this** app (not only laptop smoke); structured integer write-back with **no** new txn
 - [x] HUD `runId` last-8 matches logs (CALL-E `call.id`)
@@ -1152,13 +1151,14 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 - [ ] Architecture HUD call chip (`runId` last-8 = CALL-E `call.id`) in the demo video
 - [ ] Cloud Logging `daftar.agent.call`
 - [ ] Cloud Run **`daftar-call-e`** + Gemini 3.5 + ADK proof; **eight** tools; CALL-E **not** a tool
-- [ ] Architecture diagram + README spin-up
-- [ ] [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) present and accurate for **this** contest
+- [x] Architecture diagram + README spin-up
+- [x] [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md) present and accurate for **this** contest
 - [x] Video **≤3 min** · English or EN subtitles · public YouTube/Vimeo · **on-device live ring** (not laptop smoke as climax) — https://youtu.be/wV1QqQgAiLE
 - [x] English Devpost **About** covers all four judging criteria — [`docs/qa/devpost_draft.md`](qa/devpost_draft.md)
 - [ ] Awesome-list **PR URL** on Devpost (`skills/ledger-collections-call/` + dry-run + locked one-liner)
 - [ ] CALL-E account email on Devpost
-- [ ] Individual category · no secrets in repo
+- [x] No secrets in repo
+- [ ] Individual category (paste sheet already Individual; owner still Submits Devpost)
 - [ ] Stage 8 quarantined
 - [ ] Allowlist + kill switch
 - [ ] Frozen Agentic URL not redeployed; Envied does not default to it
@@ -1174,10 +1174,10 @@ Contest pragmatism: ship **balance + daysSinceLastPayment** first if FIFO is alr
 | [`docs/roadmap_v2.md`](roadmap_v2.md) v2.8 | Frozen All Things Agentic heritage — **not** the live checklist |
 | [`docs/product/roadmap.md`](product/roadmap.md) | Phase 2 **deferred** after contest submit |
 | `docs/archive/product_roadmap_phase2_v3.6.md` | Archived full product plan (not binding) |
-| [`docs/contest/plan.md`](contest/plan.md) | Orientation only — **updated for v3.3** (not a second checklist) |
-| `docs/CONTEST_DISCLOSURE.md` | Eligibility — **rewritten Stage 0.0** (three-way split; CALL-E-new still Planned) |
-| `docs/contest_demo.md` | Heritage SMTP script — **replace in Stage 6** |
-| [`docs/contest/README.md`](contest/README.md) | Owner notes — execution **v3.3** (flipped Stage 0.0) |
+| [`docs/contest/plan.md`](contest/plan.md) | Orientation only — **v3.5** (not a second checklist) |
+| `docs/CONTEST_DISCLOSURE.md` | Eligibility — three-way split **final**; CALL-E-new **Landed** |
+| `docs/contest_demo.md` | Heritage SMTP bible; CALL-E beat sheet is §6.3 |
+| [`docs/contest/README.md`](contest/README.md) | Owner notes — execution **v3.5** |
 | [`docs/contest/GATE0_OWNER_CHECKLIST.md`](contest/GATE0_OWNER_CHECKLIST.md) | Agentic Gate 0 (complete) — CALL-E Gate 0 lives **in this file** |
 | `docs/archive/ai_voice_feature_study.md` | Historical; not Gemini Live |
 

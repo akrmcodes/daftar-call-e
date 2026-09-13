@@ -6,13 +6,13 @@
 **Binding contract:** [`docs/roadmap_v3.md`](roadmap_v3.md) **v3.5**  
 **Submission Period:** 23 Jul 2026 21:30 SGT – 14 Sep 2026 23:45 SGT  
 **Devpost project start:** 1 Sep 2026  
-**Date:** 2026-09-10 (final)
+**Date:** 2026-09-14 (final)
 
 Per [Official Rules §4 — New & Existing](https://call-e.devpost.com/rules): a Project may be newly created **or**, if it existed before the Submission Period, **must have been significantly updated after the start of the Submission Period**. Entrants should explain that update. CALL-E is **not** “new projects only.”
 
 **This is an existing project.** The Daftar ledger existed before 23 Jul 2026. The Closing Agent (Gemini 3.5 + ADK + Cloud Run + device HITL + Gmail SMTP) was built in **August 2026** for [All Things Agentic](https://allthingsagentichackathon.devpost.com/). That calendar **overlaps** the CALL-E window; we still **do not claim it as CALL-E-new**.
 
-**Significant update (this submission):** **Confirm & Call** — after merchant HITL, Cloud Run **`daftar-call-e`** runs `calle-ai==0.7.0` `CalleClient.calls.create` (`POST /v1/calls`) to phone allowlisted, region-eligible overdue contacts and returns a structured **promise** (integer `promised_amount_minor`), not a payment. Gmail SMTP remains the rail for Yemen / missing phone / Confirm without calling. Gemini never dials and never cashiers. The Python SDK is **imported and actually called at runtime** on `daftar-call-e`. Public demo: [YouTube](https://youtu.be/wV1QqQgAiLE) (roadmap **§6.3**). This file is eligibility, not the video.
+**Significant update (this submission):** **Confirm & Call** — plan confirm starts the close-the-day ritual only; dual-rail HITL is the **Collections Desk** after aging (not a paused dispatch task). After merchant **Confirm & Call**, Cloud Run **`daftar-call-e`** runs Daftar-local `plan-batch` then `run-batch` (`calle-ai==0.7.0` `CalleClient.calls.create` / `POST /v1/calls`) and the device polls `GET /v1/calls/{runId}` for allowlisted, region-eligible overdue contacts in the call set (cap **5**). The structured **promise** is integer `promised_amount_minor`, not a payment. Gmail SMTP remains the rail for Yemen / missing phone / Confirm without calling. Gemini never dials and never cashiers. The Python SDK is **imported and actually called at runtime** on `daftar-call-e`. Public demo: [YouTube](https://youtu.be/wV1QqQgAiLE) (roadmap **§6.3**). This file is eligibility, not the video.
 
 Heritage Cloud Run `https://daftar-closing-agent-1487285471.us-central1.run.app` is **frozen All Things Agentic production** — not the CALL-E service. Do not redeploy it. Snapshot: [`contest/AGENTIC_CLOUD_RUN_FREEZE.md`](contest/AGENTIC_CLOUD_RUN_FREEZE.md). CALL-E runtime service: **`daftar-call-e`**.
 
@@ -61,9 +61,9 @@ The August ADK/SMTP closer is **prior work above — not this bucket.** CALL-E-n
 
 | Area | Description | Status |
 | --- | --- | --- |
-| Confirm & Call | Device HITL on the Collections Desk, then Daftar-local `plan-batch` and `run-batch` | **Landed** (Stages 1–5) |
+| Confirm & Call | Device HITL on the Collections Desk (plan confirm starts the ritual only). Daftar-local `plan-batch` (zero PSTN) → `run-batch` / `calls.create` → poll `GET /v1/calls/{runId}` | **Landed** (Stages 1–5) |
 | `agent/calls/` sibling | `calle-ai==0.7.0` `from calle import CalleClient`; `POST /v1/calls` (`calls.create`); poll `GET /v1/calls/{id}`; **not** an ADK tool; **no** API `confirm_token` | **Landed** (Stage 1) |
-| Cloud Run `daftar-call-e` | New service, min 0 / max 2, ID-token only. Must not mutate the frozen Agentic URL | **Landed** (Stage 1) |
+| Cloud Run `daftar-call-e` | New service, default min **0** / max **2**, ID-token only. Live dial window uses min **1** so confirm handles survive plan→run. Must not mutate the frozen Agentic URL | **Landed** (Stage 1) |
 | Dual rail | Call set ≤5 (J.10 + allowlist); email remainder / YE `callUnavailable` via SMTP | **Landed** (Stages 2–3) |
 | Schema 26 | `collection_call_batches` / `collection_call_runs` / `collection_promises`; `contacts.doNotCall`; integer promise only — **no** txn from the call | **Landed** (Stage 2.1) |
 | HUD call chip | `runId` last-8 = CALL-E `call.id` | **Landed** (Stages 3–4) |
