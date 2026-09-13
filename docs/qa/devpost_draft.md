@@ -41,12 +41,12 @@ Daftar Confirm & Call
 **Paste:**
 
 ```
-After close of day, shops still phone overdue customers themselves—or forget. One HITL Confirm & Call ring returns an integer promise, not a payment. Yemen stays on email.
+After close of day, shops still phone overdue customers themselves—or forget. Confirm & Call rings supported numbers and returns integer promises, not payments. Yemen stays on email.
 ```
 
 | Check | Value |
 | --- | --- |
-| Character count | **171** / 200 max |
+| Character count | **182** / 200 max |
 
 ---
 
@@ -61,13 +61,13 @@ Paste the Markdown block below into **About the project** (English required per 
 
 Across the Arab street, many shops still close the day on paper. After the ledger is copied, the merchant still has to **phone** overdue customers—or names get skipped and calls get forgotten. That specific phone chore is the problem—not “AI that makes phone calls.”
 
-**Daftar** (دفتر) is an offline-first debt ledger that existed before this hackathon. In August 2026 a **Closing Agent** (Gemini + ADK + HITL) was added for a different contest. For **CALL-E** the significant update is **Confirm & Call**: one consented outbound collections call at close of day, with an integer **promise** on device—not a payment.
+**Daftar** (دفتر) is an offline-first debt ledger that existed before this hackathon. In August 2026 a **Closing Agent** (Gemini + ADK + HITL) was added for a different contest. For **CALL-E** the significant update is **Confirm & Call**: consented outbound collections **calls** to supported numbers at close of day, with an integer **promise** on device—not a payment.
 
 ## What it does
 
-- **Close of day:** merchant confirms the plan, opens the **Collections Desk**, and taps **Confirm & Call** (dual rail: up to five voice calls + email statements).
+- **Close of day:** merchant confirms the plan, opens the **Collections Desk**, and taps **Confirm & Call** (dual rail: up to five voice calls + email statements). The desk calls **all** supported rows in that set—not a single PSTN.
 - **Device ranks** who can be called (aging, allowlist, do-not-call). **Gemini does not pick contact IDs.**
-- **Call rail:** region-eligible numbers get a CALL-E call; Yemen and other unsupported regions show **Can't call** and stay on **Gmail SMTP** (accepted ≠ delivered).
+- **Call rail:** every region-eligible, allowlisted number in the call set gets a CALL-E `calls.create`; Yemen and other unsupported regions show **Can't call** and stay on **Gmail SMTP** (accepted ≠ delivered).
 - **Promise card:** structured integer `promised_amount_minor` displays on device. **No ledger transaction** from the call. Payment stays a later human confirm (Model C).
 - **Confirm & Call stays** in the product after the hackathon.
 
@@ -77,11 +77,11 @@ Across the Arab street, many shops still close the day on paper. After the ledge
 
 **Quality of the Idea:** HITL **Confirm & Call** on a dedicated desk—not a generic dialer. Non-obvious pieces: device-ranked dual rail; region gate refuses unsupported numbers instead of failing PSTN; integer promise never cashiers. Reusable contribution: Agent Skill [`ledger-collections-call`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/skills/ledger-collections-call) (merged [PR #385](https://github.com/CALLE-AI/awesome-phone-call-agents/pull/385))—complementary to community [`kept`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/apps/python/kept); this project did **not** invent collections promises.
 
-**Technical Implementation:** Production path is the CALL-E **Developer API**, not MCP. On Cloud Run service **`daftar-call-e`**, Python imports **`calle-ai==0.7.0`** and calls `CalleClient.calls.create` (`POST /v1/calls`) at **runtime**. The **Android** app triggers `run-batch`; the device **polls `GET /v1/calls/{runId}`** (no public webhook; no `create_and_wait` on Cloud Run). CALL-E is a **sibling FastAPI route**—**not** a ninth ADK FunctionTool (eight-tool catalog frozen). Architecture HUD shows `Call ·` + last-8 of `call.id`. Gmail `send-batch` is the email rail after **Confirm & Send Statements**.
+**Technical Implementation:** Production path is the CALL-E **Developer API**, not MCP. On Cloud Run service **`daftar-call-e`**, Python imports **`calle-ai==0.7.0`** and calls `CalleClient.calls.create` (`POST /v1/calls`) at **runtime**—one create per eligible contact in the call set (cap 5). The **Android** app triggers `run-batch`; the device **polls `GET /v1/calls/{runId}`** (no public webhook; no `create_and_wait` on Cloud Run). CALL-E is a **sibling FastAPI route**—**not** a ninth ADK FunctionTool (eight-tool catalog frozen). Architecture HUD shows `Call ·` + last-8 of `call.id`. Gmail `send-batch` is the email rail after **Confirm & Send Statements**.
 
 Stack: Flutter · Drift · Riverpod · Google ADK + Gemini 3.5 Flash (proposals only) · FastAPI on Cloud Run · Secret Manager for API keys.
 
-**Product Experience & Demo:** ≤3:00 video: Close today → desk → one live on-device ring (demo: owner-owned Callcentric US DID answered in **Linphone**, disclosed on VO) → promise card → YE email row. English VO with burned-in EN subtitles over Arabic-capable UI.
+**Product Experience & Demo:** ≤3:00 video: Close today → desk → **this demo:** one live on-device ring (seed had one US-eligible row; owner-owned Callcentric US DID answered in **Linphone**, disclosed on VO) → promise card → YE email row. The product cap is still **five** supported calls. English VO with burned-in EN subtitles over Arabic-capable UI.
 
 **Repo:** https://github.com/akrmcodes/daftar-call-e · **Disclosure:** [`docs/CONTEST_DISCLOSURE.md`](https://github.com/akrmcodes/daftar-call-e/blob/main/docs/CONTEST_DISCLOSURE.md) · **Diagram:** [`docs/architecture/contest_architecture.md`](https://github.com/akrmcodes/daftar-call-e/blob/main/docs/architecture/contest_architecture.md)
 
@@ -113,8 +113,8 @@ Python
 Flutter
 Dart
 Android
-Google Cloud Run
-Google ADK
+Google-Cloud-Run
+Google-ADK
 Gemini
 Vertex AI
 FastAPI
@@ -264,7 +264,7 @@ Must match [CALL-E dashboard](https://dashboard.heycall-e.com/account/api-keys) 
 **Paste:**
 
 ```
-At shop close, after the merchant confirms, CALL-E places one consented collections call and returns a structured integer promise on the device—not a payment—while unsupported regions stay on email instead of PSTN.
+At shop close, after the merchant confirms, CALL-E places consented collections calls to customers with supported numbers and returns a structured integer promise on the device—not a payment—while unsupported regions continue to use email instead of PSTN.
 ```
 
 ### Attestations (required)
@@ -277,6 +277,7 @@ At shop close, after the merchant confirms, CALL-E places one consented collecti
 
 ## Do not say (filter pass)
 
+- “The app only places one call” as a **product** limit (call set cap is **5**; this demo filmed one eligible US row)
 - “We invented collections” / clone of [`kept`](https://github.com/CALLE-AI/awesome-phone-call-agents/tree/main/apps/python/kept) without differentiation
 - “Delivered” / “paid” for SMTP or promise outcomes
 - Frozen `daftar-closing-agent-1487285471` as the CALL-E runtime service

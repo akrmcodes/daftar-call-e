@@ -5776,4 +5776,65 @@ Owner before flipping GitHub to Public: `flutter test test/core/security/repo_se
 ### Status
 Paste + license ready. Next: owner goes public → Devpost Submit → Stage 7 freeze.
 
+## 2026-09-14 — Judge-facing: call set is all supported numbers (cap 5)
+
+### Context
+Owner: “one call” on Devpost read as a product limit. Confirm & Call places consented calls for **every** allowlisted, region-eligible contact (cap 5). This video filmed one US-eligible row. Agent Skill stays one call per invocation.
+
+### Done
+- [`docs/qa/devpost_draft.md`](qa/devpost_draft.md): elevator 182/200; Inspiration/What it does/Technical plural; Experience labeled **this demo**; one-sentence field uses consented **calls** to supported numbers
+- [`README.md`](../README.md), [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md), [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md): `run-batch` may issue multiple `calls.create`
+- [`docs/README.md`](README.md): Devpost row no longer “owner-fill”
+
+### Architecture / decisions
+Did **not** edit `SKILL.md` or film kits. **Devpost submitted not ticked.**
+
+### Ops / verification
+Docs only.
+
+### Status
+Judge pack matches product cap. Next: Devpost Submit.
+
+## 2026-09-14 — §6.6 Secret scan + Envied template
+
+### Context
+Close roadmap §6.6 before public GitHub / Devpost Submit: tighten the tracked-tree secret scan, keep the Envied clone template in markdown (no committed `.env.example`), tick only if the tree is clean.
+
+### Done
+- [`test/core/security/repo_secret_scan_test.dart`](../test/core/security/repo_secret_scan_test.dart): `calle_live` only as SOP [`docs/qa/calle_live_dial_window.md`](qa/calle_live_dial_window.md) (not `calle_live.{apk,env,json,…}`); no literal `CALLE_API_KEY=` value (`$(cat …)` allowed); NANP `+1` E.164 must use reserved NXX `555`; still bans PEM / PAT / `GMAIL_SMTP_PASSWORD=` / live Pro+ README code; rejects tracked `demo_seed_emails.local.json`
+- US fixtures in [`test/core/utils/whatsapp_util_test.dart`](../test/core/utils/whatsapp_util_test.dart) and [`test/domain/value_objects/phone_number_test.dart`](../test/domain/value_objects/phone_number_test.dart) → `+1 555 555 0100` (was `+1 234 567 8900`)
+- [`docs/qa/flutter_env.template.md`](qa/flutter_env.template.md): paste-ready placeholder `.env` matching [`lib/core/env/env.dart`](../lib/core/env/env.dart); empty `CLOSING_AGENT_BASE_URL`; dart-defines point at [`tool/demo_seed_emails.example.json`](../tool/demo_seed_emails.example.json) (not Envied). README still: no committed `.env.example`
+- Roadmap **§6.6** ticked; Gate “No secrets in tree” stays ticked; Appendix G secrets half ticked; Individual / **Devpost submitted** left open
+
+### Architecture / decisions
+No Flutter product code. No Cloud Run. Secret Manager **names** (`calle-api-key`, `gmail-smtp-app-password`) stay documentable. YE / `+967` fixtures and skill `+12025550100` allowed. `CALLE_API_KEY` and Gmail App Password never in Envied.
+
+### Ops / verification
+- `flutter test test/core/security/repo_secret_scan_test.dart test/core/security/flutter_smtp_secret_scan_test.dart` — pass
+- `git grep`: `CALLE_API_KEY=` only `$(cat "$HOME/.daftar-owner-ops/calle-api-key")`; no `GMAIL_SMTP_PASSWORD=`; extra-calls URL only (`https://forms.gle/EPQttEZ1rkW8iq9q6`); compact `+1`+10 digits are reserved `555`; overlay / `.env` untracked
+
+### Status
+§6.6 closed. Next: owner public repo hygiene → paste Devpost → Submit → Stage 7 freeze.
+
+## 2026-09-14 — Stage 6 gate: diagram + README + disclosure match v3.3
+
+### Context
+§6.1 / §6.2 were already ticked; the Stage 6 gate still required a consistency pass so diagram, root README, and disclosure match the v3.3 product locks (desk HITL, plan-batch → run-batch → poll GET). Binding remains v3.5.
+
+### Done
+- [`docs/architecture/contest_architecture.md`](architecture/contest_architecture.md): Related docs point at present-tense root README (dropped “§6.2 will retarget from heritage”). **PNG not regenerated** — already matches mermaid
+- [`docs/CONTEST_DISCLOSURE.md`](CONTEST_DISCLOSURE.md): date 2026-09-14; plan confirm starts ritual only / desk HITL; Confirm & Call row includes poll `GET /v1/calls/{runId}`; Cloud Run live window min **1**. Agentic buckets unchanged
+- [`docs/contest/plan.md`](contest/plan.md): execution **v3.5**; judge pack is current (not “Agentic until Stage 6”). Owner mermaid still includes `POST /run`
+- [`docs/contest/README.md`](contest/README.md) plan.md row v3.5; Appendix H: disclosure **Landed**, `contest_demo.md` heritage SMTP bible, execution v3.5
+- Roadmap Stage 6 gate **Diagram + README + disclosure match v3.3** ticked; Appendix G diagram + disclosure ticked. **Devpost submitted not ticked**
+
+### Architecture / decisions
+No Flutter. No Cloud Run. v3.3 UX/runtime unchanged through v3.5. Judges still start at root README.
+
+### Ops / verification
+Docs only. Root README already had ritual / desk / poll / Proof of Action / spin-up.
+
+### Status
+Stage 6 validation gate is fully checked. Remaining Stage 6/7 owner work: Devpost paste (PR URL, Flutter as the project) → Submit → freeze.
+
 

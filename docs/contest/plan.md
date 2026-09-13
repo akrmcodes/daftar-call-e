@@ -1,12 +1,12 @@
 # Daftar Closing Agent — Architecture Plan
 
-> **Version:** 3.3 · **Date:** 2026-09-04 · **Submit:** 14 Sep 2026 23:45 SGT (owner buffer ≤ 18:00 AST)
+> **Version:** 3.5 · **Date:** 2026-09-14 · **Submit:** 14 Sep 2026 23:45 SGT (owner buffer ≤ 18:00 AST)
 >
 > **Orientation only** — not a judging artifact and not a second checklist.
 > **Hackathon:** [CALL-E: Your Code Is Calling](https://call-e.devpost.com/) · prize aim **Most Practical**.
-> **Execution:** [`docs/roadmap_v3.md`](../roadmap_v3.md) **v3.3 only**. [`docs/roadmap_v2.md`](../roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its gates.
+> **Execution:** [`docs/roadmap_v3.md`](../roadmap_v3.md) **v3.5 only**. [`docs/roadmap_v2.md`](../roadmap_v2.md) v2.8 is **frozen All Things Agentic heritage** — do not execute its gates.
 > **Supersedes:** this file’s v3.0 Agentic orientation (26 Aug 2026) and the May 2026 product plan (v2.0) for **active** work.
-> Judges still start at [`README.md`](../../README.md) and [`docs/README.md`](../README.md). Those files still describe Agentic until Stage 6.
+> Judges start at [`README.md`](../../README.md) and [`docs/README.md`](../README.md) (Confirm & Call · v3.5).
 
 ---
 
@@ -58,7 +58,7 @@ Banned: Twilio / Bland / Skype / Google Voice as the dialer; `create_and_wait` o
 
 ## 4. Architecture topology
 
-**Diagram (judges, Stage 6):** [`architecture/contest_architecture.md`](../architecture/contest_architecture.md) + PNG are **Agentic heritage** (SMTP climax, service `daftar-closing-agent`) until Stage 6 redraws them for Confirm & Call / `daftar-call-e`.
+**Diagram (judges):** [`architecture/contest_architecture.md`](../architecture/contest_architecture.md) + PNG are the Confirm & Call / `daftar-call-e` glance (sibling FastAPI, poll GET, dual rail). The mermaid in this section still includes `POST /run` for owner orientation.
 
 Wire contract: [`roadmap_v3.md`](../roadmap_v3.md) **Appendix J**. J.1–J.7 inherited from v2.8 onto **`daftar-call-e`**. **J.9** = plan / run / get. **J.10** = CALL-E regions (YE unsupported). Machine-readable: [`agent/openapi.yaml`](../../agent/openapi.yaml) (extend in Stage 1).
 
@@ -135,11 +135,11 @@ Also **out of scope** (roadmap v3.3): inbound merchant hotline; Gemini Multimoda
 
 ## 7. Execution
 
-**Sole checklist owner:** [`docs/roadmap_v3.md`](../roadmap_v3.md) v3.3 Stages 0–7 (feature freeze 11 Sep; video lock 13 Sep; submit 14 Sep).
+**Sole checklist owner:** [`docs/roadmap_v3.md`](../roadmap_v3.md) **v3.5** Stages 0–7 (feature freeze 11 Sep; video lock 13 Sep; submit 14 Sep).
 
 CALL-E Gate 0 lives **in that file** (account, KYC, US DID, `create_and_wait` laptop smoke). [`GATE0_OWNER_CHECKLIST.md`](GATE0_OWNER_CHECKLIST.md) is **complete Agentic heritage**.
 
-[`README.md`](README.md) in this folder still points at v2.8 until Stage 0/6 — **this file’s execution pointer is v3.3**. Root README / architecture PNG / `contest_demo.md` remain Agentic until Stage 6.
+[`README.md`](README.md) in this folder points at **v3.5**. Root README, [`architecture/contest_architecture.md`](../architecture/contest_architecture.md) + PNG, and [`CONTEST_DISCLOSURE.md`](../CONTEST_DISCLOSURE.md) are the judge pack. [`contest_demo.md`](../contest_demo.md) remains the heritage SMTP bible; the CALL-E beat sheet is v3.5 §6.3.
 
 Minimum filmable product, winning map, C.3 task, and J.9 schemas: **roadmap only**.
 

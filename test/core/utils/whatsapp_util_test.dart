@@ -19,8 +19,8 @@ void main() {
 
     test('trims surrounding space and normalizes US-style entry', () {
       expect(
-        WhatsAppUtil.sanitizePhone('  +1 234 567 8900 '),
-        '12345678900',
+        WhatsAppUtil.sanitizePhone('  +1 555 555 0100 '),
+        '15555550100',
       );
     });
 
@@ -62,12 +62,14 @@ void main() {
       );
     });
 
-    test('tryLaunchNativeWhatsAppSendInOrder returns false for empty phone',
-        () async {
-      expect(
-        await WhatsAppUtil.tryLaunchNativeWhatsAppSendInOrder(''),
-        false,
-      );
-    });
+    test(
+      'tryLaunchNativeWhatsAppSendInOrder returns false for empty phone',
+      () async {
+        expect(
+          await WhatsAppUtil.tryLaunchNativeWhatsAppSendInOrder(''),
+          false,
+        );
+      },
+    );
   });
 }
